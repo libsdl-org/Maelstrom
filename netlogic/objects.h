@@ -500,6 +500,22 @@ public:
 	SteelRoid(int X, int Y, int xVel, int yVel);
 	~SteelRoid() { }
 
+	int BeenShot(Object *ship, Shot *shot) {
+        /* Every time we're hit, we grant points */
+        if ( (HitPoints - shot->damage) > 0 ) {
+            ship->IncrScore(Points);
+        }
+        return Object::BeenShot(ship, shot);
+    }
+
+	int BeenRunOver(Object *ship) {
+        /* Every time we're hit, we grant points */
+        if ( (HitPoints - 1) > 0 ) {
+            ship->IncrScore(Points);
+        }
+        return Object::BeenRunOver(ship);
+    }
+
 	int Explode(void) {
 		int newsprite;
 
