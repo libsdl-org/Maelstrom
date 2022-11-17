@@ -2,25 +2,9 @@
 /* This module registers a high score with the official Maelstrom
    score server
 */
-#include <sys/types.h>
-#include <signal.h>
 #include <ctype.h>
 
-#ifdef WIN32
-extern "C" {
-#define Win32_Winsock
-#include <windows.h>
-};
-#else /* UNIX */
-#include <unistd.h>
-#ifndef __BEOS__
-#include <arpa/inet.h>
-#endif
-#include <netinet/in.h>
-#include <netdb.h>
-#include <sys/socket.h>
-#include <errno.h>
-#endif /* WIN32 */
+#include "SDL_net.h"
 
 #include "Maelstrom_Globals.h"
 #include "netscore.h"
@@ -28,48 +12,20 @@ extern "C" {
 
 #define NUM_SCORES	10		// Copied from scores.cc 
 
-#ifdef WIN32
-#define write(fd, buf, len)	send(fd, buf, len, 0)
-#define read(fd, buf, len)	recv(fd, buf, len, 0)
-#define close(fd)		closesocket(fd)
-
-/* We need functions to start and end the networking */
-int Win_StartNet(void)
-{
-	/* Start up the windows networking */
-	WORD version_wanted = MAKEWORD(1,1);
-	WSADATA wsaData;
-
-	if ( WSAStartup(version_wanted, &wsaData) != 0 ) {
-		error("Couldn't initialize Win32 networking!\n");
-		return(-1);
-	}
-	return(0);
-}
-void Win_HaltNet(void)
-{
-	/* Clean up windows networking */
-	if ( WSACleanup() == SOCKET_ERROR ) {
-		if ( WSAGetLastError() == WSAEINPROGRESS ) {
-			(void) WSACancelBlockingCall();
-			(void) WSACleanup();
-		}
-	}
-}
-#endif
-
-static int  Goto_ScoreServer(char *server, int port);
-static void Leave_ScoreServer(int sockfd);
+static TCPsocket Goto_ScoreServer(char *server, int port);
+static void Leave_ScoreServer(TCPsocket remote);
 
 /* This function actually registers the high scores */
 void RegisterHighScore(Scores high)
 {
-	int sockfd, i, n;
+	TCPsocket remote;
+	int i, n;
 	unsigned char key[KEY_LEN];
 	unsigned int  keynums[KEY_LEN];
 	char netbuf[1024], *crc;
 
-	if ( (sockfd=Goto_ScoreServer(SCORE_HOST, SCORE_PORT)) < 0 ) {
+	remote = Goto_ScoreServer(SCORE_HOST, SCORE_PORT);
+	if ( remote == NULL ) {
 		error(
 		"Warning: Couldn't connect to Maelstrom Score Server.\r\n");
 		error("-- High Score not registered.\r\n");
@@ -77,12 +33,12 @@ void RegisterHighScore(Scores high)
 	}
 
 	/* Read the welcome banner */
-	read(sockfd, netbuf, 1024-1);
+	SDLNet_TCP_Recv(remote, netbuf, 1024);
 
 	/* Get the key... */
 	strcpy(netbuf, "SHOWKEY\n");
-	write(sockfd, netbuf, strlen(netbuf));
-	if ( read(sockfd, netbuf, 1024-1) <= 0 ) {
+	SDLNet_TCP_Send(remote, netbuf, strlen(netbuf));
+	if ( SDLNet_TCP_Recv(remote, netbuf, 1024) <= 0 ) {
 		error("Warning: Score Server protocol error.\r\n");
 		error("-- High Score not registered.\r\n");
 		return;
@@ -104,20 +60,20 @@ void RegisterHighScore(Scores high)
 	/* Send the scores */
 	crc = get_checksum(key, KEY_LEN);
 	sprintf(netbuf, SCOREFMT, crc, high.name, high.score, high.wave);
-	write(sockfd, netbuf, strlen(netbuf));
-	if ( (n=read(sockfd, netbuf, 1024-1)) > 0 ) {
+	SDLNet_TCP_Send(remote, netbuf, strlen(netbuf));
+	n = SDLNet_TCP_Recv(remote, netbuf, 1024);
+	if ( n > 0 ) {
 		netbuf[n] = '\0';
 		if ( strncmp(netbuf, "Accepted!", 9) != 0 ) {
-			error("New high score was rejected: %s",
-								netbuf);
+			error("New high score was rejected: %s", netbuf);
 		}
 	} else
 		perror("Read error on socket");
-	Leave_ScoreServer(sockfd);
+	Leave_ScoreServer(remote);
 }
 
 /* This function is just a hack */
-int GetLine(int sockfd, char *buffer, int maxlen)
+int GetLine(TCPsocket remote, char *buffer, int maxlen)
 {
 	int packed = 0;
 	static int lenleft, len;
@@ -128,14 +84,16 @@ int GetLine(int sockfd, char *buffer, int maxlen)
 		return(0);
 	}
 	if ( lenleft <= 0 ) {
-		if ( (len=read(sockfd, netbuf, 1024)) <= 0 )
+		len = SDLNet_TCP_Recv(remote, netbuf, 1024);
+		if ( len <= 0 )
 			return(-1);
 		lenleft = len;
 		ptr = netbuf;
 	}
-	while ( *ptr != '\n' ) {
+	while ( (*ptr != '\n') && (*ptr != '\r') ) {
 		if ( lenleft <= 0 ) {
-			if ( (len=read(sockfd, netbuf, 1024)) <= 0 ) {
+			len = SDLNet_TCP_Recv(remote, netbuf, 1024);
+			if ( len <= 0 ) {
 				*buffer = '\0';
 				return(packed);
 			}
@@ -159,28 +117,30 @@ int GetLine(int sockfd, char *buffer, int maxlen)
 /* Load the scores from the network score server */
 int NetLoadScores(void)
 {
-	int  sockfd, i;
+	TCPsocket remote;
+	int  i;
 	char netbuf[1024], *ptr;
 
-	if ( (sockfd=Goto_ScoreServer(SCORE_HOST, SCORE_PORT)) < 0 ) {
+	remote = Goto_ScoreServer(SCORE_HOST, SCORE_PORT);
+	if ( remote == NULL ) {
 		error(
 		"Warning: Couldn't connect to Maelstrom Score Server.\r\n");
 		return(-1);
 	}
 	
 	/* Read the welcome banner */
-	read(sockfd, netbuf, 1024-1);
+	SDLNet_TCP_Recv(remote, netbuf, 1024);
 
 	/* Send our request */
 	strcpy(netbuf, "SHOWSCORES\n");
-	write(sockfd, netbuf, strlen(netbuf));
+	SDLNet_TCP_Send(remote, netbuf, strlen(netbuf));
 
 	/* Read the response */
-	GetLine(sockfd, NULL, 0);
-	GetLine(sockfd, netbuf, 1024-1);
+	GetLine(remote, NULL, 0);
+	GetLine(remote, netbuf, 1024-1);
 	memset(&hScores, 0, NUM_SCORES*sizeof(Scores));
         for ( i=0; i<NUM_SCORES; ++i ) {
-		if ( GetLine(sockfd, netbuf, 1024-1) < 0 ) {
+		if ( GetLine(remote, netbuf, 1024-1) < 0 ) {
 			perror("Read error on socket stream");
 			break;
 		}
@@ -213,80 +173,38 @@ int NetLoadScores(void)
 			break;
 		}
         }
-	Leave_ScoreServer(sockfd);
+	Leave_ScoreServer(remote);
 	return(0);
 }
 
-static int timed_out;
-static void timeout(int sig)
+static TCPsocket Goto_ScoreServer(char *server, int port)
 {
-	timed_out = 1;
-}
-static int Goto_ScoreServer(char *server, int port)
-{
-	struct sockaddr_in serv_addr;
-	struct hostent *hp;
-	int sockfd;
+	TCPsocket remote;
+	IPaddress remote_address;
 
-#ifdef WIN32
-	if ( Win_StartNet() < 0 )
-		return(-1);
-#endif
+	if ( SDLNet_Init() < 0 ) {
+		return(NULL);
+	}
+
 	/*
 	 * Fill in the structure "serv_addr" with the address of the
 	 * server that we want to connect with.
 	 */
-	memset(&serv_addr, 0, sizeof(serv_addr));
-	if ( (serv_addr.sin_addr.s_addr=inet_addr(server)) == 0xFFFFFFFF ) {
-		/* It's not a dotted-decimal address */
-		if ( (hp=gethostbyname(server)) == NULL ) {
-			/*error("%s: host name error.\n", server);*/
-			return(-1);
-		}
-		else 
-			memcpy(&serv_addr.sin_addr, hp->h_addr, hp->h_length);
+	SDLNet_ResolveHost(&remote_address, server, port);
+	if ( remote_address.host == INADDR_NONE ) {
+		/*error("%s: host name error.\n", server);*/
+		return(NULL);
 	}
-	serv_addr.sin_family      = AF_INET;
-	serv_addr.sin_port        = htons(port);
 
 	/*
 	 * Open a TCP socket (an Internet stream socket).
 	 */
-	if ( (sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-		return(-1);
-
-	/* Set up 30 second timeout just in case */
-#ifdef SIGALRM
-	signal(SIGALRM, timeout);
-	alarm(30);
-#endif
-
-	timed_out=0;
-	if ( connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr))
-									< 0 ) {
-#ifdef EAGAIN
-		if ( errno == EINTR )
-			errno = EAGAIN;
-#endif
-		return(-1);
-	}
-#ifdef SIGALRM
-	alarm(0);		/* Reset alarm */
-#endif
-	if ( timed_out ) {
-#ifdef EAGAIN
-		errno = EAGAIN;
-#endif
-		return(-1);
-	}
-	return(sockfd);
+	remote = SDLNet_TCP_Open(&remote_address);
+	return(remote);
 }
 
-static void Leave_ScoreServer(int sockfd)
+static void Leave_ScoreServer(TCPsocket remote)
 {
-	if ( sockfd >= 0 )
-		close(sockfd);
-#ifdef WIN32
-	Win_HaltNet();
-#endif
+	SDLNet_TCP_Close(remote);
+	SDLNet_Quit();
 }

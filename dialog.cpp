@@ -2,6 +2,113 @@
 #include "dialog.h"
 
 
+int Mac_Dialog::text_enabled = 0;
+
+Mac_Dialog::Mac_Dialog(int x, int y)
+{
+	Screen = NULL;
+	X = x;
+	Y = y;
+	button_callback = NULL;
+	key_callback = NULL;
+	errstr = NULL;
+}
+
+Mac_Button::Mac_Button(int x, int y, int width, int height,
+				char *text, MFont *font, FontServ *fontserv, 
+				int (*callback)(void)) : Mac_Dialog(x, y)
+{
+	SDL_Surface *textb;
+	SDL_Rect dstrect;
+
+	/* Set private variables */
+	Width = width;
+	Height = height;
+
+	/* Build image of the button */
+	button = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height,
+						8, 0, 0, 0, 0);
+	if ( button == NULL ) {
+		SetError("%s", SDL_GetError());
+		return;
+	}
+	button->format->palette->colors[0].r = 0xFF;
+	button->format->palette->colors[0].g = 0xFF;
+	button->format->palette->colors[0].b = 0xFF;
+	button->format->palette->colors[1].r = 0x00;
+	button->format->palette->colors[1].g = 0x00;
+	button->format->palette->colors[1].b = 0x00;
+	textb = fontserv->TextImage(text, font, STYLE_NORM,
+					0x00, 0x00, 0x00);
+	if ( textb != NULL ) {
+		if ( (textb->w <= button->w) && 
+					(textb->h <= button->h) ) {
+			dstrect.x = (button->w-textb->w)/2;
+			dstrect.y = (button->h-textb->h)/2;
+			dstrect.w = textb->w;
+			dstrect.h = textb->h;
+			SDL_BlitSurface(textb, NULL, button, &dstrect);
+		}
+		fontserv->FreeText(textb);
+	}
+	Bevel_Button(button);
+
+	/* Set the callback */
+	Callback = callback;
+}
+
+Mac_DefaultButton::Mac_DefaultButton(int x, int y, int width, int height,
+				char *text, MFont *font, FontServ *fontserv, 
+						int (*callback)(void)) : 
+	Mac_Button(x, y, width, height, text, font, fontserv, callback)
+{
+	return;
+}
+
+Mac_CheckBox::Mac_CheckBox(int *toggle, int x, int y, char *text,
+			MFont *font, FontServ *fontserv) : Mac_Dialog(x, y)
+{
+	/* Create the text label */
+	Fontserv = fontserv;
+	label = Fontserv->TextImage(text, font, STYLE_NORM, 0, 0, 0);
+
+	/* Set the checkbox variable */
+	checkval = toggle;
+}
+
+Mac_RadioList::Mac_RadioList(int *variable, int x, int y,
+			MFont *font, FontServ *fontserv) : Mac_Dialog(x, y)
+{
+	Fontserv = fontserv;
+	Font = font;
+	radiovar = variable;
+	*radiovar = 0;
+	radio_list.next = NULL;
+}
+
+Mac_TextEntry::Mac_TextEntry(int x, int y,
+			MFont *font, FontServ *fontserv) : Mac_Dialog(x, y)
+{
+	Fontserv = fontserv;
+	Font = font;
+	Cwidth = Fontserv->TextWidth("0", Font, STYLE_NORM);
+	Cheight = Fontserv->TextHeight(font);
+	entry_list.next = NULL;
+	current = &entry_list;
+	EnableText();
+}
+
+Mac_NumericEntry::Mac_NumericEntry(int x, int y,
+			MFont *font, FontServ *fontserv) : Mac_Dialog(x, y)
+{
+	Fontserv = fontserv;
+	Font = font;
+	Cwidth = Fontserv->TextWidth("0", Font, STYLE_NORM);
+	Cheight = Fontserv->TextHeight(font);
+	entry_list.next = NULL;
+	current = &entry_list;
+}
+
 Maclike_Dialog:: Maclike_Dialog(int x, int y, int width, int height,
 							FrameBuf *screen)
 {
@@ -82,6 +189,7 @@ Maclike_Dialog:: Add_Dialog(Mac_Dialog *dialog)
 	delem->next = NULL;
 }
 
+
 /* The big Kahones */
 void
 Maclike_Dialog:: Run(int expand_steps)
@@ -133,10 +241,22 @@ Maclike_Dialog:: Run(int expand_steps)
 		XX -= Hstep/2;
 		V += Vstep;
 		YY -= Vstep/2;
+		if ( XX < X ) {
+			XX = X;
+		}
+		if ( YY < Y ) {
+			YY = Y;
+		}
+		if ( H > Width ) {
+			H = Width;
+		}
+		if ( V > Height ) {
+			V = Height;
+		}
 		Screen->Clear((Uint16)XX, (Uint16)YY, (Uint16)H, (Uint16)V);
 		Screen->Update();
 	}
-	Screen->Clear((Uint16)X, (Uint16)Y, (Uint16)Width+1, (Uint16)Height+1);
+	Screen->Clear((Uint16)X, (Uint16)Y, (Uint16)Width, (Uint16)Height);
 	Screen->Update();
 
 	/* Draw the dialog elements (after the slow expand) */

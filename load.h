@@ -9,25 +9,49 @@
 #define F_OK	0
 #define access	_access
 #else
+#ifdef macintosh
+static inline char *strdup(const char *str)
+{
+	char *newstr;
+	
+	newstr = (char *)malloc(strlen(str)+1);
+	if ( newstr ) {
+		strcpy(newstr, str);
+	}
+	return(newstr);
+}
+#endif
+#if defined(unix) || defined(__MACH__) || defined(__BEOS__)
 #include <unistd.h>
 #endif
+#endif /* WIN32 */
 
 #include "SDL_FrameBuf.h"
 
-/* Get the library directory */
-#ifdef TESTING
-#ifndef LIBDIR
-#define LIBDIR	"."
-#endif
+/* Pathing stuff for the different operating systems */
+#if defined(unix) || defined(__MACH__)
+#define DIR_SEP	"/"
+#define CUR_DIR	"."
+#elif defined(WIN32)
+#define DIR_SEP	"/"
+#define CUR_DIR	"."
+#elif defined(__BEOS__)
+#define DIR_SEP	"/"
+#define CUR_DIR	"."
+#elif defined(macintosh)
+#define DIR_SEP	":"
+#define CUR_DIR	":"
 #else
+#error Unspecified platform!
+#endif /* Choose your platform */
+
 #ifndef LIBDIR
-#ifdef WIN32
-#define LIBDIR "."
-#else
+#if defined(unix) || defined(__MACH__)
 #define LIBDIR	"/usr/local/lib/Maelstrom"
-#endif /* Win32 */
+#else
+#define LIBDIR	CUR_DIR
 #endif
-#endif /* TESTING */
+#endif /* !defined(LIBDIR) */
 
 class LibPath {
 
@@ -40,14 +64,14 @@ public:
 
 		exepath = strdup(exe);
 		for ( exep = exepath+strlen(exe); exep > exepath; --exep ) {
-			if ( (*exep == '/') || (*exep == '\\') ) {
+			if ( (*exep == *DIR_SEP) || (*exep == '\\') ) {
 				break;
 			}
 		}
 		if ( exep > exepath ) {
 			*exep = '\0';
 		} else {
-			strcpy(exepath, ".");
+			strcpy(exepath, CUR_DIR);
 		}
 	}
 
@@ -69,15 +93,21 @@ public:
 		directory = getenv("MAELSTROM_LIB");
 		if ( directory == NULL ) {
 			directory = LIBDIR;
+#ifndef macintosh
 			if ( access(directory, F_OK) < 0 ) {
 				directory = exepath;
 			}
+#endif
 		}
 
 		if ( path != NULL )
 			delete[] path;
 		path = new char[strlen(directory)+1+strlen(filename)+1];
-		sprintf(path, "%s/%s", directory, filename);
+		if ( strcmp(directory, DIR_SEP) == 0 ) {
+			sprintf(path, DIR_SEP"%s", filename);
+		} else {
+			sprintf(path, "%s"DIR_SEP"%s", directory, filename);
+		}
 		return(path);
 	}
 	const char *Path(void) {

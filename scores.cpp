@@ -3,7 +3,7 @@
    This file handles the cheat dialogs and the high score file
 */
 
-#ifndef WIN32
+#ifdef unix
 #include <sys/types.h>
 #include <sys/stat.h>
 #endif
@@ -61,7 +61,7 @@ void SaveScores(void)
 	LibPath path;
 	SDL_RWops *scores_src;
 	int i;
-#ifndef WIN32
+#ifdef unix
 	int omask;
 #endif
 
@@ -69,7 +69,7 @@ void SaveScores(void)
 	if ( gNetScores )
 		return;
 
-#ifndef WIN32
+#ifdef unix
 	omask=umask(SCORES_PERMMASK);
 #endif
 	scores_src = SDL_RWFromFile(path.Path(MAELSTROM_SCORES), "wb");
@@ -85,7 +85,7 @@ void SaveScores(void)
 		error("Warning: Couldn't save scores to %s\n",
 						path.Path(MAELSTROM_SCORES));
 	}
-#ifndef WIN32
+#ifdef unix
 	umask(omask);
 #endif
 }

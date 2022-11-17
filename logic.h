@@ -1,16 +1,11 @@
 
 /* Game Logic interface routines and variables */
 
-#define NETPLAY
-#ifdef NETPLAY
-#include "netlogic/netlogic.h"
-#else
-#include "fastlogic/fastlogic.h"
-#endif
+#include "netlogic.h"
 
 /* From logic.cpp */
 extern void LogicUsage(void);
-extern void InitLogicData(void);
+extern int  InitLogicData(void);
 extern int  LogicParseArgs(char ***argvptr, int *argcptr);
 extern int  InitLogic(void);
 extern int  InitPlayerSprites(void);

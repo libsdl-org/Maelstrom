@@ -14,6 +14,7 @@ liblogic_a_SOURCES =		\
 	netplay.h		\
 	object.cpp		\
 	object.h		\
+	objects.cpp		\
 	objects.h		\
 	player.cpp		\
 	player.h		\

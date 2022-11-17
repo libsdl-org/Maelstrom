@@ -14,7 +14,7 @@
 #define NETPLAY_PORT	0xAEAE			/* port 44718 */
 
 /* The minimum length of a new packet buffer */
-#define NEW_PACKETLEN	(3+3*sizeof(unsigned long))
+#define NEW_PACKETLEN	(3+3*4)
 
 /* Note: if you change MAX_PLAYERS, you need to modify the gPlayerColors
    array in player.cc

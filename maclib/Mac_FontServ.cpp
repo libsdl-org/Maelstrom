@@ -236,7 +236,7 @@ FontServ:: TextWidth(const char *text, MFont *font, Uint8 style)
 	Width = 0;
 	for ( i = 0; i < nchars; ++i ) {
 		/* check to see if this character is defined */
-		if (font->owTable[(Uint8)text[i]] == -1)
+		if (font->owTable[(Uint8)text[i]] <= 0)
 			continue;
 		
 		space_width = LoByte(font->owTable[(Uint8)text[i]]);
@@ -346,9 +346,13 @@ FontServ:: TextImage(const char *text, MFont *font, Uint8 style,
 		bit_offset=0;
 		for ( i = 0; i < nchars; ++i ) {
 			/* check to see if this character is defined */
-			if (font->owTable[(Uint8)text[i]] == -1)
+			/* According to the above comment, we should */
+			/* check if the table contains -1, but this  */
+			/* change seems to fix a SIGSEGV that would  */
+			/* otherwise occur in some cases.            */
+			if (font->owTable[(Uint8)text[i]] <= 0)
 				continue;
-		
+
 			space_width = LoByte(font->owTable[(Uint8)text[i]]);
 			space_offset = HiByte(font->owTable[(Uint8)text[i]]);
 			ascii = (Uint8)text[i] - (font->header)->firstChar;

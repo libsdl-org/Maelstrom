@@ -71,6 +71,9 @@ public:
 	int WaitEvent(SDL_Event *event) {
 		return(SDL_WaitEvent(event));
 	}
+	int ToggleFullScreen(void) {
+		return(SDL_WM_ToggleFullScreen(SDL_GetVideoSurface()));
+	}
 
 	/* Locking blitting and update routines */
 	void Lock(void);
@@ -83,6 +86,7 @@ public:
 	void QueueBlit(int x, int y, SDL_Surface *src) {
 		QueueBlit(x, y, src, DOCLIP);
 	}
+	void PerformBlits(void);
 	void Update(int auto_update = 0);
 	void Fade(void);		/* Fade screen out, then in */
 
@@ -109,7 +113,7 @@ public:
 
 	/* Drawing routines */
 	/* These drawing routines must be surrounded by Lock()/Unlock() calls */
-	void Clear(Uint16 x, Uint16 y, Uint16 w, Uint16 h,
+	void Clear(Sint16 x, Sint16 y, Uint16 w, Uint16 h,
 						clipval do_clip = NOCLIP);
 	void Clear(void) {
 		Clear(0, 0, screen->w, screen->h);
@@ -152,7 +156,6 @@ private:
 	SDL_Surface *screen;
 	SDL_Surface *screenfg;
 	SDL_Surface *screenbg;
-	SDL_Surface *screenfade;
 	Uint8 *screen_mem;
 	Uint32 image_map[256];
 	int locked, faded;

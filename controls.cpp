@@ -8,11 +8,8 @@
 #include "Maelstrom_Globals.h"
 #include "load.h"
 #include "dialog.h"
-//#include "keyboard.h"
-//#include "joystick.h"
 
 #define MAELSTROM_DATA	".Maelstrom-data"
-
 
 /* Savable and configurable controls/data */
 
@@ -30,9 +27,6 @@ int	gMovie = 0;
 #endif
 Uint8 gSoundLevel = 4;
 Uint8 gGammaCorrect = 3;
-#ifdef USE_JOYSTICK
-Joystick *Jstick = NULL;
-#endif
 
 
 /* Map a keycode to a key name */
@@ -79,17 +73,17 @@ static FILE *OpenData(char *mode, char **fname)
 	char *home;
 	FILE *data;
 
-#ifdef WIN32
-	home = ".";
-#else
-	if ( (home=getenv("HOME")) == NULL )
-		home="";
-#endif
-
+	if ( (home=getenv("HOME")) == NULL ) {
+		if ( strcmp(CUR_DIR, DIR_SEP) != 0 ) {
+			home = CUR_DIR;
+		} else {
+			home="";
+		}
+	}
 	if ( fname ) {
 		*fname = datafile;
 	}
-	sprintf(datafile,  "%s/%s", home, MAELSTROM_DATA);
+	sprintf(datafile,  "%s"DIR_SEP"%s", home, MAELSTROM_DATA);
 	if ( (data=fopen(datafile, mode)) == NULL )
 		return(NULL);
 	return(data);
@@ -116,68 +110,7 @@ void LoadControls(void)
 	fread(&gSoundLevel, sizeof(gSoundLevel), 1, data);
 	fread(&controls, sizeof(controls), 1, data);
 	fread(&gGammaCorrect, sizeof(gGammaCorrect), 1, data);
-#ifdef USE_JOYSTICK
-#define JOYSTICK_MAGIC	(('J'+'O'+'Y')&0xFF)
-	if ( ! Jstick ) {
-		char *joystick = NULL;
-		if ( (getc(data) == JOYSTICK_MAGIC) &&
-					fgets(buffer, BUFSIZ-1, data) ) {
-			struct joy_sensitivity calib;
-
-			buffer[strlen(buffer)-1] = '\0';
-			if ( strlen(buffer) )
-				joystick = buffer;
-
-			if ( fread(&calib, sizeof(calib), 1, data) )
-				Jstick = new Joystick(joystick, &calib);
-			else
-				Jstick = new Joystick(joystick, NULL);
-		} else
-			Jstick = new Joystick(joystick, NULL);
-	}
-#endif
 	fclose(data);
-}
-
-void CalibrateJoystick(char *joystick)
-{
-#ifdef USE_JOYSTICK
-	char  buffer[BUFSIZ];
-	FILE *data;
-	struct joy_sensitivity calib;
-
-	/* Did the normal initialization fail?  No init data? :) */
-	if ( ! Jstick )
-		Jstick = new Joystick(NULL, NULL);
-
-	/* Try to pull the joystick device out of the data file, if needed */
-	if ( ! joystick && ((data=OpenData("r", NULL)) != NULL) ) {
-		if ( (fseek(data, 4+sizeof(gSoundLevel)+sizeof(controls)+
-				sizeof(gGammaCorrect), SEEK_SET) == 0) && 
-			(getc(data) == JOYSTICK_MAGIC) &&
-					fgets(buffer, BUFSIZ-1, data) ) {
-			buffer[strlen(buffer)-1] = '\0';
-			if ( strlen(buffer) )
-				joystick = buffer;
-		}
-		fclose(data);
-	}
-	if ( Jstick->Calibrate(joystick, &calib) == 0 ) {
-		/* Save the joystick calibration information */
-		SaveControls();
-		if ( (data=OpenData("r+", NULL)) == NULL )
-			return;
-		
-		if ( fseek(data, 4+sizeof(gSoundLevel)+sizeof(controls)+
-				sizeof(gGammaCorrect), SEEK_SET) == 0 ) {
-			putc(JOYSTICK_MAGIC, data);
-			fprintf(data, "%s\n", joystick ? joystick : "");
-			fwrite(&calib, sizeof(calib), 1, data);
-		}
-		fclose(data);
-	}
-	return;
-#endif
 }
 
 void SaveControls(void)
@@ -408,9 +341,64 @@ static void HandleEvent(SDL_Event *event)
 	SDLKey key;
 
 	switch (event->type) {
+#ifdef SDL_INIT_JOYSTICK
+		/* -- Handle joystick axis motion */
+		case SDL_JOYAXISMOTION:
+			/* X-Axis - rotate right/left */
+			if ( event->jaxis.axis == 0 ) {
+				if ( event->jaxis.value < -8000 ) {
+					SetControl(LEFT_KEY, 1);
+					SetControl(RIGHT_KEY, 0);
+				} else
+				if ( event->jaxis.value > 8000 ) {
+					SetControl(RIGHT_KEY, 1);
+					SetControl(LEFT_KEY, 0);
+				} else {
+					SetControl(LEFT_KEY, 0);
+					SetControl(RIGHT_KEY, 0);
+				}
+			} else
+			/* Y-Axis - accelerate */
+			if ( event->jaxis.axis == 1 ) {
+				if ( event->jaxis.value < -8000 ) {
+					SetControl(THRUST_KEY, 1);
+				} else {
+					SetControl(THRUST_KEY, 0);
+				}
+			}
+			break;
+
+		/* -- Handle joystick button presses/releases */
+		case SDL_JOYBUTTONDOWN:
+		case SDL_JOYBUTTONUP:
+			if ( event->jbutton.state == SDL_PRESSED ) {
+				if ( event->jbutton.button == 0 ) {
+					SetControl(FIRE_KEY, 1);
+				} else
+				if ( event->jbutton.button == 1 ) {
+					SetControl(SHIELD_KEY, 1);
+				}
+			} else {
+				if ( event->jbutton.button == 0 ) {
+					SetControl(FIRE_KEY, 0);
+				} else
+				if ( event->jbutton.button == 1 ) {
+					SetControl(SHIELD_KEY, 0);
+				}
+			}
+			break;
+#endif
+
 		/* -- Handle key presses/releases */
 		case SDL_KEYDOWN:
+			/* -- Handle ALT-ENTER hotkey */
+	                if ( (event->key.keysym.sym == SDLK_RETURN) &&
+			     (event->key.keysym.mod & KMOD_ALT) ) {
+				screen->ToggleFullScreen();
+				break;
+			}
 		case SDL_KEYUP:
+			/* -- Handle normal key bindings */
 			key = event->key.keysym.sym;
 			if ( event->key.state == SDL_PRESSED ) {
 				/* Check for various control keys */
@@ -470,62 +458,6 @@ mesg("Movie is %s...\n", gMovie ? "started" : "stopped");
 	}
 }
 
-#ifdef USE_JOYSTICK
-void HandleJoystick(void)
-{
-	const  int threshold = 20;	/* 20 percent movement threshold */
-	static int old_x=0;
-	static int old_y=0;
-	joystate   js;
-
-	if ( Jstick->Event(&js) < 0 )
-		return;
-
-	/* Check the button keys */
-	/* If you want to change joystick button mappings, do it here. */
-	if ( js.buttons&BUTTON_1 ) {
-		if ( PRESSED(&js, BUTTON_1) )
-			SetControl(FIRE_KEY, 1);
-		else
-			SetControl(FIRE_KEY, 0);
-	}
-	if ( js.buttons&BUTTON_2 ) {
-		if ( PRESSED(&js, BUTTON_2) )
-			SetControl(SHIELD_KEY, 1);
-		else
-			SetControl(SHIELD_KEY, 0);
-	}
-
-	/* Check for thrusting */
-	if ( (old_y < -threshold) && (js.y_axis > -threshold) ) {
-		SetControl(THRUST_KEY, 0);
-	} else if ( (old_y > -threshold) && (js.y_axis < -threshold) ) {
-		SetControl(THRUST_KEY, 1);
-	}
-	old_y = js.y_axis;
-
-//mesg("X axis = %d\n", js.x_axis);
-	/* Check for rotation */
-	if ( (old_x > threshold) && (js.x_axis < threshold) ) { /* Center */
-		SetControl(RIGHT_KEY, 0);
-		if ( js.x_axis < -threshold )	/* Heading left */
-			SetControl(LEFT_KEY, 1);
-	} else
-	if ( (old_x < -threshold) && (js.x_axis > -threshold) ) { /* Center */
-		SetControl(LEFT_KEY, 0);
-		if ( js.x_axis > threshold )	/* Heading right */
-			SetControl(RIGHT_KEY, 1);
-	} else
-	if ( js.x_axis > threshold ) {		/* Heading right */
-		SetControl(RIGHT_KEY, 1);
-	} else
-	if ( js.x_axis < -threshold ) {		/* Heading left */
-		SetControl(LEFT_KEY, 1);
-	}
-	old_x = js.x_axis;
-}
-#endif /* USE_JOYSTICK */
-
 
 /* This function gives a good way to delay a specified amount of time
    while handling keyboard/joystick events, or just to poll for events.
@@ -535,9 +467,6 @@ void HandleEvents(int timeout)
 	SDL_Event event;
 
 	do { 
-#ifdef USE_JOYSTICK
-		HandleJoystick();
-#endif
 		while ( SDL_PollEvent(&event) ) {
 			HandleEvent(&event);
 		}
@@ -548,13 +477,17 @@ void HandleEvents(int timeout)
 	} while ( timeout-- );
 }
 
-void DropEvents(void)
+int DropEvents(void)
 {
 	SDL_Event event;
+	int keys = 0;
 
 	while ( SDL_PollEvent(&event) ) {
-		/* Keep going */;
+		if ( event.type == SDL_KEYDOWN ) {
+			++keys;
+		}
 	}
+	return(keys);
 }
 
 #define DAWN_DIALOG_WIDTH	318

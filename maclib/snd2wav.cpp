@@ -25,6 +25,7 @@
 /* A Macintosh sound resource converter */
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "Mac_Wave.h"
 

@@ -332,9 +332,11 @@ Mac_Resource:: Mac_Resource(const char *file)
 				fseek(filep, cur_offset, SEEK_SET);
 			}
 		}
+#ifndef macintosh
 		/* Sort the resources in ascending order. :) */
 		qsort(Resources[i].list,Resources[i].count,
 					sizeof(struct resource), Res_cmp);
+#endif
 	}
 	delete[] ref_offsets;
 }

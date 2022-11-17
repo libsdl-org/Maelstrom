@@ -28,6 +28,7 @@
 #include "Mac_Compat.h"
 
 
+extern "C" {
 static int BogusAudioThread(void *data)
 {
 	SDL_AudioSpec *spec;
@@ -75,6 +76,15 @@ static int BogusAudioThread(void *data)
 	}
 	return(0);
 }
+
+static void FillAudio(void *udata, Uint8 *stream, int len)
+{
+	Sound *sound = (Sound *)udata;
+	
+	Sound::FillAudioU8(sound, stream, len);
+}
+/* extern "C" */
+};
 
 Sound:: Sound(const char *soundfile, Uint8 vol)
 {
@@ -128,8 +138,7 @@ Sound:: Sound(const char *soundfile, Uint8 vol)
 	++p;
 	for ( i = 0; i < p; ++i )
 		spec->samples *= 2;
-	/* We take advantage of the C++ hidden 'this' call convention */
-	spec->callback = (void (*)(void*, Uint8*, int))FillAudioU8;
+	spec->callback = FillAudio;
 	spec->userdata = (void *)this;
 
 	/* Empty the channels and start the music :-) */

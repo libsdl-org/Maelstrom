@@ -5,14 +5,7 @@
 class Prize : public Object {
 
 public:
-	Prize(int X, int Y, int xVel, int yVel) :
-				Object(X, Y, xVel, yVel, gPrize, 2) {
-		Set_TTL(PRIZE_DURATION);
-		sound->PlaySound(gPrizeAppears, 4);
-#ifdef SERIOUS_DEBUG
-error("Created a prize!\n");
-#endif
-	}
+	Prize(int X, int Y, int xVel, int yVel);
 	~Prize() { }
 
 	/* When we are run over, we give prizes! */
@@ -90,16 +83,7 @@ error("Created a prize!\n");
 class Multiplier : public Object {
 
 public:
-	Multiplier(int X, int Y, int Mult) :
-			Object(X, Y, 0, 0, gMult[Mult-2], NO_PHASE_CHANGE) {
-		Set_TTL(MULT_DURATION);
-		multiplier = Mult;
-		solid = 0;
-		sound->PlaySound(gMultiplier, 4);
-#ifdef SERIOUS_DEBUG
-error("Created a multiplier!\n");
-#endif
-	}
+	Multiplier(int X, int Y, int Mult);
 	~Multiplier() { }
 
 	int BeenShot(Object *ship, Shot *shot) {
@@ -124,15 +108,7 @@ protected:
 class Nova : public Object {
 
 public:
-	Nova(int X, int Y) : Object(X, Y, 0, 0, gNova, 4) {
-		Set_TTL(gNova->numFrames*phasetime);
-		Set_Points(NOVA_PTS);
-		phase = 0;
-		sound->PlaySound(gNovaAppears, 4);
-#ifdef SERIOUS_DEBUG
-error("Created a nova!\n");
-#endif
-	}
+	Nova(int X, int Y);
 	~Nova() { }
 
 	int BeenTimedOut(void) {
@@ -159,16 +135,7 @@ error("Created a nova!\n");
 class Bonus : public Object {
 
 public:
-	Bonus(int X, int Y, int xVel, int yVel, int Bonus) :
-			Object(X, Y, xVel, yVel, gBonusBlit, 2) {
-		Set_TTL(BONUS_DURATION);
-		solid = 0;
-		bonus = Bonus;
-		sound->PlaySound(gBonusAppears, 4);
-#ifdef SERIOUS_DEBUG
-error("Created a bonus!\n");
-#endif
-	}
+	Bonus(int X, int Y, int xVel, int yVel, int Bonus);
 	~Bonus() { }
 
 	int BeenShot(Object *ship, Shot *shot) {
@@ -206,16 +173,7 @@ protected:
 class Shrapnel : public Object {
 
 public:
-	Shrapnel(int X, int Y, int xVel, int yVel, Blit *blit) :
-				Object(X, Y, xVel, yVel, blit, 2) {
-		solid = 0;
-		shootable = 0;
-		phase = 0;
-		TTL = (myblit->numFrames*phasetime);
-#ifdef SERIOUS_DEBUG
-error("Created a shrapnel!\n");
-#endif
-	}
+	Shrapnel(int X, int Y, int xVel, int yVel, Blit *blit);
 	~Shrapnel() { }
 
 	int BeenDamaged(int damage) {
@@ -227,14 +185,7 @@ error("Created a shrapnel!\n");
 class DamagedShip : public Object {
 
 public:
-	DamagedShip(int X, int Y, int xVel, int yVel) :
-			Object(X, Y, xVel, yVel, gDamagedShip, 1) {
-		Set_TTL(DAMAGED_DURATION*phasetime);
-		sound->PlaySound(gDamagedAppears, 4);
-#ifdef SERIOUS_DEBUG
-error("Created a damaged ship!\n");
-#endif
-	}
+	DamagedShip(int X, int Y, int xVel, int yVel);
 	~DamagedShip() { }
 
 	int BeenRunOver(Object *ship) {
@@ -315,13 +266,7 @@ error("Created a damaged ship!\n");
 class Gravity : public Object {
 
 public:
-	Gravity(int X, int Y) : Object(X, Y, 0, 0, gVortexBlit, 2) {
-		Set_Points(GRAVITY_PTS);
-		sound->PlaySound(gGravAppears, 4);
-#ifdef SERIOUS_DEBUG
-error("Created a gravity well!\n");
-#endif
-	}
+	Gravity(int X, int Y);
 	~Gravity() { }
 
 	int Move(int Frozen) {
@@ -366,17 +311,7 @@ error("Created a gravity well!\n");
 class Homing : public Object {
 
 public:
-	Homing(int X, int Y, int xVel, int yVel) :
-		Object(X, Y, xVel, yVel, 
-			((xVel > 0) ? gMineBlitR : gMineBlitL), 2) {
-		Set_HitPoints(HOMING_HITS);
-		Set_Points(HOMING_PTS);
-		target=AcquireTarget();
-		sound->PlaySound(gHomingAppears, 4);
-#ifdef SERIOUS_DEBUG
-error("Created a homing mine!\n");
-#endif
-	}
+	Homing(int X, int Y, int xVel, int yVel);
 	~Homing() { }
 
 	/* This is duplicated in the Shinobi class */
@@ -424,15 +359,7 @@ protected:
 class SmallRock : public Object {
 
 public:
-	SmallRock(int X, int Y, int xVel, int yVel, int phaseFreq) :
-		Object(X, Y, xVel, yVel, 
-			((xVel > 0) ? gRock3R : gRock3L), phaseFreq) {
-		Set_Points(SMALL_ROID_PTS);
-		++gNumRocks;
-#ifdef SERIOUS_DEBUG
-error("+   Small rock! (%d)\n", gNumRocks);
-#endif
-	}
+	SmallRock(int X, int Y, int xVel, int yVel, int phaseFreq);
 	~SmallRock() {
 		--gNumRocks;
 	}
@@ -456,15 +383,7 @@ error("-   Small rock! (%d)\n", gNumRocks);
 class MediumRock : public Object {
 
 public:
-	MediumRock(int X, int Y, int xVel, int yVel, int phaseFreq) :
-		Object(X, Y, xVel, yVel, 
-			((xVel > 0) ? gRock2R : gRock2L), phaseFreq) {
-		Set_Points(MEDIUM_ROID_PTS);
-		++gNumRocks;
-#ifdef SERIOUS_DEBUG
-error("++  Medium rock! (%d)\n", gNumRocks);
-#endif
-	}
+	MediumRock(int X, int Y, int xVel, int yVel, int phaseFreq);
 	~MediumRock() {
 		--gNumRocks;
 	}
@@ -521,15 +440,7 @@ error("--  Medium rock! (%d)\n", gNumRocks);
 class LargeRock : public Object {
 
 public:
-	LargeRock(int X, int Y, int xVel, int yVel, int phaseFreq) :
-		Object(X, Y, xVel, yVel, 
-			((xVel > 0) ? gRock1R : gRock1L), phaseFreq) {
-		Set_Points(BIG_ROID_PTS);
-		++gNumRocks;
-#ifdef SERIOUS_DEBUG
-error("+++ Large rock! (%d)\n", gNumRocks);
-#endif
-	}
+	LargeRock(int X, int Y, int xVel, int yVel, int phaseFreq);
 	~LargeRock() {
 		--gNumRocks;
 	}
@@ -586,15 +497,7 @@ error("--- Large rock! (%d)\n", gNumRocks);
 class SteelRoid : public Object {
 
 public:
-	SteelRoid(int X, int Y, int xVel, int yVel) :
-		Object(X, Y, xVel, yVel, 
-			((xVel > 0) ? gSteelRoidR : gSteelRoidL), 3) {
-		Set_HitPoints(STEEL_SPECIAL);
-		Set_Points(STEEL_PTS);
-#ifdef SERIOUS_DEBUG
-error("Created a steel asteroid!\n");
-#endif
-	}
+	SteelRoid(int X, int Y, int xVel, int yVel);
 	~SteelRoid() { }
 
 	int Explode(void) {

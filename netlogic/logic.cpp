@@ -16,11 +16,14 @@ void LogicUsage(void)
 }
 
 /* Initialize special logic data */
-void InitLogicData(void)
+int InitLogicData(void)
 {
 	/* Initialize network player data */
-	InitNetData();
+	if ( InitNetData() < 0 ) {
+		return(-1);
+	}
 	gDeathMatch = 0;
+	return(0);
 }
 
 /* Parse logic-specific command line arguments */

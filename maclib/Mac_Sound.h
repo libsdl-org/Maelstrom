@@ -115,6 +115,9 @@ public:
 		return(errstr);
 	}
 
+	/* These functions really do all the work */
+	static void FillAudioU8(Sound *sound, Uint8 *stream, int len);
+
 private:
 	Uint8 playing;
 
@@ -128,9 +131,6 @@ private:
 
 	SDL_AudioSpec *spec;
 	Uint8      volume;
-
-	/* These functions really do all the work */
-	static void FillAudioU8(Sound *sound, Uint8 *stream, int len);
 
 	/* Fake audio handler, in case we can't open the real thing */
 	SDL_Thread *bogus_audio;

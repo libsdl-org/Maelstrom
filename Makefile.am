@@ -43,6 +43,8 @@ SUBDIRS = $(LOGIC) screenlib maclib
 EXTRA_DIST =			\
 	autogen.sh		\
 	VisualC.zip		\
+	PBProjects.tar.gz	\
+	MPWmake.sea.bin		\
 	CREDITS			\
 	Changelog		\
 	README.joystick		\

@@ -8,7 +8,7 @@ extern void	SaveControls(void);
 extern void	ConfigureControls(void);
 extern int	PollEvent(SDL_Event *event, int timeout);
 extern void	HandleEvents(int timeout);
-extern void	DropEvents(void);
+extern int	DropEvents(void);
 extern void	ShowDawn(void);
 
 /* Generic key control definitions */

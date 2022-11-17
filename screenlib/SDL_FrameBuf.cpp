@@ -53,7 +53,6 @@ FrameBuf:: FrameBuf()
 	/* Initialize various variables to null state */
 	screenfg = NULL;
 	screenbg = NULL;
-	screenfade = NULL;
 	blitQ = NULL;
 	dirtymap = NULL;
 	updatelist = NULL;
@@ -101,7 +100,7 @@ FrameBuf:: Init(int width, int height, Uint32 video_flags,
 	}
 
 	/* Try for the 8-bit video mode that was requested, accept any depth */
-	video_flags |= SDL_ANYFORMAT;
+	//video_flags |= SDL_ANYFORMAT;
 	screenfg = SDL_SetVideoMode(width, height, 8, video_flags);
 	if ( screenfg == NULL ) {
 		SetError("Couldn't set %dx%d video mode: %s", 
@@ -122,17 +121,6 @@ FrameBuf:: Init(int width, int height, Uint32 video_flags,
 		return(-1);
 	}
 	PrintSurface("Created background", screenbg);
-
-	/* Create the fade surface */
-	screenfade = SDL_CreateRGBSurface(screen->flags, screen->w, screen->h,
-					screen->format->BitsPerPixel,
-					screen->format->Rmask,
-					screen->format->Gmask,
-					screen->format->Bmask, 0);
-	if ( screenfade == NULL ) {
-		SetError("Couldn't create fade surface: %s", SDL_GetError());
-		return(-1);
-	}
 
 	/* Create a dirty rectangle map of the screen */
 	dirtypitch = LOWER_PREC(width);
@@ -192,8 +180,6 @@ FrameBuf:: ~FrameBuf()
 	}
 	if ( screenbg )
 		SDL_FreeSurface(screenbg);
-	if ( screenfade )
-		SDL_FreeSurface(screenfade);
 	if ( blitQ )
 		delete[] blitQ;
 	if ( dirtymap )
@@ -211,8 +197,6 @@ FrameBuf:: SetPalette(SDL_Color *colors)
 	if ( screenfg->format->palette ) {
 		SDL_SetColors(screenfg, colors, 0, 256);
 		SDL_SetColors(screenbg, screenfg->format->palette->colors,
-					0, screenfg->format->palette->ncolors);
-		SDL_SetColors(screenfade, screenfg->format->palette->colors,
 					0, screenfg->format->palette->ncolors);
 	}
 	for ( i=0; i<256; ++i ) {
@@ -265,45 +249,43 @@ FrameBuf:: Unlock(void)
 	}
 }
 void
+FrameBuf:: PerformBlits(void)
+{
+	if ( blitQlen > 0 ) {
+		/* Perform lazy unlocking */
+		UNLOCK_IF_NEEDED();
+
+		/* Blast and free the queued blits */
+		for ( int i=0; i<blitQlen; ++i ) {
+			SDL_LowerBlit(blitQ[i].src, &blitQ[i].srcrect,
+						screen, &blitQ[i].dstrect);
+			SDL_FreeSurface(blitQ[i].src);
+		}
+		blitQlen = 0;
+	}
+}
+void
 FrameBuf:: Update(int auto_update)
 {
 	int i;
 
-	/* Perform lazy unlocking */
-	UNLOCK_IF_NEEDED();
-
-	/* Blast and free the queued blits */
-	for ( i=0; i<blitQlen; ++i ) {
-		SDL_LowerBlit(blitQ[i].src, &blitQ[i].srcrect,
-						screen, &blitQ[i].dstrect);
-		SDL_FreeSurface(blitQ[i].src);
-	}
-	/* Update the changed rectangles */
-	if ( faded ) {
-		if ( (screen == screenbg) && auto_update ) {
-			for ( i=0; i<updatelen; ++i ) {
-				SDL_LowerBlit(screenbg, &updatelist[i],
-				 		screenfade, &updatelist[i]);
-			}
+	/* Blit and update the changed rectangles */
+	PerformBlits();
+	if ( (screen == screenbg) && auto_update ) {
+		for ( i=0; i<updatelen; ++i ) {
+			SDL_LowerBlit(screenbg, &updatelist[i],
+			 		screenfg, &updatelist[i]);
 		}
+		SDL_UpdateRects(screenfg, updatelen, updatelist);
 	} else {
-		if ( (screen == screenbg) && auto_update ) {
-			for ( i=0; i<updatelen; ++i ) {
-				SDL_LowerBlit(screenbg, &updatelist[i],
-				 		screenfg, &updatelist[i]);
-			}
-			SDL_UpdateRects(screenfg, updatelen, updatelist);
-		} else {
-			SDL_UpdateRects(screen, updatelen, updatelist);
-		}
+		SDL_UpdateRects(screen, updatelen, updatelist);
 	}
-	blitQlen = 0;
 	ClearDirtyList();
 }
 
 /* Drawing routines */
 void
-FrameBuf:: Clear(Uint16 x, Uint16 y, Uint16 w, Uint16 h, clipval do_clip)
+FrameBuf:: Clear(Sint16 x, Sint16 y, Uint16 w, Uint16 h, clipval do_clip)
 {
 	/* If we're focused on the foreground, copy from background */
 	if ( screen == screenfg ) {
@@ -338,6 +320,7 @@ FrameBuf:: DrawPoint(Sint16 x, Sint16 y, Uint32 color)
 	if ( y < 0 ) return;
 	if ( y > screen->h ) return;
 
+	PerformBlits();
 	LOCK_IF_NEEDED();
 	PutPixel(screen_mem+y*screen->pitch+x*screen->format->BytesPerPixel,
 								screen, color);
@@ -362,6 +345,7 @@ FrameBuf:: DrawLine(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color)
 	ADJUSTX(x1); ADJUSTY(y1);
 	ADJUSTX(x2); ADJUSTY(y2);
 	
+	PerformBlits();
 	LOCK_IF_NEEDED();
 	screen_bpp = screen->format->BytesPerPixel;
 	if ( y1 == y2 )  {  /* Horizontal line */
@@ -454,6 +438,7 @@ FrameBuf:: DrawRect(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint32 color)
 	if ( (x+w) > screen->w ) w = (Uint16)(screen->w-x);
 	if ( (y+h) > screen->h ) h = (Uint16)(screen->h-y);
 
+	PerformBlits();
 	LOCK_IF_NEEDED();
 	screen_bpp = screen->format->BytesPerPixel;
 
@@ -548,80 +533,25 @@ static inline void memswap(Uint8 *dst, Uint8 *src, Uint8 len)
 void
 FrameBuf:: Fade(void)
 {
-	Uint32 offset[16];
-	Uint16 roffset;
-	Uint16 coffset;
-	int i, row, col;
-	Uint8 *faded_mem;
-	Uint8 *sptr, *fptr;
-	Uint8 screen_bpp;
+	const int max = 32;
+	Uint16 ramp[256];   
 
-	/* Lock the fade surface */
-	while ( SDL_LockSurface(screenfade) < 0 ) {
+	for ( int j = 1; j <= max; j++ ) {
+		int v = faded ? j : max - j + 1;
+		for ( int i = 0; i < 256; i++ ) {
+			ramp[i] = (i * v / max) << 8;
+		}
+		SDL_SetGammaRamp(ramp, ramp, ramp);
 		SDL_Delay(10);
 	}
-	faded_mem = (Uint8 *)screenfade->pixels;
-
-	/* Clear the fade memory if perfoming a fade-out */
-	if ( ! faded ) {
-		memset(faded_mem, BGcolor, screenfade->h*screenfade->pitch);
-	}
-
-	/* Fade in a rotating 4x4 block */
-	screen_bpp = screenfg->format->BytesPerPixel;
-	offset[0]  = 0*screenfg->pitch+0*screen_bpp;
-	offset[1]  = 0*screenfg->pitch+3*screen_bpp;
-	offset[2]  = 3*screenfg->pitch+3*screen_bpp;
-	offset[3]  = 3*screenfg->pitch+0*screen_bpp;
-	offset[4]  = 0*screenfg->pitch+1*screen_bpp;
-	offset[5]  = 1*screenfg->pitch+3*screen_bpp;
-	offset[6]  = 3*screenfg->pitch+2*screen_bpp;
-	offset[7]  = 2*screenfg->pitch+0*screen_bpp;
-	offset[8]  = 0*screenfg->pitch+2*screen_bpp;
-	offset[9]  = 2*screenfg->pitch+3*screen_bpp;
-	offset[10] = 3*screenfg->pitch+1*screen_bpp;
-	offset[11] = 1*screenfg->pitch+0*screen_bpp;
-	offset[12] = 1*screenfg->pitch+1*screen_bpp;
-	offset[13] = 2*screenfg->pitch+2*screen_bpp;
-	offset[14] = 1*screenfg->pitch+2*screen_bpp;
-	offset[15] = 2*screenfg->pitch+1*screen_bpp;
-	roffset = (screenfg->pitch-screenfg->w*screen_bpp)+3*screenfg->pitch;
-	coffset = 4*screen_bpp;
-
-	for ( i=0; i<16; ++i ) {
-		/* Lock the front buffer */
-		while ( SDL_LockSurface(screenfg) < 0 ) {
-			SDL_Delay(10);
-		}
-		screen_mem = (Uint8 *)screenfg->pixels;
-
-		/* Swap the appropriate pixels */
-		fptr = faded_mem+offset[i];
-		sptr = screen_mem+offset[i];
-		for (row=(offset[i]/screenfg->pitch); row<screenfg->h; row+=4){
-			for ( col=0; col<screenfg->w; col += 4 ) {
-				memswap(sptr, fptr, screen_bpp);
-				sptr += coffset;
-				fptr += coffset;
-			}
-			sptr += roffset;
-			fptr += roffset;
-		}
-
-		/* Unlock and update the screen */
-		SDL_UnlockSurface(screenfg);
-		SDL_UpdateRect(screenfg, 0, 0, 0, 0);
-	}
-	SDL_UnlockSurface(screenfade);
-
-	/* We're done! */
 	faded = !faded;
-	if ( faded ) {
-		screen = screenfade;
-	} else {
-		screen = screenfg;
+
+        if ( faded ) {
+		for ( int i = 0; i < 256; i++ ) {
+			ramp[i] = 0;
+		}
+		SDL_SetGammaRamp(ramp, ramp, ramp);
 	}
-	return;
 } 
 
 SDL_Surface *
@@ -835,7 +765,7 @@ FrameBuf:: QueueBlit(int dstx, int dsty, SDL_Surface *src,
 		diff = (int)clip.x - dstx;
 		if ( diff > 0 ) {
 			w -= diff;
-			if ( w < 0 )
+			if ( w <= 0 )
 				return;
 			srcx += diff;
 			dstx = clip.x;
@@ -843,7 +773,7 @@ FrameBuf:: QueueBlit(int dstx, int dsty, SDL_Surface *src,
 		diff = (int)clip.y - dsty;
 		if ( diff > 0 ) {
 			h -= diff;
-			if ( h < 0 )
+			if ( h <= 0 )
 				return;
 			srcy += diff;
 			dsty = clip.y;
@@ -851,13 +781,13 @@ FrameBuf:: QueueBlit(int dstx, int dsty, SDL_Surface *src,
 		diff = (int)(dstx+w) - (clip.x+clip.w);
 		if ( diff > 0 ) {
 			w -= diff;
-			if ( w < 0 )
+			if ( w <= 0 )
 				return;
 		}
 		diff = (int)(dsty+h) - (clip.y+clip.h);
 		if ( diff > 0 ) {
 			h -= diff;
-			if ( h < 0 )
+			if ( h <= 0 )
 				return;
 		}
 	}

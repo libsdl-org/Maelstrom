@@ -21,14 +21,7 @@
 class Mac_Dialog {
 
 public:
-	Mac_Dialog(int x, int y) {
-		Screen = NULL;
-		X = x;
-		Y = y;
-		button_callback = NULL;
-		key_callback = NULL;
-		errstr = NULL;
-	}
+	Mac_Dialog(int x, int y);
 	virtual ~Mac_Dialog() { }
 
 	/* Input handling */
@@ -63,12 +56,24 @@ public:
 	virtual void Show(void) {
 	}
 
+	static void EnableText(void) {
+		if ( text_enabled++ == 0 ) {
+			SDL_EnableUNICODE(1);
+		}
+	}
+	static void DisableText(void) {
+		if ( --text_enabled == 0 ) {
+			SDL_EnableUNICODE(0);
+		}
+	}
+
 	/* Error message routine */
 	virtual char *Error(void) {
 		return(errstr);
 	}
 
 protected:
+	static int text_enabled;
 	FrameBuf *Screen;
 	int  X, Y;
 	void (*button_callback)(int x, int y, int button, int *doneflag);
@@ -104,46 +109,8 @@ class Mac_Button : public Mac_Dialog {
 
 public:
 	Mac_Button(int x, int y, int width, int height,
-				char *text, MFont *font, FontServ *fontserv, 
-				int (*callback)(void)) : Mac_Dialog(x, y) {
-		SDL_Surface *textb;
-		SDL_Rect dstrect;
-
-		/* Set private variables */
-		Width = width;
-		Height = height;
-
-		/* Build image of the button */
-		button = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height,
-							8, 0, 0, 0, 0);
-		if ( button == NULL ) {
-			SetError("%s", SDL_GetError());
-			return;
-		}
-		button->format->palette->colors[0].r = 0xFF;
-		button->format->palette->colors[0].g = 0xFF;
-		button->format->palette->colors[0].b = 0xFF;
-		button->format->palette->colors[1].r = 0x00;
-		button->format->palette->colors[1].g = 0x00;
-		button->format->palette->colors[1].b = 0x00;
-		textb = fontserv->TextImage(text, font, STYLE_NORM,
-						0x00, 0x00, 0x00);
-		if ( textb != NULL ) {
-			if ( (textb->w <= button->w) && 
-						(textb->h <= button->h) ) {
-				dstrect.x = (button->w-textb->w)/2;
-				dstrect.y = (button->h-textb->h)/2;
-				dstrect.w = textb->w;
-				dstrect.h = textb->h;
-				SDL_BlitSurface(textb, NULL, button, &dstrect);
-			}
-			fontserv->FreeText(textb);
-		}
-		Bevel_Button(button);
-
-		/* Set the callback */
-		Callback = callback;
-	}
+		char *text, MFont *font, FontServ *fontserv, 
+				int (*callback)(void));
 	virtual ~Mac_Button() {
 		SDL_FreeSurface(button);
 	}
@@ -235,7 +202,6 @@ protected:
 		InvertImage();
 		Show();
 		Screen->Update();
-
 		/* Run the callback */
 		if ( Callback )
 			*doneflag = (*Callback)();
@@ -252,9 +218,7 @@ class Mac_DefaultButton : public Mac_Button {
 public:
 	Mac_DefaultButton(int x, int y, int width, int height,
 				char *text, MFont *font, FontServ *fontserv, 
-						int (*callback)(void)) : 
-	Mac_Button(x, y, width, height, text, font, fontserv, callback) {
-	}
+						int (*callback)(void));
 	virtual ~Mac_DefaultButton() { }
 
 	virtual void HandleKeyPress(SDL_keysym key, int *doneflag) {
@@ -322,14 +286,7 @@ class Mac_CheckBox : public Mac_Dialog {
 
 public:
 	Mac_CheckBox(int *toggle, int x, int y, char *text,
-			MFont *font, FontServ *fontserv) : Mac_Dialog(x, y) {
-		/* Create the text label */
-		Fontserv = fontserv;
-		label = Fontserv->TextImage(text, font, STYLE_NORM, 0, 0, 0);
-
-		/* Set the checkbox variable */
-		checkval = toggle;
-	}
+				MFont *font, FontServ *fontserv);
 	virtual ~Mac_CheckBox() {
 		if ( label ) {
 			Fontserv->FreeText(label);
@@ -403,13 +360,7 @@ class Mac_RadioList : public Mac_Dialog {
 
 public:
 	Mac_RadioList(int *variable, int x, int y,
-			MFont *font, FontServ *fontserv) : Mac_Dialog(x, y) {
-		Fontserv = fontserv;
-		Font = font;
-		radiovar = variable;
-		*radiovar = 0;
-		radio_list.next = NULL;
-	}
+			MFont *font, FontServ *fontserv);
 	virtual ~Mac_RadioList() {
 		struct radio *radio, *old;
 
@@ -554,20 +505,205 @@ private:
 };
 		
 
+/* Class of text entry boxes */
+
+class Mac_TextEntry : public Mac_Dialog {
+
+public:
+	Mac_TextEntry(int x, int y, MFont *font, FontServ *fontserv);
+	virtual ~Mac_TextEntry() { 
+		struct text_entry *entry, *old;
+
+		for ( entry=entry_list.next; entry; ) {
+			old = entry;
+			entry = entry->next;
+			if ( old->text )
+				Fontserv->FreeText(old->text);
+			delete old;
+		}
+		DisableText();
+	}
+
+	virtual void HandleButtonPress(int x, int y, int button, 
+							int *doneflag) {
+		struct text_entry *entry;
+
+		for ( entry=entry_list.next; entry; entry=entry->next ) {
+			if ( IsSensitive(&entry->sensitive, x, y) ) {
+				current->hilite = 0;
+				Update_Entry(current);
+				current = entry;
+				DrawCursor(current);
+				Screen->Update();
+			}
+		}
+	}
+	virtual void HandleKeyPress(SDL_keysym key, int *doneflag) {
+		int n;
+
+		switch (key.sym) {
+			case SDLK_TAB:
+				current->hilite = 0;
+				Update_Entry(current);
+				if ( current->next )
+					current=current->next;
+				else
+					current=entry_list.next;
+				current->hilite = 1;
+				Update_Entry(current);
+				break;
+
+			case SDLK_DELETE:
+			case SDLK_BACKSPACE:
+				if ( current->hilite ) {
+					*current->variable = '\0';
+					current->hilite = 0;
+				} else if ( *current->variable ) {
+					n = strlen(current->variable);
+					current->variable[n-1] = '\0';
+				}
+				Update_Entry(current);
+				DrawCursor(current);
+				break;
+
+			default:
+				if ( (current->end+Cwidth) > current->width )
+					return;
+				if ( key.unicode ) {
+					current->hilite = 0;
+					n = strlen(current->variable);
+					current->variable[n] = (char)key.unicode;
+					current->variable[n+1] = '\0';
+					Update_Entry(current);
+					DrawCursor(current);
+				}
+				break;
+		}
+		Screen->Update();
+	}
+
+	virtual void Add_Entry(int x, int y, int width, int is_default, 
+							char *variable) {
+		struct text_entry *entry;
+
+		for ( entry=&entry_list; entry->next; entry=entry->next )
+			/* Loop to end of entry list */;
+		entry->next = new struct text_entry;
+		entry = entry->next;
+
+		entry->variable = variable;
+		if ( is_default ) {
+			current = entry;
+			entry->hilite = 1;
+		} else
+			entry->hilite = 0;
+		entry->x = x+3;
+		entry->y = y+3;
+		entry->width = width*Cwidth;
+		entry->height = Cheight;
+		entry->sensitive.x = x;
+		entry->sensitive.y = y;
+		entry->sensitive.w = 3+(width*Cwidth)+3;
+		entry->sensitive.h = 3+Cheight+3;
+		entry->text = NULL;
+		entry->next = NULL;
+	}
+
+	virtual void Map(int Xoff, int Yoff, FrameBuf *screen,
+				Uint8 R_bg, Uint8 G_bg, Uint8 B_bg,
+				Uint8 R_fg, Uint8 G_fg, Uint8 B_fg) {
+		struct text_entry *entry;
+
+		/* Do the normal dialog mapping */
+		Mac_Dialog::Map(Xoff, Yoff, screen,
+				R_bg, G_bg, B_bg, R_fg, G_fg, B_fg);
+
+		/* Get the screen colors */
+		foreground.r = R_fg;
+		foreground.g = G_fg;
+		foreground.b = B_fg;
+		background.r = R_bg;
+		background.g = G_bg;
+		background.b = B_bg;
+		Fg = Screen->MapRGB(R_fg, G_fg, B_fg);
+		Bg = Screen->MapRGB(R_bg, G_bg, B_bg);
+
+		/* Adjust sensitivity and map the radiobox text */
+		for ( entry=entry_list.next; entry; entry=entry->next ) {
+			entry->x += Xoff;
+			entry->y += Yoff;
+			entry->sensitive.x += Xoff;
+			entry->sensitive.y += Yoff;
+		}
+	}
+	virtual void Show(void) {
+		struct text_entry *entry;
+
+		for ( entry=entry_list.next; entry; entry=entry->next ) {
+			Screen->DrawRect(entry->x-3, entry->y-3,
+					3+entry->width+3, 3+Cheight+3, Fg);
+			Update_Entry(entry);
+		}
+	}
+
+private:
+	FontServ *Fontserv;
+	MFont *Font;
+	Uint32 Fg, Bg;
+	int Cwidth, Cheight;
+	SDL_Color foreground;
+	SDL_Color background;
+
+	struct text_entry {
+		SDL_Surface *text;
+		char *variable;
+		SDL_Rect sensitive;
+		int  x, y;
+		int  width, height;
+		int  end;
+		int  hilite;
+		struct text_entry *next;
+	} entry_list, *current;
+
+
+	void Update_Entry(struct text_entry *entry) {
+		Uint32 clear;
+
+		/* Create the new entry text */
+		if ( entry->text ) {
+			Fontserv->FreeText(entry->text);
+		}
+		if ( entry->hilite ) {
+			clear = Fg;
+			entry->text = Fontserv->TextImage(entry->variable,
+				Font, STYLE_NORM, background, foreground);
+		} else {
+			clear = Bg;
+			entry->text = Fontserv->TextImage(entry->variable,
+				Font, STYLE_NORM, foreground, background);
+		}
+		Screen->FillRect(entry->x, entry->y,
+					entry->width, entry->height, clear);
+		if ( entry->text ) {
+			entry->end = entry->text->w;
+			Screen->QueueBlit(entry->x, entry->y, entry->text, NOCLIP);
+		} else {
+			entry->end = 0;
+		}
+	}
+	void DrawCursor(struct text_entry *entry) {
+		Screen->DrawLine(entry->x+entry->end, entry->y,
+			entry->x+entry->end, entry->y+entry->height-1, Fg);
+	}
+};
+
+
 /* Class of numeric entry boxes */
 
 class Mac_NumericEntry : public Mac_Dialog {
 
 public:
-	Mac_NumericEntry(int x, int y,
-			MFont *font, FontServ *fontserv) : Mac_Dialog(x, y) {
-		Fontserv = fontserv;
-		Font = font;
-		Cwidth = Fontserv->TextWidth("0", Font, STYLE_NORM);
-		Cheight = Fontserv->TextHeight(font);
-		entry_list.next = NULL;
-		current = &entry_list;
-	}
+	Mac_NumericEntry(int x, int y, MFont *font, FontServ *fontserv);
 	virtual ~Mac_NumericEntry() { 
 		struct numeric_entry *entry, *old;
 
@@ -656,11 +792,7 @@ public:
 
 		for ( entry=&entry_list; entry->next; entry=entry->next )
 			/* Loop to end of numeric entry list */;
-#ifdef linux
-		entry->next = new struct Mac_NumericEntry::numeric_entry;
-#else
 		entry->next = new struct numeric_entry;
-#endif
 		entry = entry->next;
 
 		entry->variable = variable;
@@ -749,13 +881,13 @@ private:
 		sprintf(buf, "%d", *entry->variable);
 
 		if ( entry->hilite ) {
-			entry->text = Fontserv->TextImage(buf, Font, STYLE_NORM,
-							background,foreground);
 			clear = Fg;
+			entry->text = Fontserv->TextImage(buf,
+				Font, STYLE_NORM, background, foreground);
 		} else {
-			entry->text = Fontserv->TextImage(buf, Font, STYLE_NORM,
-							background,foreground);
 			clear = Bg;
+			entry->text = Fontserv->TextImage(buf,
+				Font, STYLE_NORM, foreground, background);
 		}
 		entry->end = entry->text->w;
 		Screen->FillRect(entry->x, entry->y,
@@ -764,7 +896,7 @@ private:
 	}
 	void DrawCursor(struct numeric_entry *entry) {
 		Screen->DrawLine(entry->x+entry->end, entry->y,
-			entry->x+entry->end, entry->y+entry->height, Fg);
+			entry->x+entry->end, entry->y+entry->height-1, Fg);
 	}
 };
 		

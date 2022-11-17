@@ -693,9 +693,9 @@ Uint8 gEnemyShotColors[] = {
 SDL_Surface *gEnemyShot;
 
 Uint8 gPlayerColors[MAX_PLAYERS][3] = {
-	{ 0x00, 0x00, 0xF},		/* Player 1 */
-	{ 0xFF, 0x99, 0xFF},		/* Player 2 */
-	{ 0x33, 0x99, 0x00},		/* Player 3 */
+	{ 0x00, 0x00, 0xFF },		/* Player 1 */
+	{ 0xFF, 0x99, 0xFF },		/* Player 2 */
+	{ 0x33, 0x99, 0x00 },		/* Player 3 */
 };
 
 /* The players!! */

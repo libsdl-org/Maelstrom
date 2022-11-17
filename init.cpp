@@ -694,7 +694,7 @@ static void BuildVelocityTable(void)
    of the program at any time, including itself if interrupted during
    cleanup.  *sigh*  reentrant multi-threading can be a pain. :)
 */
-void CleanUp(void)
+extern "C" void CleanUp(void)
 {
 	HaltLogic();
 	if ( fontserv ) {
@@ -713,7 +713,6 @@ void CleanUp(void)
 	SDL_Quit();
 }
 
-
 /* ----------------------------------------------------------------- */
 /* -- Perform some initializations and report failure if we choke */
 int DoInitializations(Uint32 video_flags)
@@ -723,9 +722,16 @@ int DoInitializations(Uint32 video_flags)
 	SDL_Surface *icon;
 
 	/* Make sure we clean up properly at exit */
-	if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) < 0 ) {
-		error("Couldn't initialize SDL: %s\n", SDL_GetError());
-		return(-1);
+	Uint32 init_flags = (SDL_INIT_VIDEO|SDL_INIT_AUDIO);
+#ifdef SDL_INIT_JOYSTICK
+	init_flags |= SDL_INIT_JOYSTICK;
+#endif
+	if ( SDL_Init(init_flags) < 0 ) {
+		init_flags &= ~SDL_INIT_JOYSTICK;
+		if ( SDL_Init(init_flags) < 0 ) {
+			error("Couldn't initialize SDL: %s\n", SDL_GetError());
+			return(-1);
+		}
 	}
 	atexit(CleanUp);
 	signal(SIGSEGV, exit);
@@ -735,6 +741,16 @@ int DoInitializations(Uint32 video_flags)
 
 	// -- Create our scores file
 	LoadScores();
+
+#ifdef SDL_INIT_JOYSTICK
+	/* Initialize the first joystick */
+	if ( SDL_NumJoysticks() > 0 ) {
+		if ( SDL_JoystickOpen(0) == NULL ) {
+			error("Warning: Couldn't open joystick '%s' : %s\n",
+				SDL_JoystickName(0), SDL_GetError());
+		}
+	}
+#endif
 
 	/* Load the Font Server */
 	fontserv = new FontServ(library.Path("Maelstrom Fonts"));
@@ -790,8 +806,10 @@ int DoInitializations(Uint32 video_flags)
 	DoSplash();
 	screen->Fade();
 	for ( i=0; i<5; ++i ) {
+		if ( DropEvents() ) {
+			break;
+		}
 		Delay(60);
-		DropEvents();
 	}
 
 	/* -- Throw up our intro screen */

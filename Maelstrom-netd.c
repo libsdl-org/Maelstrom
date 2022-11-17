@@ -2,6 +2,7 @@
 /* Here we go... */
 
 #include <stdio.h>
+#include <string.h>
 #include <signal.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -153,7 +154,7 @@ printf("Let's party!!\n");
 		for ( i=0; i<numplayers; ++i ) {
 			connection *player = &players[positions[i]];
 
-			strcpy(ptr, inet_ntoa(player->raddr.sin_addr));
+			strcpy(ptr, (char *)inet_ntoa(player->raddr.sin_addr));
 printf("Setting up player %d at host %s and port ", i+1, ptr);
 			len += strlen(ptr)+1;
 			ptr += strlen(ptr)+1;

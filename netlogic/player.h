@@ -101,6 +101,9 @@ public:
 	virtual void ShowDot(void) {
 		/* Draw our identity dot */
 		int X, Y;
+		if ( ! Alive() ) {
+			return;
+		}
 		X = (x>>SPRITE_PRECISION)+12;
 		Y = (y>>SPRITE_PRECISION)+12;
 		if ( (X > gClipRect.x) && (X < (gClipRect.x+gClipRect.w-4)) &&

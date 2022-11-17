@@ -20,7 +20,7 @@
 extern int DoInitializations(Uint32 video_flags);		/* init.cc */
 
 static char *Version =
-"Maelstrom v1.4.3 (Linux version 3.0.0a) -- 10/1/97 by Sam Lantinga\n";
+"Maelstrom v1.4.3 (Linux version 3.0.3) -- 02/14/00 by Sam Lantinga\n";
 
 // Global variables set in this file...
 int	gStartLives;
@@ -153,9 +153,6 @@ void PrintUsage(void)
 	error("or\n");
 	error("Usage: %s <options>\n\n", progname);
 	error("Where <options> can be any of:\n\n"
-#ifdef USE_JOYSTICK
-"	-calibrate [device]	# Calibrate your joystick before playing\n"
-#endif
 "	-fullscreen		# Run Maelstrom in full-screen mode\n"
 "	-gamma [0-8]		# Set the gamma correction\n"
 "	-volume [0-8]		# Set the sound volume\n"
@@ -190,7 +187,9 @@ int main(int argc, char *argv[])
 	LoadControls();
 
 	/* Initialize game logic data structures */
-	InitLogicData();
+	if ( InitLogicData() < 0 ) {
+		exit(1);
+	}
 
 	/* Parse command line arguments */
 	for ( progname=argv[0]; --argc; ++argv ) {
@@ -238,17 +237,6 @@ int main(int argc, char *argv[])
 			++argv;
 			--argc;
 		}
-#ifdef USE_JOYSTICK
-		else if ( strcmp(argv[1], "-calibrate") == 0 ) {
-			if ( argv[2] && (argv[2][0] != '-') ) {
-				CalibrateJoystick(argv[2]);
-				++argv;
-				--argc;
-			} else
-				CalibrateJoystick(NULL);
-			exit(0);
-		}
-#endif
 #define CHECKSUM_DEBUG
 #ifdef CHECKSUM_DEBUG
 		else if ( strcmp(argv[1], "-checksum") == 0 ) {
@@ -274,10 +262,7 @@ int main(int argc, char *argv[])
 
 	/* Do we just want the high scores? */
 	if ( doprinthigh ) {
-		if ( SDL_Init(0) == 0 ) {
-			PrintHighScores();
-			SDL_Quit();
-		}
+		PrintHighScores();
 		exit(0);
 	}
 
@@ -316,7 +301,13 @@ int main(int argc, char *argv[])
 		/* -- Handle it! */
 		if ( event.type == SDL_KEYDOWN ) {
 			switch (event.key.keysym.sym) {
-					
+
+				/* -- Toggle fullscreen */
+				case SDLK_RETURN:
+					if ( event.key.keysym.mod & KMOD_ALT )
+						screen->ToggleFullScreen();
+					break;
+
 				/* -- About the game...*/
 				case SDLK_a:
 					RunDoAbout();

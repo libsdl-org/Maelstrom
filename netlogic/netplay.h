@@ -1,6 +1,6 @@
 
 /* Functions in netplay.cc */
-extern void  InitNetData(void);
+extern int   InitNetData(void);
 extern void  HaltNetData(void);
 extern int   AddPlayer(char *playerstr);
 extern int   SetServer(char *serverstr);
