@@ -53,7 +53,7 @@ static int BogusAudioThread(void *data)
 	spec = (SDL_AudioSpec *)data;
 	if ( spec->callback == NULL ) {
 		for ( ; ; )
-			Delay(60*60*60);	/* Delay 1 hour */
+			SDL_Delay(60*60*1000);	/* Delay 1 hour */
 	}
 	fill = spec->callback;
 	playticks = ((Uint32)spec->samples*1000)/spec->freq;

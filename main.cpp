@@ -171,6 +171,9 @@ int main(int argc, char *argv[])
 	int doprinthigh = 0;
 	int speedtest = 0;
 	Uint32 video_flags = SDL_SWSURFACE;
+#ifdef __MACOSX__
+	video_flags |= SDL_FULLSCREEN;
+#endif
 
 	/* Normal variables */
 	SDL_Event event;

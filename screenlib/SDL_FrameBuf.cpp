@@ -543,14 +543,16 @@ FrameBuf:: Fade(void)
 		}
 		SDL_SetGammaRamp(ramp, ramp, ramp);
 		SDL_Delay(10);
+		Update();
 	}
 	faded = !faded;
 
-        if ( faded ) {
+    if ( faded ) {
 		for ( int i = 0; i < 256; i++ ) {
 			ramp[i] = 0;
 		}
 		SDL_SetGammaRamp(ramp, ramp, ramp);
+		Update();
 	}
 } 
 
@@ -848,8 +850,8 @@ FrameBuf:: AddDirtyRect(SDL_Rect *rect)
 			for ( i=0; i<dirtymaplen; ++i ) {
 				if ( dirtymap[i] != NULL ) {
 					dirtymap[i] = (SDL_Rect *)(
-					((int)dirtymap[i]-(int)updatelist) +
-								(int)newlist
+					((size_t)dirtymap[i]-(size_t)updatelist) +
+								(size_t)newlist
 					);
 				}
 			}

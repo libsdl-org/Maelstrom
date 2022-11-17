@@ -30,7 +30,8 @@
 /* Some simple inline Macintosh compatibility routines */
 
 /* Delay(x) -- sleep for x number of 1/60 second slices */
-#define Delay(x)	SDL_Delay(((x)*1000)/60)
+//#define Delay(x)	SDL_Delay(((x)*1000)/60)
+#define Delay(x)	HandleEvents(x)
 /* Ticks -- a global variable containing current time in 1/60 second slices */
 #define Ticks		((SDL_GetTicks()*60)/1000)
 

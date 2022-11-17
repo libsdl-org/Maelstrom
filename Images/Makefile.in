@@ -3,6 +3,8 @@
 
 # Succeed at the default target
 all:
+clean:
+distclean:
 
 # Copy this directory to the distribution build directory
 distdir:

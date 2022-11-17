@@ -809,6 +809,7 @@ int DoInitializations(Uint32 video_flags)
 		if ( DropEvents() ) {
 			break;
 		}
+		screen->Update();
 		Delay(60);
 	}
 

@@ -464,6 +464,20 @@ mesg("Movie is %s...\n", gMovie ? "started" : "stopped");
 */
 void HandleEvents(int timeout)
 {
+#if 1
+	SDL_Event event;
+
+	Uint32 amount = ((timeout)*1000)/60;
+	Uint32 start = SDL_GetTicks();
+	do { 
+		while ( SDL_PollEvent(&event) ) {
+			HandleEvent(&event);
+		}
+		if ( timeout ) {
+			SDL_Delay(1);
+		}
+	} while ( timeout && (SDL_GetTicks() - start) < amount );
+#else
 	SDL_Event event;
 
 	do { 
@@ -475,6 +489,7 @@ void HandleEvents(int timeout)
 			Delay(1);
 		}
 	} while ( timeout-- );
+#endif
 }
 
 int DropEvents(void)

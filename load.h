@@ -90,7 +90,11 @@ public:
 	const char *Path(const char *filename) {
 		char *directory;
 
+#ifdef __MACOSX__
+		directory = "Maelstrom.app/Contents/Resources";
+#else
 		directory = getenv("MAELSTROM_LIB");
+#endif
 		if ( directory == NULL ) {
 			directory = LIBDIR;
 #ifndef macintosh

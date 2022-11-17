@@ -111,6 +111,14 @@ esac
 AC_SUBST(GAME_INSTALLDIR)
 CFLAGS="$CFLAGS -DLIBDIR=\\\"$GAME_INSTALLDIR\\\""
 
+# Set deployment target for Mac OS X
+echo "Target = $target"
+case "$target" in
+    *-*-darwin*)
+        CFLAGS="$CFLAGS -mmacosx-version-min=10.6"
+        ;;
+esac
+
 dnl C++ flags are the same as the C flags
 CXXFLAGS="$CXXFLAGS $CFLAGS"
 
