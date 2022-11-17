@@ -1,0 +1,202 @@
+
+			Networking Maelstrom
+
+                            Sam Lantinga
+June 2, 1996
+
+
+Design Goals:
+
+	I originally envisioned being able to play Maelstrom
+one-on-one against other people over Linux SLIP lines.  We could log
+into a central server and play one another, similar to the way Quake (tm)
+is planned to be.
+
+Design Process:
+
+	The first idea was to create one central server that did
+all calculation of player movement, collision detection, etc, and then
+broadcast updates, every frame time, to each player.  The disadvantages
+of this approach are that it places a great computation load on a single
+machine, and requires high bandwidth to transmit the entire game state
+thirty times per second.  I started coding the client to duplicate some
+of the state calculation of the game and reduce the bandwidth requirement,
+but it was a great deal of work, and subtle differences in the client
+and server code could result in synchronization bugs.
+
+	The next design paradigm was to have N independent games
+running, and have each independent game control a player.  To reduce 
+bandwidth, each game would run its game computations independently, and 
+the only traffic would be synchronization packets every frame, and keystrokes
+to update player actions.  Actually, the only traffic really needed is
+the keystroke information, but in a shoot'em up game such as Maelstrom,
+the frame on which keystrokes are delivered is critical.  If a game runs
+really fast on one machine, and a keystroke arrives from a slower player,
+then a player can die on one machine and still be alive on another machine.
+This fragments game consistency and must be avoided.  The way to avoid this
+is to have each game instance (player) checkpoint at every frame, and 
+deliver keystrokes destined for that frame.
+
+	Creating multiple players had the unexpected side effect
+of requiring the game logic to be rewritten using C++ objects.  The
+original game logic assumed that all game objects were generic
+structures fit into an array, and the object at array position 0 was
+the player.  With multiple players there had to be a way to allow
+them to shoot at eachother, and for objects to interact in general
+ways, and in then sometimes in particular ways depending on the type
+of objects interacting.  This lent itself well to C++ object inheritance
+design, and took about three days of coding to get mostly working.
+
+	Synchronization between running games was assured by the
+use of the original random number generator used in Macintosh Maelstrom,
+and the translation of time-based events to frame-based events.
+The original random number generator uses a very specific algorithm to
+take the random seed, translate it into a pseudo-random number and then
+update the random seed.  Event translation works because frames are
+supposed to occur exactly 30 times per second and the original event timings
+were always some multiple of frame times apart.  The only completely
+random event in the game is the completion of sound events, and the only
+time they are ever noticed is during thrust, and no calculation affecting
+the game is done at that time.  Combined, this allows multiple games,
+given the same seed and input, to run exactly the same over multiple 
+instances.
+
+	The only problem now was how to guarantee the delivery of the same
+input to each instance of the game.  TCP was my first choice, as it has the
+advantage of reliable delivery and would guarantee that my frame packets
+would arrive in the correct order.  However, TCP has the disadvantages of
+high overhead and buffered data.  In the course of ECS152B, I learned about
+the slow start algorithm, congestion avoidance, and other features of TCP
+that makes it very suited for reliable stream data, but a poor choice for
+timely high speed packet transmission.  
+
+	UDP is the perfect choice of the IP protocol suite for high-speed,
+low overhead packet based transmissions.  It has zero connection establishment
+overhead, packets are sent as soon as they are queued, and if packets are lost,
+with careful packet management and caching, your application can recover
+almost immediately.  In my final design, I use a modified stop-wait protocol
+that uses packet caching to do very little waiting.
+
+	To synchronize the game we need to make sure all keystrokes arrive
+on the interval in which they were pressed.  The original game polls for
+keystrokes on every frame, and testing shows that while for most purposes
+polling every other frame is acceptable, but for pitched battles, the 30'th
+of a second resolution is critical.  This means that we need synchronization
+every frame.  Keystroke information can ride piggy-back on synchronization
+packets, so the only overhead that is important is that of the sync packets
+themselves.  If any player gets more than one partial frame ahead of another,
+we may lose synchronization, so some sort of stop and wait protocol is
+suggested.
+
+	Using stop and wait protocol, the total overhead of synchronization
+packets, assuming a two-player game, is:
+
+	30*(sizeof(IP header)+sizeof(UDP header)+sizeof(packet))
+	30*(20+20+1) = 1230 bytes per player
+
+If we ack each frame packet, we effectively double the bandwidth to
+nearly 2500 bytes per second for each player.  This is far beyond the
+current modem IP bandwidth for 14.4Kbps modems.
+
+If we somehow eliminate ack packets, and compress the IP header, we
+can reach a low bandwidth requirement of 30*(4+20+1) 750 bytes per
+second for each player.  At an average 200 ms round trip time, our game
+could reach a maximum of 10-15 frames per second -- much too low for 
+high speed interactive games.  Thus, the solution seems to be that 
+high speed modem play is infeasible over IP.  Note that without the
+overhead of UDP/IP communications, i.e. direct modem or null-modem
+connection, our bandwidth requirement goes down to 30*(1+1) bytes
+per second, or 60 bytes per second for each player.  You could play
+this over a 2400 baud modem!
+
+	In practice, it seems that an ethernet-speed network is
+required to run networked Maelstrom over UDP/IP.  So, the challenge
+becomes reducing the overhead of the network to levels that allow the 
+other parts of the game to proceed at thirty frames per second.
+
+
+The Algorithm:
+
+	Already mentioned was a modified stop and wait with little
+waiting.  Here's how it works.  Each frame, every player sends its
+current frame packet to each other player and waits for frame information
+from every other player.  Since this happens simultaneously, each player
+sends and receives the current frame packet almost instantaneously, and
+they continue processing the game.
+
+	* A player will never advance the frame if it doesn't receive
+	  frame updates from all other players.
+	* If it doesn't receive a frame packet within 1 second it will
+	  rebroadcast the current frame packet.
+	* If a player receives a frame packet for the last frame, it will
+	  send its previous frame packet which it has cached.
+	* Packets from frames farther back than the previous frame are
+	  ignored.
+
+In this situation, if a packet is lost, then the player waiting for it
+will time out, the other players will be one frame ahead, the player
+waiting for the packet will resend it's packet, and the player who lost
+the packet will resend.  The waiting player will continue, and all will
+be well.  It is guaranteed that no player will be more than one frame
+ahead in this case.
+
+Unfortunately there is a real possibility of a lock-step problem here:
+
+	Player 1  (frame 10)		Player 2  (frame 10)
+		10 -->				<-- 10
+		dropped packet
+	Player 1  (frame 10)		Player 2  (frame 11)
+		wait for 10			<-- 11
+		get 11, timeout
+	Player 1  (frame 10)		Player 2  (frame 11)
+		10 -->				<-- 10 (cached)
+Here player 2 has already sent the packet for 11
+	Player 1  (frame 11)		Player 2 (frame 11)
+		11 -->				wait for 11
+	Player 1  (frame 11)		Player 2 (frame 12)
+		wait for 11			<-- 12
+		get 12, timeout
+
+This goes on, repeating, as the two players advance frames in lock-step,
+one frame per timeout.
+
+The solution is for Player 1 to immediately resend its current frame packet
+if it receives a packet for the next frame.  At that point it knows that
+the other player has already advanced to the next frame and has already
+sent the packet for the current frame.  If it caches the packet for the
+next frame, the next time around, it just sends the packet for the next
+frame, and advances immediately.  The two players are now back in sync.
+
+This assumes that few packets will be dropped or otherwise lost.
+This seems to be a valid assumption.  It was tested over a 32.6K link to 
+Australia and though the game was unplayably slow because of round trip
+times, dropped, lost, and timed out packets were few and far between.
+
+The new senario:
+
+	Player 1  (frame 10)		Player 2  (frame 10)
+		10 -->				<-- 10
+		dropped packet
+	Player 1  (frame 10)		Player 2  (frame 11)
+		get 11, cache 11, 10 -->		<-- 11
+	Player 1  (frame 10)		Player 2  (frame 11)
+		get 10				<-- 10 (cached)
+	Player 1  (frame 11)		Player 2  (frame 11)
+		11 -->				get 11
+	Player 1  (frame 12)		Player 2 (frame 12)
+		12 -->				<-- 12
+
+The players are now synchronized again.
+
+	This run-wait scheme works very well when you have a set
+of hosts that are broadcasting synchronization packets to each other at
+high rates.  It prevents the stop-wait syndrome, and reduces the necessity
+of timeouts, the main disadvantages of using UDP for small packet based
+communications.  It has been shown, through extensive testing, to be highly
+effective for frame-based network games such as Maelstrom.
+
+	IT WORKS!!
+
+		Anybody wanna play? :-)
+
+(slouken@devolution.com)

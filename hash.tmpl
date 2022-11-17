@@ -1,0 +1,139 @@
+
+
+#ifndef _hash_tmpl
+#define _hash_tmpl
+
+#include <string.h>
+
+#define ODD_STRUCTURES
+#include "list.tmpl"
+
+#undef  ODD_STRUCTURES
+
+
+/* Simple generic numerically keyed hash table class */
+
+/* Usage:
+	new Hash<ITEM>(granularity);
+	List->Add(int, ITEM &);
+	item = List->Search(key);
+	wasinhash = List->Remove(key);
+*/
+
+template <class ITEM>
+class Hash {
+
+public:
+	Hash(int granularity) {
+		Granularity = granularity;
+		Table = new List<keyitem>[Granularity];
+		iteration = 0;
+	}
+	virtual ~Hash() {
+		keyitem *deletable;
+
+		for ( int i=0; i<Granularity; ++i ) {
+			Table[i].InitIterator();
+			while ( (deletable = Table[i].Iterate()) )
+				delete deletable->item;
+		}
+		delete[] Table;
+	}
+
+	virtual ITEM *Add(int key, ITEM &copyme) {
+		keyitem *capsule, *newcapsule;
+
+		if ( Search(key) )
+			return(NULL);
+
+		/* Create a new key/item pair */
+		capsule = new keyitem;
+		capsule->key = key;
+		capsule->item = new ITEM;
+		*(capsule->item) = copyme;
+
+		/* Insert it into the table */
+		newcapsule = Table[NumToHash(key)] += *capsule;
+		delete capsule;
+		return(newcapsule->item);
+	}
+
+	virtual ITEM *Search(int key) {
+		keyitem *nextitem;
+		int      index;
+
+		index = NumToHash(key);
+		Table[index].InitIterator();
+		while ( (nextitem = Table[index].Iterate()) ) {
+			if ( nextitem->key == key )
+				break;
+		}
+		if ( nextitem )
+			return(nextitem->item);
+		return(NULL);
+	}
+	virtual ITEM *operator==(int key) {
+		return(Search(key));
+	}
+
+	virtual int Remove(int key) {
+		keyitem *nextitem;
+		int      index;
+
+		index = NumToHash(key);
+		Table[index].InitIterator();
+		while ( (nextitem = Table[index].Iterate()) ) {
+			if ( nextitem->key == key )
+				break;
+		}
+		if ( nextitem ) {
+			Table[index] -= nextitem;
+			return(1);
+		}
+		return(0);
+	}
+	virtual int operator-=(int key) {
+		return(Remove(key));
+	}
+
+	virtual void InitIterator(void) {
+		iteration = 0;
+		Table[iteration].InitIterator();
+	}
+	virtual ITEM *Iterate(int *keyval) {
+		keyitem *nextitem;
+
+		if ( (nextitem=Table[iteration].Iterate()) != NULL ) {
+			if ( keyval ) *keyval = nextitem->key;
+			return(nextitem->item);
+		}
+
+		while ( ++iteration < Granularity ) {
+			Table[iteration].InitIterator();
+
+			if ( (nextitem=Table[iteration].Iterate()) != NULL ) {
+				if ( keyval ) *keyval = nextitem->key;
+				return(nextitem->item);
+			}
+		}
+		return(NULL);
+	}
+	virtual ITEM *Iterate(void) {
+		return(Iterate(NULL));
+	}
+
+protected:
+	int Granularity;
+	int iteration;
+	typedef struct keyitem {
+		int   key;
+		ITEM *item;
+	} keyitem;
+	List<keyitem> *Table;
+
+	int NumToHash(int num) {
+		return(num%Granularity);
+	}
+};
+
+#endif /* _hash_tmpl */

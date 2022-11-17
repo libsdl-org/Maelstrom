@@ -1,0 +1,44 @@
+
+
+			Known Maelstrom Bugs
+                       ----------------------
+
+Generic bugs:
+
+	If Maelstrom crashes, your keyboard will be left in no-keyrepeat
+	mode.  To fix this, just do 'xset r' after Maelstrom crashes.
+
+	Also, during the Maelstrom game, keyrepeat is turned off.
+
+   *	Sometimes asteroids leave trails behind them when they go offscreen.
+
+
+Netlogic bugs:
+
+	The identifying blue dot will appear in single player mode if
+	compiled with multiplayer support.
+
+
+Linux SVGA version:
+
+   *	For some reason, the key release events are occasionally being missed.
+	Sometimes a key will get "stuck" between levels, or even in the
+	middle of a game.  Just press the key and release it again.
+
+
+DEC version:
+
+   *	Maelstrom fading has crashed twm on at least two occasions.
+	Just run Maelstrom with the '-nofade' option if you run twm
+	or the fading crashes your machine.
+
+	No sound support.
+
+
+HPUX version:
+
+	Sound sucks.  Turn the volume off by typing '0' on the main menu.
+
+
+[*]  The reason for this bug is not currently known.
+

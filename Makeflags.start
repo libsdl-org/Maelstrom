@@ -1,0 +1,12 @@
+
+# Some sensible defaults
+BINDIR = /usr/local/bin
+LIBDIR = /usr/local/lib/Maelstrom
+
+INSTALL = install
+
+DATAFILES = Images/*.icon Images/*.cicn "Maelstrom Fonts" \
+            "Maelstrom Sounds" "Maelstrom Sprites"
+
+all: config
+

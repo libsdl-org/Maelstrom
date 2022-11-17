@@ -1,0 +1,236 @@
+
+Maelstrom 1.4.3 -- Linux version
+
+Version 2.0.7:
+	*	Added a netscore environment variable: MAELSTROM_SCORESERVER
+	*	Fixed long-standing 24/32 bpp X display detection problem
+	*	Fixed minor compilation problems with modern Linux systems
+	*	Moved error routines into separate file - fixed PPC Linux
+
+Version 2.0.6:
+	*	Maelstrom no longer eats CPU while paused -- Oops. :)
+	*	Added interlaced pixel doubling for faster doubled display
+	*	Added pixel doubling to Win95 framebuffer code
+	*	Ported to SunOS and Sparc Linux
+	*	Fixed infinite recursion on sound callbacks.
+
+Version 2.0.5b:
+	*	Fixed silly 16 bpp blit code bug
+	*	Fixed 'make install' -- uses "install" by default
+	*	Fixed segmentation fault in the SVGAlib framebuf driver
+	*	Enhanced the DGA code for HiColor and TrueColor depths
+	*	GREATLY increased DGA speed for linear video cards!
+
+Version 2.0.5:
+	*	Added PIXEL_DOUBLING back in the X11 display driver
+	*	The DISPLAY environment variable overrides Linux console
+	*	Steel asteroids really aren't supposed to last forever. :)
+	*	Saucer shots don't kill when saucer is destroyed (netlogic)
+	*	Optimized framebuffer blitting code
+	*	Fixed completely white screen on big-endian systems (Sun/SGI)
+	*	Fixed bug in right edge clipping
+	*	GIF format screendumps from high bit-depths okay (slow!)
+	*	Linux sound defaults to 8 bit again -- sounds better.
+
+Version 2.0.4:
+	*	Added 32 bit TrueColor X11 display support
+	*	FrameBuf now supports video memory locking and pitch
+	*	FrameBuf::ReColor() maps image pixels to screen pixels
+	*	Optimized the compiled sprite engine
+	*	Speeded up truecolor video, slightly slowed 256 color video
+	*	Removed pixel doubling support
+	*	Removed background pixmap shared memory support (not needed)
+	*	Stars!! Lots and lots of Stars!!!
+	*	Ported to Windows 95 (unreleased)
+
+Version 2.0.3b:
+	*	Fixed bug in which VGA keys must be pressed twice to start.
+	*	Added crappy VGA 16 color mode - yuck.  LOW_RES is better.
+
+Version 2.0.3a:
+	*	Fixed segmentation fault in mixer-dma.cc
+	*	Added error checking to X_image creation.
+	*	Added native support for FreeBSD and SVR4.2
+			(Thanks to Stephen Hocking <sysseh@devetir.qld.gov.au>)
+
+Version 2.0.3:
+	*	Fixed silly full-screen window bug
+	*	Bonuses, comets and gravity don't shake and shimmy no mo'
+	*	Very slightly improved NAS support .. yech, don't use it.
+	*	Added experimental DMA audio support for Linux - nice. :)
+	*	New life accounting during bonus screen works now.
+	*	Cleaned up the Makefile logic
+
+Version 2.0.2:
+	*	Kjetil Torgrim Homme added compiler-specific cleanup.
+	*	Multiplayer scores are now updated properly.
+	*	Fixed asteroid counting problem after an explosion.
+	*	Set default fading to pixellated, added -realfade option.
+
+Version 2.0.0:	Beta!
+	*	Added a network address server for multi-player games
+	*	Cleaned up my code some, gcc -Wall is a bit cleaner. :-)
+	*	Fixed problem on SGI where make would always recompile.
+	*	Ported to AIX 3.2 with gcc 2.7.2 (No sound)
+			(Thanks to C. Chan <chan@alfrothul.uchicago.edu>)
+	*	Updated some documentation. :)
+	*	Added slower smoother double-buffering for SVGA graphics
+	*	Added cheap, slow, low resolution SVGA mode (320x240x256)
+			(Inspired by Scott Stone <sstone@pht.com>)
+	*	Added experimental 8-bit XFree86 3.1.2E DGA support.
+	*	Added "-displaytype" option to query current display.
+
+Version 2.0.0:	Alpha!
+	*	New!! Multi-player mode!  Up to 3 players!  Has Bugs!! :)
+	*	Added some basic joystick support for Linux.
+	*	Added a network-based score registration server.
+	*	Added a '-printscores' command line option.
+	*	Added a '-netscores' command line option.
+	*	Added the ability to display on remote X terminals.
+	*	Added a '-display <display>' command line option.
+	*	Fixed a minor high score name entering bug.
+	*	Fixed endian compile problems on HPUX.
+	*	More robust data file searching (files can contain '_')
+	*	Time bug fix -- by Warwick Allinson (warwick@cs.uq.oz.au)
+	*	Added better fading code for the -nofade option
+			This is slow on 16-24 bit displays.  Comments?
+	*	Maelstrom now understands AppleDouble resource forks
+	*	Finally fixed "press Enter after switching consoles" bug
+			Inspired by Tessa Lau (tlau@cs.washington.edu)
+	*	Finally fixed "stuck keys between levels" SVGA problem.
+	*	Hopefully sped up SVGAlib refresh (removed a mem copy)
+	*	A few code cleanups.
+	*	Never seeded random number generator in prior versions.
+	*	NEW!  Now using the original FastRandom() function, 
+			for more Macintosh fidelity. :-)
+	*	Finally fixed SGI sound!
+		 Thanks to great work by Tom Anderson (tom@proximity.com.au)
+		 and original code boost by Alain Schmidt (alainrd@trix.be)
+	*	Sound server enhancements by Tom Anderson:
+			Mellowed out sound volume for less clipping.
+			Added 16 bit sound for SGI's
+			Added POSIX signal support to the sound server.
+			Created a portable usleep() function (select() based)
+	*	Added Screen capture during game - triggered by hitting F3
+			Saves to XPM or GIF format (compile time option)
+	*	Added the pixel fade feature to SVGA mode.
+	*	Added a Configure script that autodetects your system.
+	*	Fixed some timing bugs in Delay()
+	*	Optimized some of the sprite blitting.
+
+Version 1.1.4:
+	*	Fixed a time related bug in "long" v.s. "unsigned long"  !!??
+	*	Removed an offending "#include <vga.h>" from main.cc
+	*	Improved SVGA refresh algorithm (Thanks ARDI!)
+			(too slow on my machine -- #ifdef'd out)
+	*	Fixed a bug in shots not wrapping vertically
+			(Thanks to Dave Ljung for finding that)
+
+Version 1.1.3: 
+	*	Fourth Public Release: 12/10/95
+	*	Fixed asynchronous I/O problem on Solaris.
+	*	Finished port of Maelstrom to Solaris 2.4
+	*	Finished port of Maelstrom to SGI (IRIX 5.3
+	*	Ported Maelstrom to ULTRIX 4.4	(No sound)
+	*	Ported Maelstrom to HPUX 9.01	(No sound)
+	*	Added a '-version' command line option.
+	*	Added a '-fullscreen' command line option for X11.
+	*	Added a '-nofade' command line option.
+	*	If just '-gamma' is given, we print the current gamma level.
+	*	Fixed a problem with '-privatecmap' where the mouse had
+		to leave and re-enter the window to update the colormap.
+	*	Added pixel doubling support -- compile-time option.
+	*	Maelstrom pauses while iconified under X11.
+	*	If Maelstrom is on a Linux console, it will run in SVGA mode.
+	*	Oops, fixing Trident SVGA broke Mach32 SVGA.  Fixed.
+	*	Added /dev/audio sound support.
+			Thanks to 'rockndiamonds' and 'snd2au.c'  - Thanks! :)
+Copyright for snd2au.c:
+/************************************************************************/
+/*      Copyright 1989 by Rich Gopstein and Harris Corporation          */
+/*                                                                      */
+/*      Permission to use, copy, modify, and distribute this software   */
+/*      and its documentation for any purpose and without fee is        */
+/*      hereby granted, provided that the above copyright notice        */
+/*      appears in all copies and that both that copyright notice and   */
+/*      this permission notice appear in supporting documentation, and  */
+/*      that the name of Rich Gopstein and Harris Corporation not be    */
+/*      used in advertising or publicity pertaining to distribution     */
+/*      of the software without specific, written prior permission.     */
+/*      Rich Gopstein and Harris Corporation make no representations    */
+/*      about the suitability of this software for any purpose.  It     */
+/*      provided "as is" without express or implied warranty.           */
+/************************************************************************/
+
+Version 1.1.2:
+	*	Third Public Release: 10/17/95
+	*	Fixed a compiler warning on vga_frambuf.cc
+	*	Changed installation directory to /usr/local/bin
+	*	Beautified the 'install' target in the Makefile
+	*	Added 'uninstall' target to Makefile
+
+	*	Bugs known in Linux X11 version:
+			Iconifying Maelstrom doesn't put it in pause mode.
+
+	*	Bugs known in Linux SVGA version:  (unknown causes)
+			Keys can get "stuck" between levels.
+			Console switching doesn't always pause the game
+			After switching consoles, keystrokes cause SIGQUIT ??
+
+	*	Sort-of ported Maelstrom to Solaris 2.4
+		Known bugs:	(unknown causes)
+			Setting asynchronous I/O in Sound Server returns EINVAL
+			Sound support not tested
+
+	*	Sort-of ported Maelstrom to the SGI
+		Known bugs:	(unknown causes)
+			Fading doesn't work, and neither does -privatecmap
+			Some scores are reported as low negative numbers
+			No sound support
+
+	*	Sort-of ported Maelstrom to HPUX 10.0
+		Known bugs:
+			Not tested with X11
+			No sound support
+
+Version 1.1.1:
+	*	Fixed a slight slowdown bug in mixer.cc
+			(Thanks to John Seng <jseng@nwu.edu> for catching it.)
+	*	Fixed the "white border" problem on some vga cards (trident)
+		(Thanks to Antti J Tanskanen <atanskan@cc.helsinki.fi>)
+	*	Fixed a bug in the cheat code, when you enter zero lives.
+	*	Fixed a problem with Maelstrom_sound exiting with signal 11.
+	*	Added Makefile variable toggling compiling SVGA support.
+	*	Added "all-time high" Maelstrom-Scores file.
+
+Version 1.1.0:
+	*	Second Public Release: 9/1/95
+	*	Made Maelstrom code more portable, using bytecopy macros
+		and using shared memory XImages instead of BG pixmaps.
+	*	Discovered that shared memory XImages are truly faster
+		than shared background pixmaps.  Default to use XImage.
+		(Thanks to Peter Mattis <petm@CSUA.Berkeley.EDU>)
+	*	Added -speedtest option to test the speed of Maelstrom
+		graphics blitting.  SVGA is about 30% faster than shared
+		memory XImages in X11, on my system.
+	*	Added -gamma N option, allowing gamma correction levels
+		from 0 through 8.
+	*	Fixed a sound race condition on slow machines.
+	*	Added 24 bit color support.
+
+Version 1.0.1:
+	*	Added the "NewSounds" directory, filled with sound patches
+		for Maelstrom collected from the Internet.
+	*	Fixed Maelstrom so it would play the Simpsons sound patch.
+	*	BUG: Bonus stage sound can break up during the screen fade
+		on slow systems.  The fix is to use a larger sound fragment
+		size, but this negatively impacts synchronization of the
+		Maelstrom process and the sound server.  Not fixed.
+	*	Fixed a coding issue so Maelstrom could be compiled with
+		g++ 2.7.0
+	*	Defined true and false for compiling with X11R5.
+	*	Added 15/16-bit color support.  (Thanks to Peter Mattis)
+	*	Fixed problem with Maelstrom leaving shared memory around.
+		
+Version 1.0:
+	*	First Public Release: 8/1/95

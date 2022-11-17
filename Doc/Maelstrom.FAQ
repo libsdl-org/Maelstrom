@@ -1,0 +1,602 @@
+
+-MAELSTROM FAQ------------------------------------------------------------
+
+[display this document using the typeface Monaco 9 for best results]
+
+
+-PURPOSE------------------------------------------------------------------
+
+      FAQ is an acronym for Frequently Asked Questions.  This FAQ is an
+attempt to provide a comprehensive source of information about the game
+Maelstrom, and was created in response to questions that are frequently
+raised by our customers.  We hope you find it useful.
+
+      If there are any questions you have about Maelstrom that are not
+answered in this FAQ, please get in touch with us so we can include them in
+future revisions.
+
+
+-CREDITS------------------------------------------------------------------
+
+      Author: Andrew Welch
+  Linux Port: Sam Lantinga
+Contributors: "Cajun" David Richard, John Haley, Ed "DAMAGE" Ota,
+               Gayle Haarr
+   Thanks to: David Freitas
+
+Copyright (C) 1995 by Ambrosia Software, Inc.
+
+
+-FAQ HISTORY--------------------------------------------------------------
+
+     Version: 2.0.4L
+     Created: 5/24/95
+Last Revised: 12/16/96
+
+
+-DISCLAIMER---------------------------------------------------------------
+
+      This document is provided as is, without any express or implied
+warranties.  While every effort has been taken to ensure the accuracy of the
+information contained in this document, the author assumes no responsibility
+for errors or omissions, or for damages resulting from the use of the
+information contained herein.
+
+
+-CONTENTS-----------------------------------------------------------------
+
+This FAQ answers the following questions:
+
+(* Indicates an updated or new question since the last version of this FAQ)
+
+GENERAL
+  - What is Maelstrom?
+* - What computer do I need in order to play Maelstrom?
+  - Who makes Maelstrom and how can I get in touch with them?
+* - Where can I obtain Maelstrom?
+  - What is the latest version of Maelstrom?
+  - How much does Maelstrom cost, and how do I pay for it?
+  - Why should I register (pay for) Maelstrom?
+  - My license code is invalid; what's wrong?
+* - Will Maelstrom ever be ported to DOS?
+  - Will there be future versions of Maelstrom?
+
+GAME PLAY
+  - What are the point values for the various baddies in Maelstrom?
+  - What does the "luck" yummy do?
+  - How can I pause or abort a game?
+  - What is the optimal control configuration for playing Maelstrom?
+  - When do comets/multipliers/supply canisters appear?
+  - Is there such a thing as an "empty" supply canister?
+  - Is there any kind of an end to the game?
+  - How can I cheat while playing Maelstrom?
+  - Do you have any hints or tips for playing Maelstrom?
+
+COMPATIBILITY  (Linux)
+  - What version of kernel and X11 do I need?
+  - Do I need a mouse?
+  - Do I need a sound card?
+  - Where is the console version of Maelstrom?
+* - Will Maelstrom run in more than 256 colors?
+* - Will Linux Maelstrom use the alternate sound patches out there?
+  - Will Maelstrom be ported to other UNIX operating systems?
+  - How do I get rid of the "Can't open soundcard" warnings?
+  - I have problems with stuck keys in the Linux console.
+  - Can I play networked with other UNIX systems?
+  - Can I play networked with other Macintosh systems?
+
+HISTORY
+  - What does "Maelstrom" mean?
+  - What language is Maelstrom written in?
+  - Who did the artwork for Maelstrom?
+  - When was Maelstrom first released?
+  - How long did it take to create Maelstrom?
+
+
+-GENERAL------------------------------------------------------------------
+
+[Q] - What is Maelstrom?
+
+[A] - Maelstrom is a fast action arcade-style game for the Macintosh that
+uses rendered 3D graphics, high speed animation, and four channel digitized
+sound effects.  The end result is a nerve-wracking arcade game that is sure
+to leave blisters on your fingers.
+
+      Maelstrom has been given a 4.27 out of 5.0 in Inside Mac Games's player
+satisfaction poll. This puts Ambrosia's feisty $15 shareware program among
+the top ten ranked games, with expensive retail titles such as Hellcats Over
+The Pacific, Myst, Sim City 2000, and F/A-18 Hornet. Maelstrom also received
+a four star rating from Macworld, won the Shareware Industry Award for Best
+Mac Program, MacUser's Shareware/Entertainment Software award, and MacUser
+UK's Best Entertainment Software Award.
+
+.....
+
+[Q] - What computer do I need in order to play Maelstrom?
+
+[A] - Maelstrom works on any Macintosh with a 256 color display and at least
+2.3mb of free memory.  Unlike many arcade-style games, Maelstrom DOES work on
+12" monitors.
+    - Maelstrom also runs on Linux machines, running in X11 or at the
+console.  If your machine runs X11 smoothly, you should have no problems
+playing Maelstrom.  If you run the console version, make sure that your
+video card is one supported by SVGAlib; e.g. Cirrus Logic 5426.
+    - Maelstrom also runs on Windows 95, using DirectX technology.
+
+.....
+
+[Q] - Who makes Maelstrom and how can I get in touch with them?
+
+[A] - Maelstrom is published as shareware by Ambrosia Software, Inc., a
+Macintosh-only, shareware-only company.  The game itself was written by
+Andrew Welch, the founder of Ambrosia.  To get in touch with Ambrosia, you
+can use any of the following methods:
+
+US Mail:
+     Ambrosia Software, Inc.
+     PO Box 23140
+     Rochester, NY 14692
+
+Voice:
+     716.325.1910 (technical support)
+     800.231.1816 (orders only)
+
+Fax:
+     716.325.3665
+
+eMail:
+     America Online: AmbrosiaSW
+         Compuserve: 74777,1147
+             eWorld: AmbrosiaSW
+              GEnie: AmbrosiaSW
+           Internet: AmbrosiaSW@AOL.com
+
+    - The Linux port was written as freeware, and authored with permission
+by Sam Lantinga.  The Linux version is not supported by Ambrosia software.
+If you have questions about the Linux version of Maelstrom, or just want to
+say hello, Sam can be reached at:
+
+eMail:
+           Internet: slouken@devolution.com
+
+.....
+
+[Q] - Where can I obtain Maelstrom?
+
+[A] - The latest version of Maelstrom is always available in the Ambrosia
+Software, Inc. forums on the following services:
+
+      o America Online:  While you are signed on AOL, choose Keyword...
+         from the GO TO menu, type AMBROSIA and hit the return key.
+
+      o eWorld:  While you are signed on eWorld, choose Go to Shortcut...
+         from the PLACES menu, type AMBROSIA and hit the return key.
+
+      o CompuServe:  While you are signed on CompuServe, use GO word
+         AMBROSIA to reach the Mac Vender D area, where Ambrosia Software,
+         Inc. maintains a forum.
+
+      o Internet: Maelstrom can be found at the following sites:
+         mac.archive.umich.edu: /mac/space/maelstrom1.41.sea.hqx
+         sumex-aim.stanford.edu: /info-mac/game/arc/maelstrom-141.hqx
+
+      And last but not least, you can obtain Maelstrom from us for $5.00 to
+cover shipping & handling.  You place your order by sending us a check via US
+mail, faxing us your credit card number & expiration date, sending us your
+credit card number & expiration date via electronic mail, or calling our 800
+number order line: 800.231.1816.
+
+      If you'd like a full color brochure featuring each of Ambrosia's
+products sent to you *free of charge*, simply drop us an eMail or call us at
+716.325.1910 and we'll get it right off to you.  Make sure you include your
+full name, address, and country when requesting a brochure.
+
+    - The Linux version of Maelstrom is available on the internet via
+ftp from the following sites:
+         ftp://ftp.devolution.com/pub/maelstrom/
+	
+.....
+
+[Q] - What is the latest version of Maelstrom?
+
+[A] - The current version of Maelstrom is 1.4.1, dated 8/10/94.
+    - The current version of Linux Maelstrom is 2.0.4, dated 12/16/96.
+
+.....
+
+[Q] - How much does Maelstrom cost, and how do I pay for it?
+
+[A] - Maelstrom costs $15 US funds.  Maelstrom has an integrated registration
+system that allows you to easily register it a number of ways:
+cash/check/money order/credit card via US mail, credit card via fax, or
+credit card via eMail.  Simply launch Maelstrom, and click on the Register...
+button in the splash screen that appears.  You'll be painlessly lead through
+the registration system.
+
+      Ambrosia Software, Inc. also has a toll free order line. If you wish to
+purchase Maelstrom, you can use your Visa or Mastercard and call
+800.231.1816. If you are calling outside the US/Canada region, or need
+technical assistance, please call 716.325.1910.
+
+      We will process your order right over the phone, and give you a license
+code immediately. We will also take orders for sending disks with the
+Ambrosia Software products you are interested in, so that you can try them
+out and decide if you would like to purchase them (see below for more
+information).
+
+      After we have processed your registration, you will receive a license
+code that you enter to complete the registration process. This code removes
+the shareware notices and personalizes your copy of the product.
+
+      To enter your license code, simply double-click on the Ambrosia
+Software product for which you have purchased a license.  A shareware notice
+will come up on the screen, with a few buttons along the bottom.  To enter
+your license code, click on the Enter Code... button, and make sure you enter
+all of the license information exactly as it is shown.  That's all there is
+to it.
+
+    - The Linux version of Maelstrom is free, but if you want to send
+money or donate equipment, send e-mail to Sam Lantinga (slouken@devolution.com)
+If you have a Macintosh, I also recommend that you get the Macintosh version
+and register it with Ambrosia Software.  They did an excellent job. :-)
+
+.....
+
+[Q] - Why should I register (pay for) Maelstrom?
+
+[A] - We're attempting to offer high quality products at a low price, on a
+"try before you buy basis."  Supporting us by registering Maelstrom --
+assuming you like the game -- is the only way you can ensure that we will
+continue to produce more high quality software distributed as shareware.
+
+      Beyond that, you will receive a license code that removes the shareware
+notices and personalizes Maelstrom with your name, giving you a legal copy of
+Maelstrom on your Macintosh.
+
+.....
+
+[Q] - My license code is invalid; what's wrong?
+
+[A] - The license code you were sent is based on your name as you gave it to
+us when you registered.  Make sure that you are entering your name EXACTLY as
+it appears on your registration confirmation.  If you still have a problem
+with your license code not working, please get in contact with us and we will
+take care of the situation for you.
+
+.....
+
+[Q] - Will Maelstrom ever be ported to DOS?
+
+[A] - Despite a number of requests, we have no plans to port Maelstrom over
+to DOS/Windows.  We lack the know-how, time, and inclination to undertake
+such a project, so it doesn't look like it is going to happen.  Sure is nice
+for the shoe to be on the other foot for once, no?  :)
+
+    - Linux, however, is a different story.  *grin*
+      I've also done an unofficial Win95 port so I could learn how to program
+      DirectX/Win95 games, but I can't release it right now for copyright
+      reasons.
+                                         -- Sam Lantinga
+
+.....
+
+[Q] - Will there be future versions of Maelstrom?
+
+[A] - We consider Maelstrom a "done" work.  We will of course continue to
+maintain the game by fixing bugs and adding ancillary features, but short of
+a sequel, we will not be making changes to the basic game itself.
+
+      Note: we are not announcing that there will be a sequel to Maelstrom,
+just that it is a possibility.
+
+.....
+
+
+-GAME PLAY----------------------------------------------------------------
+
+[Q] - What are the point values for the various baddies in Maelstrom?
+
+[A] - Maelstrom Scores Breakdown:
+
+      Small Asteroid                   300 points
+      Medium Asteroid                  100 points
+      Big Asteroid                      50 points
+      Vortex                           500 points
+      Shenobi Autonominous Mine        700 points
+      Star going Nova                 1000 points
+      Shooting a Steel Asteroid        100 points
+      Destroying a Steel Asteroid     5000 points
+      Large Enemy                     1000 points
+      Small Shenobi Fighter           2000 points
+
+ [yes, the Steel Asteroids can be destroyed if you are persistent enough]
+
+.....
+
+[Q] - What does the "luck" yummy do?
+
+[A] - Luck gives you a 1 in 3 chance of saving your ship when you should have
+died (you'll hear "Sweet!" if that happens) and a 1 in 3 chance of keeping
+your special weapons when you do die.  Remember, lady luck is a fickle
+mistress.
+
+.....
+
+[Q] - How can I pause or abort a game of Maelstrom?
+
+[A] - The Caps Lock key pauses Maelstrom while you are in the middle of a
+game, allowing you to take a breather or switch out to another application if
+you desire.  To resume a game after you've paused it, simply depress the Caps
+Lock key.
+    - In the Linux version, the PC keyboard 'Pause' key performs the same
+function as the Caps Lock key in the Macintosh version.  This can also be
+configured in the Configure control panel of the Linux version.
+
+      The ESC (escape) key aborts the game you're playing. This is not a
+"quit" key, but an "end the game because the pizza's here" key. It is only
+operational when you are playing the game.
+
+.....
+
+[Q] - What is the optimal control configuration for playing Maelstrom?
+
+[A] - You should usually keep the Maelstrom controls set to the "factory
+default."  Some new Apple keyboards don't allow for more than two keys to be
+down simultaneously, which can inhibit good game play.  However the Shift,
+Option, Control, and Command keys don't count as real keys, so if you have a
+few of Maelstrom's controls set to these keys (as in the "factory default"
+controls), you'll have much better control over your ship.
+
+.....
+
+[Q] - When do comets/multipliers/supply canisters appear?
+
+[A] - When a new level is started, Maelstrom determines ahead of time if a
+comet, multiplier, or supply canister will appear.  These items will appear
+within 30 seconds after starting a wave, or they won't appear at all.
+
+.....
+
+[Q] - Is there such a thing as an "empty" supply canister?
+
+[A] - There are no "dud" supply canisters.  You may however get a present
+that you already have, or you may get a canister that gives you more shield
+power.
+
+.....
+
+[Q] - Is there any kind of an end to the game?
+
+[A] - No.  Maelstrom just continues to get harder and harder as you proceed
+through the game.  There are as many waves in Maelstrom as you can handle.
+
+.....
+
+[Q] - How can I cheat while playing Maelstrom?
+
+[A] - To access the "cheat mode," hit the 'L' key at the main screen.  A
+dialog box will appear that allows you to choose the starting wave, number of
+lives, and turbofunk option.  You won't be able to get a high score if you
+use this "cheat mode," but it is a good way to practice.
+
+.....
+
+[Q] - Do you have any hints or tips for playing Maelstrom?
+
+[A] - I'm glad you asked, here's the official Ed "DAMAGE" Ota guide to total
+Maelstrom destruction:
+
+      o Learn how to fly the ship so you do not become shield dependent.
+
+      o Stay away from the borders, visibility is limited and you could
+         get a nasty surprise.
+
+      o Concentrate on one asteroid at a time, this will limit the amount
+         of debris floating around.
+
+      o Better to shoot at a distance, large asteroids shatter into small
+         ones that could take you out.
+
+      o Spread your shots out when shooting a large asteroid. This will
+         take out some of the smaller ones. 
+
+      o Configure the ship control keys the way you feel most comfortable.
+
+      o Shoot vortex's to get rid of them.
+
+      o Shoot floating autonominous mines (6 hits Approx.), if you run
+         away it will only track you down.
+
+      o Keep moving when a Shenobi ship appears. Staying put makes you
+         easy prey.
+
+      o Move quickly to get canisters and bonus points. They do not stick
+         around for long. Canisters make about three passes.
+
+      o It is better to stop or turn around a steel asteroid with shots
+         then it is to throw on the shields and get bounced across the
+         screen.
+
+      o A fast moving steel asteroid is like a derailed freight train,
+         stay out of their way and try to slow them down with shots from
+         the opposite direction.
+
+      o Multiple shots will destroy a steel asteroid, but between the
+         first shot and last shot is a very pissed off asteroid.
+
+      o After eliminating the last asteroid you have a small amount of
+         grace time. Bonus points will continue to add up, but if you lose
+         a ship it is not counted against you. Move quickly and
+         aggressively to attack Shenobi ships or pick up bonus items
+         during this time.
+
+      o Use a sweeping motion to get maximum effect from machine guns.
+
+      o Spare the last asteroid for a while to rack up bonus points and
+         benefits. Beware of the Shenobi ships though, don't get too
+         greedy.
+
+      o When using the spray gun to go after large asteroids, close in for
+         the kill. This will allow you to eliminate all of the little
+         asteroids after the first hit.
+
+      o A circular motion will allow you to wipe out almost everything
+         when using the long range shots. But there may be a few stubborn
+         rocks you have to concentrate on.
+
+      o The smaller Shenobi ships are smaller, "smarter" and more
+         aggressive.  It may be wise to avoid these mighty midgets.
+
+      o As in life, always try to stay a step ahead of the game. Try to
+         predict your next move, if you can do this, you will do well in
+         Maelstrom.
+
+.....
+
+
+-COMPATIBILITY-(LINUX)----------------------------------------------------
+
+[Q] - What version of kernel and X11 do I need?
+
+[A] - Linux Maelstrom was developed using the 1.2 series kernel, SVGAlib
+version 1.2.6 and XFree86 version 3.1.  It should run with any stable series
+Linux kernel that includes the VoxWare sound driver.
+
+.....
+
+[Q] - Do I need a mouse?
+
+[A] - You don't have a mouse?  Well, the only thing you _need_ a mouse
+for is the keyboard configuration control panel.  If you never use the
+"configure controls" control panel, you'll be okay.
+
+.....
+
+[Q] - Do I need a sound card?
+
+[A] - You don't need a sound card to play Maelstrom for Linux, however
+it is highly recommended that you have one.  The sounds of Maelstrom 
+are almost necessary for the full appreciation of the game.
+
+.....
+
+[Q] - Where is the console version of Maelstrom?
+
+[A] - The same Linux binary will run in both X Windows and the Linux
+console.  If you want to run the full-screen console version of Maelstrom,
+just run 'Maelstrom' from a console window.  Beware, if your video card
+is not supported by SVGAlib, your screen might freeze, and you'll have
+to reboot with CTRL-ALT-DEL or the reset button (depending on your system
+configuration.)
+
+.....
+
+[Q] - Will Maelstrom run in more than 256 colors?
+
+[A] - Yes, Maelstrom will run on displays supporting up to millions
+of colors.
+
+.....
+
+[Q] - Will Linux Maelstrom use the alternate sound patches out there?
+
+[A] - Yes, it will play most patches that work with the Macintosh version.
+The trick is that you must get the _resource fork_ of the sound patch and
+name it "Maelstrom Sounds" in the Maelstrom library directory (by default
+/usr/local/lib/Maelstrom)
+      Maelstrom fully understands the resource forks produced by the
+Macintosh emulator "Executor" available at www.ardi.com.  You can use
+Executor to extract Macintosh archives and use the resulting resource
+forks -- the files beginning with "%".
+
+.....
+
+[Q] - Will Maelstrom be ported to other UNIX operating systems?
+
+[A] - Yes!!
+	* The port to Solaris 2.4 is complete.  
+	* The port to HPUX 9.03 is complete, except for the sound, which
+	  is not synchronous.
+	* The port to the SGI (IRIX 5.3) is complete.
+	* The port to ULTRIX 4.2 is complete except for sound.
+	* The port to OSF 3.2A is on hold.
+(All ports are the work of Sam Lantinga, except for the SGI sound server,
+ which was done in collaboration with Tom Mander and Alain Schmit)
+
+.....
+
+[Q] - How do I get rid of the "Can't open soundcard" warnings?
+
+[A] - Turn the sound volume off by typing "0" on the main menu.
+
+.....
+
+[Q] - I have problems with stuck keys in the Linux console.
+
+[A] - Try running Maelstrom with the '-nofade' option.  The problem
+seems to be missed keyboard interrupts during the "fading" operation.
+
+.....
+
+[Q] - Can I play networked with other UNIX systems?
+
+[A] - Yes!!  Currently besides Linux, only the Solaris, SGI, and
+DEC versions of Maelstrom have been tested with networking, but they
+all should be able to play networked with each other.
+In my opinion some of the best net play is SGI v.s. SGI. :-)
+
+.....
+
+[Q] - Can I play networked with other Macintosh systems?
+
+[A] - Unfortunately, no.  Networked play is a UNIX-specific feature,
+and is not available for the original Macintosh Maelstrom.
+
+
+-HISTORY------------------------------------------------------------------
+
+[Q] - What does "Maelstrom" mean?
+
+[A] - Maelstrom - 1. any large or violent whirlpool   2. a violently confused
+or dangerously agitated state of mind, emotion, affairs, etc.
+
+.....
+
+[Q] - What language is Maelstrom written in?
+
+[A] - Maelstrom was written in THINK C 5.04.  The main portion of the game is
+in approximately 9,000 lines of assembler.  The non-critical and supporting
+portions of the game are in approximately 18,000 lines of plain old C.
+ Maelstrom uses custom blitting routines for optimal animation performance.
+    - The Linux version of Maelstrom was written completely in C++.
+
+.....
+
+[Q] - Who did the artwork for Maelstrom?
+
+[A] - Ian Gilman did the animation and sprite artwork.  Mark W. Lewis did the
+title screen artwork.  Both are quite talented, in addition to being very
+nice guys.
+
+.....
+
+[Q] - When was Maelstrom first released?
+
+[A] - Maelstrom was first released in November of 1992.
+    - The Linux version of Maelstrom was first released in July of 1995.
+
+.....
+
+[Q] - How long did it take to create Maelstrom?
+
+[A] - The initial (1.0.0) version of Maelstrom took approximately 4 months of
+sleepless days and nights to create.  Subsequent versions (bug fixes,
+enhancements, etc.) have been done over the course of 2 years.
+    - The initial port of Maelstrom to Linux took about 3 months of 
+breaking dawns and bowls of Granola. :-)
+
+.....
+
+
+-END----------------------------------------------------------------------
+

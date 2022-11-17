@@ -1,0 +1,39 @@
+# This file contains the template for Makeflags
+
+SYSTEM =
+FEATURES =
+
+LOGIC =
+
+XPMINCLUDE =
+XPMLINKDIR =
+
+BINDIR =
+LIBDIR =
+DATAFILES = Images/*.icon Images/*.cicn "Maelstrom Fonts" \
+            "Maelstrom Sounds" "Maelstrom Sprites"
+
+OBJS = main.o framebuf.o v_framebuf.o x11_framebuf.o vga_framebuf.o \
+       dga_framebuf.o fontserv.o sound.o Mac_Resource.o imagedump.o \
+       init.o $(LOGIC)/$(LOGIC).o \
+       controls.o scores.o dialog.o fastrand.o netscore.o checksum.o \
+       Utils.o shared.o myerror.o
+SOUNDOBJS = Maelstrom_sound.o Mac_Resource.o soundres.o mixer.o shared.o myerror.o
+
+CXX =
+OPTIMIZE =
+X11INCLUDE =
+INCLUDES = -I$(LOGIC) $(X11INCLUDE) $(XPMINCLUDE)
+CFLAGS = $(OPTIMIZE) $(INCLUDES) $(FEATURES) \
+                              -DSYSTEM=\"$(SYSTEM)\" -DLIBDIR=\"$(LIBDIR)\"
+EXTRALIBS =
+X11LINKDIR =
+X11LIBS =
+CSUMLIB =
+LIBS = $(EXTRALIBS) $(X11LIBS) $(CSUMLIB)
+SOUNDLIBS =
+
+INSTALL =
+
+all: $(MAELSTROM)
+

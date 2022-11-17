@@ -1,0 +1,157 @@
+
+#ifndef _list_tmpl
+#define _list_tmpl
+
+#include <string.h>
+
+/* Simple generic linked list class */
+
+/* Usage:
+	new List<ITEM>;
+	newitemptr = List->Add(ITEM &);
+	listsize = List->Size();
+	itemptr = List->Search(searchfunc);
+	itemptr = List->LastMatch();
+	wasinlist = List->Remove(itemptr);
+*/
+
+template <class ITEM>
+class List {
+
+public:
+	List() {
+		head.prev = NULL;
+		head.item = NULL;
+		head.next = NULL;
+		tail = &head;
+		lastmatch = NULL;
+		iterhead = NULL;
+		size = 0;
+	}
+	virtual ~List() {
+		element *deletable;
+
+		while ( tail != &head ) {
+			deletable = tail;
+			tail = deletable->prev;
+			delete deletable->item;
+			delete deletable;
+		}
+	}
+
+	virtual ITEM *Add(ITEM &copyme) {
+		tail->next = new element;
+		(tail->next)->prev = tail;
+		tail = tail->next;
+		tail->next = NULL;
+		tail->item = new ITEM;
+		memcpy(tail->item, &copyme, sizeof(ITEM));
+		++size;
+		return(tail->item);
+	}
+	virtual ITEM *operator+=(ITEM &copyme) {
+		return(Add(copyme));
+	}
+	virtual ITEM *Last(void) {
+		return(tail->item);
+	}
+	virtual int Size(void) {
+		return(size);
+	}
+
+	virtual ITEM *Search(int (*searchfunc)(ITEM *)) {
+		element *ptr = head.next;
+
+		/* Look for matching elements */
+		lastmatch = NULL;
+		while ( ptr && !(*searchfunc)(ptr->item) )
+			ptr = ptr->next;
+
+		/* Save the match and return it */
+		if ( ptr ) {
+			lastmatch = ptr;
+			return(ptr->item);
+		}
+		return(NULL);
+	}
+	/* Returns true if an identical item is in our list */
+	virtual int operator==(ITEM &isthere) {
+		element *ptr = head.next;
+
+		/* Look for matching elements */
+		lastmatch = NULL;
+#ifdef ODD_STRUCTURES
+		while ( ptr && memcmp(ptr->item, &isthere, sizeof(isthere)) )
+#else
+		while ( ptr && !(*(ptr->item) == isthere) )
+#endif
+			ptr = ptr->next;
+
+		/* Save the match and return it */
+		if ( ptr ) {
+			lastmatch = ptr;
+			return(1);
+		}
+		return(0);
+	}
+	virtual ITEM *LastMatch() {
+		return(lastmatch->item);
+	}
+
+	virtual int Remove(ITEM *lookfor) {
+		element *ptr = head.next;
+
+		while ( ptr && (ptr->item != lookfor) )
+			ptr = ptr->next;
+
+		if ( ptr ) {
+			if ( ptr == lastmatch )
+				lastmatch = NULL;
+			if ( ptr == tail )
+				tail = ptr->prev;
+			(ptr->prev)->next = ptr->next;
+         		if ( ptr->next )
+	         		(ptr->next)->prev = ptr->prev;
+			delete ptr->item;
+			delete ptr;
+			--size;
+#define DEBUG_LIST
+#ifdef DEBUG_LIST
+			int i;
+			for ( i=0, ptr=head.next; ptr; ptr=ptr->next, ++i );
+			if ( i != size )
+				fprintf(stderr, "Warning! Corrupt list!\n");
+#endif
+			return(1);
+		}
+		return(0);
+	}
+	virtual int operator-=(ITEM *removeme) {
+		return(Remove(removeme));
+	}
+
+	virtual void InitIterator(void) {
+		iterhead = head.next;
+	}
+	virtual ITEM *Iterate(void) {
+		element *nextitem = iterhead;
+		if ( nextitem ) {
+			iterhead = iterhead->next;
+			return(nextitem->item);
+		}
+		return(NULL);
+	}
+
+protected:
+	int	size;
+	typedef struct element {
+		struct element *prev;
+		ITEM *item;
+		struct element *next;
+	} element;
+	element head, *tail;
+	element *lastmatch, *iterhead;
+};
+
+
+#endif /* _list_tmpl */

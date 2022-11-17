@@ -1,0 +1,17 @@
+
+This software, the Linux port of Maelstrom, may be freely copied
+and used.  It may not be resold or used in a commercial product
+without the consent of Andrew Welch, the author of the original 
+Macintosh version of Maelstrom, and the consent of Sam Lantinga,
+author of the port of Maelstrom to Linux.
+
+Please don't use the code in this project directly in a game.
+Feel free to use the game programming concepts, however Macintosh
+Maelstrom remains a shareware game by Ambrosia Software.
+
+Feel free to send any comments or cash. :-)
+
+Enjoy!
+
+	-Sam Lantinga			<slouken@devolution.com>
+

@@ -1,0 +1,416 @@
+[Note: This file is included at the request of Andrew Welch, author of 
+       Macintosh Maelstrom.  It does not constitute an advertisement of
+       Ambrosia Software by me, Sam Lantinga]
+
+-AMBROSIA FAQ-------------------------------------------------------------
+
+[display this document using the typeface Monaco 9 for best results]
+
+
+-PURPOSE------------------------------------------------------------------
+
+      FAQ is an acronym for Frequently Asked Questions.  This FAQ is an attempt to provide a comprehensive source of information about Ambrosia Software, Inc., and was created in response to questions that are frequently raised by our customers.  We hope you find it useful.
+
+      If there are any questions you have about Ambrosia that are not answered in this FAQ, please get in touch with us so we can include them in future revisions.
+
+
+-CREDITS------------------------------------------------------------------
+
+      Author: Andrew Welch
+Contributors: "Cajun" David Richard, John Haley, Ed "DAMAGE" Ota,
+               Gayle Haarr
+   Thanks to: David Freitas
+
+Copyright (C)1995-6 by Ambrosia Software, Inc.
+
+
+-FAQ HISTORY--------------------------------------------------------------
+
+ FAQ Version: 1.0.7
+     Created: 6/5/95
+Last Revised: 3/1/96
+
+
+-DISCLAIMER---------------------------------------------------------------
+
+      This document is provided as is, without any express or implied warranties.  While every effort has been taken to ensure the accuracy of the information contained in this document, the author assumes no responsibility for errors or omissions, or for damages resulting from the use of the information contained herein.
+
+
+-CONTENTS-----------------------------------------------------------------
+
+This FAQ answers the following questions:
+
+GENERAL
+  - Who is Ambrosia Software, Inc.?
+  - What kind of products does Ambrosia create?
+  - Does Ambrosia have a product catalog?
+  - How can I obtain Ambrosia's products?
+  - Does Ambrosia have products for any platforms other than the Mac?
+
+REGISTRATION
+  - How do I pay for one of Ambrosia's products?
+  - My license code is invalid; what's wrong?
+  - Why should I register (pay for) an Ambrosia product?
+  - Does Ambrosia offer site licenses?
+
+SUPPORT
+  - How can I get in touch with Ambrosia?
+  - What is "The Ambrosia Times?"
+  - How do I subscribe to "The Ambrosia Times?"
+  - How do I use Ambrosia's mailing lists?
+
+SHAREWARE
+  - What is shareware?
+  - Why are you distributing your products as shareware?
+  - Do you ever plan to "go commercial?"
+  - Do you actually make any money?
+  - Is Ambrosia a full-time job?
+
+HISTORY
+  - When was Ambrosia founded?
+  - Who works at Ambrosia?
+  - What development environment do you use at Ambrosia?
+
+
+-GENERAL------------------------------------------------------------------
+
+[Q] - Who is Ambrosia Software, Inc.?
+
+[A] - Ambrosia Software, Inc. is a small company dedicated to bringing you quality software, excellent support, and innovative ideas all at a reasonable cost.  We give you commercial-quality software at a fraction of the price, with the added convenience of being able to try out the software before you pay for it.
+
+      Ambrosia distributes software on numerous electronic information services, as well as via user groups, and approved public domain distributors. Of course, you can always obtain our products directly from us as well.  You are given a 30 day free license to evaluate any of our software; after the 30 days have passed, you are expected to send the appropriate registration fee to us for processing.
+
+.....
+
+[Q] - What kind of products does Ambrosia create?
+
+[A] - Ambrosia creates personal productivity tools that make using your Macintosh a more enjoyable experience, as well as anti-productivity tools (games) that are just plain fun.
+
+      Here are some very brief capsule descriptions of our current product line:
+
+APEIRON (v1.0.2) -- During a port through the looking glass, the mirror shatters and your ethereal energy (you know, the stuff that allows you to get up and go to work on a Monday morning...) is trapped within one of the crystal shards. Immediately, the residents of the mushroom patch sense your presence. Lead by the Pentipede, this motley crew of mushroom patch misfits relentlessly hunt the crystal (you!), intent upon sucking out the trapped energy. 
+
+Inside Mac Games sums it up by saying "Apeiron's astounding graphics and sound coupled with its captivating gameplay make it a joy to play and a worthy successor to a classic such as Maelstrom."
+
+   Price: $15.00
+Requires: 256 Color Screen, 13" or Greater
+
+
+BARRACK (v1.0.0) -- Meticulously crafted by Greg Lovette, Barrack is a game that is hard to pigeonhole. It exhibits a precarious balance between action and strategy; thinking and reflex. The feeling you get from playing Barrack is an eccentric harmony between the automatic, mind-numbing pleasure of Tetris and the kind of action found in Maelstrom. The result is that you'll be left with sweat on your brow. 
+
+Barrack features stunning artwork, intense action, vibrant 8-channel stereo sound effects, and the addictiveness that comes standard in an Ambrosia game.
+
+   Price: $15.00
+Requires: 256 Color Screen, 13" or Greater; 040 or PowerPC recommended
+
+
+BIG CHEESE KEY (v1.2.1) -- In today's busy world, privacy is often a scarce commodity. Chances are your monitor acts as a billboard, advertising to whoever drops by exactly what you're doing. This can be awkward in a number of situations. You don't want the boss seeing you play Maelstrom, and he doesn't want you to see him writing your next performance review. For moments such as these, you need the Big Cheese Key.
+
+Big Cheese Key preserves your privacy (and maybe your job) with one quick keystroke. Hit your personalized Big Cheese Key and whatever is on your screen freezes and hides behind a phony Mac screen. Poof! Gone like magic. 
+
+   Price: $10.00
+Requires: Any Macintosh
+
+   
+CHIRAL (v1.0.2) -- Chiral is a fusion between the scientific concept of atomic bonding and the addictive game play of Tetris. Players are challenged to form bonds between atoms to create inert molecules before the atoms overflow from a vial. Points are scored by the complexity of the molecular pattern and the speed with which it is assembled. Not to worry, a doctorate in atomic chemistry is not needed.
+
+MacUser awarded this new definition of fun with their Shareware of the Year Award for 1994. MacWeek says "With the release of Chiral, Ambrosia is breaking its creative bonds...With repeated play comes an appreciation of the subtle beauty and elegant sophistication of its design."  Inside Mac Games calls Chiral "a uniquely creative action-strategy game that is just as much fun to watch as it is to play." 
+
+   Price: $15.00
+Requires: 256 Color Screen
+
+
+COLORSWITCH (v2.3.0) -- Have you ever tried to adjust the color depth of your monitor? Some programs require certain depths to run properly. Also, your Mac's processing speed is accelerated by down shifting to a lower color depth. Rooting around in your System folder for your Monitors control panel quickly becomes tiresome, especially when you have to do it often.
+
+ColorSwitch reduces this to a simple three step procedure:
+1.) Click on the ColorSwitch icon on your menu bar. 
+2.) Select the desired color depth. 
+3.) Sit back and smile at how simple life has become.
+
+Volume control is an added bonus. You can instantly change the sound volume from ColorSwitch's pull down menu.
+
+   Price: $10.00
+Requires: Any Color-Capable Macintosh
+
+
+EASY ENVELOPES PLUS (v2.6.0) -- Simple to use and inexpensive, Easy Envelopes acts as an electronic address book and envelope printer. Easy Envelopes stores thousands of names, addresses, and phone numbers, which are all easily retrievable and printable on demand. Easy Envelopes provides the same style and font options available on today's word processors. These powerful editing options give your correspondence a clear, crisp, professional yet personalized look.
+
+With the built in word search function, Easy Envelopes Plus doubles as an electronic phone book. In the notes field you're able to jot down phone numbers, important dates, and other handy information. Now all of your contact information is just a few keystrokes away.
+
+   Price: $15.00
+Requires: Any Macintosh
+
+
+ECLIPSE (v3.0.1) -- Flying toasters and exploding rabbits are fun for a while, but perhaps you're getting a little tired of using a screen saver that takes up huge amounts of disk space, devours memory, slows down your Macintosh, and causes inexplicable crashes?
+
+Introducing Eclipse 3: a lean, mean, 100 percent PowerPC native screen saving machine that works great on 68K Macs as well.  To eliminate the problem of Extension conflicts, we designed Eclipse 3 as an application so that it retains the benefits of Extension-based screen savers while avoiding their propensity to cause problems.  After all, a screen saver is supposed to save your screen, not crash your machine.
+
+Moreover, Eclipse doesn't merely dim the screen; it displays the current time floating on the screen, graphics (PICTs, JPEGs and GIFs) and QuickTime movies from a folder full of choices.  You can select the graphics and movies to be displayed by dropping them into the Eclipse Graphics folder.  In addition, Eclipse offers such conveniences as password protection, and you can customize its extensive feature set any way you like.
+
+   Price: $15.00
+Requires: Color-Capable Macintosh and System 7 or later
+
+
+MAELSTROM (v1.4.3) -- This Macintosh classic is what put Ambrosia on the map as the leading Macintosh shareware publisher. Maelstrom has received a four star rating from Macworld, the MacUser 1993 Best Shareware Game award, and the Shareware Industry Award for best game. Maelstrom also took first place in the 1994 Mac Home Journal Reader's Choice Awards.
+
+With detailed color animation, four channels of digital sound, and smooth game play, Maelstrom takes full advantage of the Macintosh's multi-media capabilities. All the game needs is someone with guts and a thirst for glory in the pilot's seat.
+
+   Price: $15.00
+Requires: Any Color-Capable Macintosh
+
+
+SNAPZ (v1.0.0) -- Snapz is the big game hunter of screen capture programs: it'll capture the wild ones for you. No image is too fast, too tricky, or too large. Snapz captures them all: startup icons, pull down menus, games in the thick of the action, animation, video... not even your screen saver displays are safe. MacWeek says Snapz "...is the first screen-capture utility that can grab on-screen activities, such as the march of start-up icons and zooming rectangles." Macworld magazine calls Snapz the screen capture utility that "...can ride to your rescue."
+
+Snapz offers 16 different PICT file types to choose from, so the captured image is ready to be edited in your program of choice. Utilizing the functionality of System 7's Apple Menu Items folder, Snapz stores your captured images in a special Screen Snapz folder that is easily accessible from the Apple menu. This keeps the screen captures organized and easily reached. No more searching through your hard drive for lost images.
+
+   Price: $15.00
+Requires: Any Color-Capable Macintosh
+
+
+SWOOP (v1.0.1) -- Developed by David Wareing, of Adelaide, Australia, Swoop is an arcade classic combining pulse-quickening game play with state of the art computer animation and audio effects. Smooth flowing action, detailed full color graphics, and custom sound effects all provide for exciting game play. The only thing missing is the cash box in which to pump your coins.
+
+Since the dawn of time, good people have always fought the iron glove of oppression. Never before has the fight been so desperate; never before have the stakes been so high. This time the fight is not over politics, religion, or territory. For now, the very survival of the human race hangs in the balance. The Swoopers have come.
+
+   Price: $15.00
+Requires: 256 color screen, 13" or greater
+
+
+TO DO! (v3.2.1) -- To Do! is Ambrosia's friendly little Personal Information Manager (PIM). For many of us, the day is just too short to accomplish all that needs doing. To Do! helps you organize tasks, enabling you to milk the most out of your day. Some PIM's are clunky and difficult to use, but not To Do!. Updating your chore list shouldn't be a chore in itself.
+
+Using a traditional outline format, To Do! organizes information in an easily understandable manner. Enter as many different topics and subtopics as you like. Both topics and subtopics can include extensive notes. To Do! displays your list by topic or by priority.
+
+Check boxes provide a visual way to keep track of your progress. A long list seems less daunting if it shows what has already been accomplished. On the go? To Do!'s printing capability lets you take your full list or any part of it along with you.
+
+   Price: $15.00
+Requires: Any Macintosh
+
+.....
+
+[Q] - Does Ambrosia have a product catalog?
+
+[A] - Not in the traditional sense, no.  We did have a nice glossy, color catalog at one time, but we decided that since we distribute our software electronically, it only makes sense that our product catalog is electronic as well.
+
+      The latest versions of all of our software -- and of course descriptions of them as well -- can be found in our support forums on several information services.  Please see the "[Q] - How can I obtain Ambrosia's products?" question for directions to our forums.
+
+.....
+
+[Q] - How can I obtain Ambrosia's products?
+
+[A] - The latest versions of all our products are always available in the Ambrosia Software forums on the following services:
+
+      o America Online:  While you are signed on AOL, choose Keyword...
+         from the GO TO menu, type AMBROSIA and hit the return key.
+
+      o eWorld:  While you are signed on eWorld, choose Go to Shortcut...
+         from the PLACES menu, type AMBROSIA and hit the return key.
+
+      o CompuServe:  While you are signed on CompuServe, use GO word
+         AMBROSIA to reach the Mac Vender D area, where Ambrosia Software,
+         maintains a forum.
+
+      o Internet: Visit our web site at http://www.AmbrosiaSW.com/ or our
+         ftp site at ftp://ftp.AmbrosiaSW.com/
+
+      Because our focus is distributing software electronically, we do not send our products out on disk.  If you do not have access to any of the aforementioned digital watering holes, you can still obtain our products however.
+
+      We've made arrangements with the PD/Shareware distributor EDUCORP so that they carry the full line of up-to-date Ambrosia products.  To order an Ambrosia Software, Inc. product sent to you on disk, please call EDUCORP at 800.843.9497.
+
+.....
+
+[Q] - Does Ambrosia have products for any platforms other than the Mac?
+
+[A] -  No.  We firmly believe in doing what we do best and not spreading ourselves too thin.  We're all familiar with the Macintosh -- both in terms of using the machines and programming them -- and don't forsee working on any other platforms in the near future.
+
+One platform that does interest us however is the BeBox (see http://www.be.com/ for more info). We have applied to become a developer for it, but haven't heard anything back as of yet...
+
+.....
+
+
+-REGISTRATION-------------------------------------------------------------
+
+[Q] - How do I pay for one of Ambrosia's products?
+
+[A] - Each Ambrosia Software product has an integrated registration system that allows you to easily register the product a number of ways: cash/check/money order/credit card via US mail, credit card via fax, or credit card via eMail.  Simply launch the Ambrosia Software product you are interested in registering, and click on the Register... button in the splash screen that appears.  You'll be painlessly lead through the registration system.
+
+      If you have access to the World Wide Web, you can register electronically via our web site.  Simply point your browser at http://www.AmbrosiaSW.com/ then click on the "Online Registration" icon.  You'll be led through a quick and easy registration process.
+
+      Ambrosia Software, Inc. also has a toll free order line. If you wish to purchase any of our products, you can use your Visa, Mastercard, Discover, or American Express credit card and call 800.231.1816. If you are calling outside the US/Canada region, or need technical assistance, please call 716.325.1910.  We will process your order right over the phone, and give you a license code immediately.
+
+      After we have processed your registration, you will receive a license code that you enter to complete the registration process.  This code removes the shareware notices and personalizes your copy of the product.
+
+      To enter your license code, simply double-click on the product you registered and follow the instructions that are presented to you.  To enter your license code, click on the Enter Code button, and make sure you enter all of the license information exactly as it is shown.  That's all there is to it.
+
+.....
+
+[Q] - My license code is invalid; what's wrong?
+
+[A] - The license code you were sent is based on your name as you gave it to us when you registered.  Make sure that you are entering your name EXACTLY as it appears on your registration confirmation.  If you still have a problem with your license code not working, please get in contact with us and we will take care of the situation for you.
+
+.....
+
+[Q] - Why should I register (pay for) an Ambrosia product?
+
+[A] - We're attempting to offer high quality products at a low price, on a "try before you buy basis."  Supporting us by registering our products -- assuming you like them -- is the only way you can ensure that we will continue to produce more high quality software distributed as shareware.
+
+      Beyond that, you will receive a license code that removes the shareware notices and personalizes the Ambrosia product you've purchased with your name, giving you a legal copy on your Macintosh.
+
+.....
+
+[Q] - Does Ambrosia offer site licenses?
+
+[A] - We do offer site licenses and discounts for quantity purchases.  This discount is calculated during the registration process.  Simply click on the Register... button and select your payment method.  Then enter the number of copies you need and press the tab key.  Your discount will be calculated and the total displayed.  Here is a breakdown of the discounts.
+
+ 10 -  20 copies: 10% discount
+ 20 -  50 copies: 20% discount
+ 50 - 100 copies: 30% discount
+100 - 200 copies: 40% discount
+ over 200 copies: 50% discount
+
+      There is also an option to request a purchase order, if your company/institution requires them.  We are also willing to work with institutions to come up with a mutually agreeable site license; these figures are not set in stone.
+
+.....
+
+
+-SUPPORT------------------------------------------------------------------
+
+[Q] - How can I get in touch with Ambrosia?
+
+[A] - Please feel free to get in touch with us using any of the following methods:
+
+            Ambrosia Software, Inc.
+            PO Box 23140
+            Rochester, NY 14692
+
+            Tel: 716.325.1910 (technical support)
+                 800.231.1816 (orders only)
+
+            Fax: 716.325.3665
+
+ America Online: AmbrosiaSW
+     CompuServe: 74777,1147
+         eWorld: AmbrosiaSW
+          GEnie: AmbrosiaSW
+       Internet: help@AmbrosiaSW.com (technical support)
+                 register@AmbrosiaSW.com (orders only)
+
+.....
+
+[Q] - What is "The Ambrosia Times?"
+
+[A] - Ambrosia Software publishes an electronic newsletter entitled The Ambrosia Times every odd month. The Ambrosia Times is an interactive electronic company newsletter. Designed to offer insight into the company itself, the newsletter will also serve as an online crossroads for Ambrosia's shareware users.
+
+      In each issue of The Ambrosia Times, you'll find out about the projects Ambrosia is currently working on, hints and tips for using Ambrosia's products, bug reports, questions & answers, and a splash of entertainment as well.
+
+      Current and back issues of The Ambrosia Times are available in Ambrosia's forums on the various information services.  Please see the "[Q] - How can I obtain Ambrosia's products?" question for a complete listing of how get to our digital watering holes to obtain The Ambrosia Times.
+
+.....
+
+[Q] - How do I subscribe to "The Ambrosia Times?"
+
+[A] - If you'd like to have each issue of "The Ambrosia Times" automatically sent your your mailbox when it is released, you can sign up for the at_list mailing list.  Please note that "The Ambrosia Times" consists of 6 issues per year, which average approximately 500K in size.
+
+      To sign up for the at_list mailing list, please point your web browser at http://www.AmbrosiaSW.com/Lists.html and follow the instructions there to sign up for the at_list mailing list.  If you do not have access to the web, please see the "[Q] - How do I use Ambrosia's mailing lists?" question for details on how you can sign up for the at_list mailing list via eMail.
+
+      You can also read any or all of the issues of "The Ambrosia Times" by visiting our web site at http://www.AmbrosiaSW.com/ -- we've made every issue available in html format so you can read them via the WWW should you chose to do so.
+
+.....
+
+[Q] - How do I use Ambrosia's mailing lists?
+
+[A] - Mailing lists allow us to send a message that is broadcast to everyone who subscribes to the list, thus making it easy for us to keep you apprised of happenings here at the Ambrosia home office. 
+
+      announce_list -- This is a general Ambrosia announcement list -- any time we release a new product or have other Ambrosia-related news to pass along, everyone who subscribes to this list will instantly get the info. 
+
+      discussion_list -- This is an Ambrosia discussion list: banter with people around the world about Ambrosia's products. What transpires on this list is up to the folks who subscribe to it, but we envision gaming tips, trouble-shooting, and general Ambrosia chatter. 
+
+      at_list -- If you would like each issue of our company newsletter, The Ambrosia Times, delivered to your eMailbox as soon as it is released, this is the mailing list for you. Please note that The Ambrosia Times averages approximately 500K, and is released every odd month (6 issues a year) 
+
+      If you're interested in signing up for one of our mailing lists, we've made that simple to do: simply point your Web browser at http://www.AmbrosiaSW.com/Lists.html and follow the instructions there to join one of our mailing lists. 
+
+      If you do not have access to the Web, simply send eMail to: 
+
+majordomo@AmbrosiaSW.com 
+
+      and include in the body of your message: 
+
+subscribe (list) 
+
+      ...where (list) is any of the aforementioned mailing lists (announce_list, discussion_list, or at_list) 
+
+      You can place anything in the Subject field, but nothing else should be in the message body other than the above.
+
+.....
+
+
+-SHAREWARE----------------------------------------------------------------
+
+[Q] - What is shareware?
+
+[A] - Shareware is a method of distributing software that allows users to try the full version of a product for a period of time (Ambrosia allows for a 30 day evaluation period) *before* they are required to pay for it.
+
+      Shareware publishers *encourage* users to copy their products and give them to their friends; asking that they pay only if they decide to keep the product past the evaluation period.
+
+     Most people realize that it is in their best interest to support a company that is offering quality software at a fraction of the price of commercial software, and thus send in their shareware registration fee.
+
+     Ultimately, _you_ decide whether shareware authors will continue to distribute low cost, high quality software as shareware.
+
+.....
+
+[Q] - Why are you distributing your products as shareware?
+
+[A] - Because we firmly believe in the future of electronic software distribution.  By eliminating the middlemen, it becomes feasible to offer quality products at a reduced price, with the added benefit to consumers that they can try the product to see if it suits their needs before they buy it.
+
+      We're reaching a critical mass of people hooked up to some form of electronic information service or another.  It's time that there was a viable software distribution paradigm that suits the digital nature of computer software.
+
+.....
+
+[Q] - Do you ever plan to "go commercial?"
+
+[A] - No.  We've had numerous offers to "go commercial" with our products, but while Ambrosia is a business, it is a business with a vision.  We're committed (or perhaps should be committed, but I digress...) to distributing quality software electronically at a price point substantially less than commercial software.
+
+.....
+
+[Q] - Do you actually make any money?
+
+[A] - "If it's not a personal question..." right?  To answer the question, we're still in business.  We're not getting rich by any means, but we haven't had to sell off the office mascot (Hector the African Grey Parrot) yet either.
+
+      Whether we succeed at what we're doing or not is entirely in your hands, assuming we take care of our end of the bargin by putting forth a quality product.  Don't forget that.
+
+.....
+
+[Q] - Is Ambrosia a full-time job?
+
+[A] - And then some.  But seriously, yes, everyone who works for Ambrosia does so full-time, and depends on Ambrosia for their primary income.  In actuality we all spend quite a bit more than 8 hours a day wearing our Ambrosia hats, but at least they are stylish and comfortable.
+
+.....
+
+
+-HISTORY------------------------------------------------------------------
+
+[Q] - When was Ambrosia founded?
+
+[A] - Ambrosia Software, Inc. is a New York State S-Corp, incorporated on August 18th, 1993 (Federal ID#: 16-1443420).  The name "Ambrosia" was used as a dba by Andrew Welch for 3 years prior to the incorporation of Ambrosia Software, Inc.
+
+.....
+
+[Q] - Who works at Ambrosia?
+
+[A] - Currently, Ambrosia employs the following people:
+
+         Andrew Welch -- President & Thaumaturgist
+               Ed Ota -- Operations / Combat
+"Cajun" David Richard -- Technical Support
+          Gayle Haarr -- Accountant & Office Manager
+
+.....
+
+[Q] - What development environment do you use at Ambrosia?
+
+[A] - We had previously been using Symantec's THINK C for development, but we have since switched to MetroWerk's excellent CodeWarrior development environment.
+
+      Ambrosia's programs are written in a mixture of Pascal, C, and a smattering of 68K assembler for special cases.  We're investigating moving to C++, but haven't found the benefits to be convincing enough for our particular focus at this time.
+
+.....
+
+
+-END----------------------------------------------------------------------

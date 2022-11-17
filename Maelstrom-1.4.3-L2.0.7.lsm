@@ -1,0 +1,22 @@
+Begin3
+Title:          Maelstrom v1.4.3 Linux
+Version:        2.0.7
+Entered-date:   4/26/99
+Description:    A port of the high resolution, fast action Asteroids-style
+		Mac game Maelstrom originally written by Ambrosia Software.
+		Unique to this port is a kick-butt network play mode.
+		http://www.devolution.com/~slouken/Maelstrom/
+Keywords:       X11 SVGAlib networked asteroids Maelstrom game
+Author:         slouken@devolution.com (Sam Lantinga)
+Maintained-by:  slouken@devolution.com (Sam Lantinga)
+Primary-site:   ftp.devolution.com /pub/maelstrom/
+		1439kB Maelstrom-1.4.3-L2.0.7-src.tar.gz
+Alternate-site: sunsite.unc.edu /pub/Linux/games/x11/networked
+Original-site:  ftp.AmbrosiaSW.com /pub
+		901 kB Maelstrom.bin
+Platforms:      Linux, Solaris, IRIX (X11 or SVGAlib and mouse)
+Copying-policy: Can be freely distributed, but cannot be sold or included in
+		a commercial product without the permission of the authors:
+		Mac Original: andrew@ambrosiasw.com (Andrew Welch)
+		Linux Port:  slouken@devolution.com (Sam Lantinga)
+End
