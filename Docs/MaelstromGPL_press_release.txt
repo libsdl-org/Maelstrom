@@ -1,0 +1,52 @@
+FOR IMMEDIATE RELEASE 
+
+Ambrosia Goes Open Source: Maelstrom 3.0 released under GNU GPL
+
+Contact:
+
+Jason Whong
+Ambrosia Software, Inc.
+PO Box 23140
+Rochester, NY 14692
+
+Tel: 716.325.1910
+Fax: 716.325.3665
+
+Rochester, NY -- December 7, 1999 --Ambrosia Software, Inc. embraced the burgeoning open source movement with an early Christmas present when it released the source code for its first arcade smash hit, Maelstrom, under the GNU General Public License. For the first time, users can peek at the programming which makes an Ambrosia game tick.
+
+Maelstrom, the classic rock-smashing game that launched Ambrosia to fame, was called 1993's Best Shareware Game by MacUser and ZiffNet/Mac. It received 4 stars in MacWorld, and the ShareWare Industry Awards Association pick for Best New Macintosh Product. It also took first place in the 1994 Mac Home Journal Reader's Choice Awards, and MacUser UK's Best Entertainment Software Award.
+
+In the heart of the Maelstrom, you must pilot your United Planet Border Patrol recon craft. It's a trusty ship that has earned medals for few and deaths for most others. If the storm of asteroids doesn't faze you, enemy Shenobi ships and autonominous mines are waiting to blast you into space dust. Additionally, there are other natural space disasters such as vortexes and supernovas that have a habit of ruining even the best space pilot's day.
+
+Maelstrom, which was originally written by Ambrosia's el Presidente Andrew Welch, was ported to Linux by Sam Lantinga in 1995. The 17,000 lines of C++ code can be freely edited, modified, and compiled on any platform, from Red Hat Linux to Windows NT. 
+
+Version 3.0 of the game contains additions and improvements by Sam, such as networked multiplayer deathmatches, screenshot capability, gamma correction, and a worldwide high score reporting mechanism. Of course, once the code is in the hands of developers everywhere, there's no limit to the number of modifications possible in the future. The software also contains no registration or payment mechanisms, making it a totally free version of Maelstrom.
+
+"I'm hoping to see a version for Palm OS" said Jason Whong, Ambrosia Marketing Director, upon hearing of the new development. "Heck, I'd like to see Maelstrom ship in the ROMs of new hardware, like cell phones, cars, and wearable computers. After all, it's free."
+
+The General Public License, or GPL, was created by GNU in 1989 "to guarantee freedom to share and change free software". By encouraging open development standards, developers share code for the betterment of all free software. While the GPL was used mainly for application, utility, and operating system development, the release of Maelstrom's source code should remedy the relative dearth of action software code available to the free software community.
+
+"I am very happy to be able to place Maelstrom 3.0 under the GPL," said Sam, who is now lead programmer at Loki Entertainment Software, a prominent Linux software developer. "Ambrosia Software gave me the opportunity to start my successful career in Linux game programming, and hopefully this source will inspire others to do the same." Sam is also the developer of the Simple DirectMedia Layer, or SDL, a cross-platform graphics and sound engine which powers version 3.0 of Maelstrom.
+
+"I hope this code generates more programming talent," said David Dunham, Technical Support Manager at Ambrosia. "If someone can take a lesson or two from this code and become a better game programmer, then we all win as a result."
+
+The GPL version of Maelstrom is available for download at <http://www.devolution.com/~slouken/Maelstrom/>. The Simple DirectMedia Layer is available at <http://www.devolution.com/~slouken/SDL/>. Info on the GNU General Public License can be found at <http://www.gnu.org/copyleft/gpl.html>.
+
+Ambrosia Software, Inc. - publisher of award winning programs for the Macintosh - distributes a full line of utility, productivity, and anti-productivity (game) software through the Internet, America Online, and CompuServe as shareware. Unregistered versions of Ambrosia's products on CD can be obtained by calling Ambrosia's order center at 800.231.1816.
+
+Ambrosia Software, Inc. maintains support forums on several major electronic information services. In these forums, you can always find the latest versions of our software products, ask technical support questions, and get our free electronic newsletter, The Ambrosia Times. If you subscribe to any of the following information services, please feel free to drop by and visit us: 
+
+       o America Online: While you are signed on AOL, choose Keyword...
+          from the GO TO menu, type FILESEARCH, and hit the return key.
+
+       o CompuServe: While you are signed on CompuServe, use GO word
+          AMBROSIA to reach the Mac Vendor D area, where Ambrosia Software,
+          maintains a forum.
+
+       o Internet: Visit our web site at http://www.AmbrosiaSW.com/ or our
+          ftp site at ftp://ftp.AmbrosiaSW.com/
+
+       o Hotline: Visit our hotline server at
+          hotline://hotline.AmbrosiaSW.com/
+
+-30-

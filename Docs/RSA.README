@@ -13,5 +13,5 @@ Like I said, rsaref is only useful if you want to recompile the checksum
 routines for network score authentication. :-)
 
 
-	-Sam Lantinga				(slouken@devolution.com)
+	-Sam Lantinga				(slouken@libsdl.org)
 

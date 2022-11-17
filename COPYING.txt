@@ -1,0 +1,11 @@
+The source code to Maelstrom 3.0 and higher has been released under
+the GNU General Public License which can be found in COPYING.GPL.
+
+The artwork and animations in Maelstrom may be used under the terms
+of the Creative Commons Attribution 3.0 license (unported):
+http://creativecommons.org/licenses/by/3.0/legalcode
+
+The following files must accompany any distribution of Maeltrom 3.0:
+	Ambrosia_Software,_Inc._FAQ
+	MaelstromGPL_press_release
+They can be found in the Docs directory.

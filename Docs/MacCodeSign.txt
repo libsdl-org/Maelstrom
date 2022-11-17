@@ -1,0 +1,22 @@
+# Make sure you build with -target x86_64-apple-macos10.7
+./configure CC="gcc -target x86_64-apple-macos10.7" CXX="g++ -target x86_64-apple-macos10.7 -stdlib=libc++" LD="gcc -target x86_64-apple-macos10.7"
+
+# Make sure you sign with the hardened runtime and appropriate entitlements
+codesign --force --deep --options runtime --timestamp --entitlements Maelstrom.entitlements --sign "Developer ID Application: Sam Lantinga (EH385AYQ6F)" Maelstrom.app
+codesign -vvv Maelstrom.app
+codesign --display --verbose Maelstrom.app
+
+# Then create a disk image with the application
+hdiutil create -ov -fs HFS+ -volname Maelstrom -srcfolder Maelstrom Maelstrom-3.0.7.dmg
+
+# Then notarize 
+xcrun altool -t osx -f Maelstrom-3.0.7.dmg --primary-bundle-id org.libsdl.Maelstrom --notarize-app --username <USER> --password <PASS>
+
+# and check progress:
+xcrun altool --notarization-history 0 --username <USER> --password <PASS> | head
+
+# and look up any errors
+xcrun altool --notarization-info <ID> --username <USER> --password <PASS>
+
+# Then staple the notarization to the application
+xcrun stapler staple Maelstrom-3.0.7.dmg

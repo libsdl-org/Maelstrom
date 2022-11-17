@@ -1,6 +1,6 @@
 /*
     MACLIB:  A companion library to SDL for working with Macintosh (tm) data
-    Copyright (C) 1997  Sam Lantinga
+    Copyright (C) 1997-2021 Sam Lantinga <slouken@libsdl.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,11 +15,6 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-    Sam Lantinga
-    5635-34 Springhouse Dr.
-    Pleasanton, CA 94588 (USA)
-    slouken@devolution.com
 */
 
 /* These are routines to parse a Macintosh Resource Fork file
@@ -173,7 +168,8 @@ static void CheckMacBinary(FILE *resfile, Uint32 *resbase)
 }
 static FILE *Open_MacRes(char **original, Uint32 *resbase)
 {
-	char *filename, *dirname, *basename, *ptr, *newname;
+	const char *dirname;
+	char *filename, *basename, *ptr, *newname;
 	FILE *resfile=NULL;
 
 	/* Search and replace characters */
@@ -188,8 +184,9 @@ static FILE *Open_MacRes(char **original, Uint32 *resbase)
 	int iterations=0;
 
 	/* Separate the Mac name from a UNIX path */
-	filename = new char[strlen(*original)+1];
-	strcpy(filename, *original);
+	size_t len = strlen(*original)+1;
+	filename = new char[len];
+	SDL_strlcpy(filename, *original, len);
 	if ( (basename=strrchr(filename, '/')) != NULL ) {
 		dirname = filename;
 		*(basename++) = '\0';
@@ -207,8 +204,9 @@ static FILE *Open_MacRes(char **original, Uint32 *resbase)
 		}
 
 		/* First look for Executor (tm) resource forks */
-		newname = new char[strlen(dirname)+2+1+strlen(basename)+1];
-		sprintf(newname, "%s%s%%%s", dirname, (*dirname ? "/" : ""),
+		size_t len = strlen(dirname)+2+1+strlen(basename)+1;
+		newname = new char[len];
+		SDL_snprintf(newname, len, "%s%s%%%s", dirname, (*dirname ? "/" : ""),
 								basename);
 		if ( (resfile=fopen(newname, "rb")) != NULL ) {
 			break;
@@ -216,8 +214,9 @@ static FILE *Open_MacRes(char **original, Uint32 *resbase)
 		delete[] newname;
 
 		/* Look for MacBinary files */
-		newname = new char[strlen(dirname)+2+strlen(basename)+4+1];
-		sprintf(newname, "%s%s%s.bin", dirname, (*dirname ? "/" : ""),
+		len = strlen(dirname)+2+strlen(basename)+4+1;
+		newname = new char[len];
+		SDL_snprintf(newname, len, "%s%s%s.bin", dirname, (*dirname ? "/" : ""),
 								basename);
 		if ( (resfile=fopen(newname, "rb")) != NULL ) {
 			break;
@@ -225,12 +224,22 @@ static FILE *Open_MacRes(char **original, Uint32 *resbase)
 		delete[] newname;
 
 		/* Look for raw resource fork.. */
-		newname = new char[strlen(dirname)+2+strlen(basename)+1];
-		sprintf(newname, "%s%s%s", dirname, (*dirname ? "/" : ""),
+		len = strlen(dirname)+2+strlen(basename)+1;
+		newname = new char[len];
+		SDL_snprintf(newname, len, "%s%s%s", dirname, (*dirname ? "/" : ""),
 								basename);
 		if ( (resfile=fopen(newname, "rb")) != NULL ) {
 			break;
 		}
+
+#ifdef __MACOSX__
+		newname = new char[strlen(dirname)+strlen("/../Resources/")+strlen(basename)+1];
+		sprintf(newname, "%s/../Resources/%s", dirname, basename);
+		if ( (resfile=fopen(newname, "rb")) != NULL ) {
+			break;
+		}
+		delete[] newname;
+#endif
 	}
 	/* Did we find anything? */
 	if ( iterations != N_SNRS ) {
@@ -315,7 +324,7 @@ Mac_Resource:: Mac_Resource(const char *file)
 		bytesex16(type_ent.Ref_offset);
 		type_ent.Num_rez += 1;	/* Value in fork is one short */
 
-		strncpy(Resources[i].type, type_ent.Res_type, 4);
+		SDL_memcpy(Resources[i].type, type_ent.Res_type, 4);
 		Resources[i].type[4] = '\0';
 		Resources[i].count   = type_ent.Num_rez;
 		Resources[i].list = new struct resource[Resources[i].count];

@@ -9,7 +9,8 @@
 #include "load.h"
 #include "dialog.h"
 
-#define MAELSTROM_DATA	".Maelstrom-data"
+#define MAELSTROM_DATA	"Maelstrom-data"
+#define SIGNATURE		"MAEL307"
 
 /* Savable and configurable controls/data */
 
@@ -21,6 +22,7 @@ Controls controls =
 Controls controls =
    { SDLK_PAUSE,SDLK_SPACE,SDLK_UP,SDLK_RIGHT,SDLK_LEFT,SDLK_TAB,SDLK_ESCAPE };
 #endif
+SDL_Keymod gToggleFullscreenMod = KMOD_ALT;
 
 #ifdef MOVIE_SUPPORT
 int	gMovie = 0;
@@ -30,9 +32,10 @@ Uint8 gGammaCorrect = 3;
 
 
 /* Map a keycode to a key name */
-void KeyName(SDLKey keycode, char *namebuf)
+void KeyName(SDL_Keycode keycode, char *namebuf)
 {
-	char *name, ch;
+	const char *name;
+	char ch;
 	int starting;
 
 	/* Get the name of the key */
@@ -67,31 +70,47 @@ void KeyName(SDLKey keycode, char *namebuf)
 	*namebuf = '\0';
 }
 
-static FILE *OpenData(char *mode, char **fname)
+static FILE *OpenData(const char *mode, const char **fname)
 {
-	static char datafile[BUFSIZ];
-	char *home;
+	SavePath path(MAELSTROM_DATA);
 	FILE *data;
 
-	if ( (home=getenv("HOME")) == NULL ) {
-		if ( strcmp(CUR_DIR, DIR_SEP) != 0 ) {
-			home = CUR_DIR;
-		} else {
-			home="";
-		}
-	}
 	if ( fname ) {
-		*fname = datafile;
+		*fname = path.Path();
 	}
-	sprintf(datafile,  "%s"DIR_SEP"%s", home, MAELSTROM_DATA);
-	if ( (data=fopen(datafile, mode)) == NULL )
+	if ( (data=fopen(path.Path(), mode)) == NULL )
 		return(NULL);
 	return(data);
 }
 
+static bool ControlsUseKey(SDL_KeyCode key)
+{
+	return (controls.gPauseControl == key ||
+	        controls.gShieldControl == key ||
+	        controls.gThrustControl == key ||
+	        controls.gTurnRControl == key ||
+	        controls.gTurnLControl == key ||
+	        controls.gFireControl == key ||
+	        controls.gQuitControl == key);
+}
+
+void UpdateToggleFullscreenShortcut()
+{
+	if (!ControlsUseKey(SDLK_LALT) && !ControlsUseKey(SDLK_RALT)) {
+		gToggleFullscreenMod = KMOD_ALT;
+	} else if (!ControlsUseKey(SDLK_LSHIFT) && !ControlsUseKey(SDLK_RSHIFT)) {
+		gToggleFullscreenMod = KMOD_SHIFT;
+	} else if (!ControlsUseKey(SDLK_LCTRL) && !ControlsUseKey(SDLK_RCTRL)) {
+		gToggleFullscreenMod = KMOD_CTRL;
+	} else {
+		gToggleFullscreenMod = KMOD_NONE;
+	}
+}
+
 void LoadControls(void)
 {
-	char  buffer[BUFSIZ], *datafile;
+	char  buffer[BUFSIZ];
+	const char *datafile;
 	FILE *data;
 
 	/* Open our control data file */
@@ -101,7 +120,7 @@ void LoadControls(void)
 	}
 
 	/* Read the controls */
-	if ( (fread(buffer, 1, 5, data) != 5) || strncmp(buffer, "MAEL3", 5) ) {
+	if ( (fread(buffer, 1, strlen(SIGNATURE), data) != 7) || strncmp(buffer, SIGNATURE, strlen(SIGNATURE)) ) {
 		error(
 		"Warning: Data file '%s' is corrupt! (will fix)\n", datafile);
 		fclose(data);
@@ -111,11 +130,14 @@ void LoadControls(void)
 	fread(&controls, sizeof(controls), 1, data);
 	fread(&gGammaCorrect, sizeof(gGammaCorrect), 1, data);
 	fclose(data);
+
+	UpdateToggleFullscreenShortcut();
 }
 
 void SaveControls(void)
 {
-	char  *datafile, *newmode;
+	const char *datafile;
+	const char *newmode;
 	FILE *data;
 
 	/* Don't clobber existing joystick data */
@@ -130,11 +152,13 @@ void SaveControls(void)
 		return;
 	}
 
-	fwrite("MAEL3", 1, 5, data);
+	fwrite(SIGNATURE, 1, strlen(SIGNATURE), data);
 	fwrite(&gSoundLevel, sizeof(gSoundLevel), 1, data);
 	fwrite(&controls, sizeof(controls), 1, data);
 	fwrite(&gGammaCorrect, sizeof(gGammaCorrect), 1, data);
 	fclose(data);
+
+	UpdateToggleFullscreenShortcut();
 }
 
 #define FIRE_CTL	0
@@ -153,9 +177,9 @@ void SaveControls(void)
 
 Controls newcontrols;
 static struct {
-	char *label;
+	const char *label;
 	int  yoffset;
-	SDLKey *control;
+	SDL_Keycode *control;
 } checkboxes[] = {
 	{ "Fire",	0*BOX_HEIGHT+0*SP, &newcontrols.gFireControl },
 	{ "Thrust",	1*BOX_HEIGHT+1*SP, &newcontrols.gThrustControl },
@@ -181,7 +205,7 @@ static int Cancel_callback(void) {
 	valid = 0;
 	return(1);
 }
-static void BoxKeyPress(SDL_keysym key, int *doneflag)
+static void BoxKeyPress(SDL_Keysym key, int *doneflag)
 {
 	SDL_Color black = { 0x00, 0x00, 0x00, 0 };
 	SDL_Color white = { 0xFF, 0xFF, 0xFF, 0 };
@@ -194,7 +218,7 @@ static void BoxKeyPress(SDL_keysym key, int *doneflag)
 	/* Make sure the key isn't in use! */
 	for ( i=0; i<NUM_CTLS; ++i ) {
 		if ( key.sym == *checkboxes[i].control ) {
-			key.sym = (SDLKey)*checkboxes[currentbox].control;
+			key.sym = (SDL_Keycode)*checkboxes[currentbox].control;
 
 			/* Clear the current text */
 			fontserv->InvertText(keynames[currentbox]);
@@ -206,7 +230,7 @@ static void BoxKeyPress(SDL_keysym key, int *doneflag)
 			fontserv->FreeText(keynames[currentbox]);
 
 			/* Blit the new message */
-			strcpy(keyname, "That key is in use!");
+			SDL_strlcpy(keyname, "That key is in use!", sizeof(keyname));
 			keynames[currentbox] = fontserv->TextImage(keyname,
 					chicago, STYLE_NORM, black, white);
 			screen->QueueBlit(
@@ -338,7 +362,7 @@ void ConfigureControls(void)
 
 static void HandleEvent(SDL_Event *event)
 {
-	SDLKey key;
+	SDL_Keycode key;
 
 	switch (event->type) {
 #ifdef SDL_INIT_JOYSTICK
@@ -392,8 +416,8 @@ static void HandleEvent(SDL_Event *event)
 		/* -- Handle key presses/releases */
 		case SDL_KEYDOWN:
 			/* -- Handle ALT-ENTER hotkey */
-	                if ( (event->key.keysym.sym == SDLK_RETURN) &&
-			     (event->key.keysym.mod & KMOD_ALT) ) {
+			if ( (event->key.keysym.sym == SDLK_RETURN) &&
+			     (event->key.keysym.mod & gToggleFullscreenMod) ) {
 				screen->ToggleFullScreen();
 				break;
 			}
@@ -464,20 +488,6 @@ mesg("Movie is %s...\n", gMovie ? "started" : "stopped");
 */
 void HandleEvents(int timeout)
 {
-#if 1
-	SDL_Event event;
-
-	Uint32 amount = ((timeout)*1000)/60;
-	Uint32 start = SDL_GetTicks();
-	do { 
-		while ( SDL_PollEvent(&event) ) {
-			HandleEvent(&event);
-		}
-		if ( timeout ) {
-			SDL_Delay(1);
-		}
-	} while ( timeout && (SDL_GetTicks() - start) < amount );
-#else
 	SDL_Event event;
 
 	do { 
@@ -489,7 +499,6 @@ void HandleEvents(int timeout)
 			Delay(1);
 		}
 	} while ( timeout-- );
-#endif
 }
 
 int DropEvents(void)
@@ -510,7 +519,7 @@ int DropEvents(void)
 
 void ShowDawn(void)
 {
-	static char *D_text[6] = {
+	static const char *D_text[6] = {
 		"No eternal reward will forgive us",
 		"now",
 		    "for",

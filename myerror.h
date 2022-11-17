@@ -4,9 +4,9 @@
 
 /* Generic error message routines */
 
-extern void error(char *fmt, ...);
-extern void mesg(char *fmt, ...);
-extern void myperror(char *msg);
+extern void error(const char *fmt, ...);
+extern void mesg(const char *fmt, ...);
+extern void myperror(const char *msg);
 
 #endif /* _myerror_h */
 

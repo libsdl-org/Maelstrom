@@ -9,7 +9,7 @@ Name: %{name}
 Version: %{version}
 Release: %{release}
 Source0: %{name}-%{version}.tar.gz
-URL: http://www.devolution.com/~slouken/Maelstrom/
+URL: http://www.libsdl.org/projects/Maelstrom
 Copyright: GPL
 Group: Games
 BuildRoot: /var/tmp/%{name}-buildroot
@@ -17,7 +17,7 @@ BuildRoot: /var/tmp/%{name}-buildroot
 %description
 Maelstrom is a rockin' asteroids game ported from the Macintosh
 Originally written by Andrew Welch of Ambrosia Software, and ported
-to UNIX and then SDL by Sam Lantinga <slouken@devolution.com>
+to UNIX and then SDL by Sam Lantinga <slouken@libsdl.org>
 
 %prep
 rm -rf ${RPM_BUILD_ROOT}
@@ -92,12 +92,12 @@ done
 
 %files
 %defattr(-, root, root)
-%doc COPYING* CREDITS README* Changelog Docs
+%doc COPYING* CREDITS* README* Changelog Docs
 %{prefix}/bin/Maelstrom
 %{prefix}/games/Maelstrom
 
 %changelog
-* Tue Sep 21 1999 Sam Lantinga <slouken@devolution.com>
+* Tue Sep 21 1999 Sam Lantinga <slouken@libsdl.org>
 
 - first attempt at a spec file
 

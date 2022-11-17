@@ -1,6 +1,6 @@
 /*
     MACLIB:  A companion library to SDL for working with Macintosh (tm) data
-    Copyright (C) 1997  Sam Lantinga
+    Copyright (C) 1997-2021 Sam Lantinga <slouken@libsdl.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,11 +15,6 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-    Sam Lantinga
-    5635-34 Springhouse Dr.
-    Pleasanton, CA 94588 (USA)
-    slouken@devolution.com
 */
 
 /* The Macintosh Font Server module */
@@ -387,7 +382,7 @@ FontServ:: TextImage(const char *text, MFont *font, Uint8 style,
 	}
 
 	/* Map the image and return */
-	SDL_SetColorKey(image, SDL_SRCCOLORKEY, 0);
+	SDL_SetColorKey(image, SDL_TRUE, 0);
 	image->format->palette->colors[0] = background;
 	image->format->palette->colors[1] = foreground;
 	++text_allocated;
@@ -413,6 +408,6 @@ FontServ:: InvertText(SDL_Surface *text)
 	/* Swap background and foreground colors */
 	colors[0] = text->format->palette->colors[1];
 	colors[1] = text->format->palette->colors[0];
-	SDL_SetColors(text, colors, 0, 2);
+	SDL_SetPaletteColors(text->format->palette, colors, 0, 2);
 	return(0);
 }

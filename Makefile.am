@@ -43,43 +43,49 @@ SUBDIRS = $(LOGIC) screenlib maclib
 EXTRA_DIST =			\
 	autogen.sh		\
 	VisualC.zip		\
-	PBProjects.tar.gz	\
-	MPWmake.sea.bin		\
-	CREDITS			\
+	CREDITS.txt		\
 	Changelog		\
-	README.joystick		\
-	README.network		\
-	README.options		\
-	COPYING			\
+	README.txt		\
+	README.joystick.txt	\
+	README.network.txt	\
+	README.options.txt	\
+	COPYING.txt		\
 	COPYING.GPL		\
-	Images			\
+	COPYING.GPL.txt		\
 	Maelstrom_Fonts		\
 	Maelstrom_Sounds	\
 	Maelstrom_Sprites	\
-	Maelstrom-Scores	\
 	ico_o			\
 	icon.bmp icon.xpm	\
+	Maelstrom.entitlements \
 	Maelstrom.spec
 
 DIST_SUBDIRS = $(SUBDIRS) Images Docs
 
 # Special install rule for the game
 install:
-	make install_gamedata target=@GAME_INSTALLDIR@
+	sh mkinstalldirs $(DESTDIR)@GAME_INSTALLDIR@
+	install -m 755 Maelstrom $(DESTDIR)@GAME_INSTALLDIR@/Maelstrom
+	make install_gamedata target=$(DESTDIR)@GAME_INSTALLDIR@
+	make install_gamedocs target=$(DESTDIR)@GAME_INSTALLDIR@
 
 install_gamedata:
 	sh mkinstalldirs $(target)/
-	cp -rv Images			\
-	       Maelstrom_Fonts		\
-	       Maelstrom_Sounds		\
-	       Maelstrom_Sprites	\
-	       Maelstrom-Scores		\
-	       icon.bmp icon.xpm	$(target)/
-	chmod 666 $(target)/Maelstrom-Scores
+	sh mkinstalldirs $(target)/Images
+	cp -v Images/*.bmp $(target)/Images
+	cp -v Images/*.cicn $(target)/Images
+	cp -v Maelstrom_Fonts	\
+	      Maelstrom_Sounds	\
+	      Maelstrom_Sprites	\
+	      icon.bmp icon.xpm	$(target)/
 
 install_gamedocs:
 	sh mkinstalldirs $(target)/
-	cp -rv README* COPYING* Docs*	$(target)/
+	sh mkinstalldirs $(target)/Docs
+	cp -v Docs/*.txt $(target)/Docs
+	cp -v README* $(target)/
+	cp -v COPYING.txt $(target)/COPYING
+	cp -v COPYING.GPL $(target)/
 
 # Rule to build tar-gzipped distribution package
 $(PACKAGE)-$(VERSION).tar.gz: dist

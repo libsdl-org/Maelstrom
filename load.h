@@ -62,7 +62,7 @@ public:
 	static void SetExePath(const char *exe) {
 		char *exep;
 
-		exepath = strdup(exe);
+		exepath = SDL_strdup(exe);
 		for ( exep = exepath+strlen(exe); exep > exepath; --exep ) {
 			if ( (*exep == *DIR_SEP) || (*exep == '\\') ) {
 				break;
@@ -71,7 +71,7 @@ public:
 		if ( exep > exepath ) {
 			*exep = '\0';
 		} else {
-			strcpy(exepath, CUR_DIR);
+			SDL_strlcpy(exepath, CUR_DIR, sizeof(exepath));
 		}
 	}
 
@@ -79,7 +79,7 @@ public:
 	LibPath() {
 		path = NULL;
 	}
-	LibPath(char *file) {
+	LibPath(const char *file) {
 		path = NULL;
 		Path(file);
 	}
@@ -88,13 +88,10 @@ public:
 	}
 
 	const char *Path(const char *filename) {
-		char *directory;
+		const char *directory;
+		size_t pathlen;
 
-#ifdef __MACOSX__
-		directory = "Maelstrom.app/Contents/Resources";
-#else
-		directory = getenv("MAELSTROM_LIB");
-#endif
+		directory = SDL_getenv("MAELSTROM_LIB");
 		if ( directory == NULL ) {
 			directory = LIBDIR;
 #ifndef macintosh
@@ -106,12 +103,63 @@ public:
 
 		if ( path != NULL )
 			delete[] path;
-		path = new char[strlen(directory)+1+strlen(filename)+1];
-		if ( strcmp(directory, DIR_SEP) == 0 ) {
-			sprintf(path, DIR_SEP"%s", filename);
-		} else {
-			sprintf(path, "%s"DIR_SEP"%s", directory, filename);
+
+#ifdef __MACOSX__
+		pathlen = strlen(directory)+strlen("/../Resources/")+strlen(filename)+1;
+		path = new char[pathlen];
+		SDL_snprintf(path, pathlen, "%s/../Resources/%s", directory, filename);
+		if ( access(path, F_OK) == 0 ) {
+			return(path);
 		}
+		delete[] path;
+#endif
+
+		pathlen = strlen(directory)+1+strlen(filename)+1;
+		path = new char[pathlen];
+		if (SDL_strcmp(directory, DIR_SEP) == 0) {
+			SDL_snprintf(path, pathlen, DIR_SEP "%s", filename);
+		} else {
+			SDL_snprintf(path, pathlen, "%s" DIR_SEP "%s", directory, filename);
+		}
+		return(path);
+	}
+	const char *Path(void) {
+		return(path);
+	}
+
+private:
+	char *path;
+};
+
+
+class SavePath {
+
+public:
+	SavePath() {
+		path = NULL;
+	}
+	SavePath(const char *file) {
+		path = NULL;
+		Path(file);
+	}
+	~SavePath() {
+		if ( path ) delete[] path;
+	}
+
+	const char *Path(const char *filename) {
+		char *directory = SDL_GetPrefPath("Ambrosia Software", "Maelstrom");
+		if (!directory) {
+			directory = SDL_strdup(CUR_DIR);
+		}
+
+		if ( path != NULL )
+			delete[] path;
+
+		size_t pathlen = strlen(directory)+1+strlen(filename)+1;
+		path = new char[pathlen];
+		SDL_snprintf(path, pathlen, "%s" DIR_SEP "%s", directory, filename);
+		SDL_free(directory);
+
 		return(path);
 	}
 	const char *Path(void) {

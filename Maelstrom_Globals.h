@@ -31,9 +31,9 @@ typedef Uint8 Bool;
 
 // Functions from main.cc
 extern void   PrintUsage(void);
-extern int    DrawText(int x, int y, char *text, MFont *font, Uint8 style,
+extern int    DrawText(int x, int y, const char *text, MFont *font, Uint8 style,
 						Uint8 R, Uint8 G, Uint8 B);
-extern void   Message(char *message);
+extern void   Message(const char *message);
 
 // Functions from init.cc
 extern void  SetStar(int which);

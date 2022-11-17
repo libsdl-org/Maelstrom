@@ -1,6 +1,6 @@
 /*
     SCREENLIB:  A framebuffer library based on the SDL library
-    Copyright (C) 1997  Sam Lantinga
+    Copyright (C) 1997-2021 Sam Lantinga <slouken@libsdl.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,11 +15,6 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-    Sam Lantinga
-    5635-34 Springhouse Dr.
-    Pleasanton, CA 94588 (USA)
-    slouken@devolution.com
 */
 
 #ifndef _SDL_FrameBuf_h
@@ -36,10 +31,6 @@
 #include <stdarg.h>
 
 #include "SDL.h"
-
-/* Macros to make sure we lock the screen if necessary (used internally!) */
-#define LOCK_IF_NEEDED()	{ if ( ! locked )  Lock(); }
-#define UNLOCK_IF_NEEDED()	{ if ( locked ) Unlock(); }
 
 typedef enum {
 	DOCLIP,
@@ -71,8 +62,12 @@ public:
 	int WaitEvent(SDL_Event *event) {
 		return(SDL_WaitEvent(event));
 	}
-	int ToggleFullScreen(void) {
-		return(SDL_WM_ToggleFullScreen(SDL_GetVideoSurface()));
+	void ToggleFullScreen(void) {
+		if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
+			SDL_SetWindowFullscreen(window, 0);
+		} else {
+			SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+		}
 	}
 
 	/* Locking blitting and update routines */
@@ -88,6 +83,7 @@ public:
 	}
 	void PerformBlits(void);
 	void Update(int auto_update = 0);
+	void UpdateScreen(void);
 	void Fade(void);		/* Fade screen out, then in */
 
 	/* Informational routines */
@@ -103,12 +99,12 @@ public:
 
 	/* Set the drawing focus (foreground or background) */
 	void FocusFG(void) {
-		UNLOCK_IF_NEEDED();
 		screen = screenfg;
+		screen_mem = (Uint8 *)screen->pixels;
 	}
 	void FocusBG(void) {
-		UNLOCK_IF_NEEDED();
 		screen = screenbg;
+		screen_mem = (Uint8 *)screen->pixels;
 	}
 
 	/* Drawing routines */
@@ -130,7 +126,7 @@ public:
 
 	/* Area copy/dump routines */
 	SDL_Surface *GrabArea(Uint16 x, Uint16 y, Uint16 w, Uint16 h);
-	int ScreenDump(char *prefix, Uint16 x, Uint16 y, Uint16 w, Uint16 h);
+	int ScreenDump(const char *prefix, Uint16 x, Uint16 y, Uint16 w, Uint16 h);
 
 	/* Cursor handling routines */
 	void ShowCursor(void) {
@@ -139,11 +135,8 @@ public:
 	void HideCursor(void) {
 		SDL_ShowCursor(0);
 	}
-	void SetCaption(char *caption, char *icon = NULL) {
-		if ( icon == NULL ) {
-			icon = caption;
-		}
-		SDL_WM_SetCaption(caption, icon);
+	void SetCaption(const char *caption) {
+		SDL_SetWindowTitle(window, caption);
 	}
 
 	/* Error message routine */
@@ -153,22 +146,27 @@ public:
 
 private:
 	/* The current display and background */
+	SDL_Window *window;
+	SDL_Renderer *renderer;
+	SDL_Texture *texture;
+	SDL_Surface *staging;
 	SDL_Surface *screen;
 	SDL_Surface *screenfg;
 	SDL_Surface *screenbg;
+	SDL_Palette *palette;
 	Uint8 *screen_mem;
-	Uint32 image_map[256];
-	int locked, faded;
+	Uint32 colormap[256];
+	int faded;
 
 	/* Error message */
-	void SetError(char *fmt, ...) {
+	void SetError(const char *fmt, ...) {
 		va_list ap;
 
 		va_start(ap, fmt);
-		vsprintf(errbuf, fmt, ap);
+		SDL_vsnprintf(errbuf, sizeof(errbuf), fmt, ap);
 		va_end(ap);
 		errstr = errbuf;
-        }
+	}
 	char *errstr;
 	char  errbuf[1024];
 

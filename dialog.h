@@ -36,10 +36,10 @@ public:
 		}
 	}
 	virtual void SetKeyPress(void (*new_key_callback)
-				(SDL_keysym key, int *doneflag)) {
+				(SDL_Keysym key, int *doneflag)) {
 		key_callback = new_key_callback;
 	}
-	virtual void HandleKeyPress(SDL_keysym key, int *doneflag) {
+	virtual void HandleKeyPress(SDL_Keysym key, int *doneflag) {
 		if ( key_callback ) {
 			(*key_callback)(key, doneflag);
 		}
@@ -58,12 +58,12 @@ public:
 
 	static void EnableText(void) {
 		if ( text_enabled++ == 0 ) {
-			SDL_EnableUNICODE(1);
+			SDL_StartTextInput();
 		}
 	}
 	static void DisableText(void) {
 		if ( --text_enabled == 0 ) {
-			SDL_EnableUNICODE(0);
+			SDL_StopTextInput();
 		}
 	}
 
@@ -77,7 +77,7 @@ protected:
 	FrameBuf *Screen;
 	int  X, Y;
 	void (*button_callback)(int x, int y, int button, int *doneflag);
-	void (*key_callback)(SDL_keysym key, int *doneflag);
+	void (*key_callback)(SDL_Keysym key, int *doneflag);
 
 	/* Utility routines for dialogs */
 	int IsSensitive(SDL_Rect *area, int x, int y) {
@@ -88,11 +88,11 @@ protected:
 	}
 
 	/* Error message */
-	virtual void SetError(char *fmt, ...) {
+	virtual void SetError(const char *fmt, ...) {
 		va_list ap;
 
 		va_start(ap, fmt);
-		vsprintf(errbuf, fmt, ap);
+		SDL_vsnprintf(errbuf, sizeof(errbuf), fmt, ap);
 		va_end(ap);
 		errstr = errbuf;
         }
@@ -109,7 +109,7 @@ class Mac_Button : public Mac_Dialog {
 
 public:
 	Mac_Button(int x, int y, int width, int height,
-		char *text, MFont *font, FontServ *fontserv, 
+		const char *text, MFont *font, FontServ *fontserv, 
 				int (*callback)(void));
 	virtual ~Mac_Button() {
 		SDL_FreeSurface(button);
@@ -217,11 +217,11 @@ class Mac_DefaultButton : public Mac_Button {
 
 public:
 	Mac_DefaultButton(int x, int y, int width, int height,
-				char *text, MFont *font, FontServ *fontserv, 
+				const char *text, MFont *font, FontServ *fontserv, 
 						int (*callback)(void));
 	virtual ~Mac_DefaultButton() { }
 
-	virtual void HandleKeyPress(SDL_keysym key, int *doneflag) {
+	virtual void HandleKeyPress(SDL_Keysym key, int *doneflag) {
 		if ( key.sym == SDLK_RETURN )
 			ActivateButton(doneflag);
 	}
@@ -285,7 +285,7 @@ protected:
 class Mac_CheckBox : public Mac_Dialog {
 
 public:
-	Mac_CheckBox(int *toggle, int x, int y, char *text,
+	Mac_CheckBox(int *toggle, int x, int y, const char *text,
 				MFont *font, FontServ *fontserv);
 	virtual ~Mac_CheckBox() {
 		if ( label ) {
@@ -358,6 +358,14 @@ private:
 
 class Mac_RadioList : public Mac_Dialog {
 
+private:
+	struct radio {
+		SDL_Surface *label;
+		int x, y;
+		SDL_Rect sensitive;
+		struct radio *next;
+	};
+
 public:
 	Mac_RadioList(int *variable, int x, int y,
 			MFont *font, FontServ *fontserv);
@@ -395,17 +403,12 @@ public:
 		}
 	}
 
-	virtual void Add_Radio(int x, int y, char *text) {
+	virtual void Add_Radio(int x, int y, const char *text) {
 		struct radio *radio;
 
 		for ( radio=&radio_list; radio->next; radio=radio->next )
 			/* Loop to end of radio box list */;
-/* Which is ANSI C++? */
-#ifdef linux
-		radio->next = new struct Mac_RadioList::radio;
-#else
 		radio->next = new struct radio;
-#endif
 		radio = radio->next;
 		radio->label = Fontserv->TextImage(text, Font,
 							STYLE_NORM, 0, 0, 0);
@@ -463,12 +466,7 @@ private:
 	MFont *Font;
 	Uint32 Fg, Bg;
 	int *radiovar;
-	struct radio {
-		SDL_Surface *label;
-		int x, y;
-		SDL_Rect sensitive;
-		struct radio *next;
-	} radio_list;
+	radio radio_list;
 
 	void Circle(int x, int y) {
 		x += 5;
@@ -538,7 +536,7 @@ public:
 			}
 		}
 	}
-	virtual void HandleKeyPress(SDL_keysym key, int *doneflag) {
+	virtual void HandleKeyPress(SDL_Keysym key, int *doneflag) {
 		int n;
 
 		switch (key.sym) {
@@ -569,10 +567,11 @@ public:
 			default:
 				if ( (current->end+Cwidth) > current->width )
 					return;
-				if ( key.unicode ) {
+				// FIXME: We should use SDL_TEXTINPUT, but this class isn't used, so...
+				if ( key.sym <= 0x7F ) {
 					current->hilite = 0;
 					n = strlen(current->variable);
-					current->variable[n] = (char)key.unicode;
+					current->variable[n] = (char)key.sym;
 					current->variable[n+1] = '\0';
 					Update_Entry(current);
 					DrawCursor(current);
@@ -730,7 +729,7 @@ public:
 			}
 		}
 	}
-	virtual void HandleKeyPress(SDL_keysym key, int *doneflag) {
+	virtual void HandleKeyPress(SDL_Keysym key, int *doneflag) {
 		int n;
 
 		switch (key.sym) {
@@ -878,7 +877,7 @@ private:
 		if ( entry->text ) {
 			Fontserv->FreeText(entry->text);
 		}
-		sprintf(buf, "%d", *entry->variable);
+		SDL_snprintf(buf, sizeof(buf), "%d", *entry->variable);
 
 		if ( entry->hilite ) {
 			clear = Fg;

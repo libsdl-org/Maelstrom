@@ -1,0 +1,390 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+			ON PORTING MAELSTROM TO LINUX
+
+
+			by
+			  Sam Lantinga
+
+
+
+
+
+Graphics:
+
+	X11 was originally designed as a well defined client-server
+protocol, device independent, network capable windowing system.  It was
+fully capable of supporting the applications of the time: menus, text
+editors, simple bitmap graphics, etc.  However, many applications today
+require a faster, more responsive graphics interface.  Any real-time video
+application requires much faster video access and updates than the X11
+system was originally designed to provide.  Examples of these types of
+applications include teleconferencing systems, MPEG video players, real-time
+modeling object modeling, etc.  The pioneers in real-time audio/visual
+techniques have been (and probably will be) fast-action video games.  Arcade
+games stress hardware more than almost any other application, requiring
+real-time video, real-time audio, and good response time to user input.
+More advanced games run networked as well, requiring fast, well designed
+transmission control protocol and routing of network packets (not discussed
+in this paper.)
+
+	These real-time services are easy to provide in a simple,
+single-user system such as the DOS PC, making it one of the most popular
+platforms for video games.  It is slightly more complex to provide these in
+a well designed single-user windowing system such as the Macintosh. 
+However, even there, it is possible to give full access to the hardware to
+any applications that require it.  This performance is much harder to
+provide in a multi-user time-sharing environment such as UNIX X11.
+
+
+	The objective of this project was to show that fast-action games,
+and hence, other high-speed interactive applications, can be written for the
+X11 environment.  The target application for this project was the Macintosh
+shareware game "Maelstrom".  From the press release:
+
+	"Maelstrom 1.4 is a marriage of the venerable Asteroids concept 
+	 with new digitized sound effects, 3D graphics and high resolution
+         256 color animation.  'With fantastic art and graphics by Ian 
+	 Gilman and Mark Lewis, Maelstrom does for the tired old Asteroids-
+	 style games what the Mazda Miata did for sporty roadsters...'"
+
+As such, Maelstrom seemed the perfect target for the X11 environment.
+The operating system chosen for the port was Linux version 1.2.9, a free
+UNIX-like operating system for the PC.  The development hardware was a
+DX2/66 VLB PC with a Cirrus Logic 5426 video board and a Sound-Blaster Pro
+8-bit sound-card.  The X11 environment used was XFree86 version 3.1, using
+the SVGA X server with the built in MITSHM extension.
+
+	After obtaining the source code through a non-disclosure agreement
+with the author, Andrew Welch, I began the port.  The most immediate
+problems I ran into had nothing to do with graphics speed, or hardware
+access.  How was I going to be able to get the icons, sprites and sounds out
+of the Macintosh resource fork files?  Throughout the port, whenever I would
+run into these problems, there would be some resource, some paper or program
+written that would help me solve the problem.  A (nearly) complete list of
+these and credits are in an appendix to this paper.  For the specs on the
+Macintosh resource files, I went to the well done series "Inside Macintosh",
+published by Addison and Wesley.  With the specs in hand, I coded C++
+classes that could parse Macintosh resource forks (e.g. dialog box
+specifications, custom fonts, sprites, icons, sound clips, etc.) directly
+from the UNIX file-system.  How was I able to get the resource forks there
+in the first place?  That was made possible by the new HFS file-system
+driver for Linux, written by Paul Hargrove.  Once I had routines that could
+extract sprites, color icons, and color-maps, I went to work on the graphics
+interface.
+
+	I had a game for X11, called "Xboing" written by an Australian
+Justin Kibell, which used the Xpm library for full color animation in a
+well designed blockout-style game.  (For more information, his WWW page is
+http://144.110.160.105:9000/~jck/xboing/xboing.html)  However, using the
+Xpm library, copying pixmap sprites from application to X server, his
+animation has a great deal of "flicker" where the animation seems to flash
+as it goes along.  His method of dealing with sounds (designed for the 
+sun /dev/audio interface) is not tightly synchronized, leading to sounds
+and animation for a single event occurring several seconds apart.  The effect
+is similar to that of a high flying jet -- the sight of the jet precedes
+the sound of the jet by several seconds.
+
+	Another game, recently ported to the Linux X11 environment, is
+the popular "DOOM!" game, by ID Software.  DOOM! uses frame-buffer based
+animation, where multiple frames are blitted to the screen per second,
+giving the appearance of smoothly flowing graphics.  The X11 port takes
+advantage of an extension to the X11 protocol known as "MITSHM", or 
+"MIT Shared Memory Extension" in which the client application and the X
+server share a segment of memory that corresponds to an off-screen "image".
+Graphics are drawn to this off-screen image and a single call to the X11
+server tells it to copy the image to a window on the physical screen.
+This is much faster than sending each frame through the client-server
+communications connection.  For a 320x200 resolution window, this results
+in reasonable performance.  The game can be played smoothly and in this
+game, sound is tightly coupled to the actions in the game, for realistic
+play.
+
+	In all but the fastest systems, the MITSHM off-screen image
+technique is limited to 320x200 resolution.  Any larger, and the X server
+cannot copy the image to the window fast enough for smoothly flowing
+graphic frames.  Most X systems run in higher resolution, turning the
+full-screen virtual reality game "DOOM!" into a tiny window on the desktop. 
+Maelstrom was designed for 640x480 resolution, and uses moving sprite
+animation, so the MITSHM off-screen image technique is not suitable for the
+Maelstrom port.  The Xpm method of erasing and drawing sprite images would
+be perfect for Maelstrom, if the images could be copied fast enough to
+provide smoothly moving animation.  With sometimes upwards of 30 moving
+objects on the screen at once, the copying would have to be fast indeed.
+
+	I combined both approaches.  Using a technique I haven't heard of
+before, I used the feature that a pixmap can be used as a window background,
+in combination with the fact that a shared memory segment can be associated
+with a pixmap, to create a shared memory pixmap that was the background of
+a window!  I can then directly manipulate the pixels in the background and
+simply call XClearArea() to refresh the changed area of the screen.  This
+technique gives an incredible speedup over the shared memory image method,
+because the window is not modified by copying an entire frame, but by merely
+refreshing the existing one.  All graphics drawing is done on the background
+of the window and then placed on the display by calling XClearArea().  This
+technique completely breaks down the client-server network relationship of
+the X11 environment, but for certain high-speed graphics applications, the
+speed increase is definitely worthwhile.
+
+	Even with the speedy technique of shared background pixmaps, there
+needs to be some way of copying the original sprite pixel data into the
+shared background (hereafter referred to as the frame-buffer.) A technique
+suggested by Andrew Welch, was to compile the sprites into streams of pixels
+and opcodes.  Instead of running a loop, copying each pixel independently
+after checking to see if it needs to be put on the screen, compiled sprites
+are streamed onto the frame-buffer using the largest copy possible, switching
+on the next opcode to see how big a skip to make, streaming a next copy,
+skipping, etc.  Copying compiled sprites was 50 percent faster than using
+the old sprite/mask technique. An additional advantage was that compiled
+sprites took an average of 50 percent less storage space than the old
+sprites and masks.  Compiled sprites ran into problems however, when
+clipping them on the edge of the screen.  sprite pixel-maps and masks have
+the advantage that each row of pixels is a fixed width, and all you have to
+do is skip a certain amount into each row to clip an edge of the sprite. 
+Each row of a compiled sprite is variable width, and the checking required
+to clip them would take longer than the pixel/mask method.  I wrote a
+routine to dynamically recompile a compiled sprite, based on clipping
+conditions, but it too was slightly slower than the pixel/mask method.  For
+sprites with absolute coordinate positions, I use the pixel/mask image
+updating during clipping and for small sprites with relative coordinate
+positions (thrust sprites, etc) I use compiled sprite recompiling during
+clipping.  This combination of techniques resulted in a good graphics speed
+for high-speed play of the game Maelstrom.
+
+	Color mapping is a big issue in the X11 environment.  Since the
+screen is shared with other applications, and there are limited color
+entries in the color table, you need some way of getting the colors you
+need, without depriving other applications of the colors they need.  There
+are several ways to approach this.  "Netscape", a world wide web browser,
+just grabs all the free color cells and allocates the colors it wants. 
+"xv", an image viewer, allocates an orthogonal spectrum of color cells and
+maps the colors it wants to this spectrum of colors.  "DOOM!" allocates a
+private color-map, fills it with it's own colors and uses that.  This has the
+side-effect of turning all other windows on the X display into psychedelic
+color friezes.  Since Maelstrom uses a full 256 color table, it needs more
+colors than are generally free in a shared color-map.  The approach I took
+was similar to that of xv -- I allocated a spectrum of colors, and then 
+mapped the colors I wanted to this spectrum, plus the colors already in 
+the colormap.  A command-line option can be used to tell Maelstrom to
+allocate a private color-map for "true" colors, the same way "DOOM!" does.
+
+	Color mapping is only an issue in 8-bit displays.  Truecolor
+displays can display thousands or millions of colors simultaneously and
+require different color techniques.  My hardware will only support 8-bit
+color, and so Maelstrom doesn't currently support Truecolor displays.
+
+	The VGA port posed an interesting problem, compared to X11
+graphics.  In the X11 paradigm, graphic updates are queued until explicitly
+flushed, or until the next call for input.  Under SVGAlib, as soon as a
+graphics request is made, the screen is updated.  This results in "flicker",
+as all of the sprites are erased, then moved, and then they are updated.
+My solution was to create an expandable stack of refresh updates, and then
+only update the screen when explicitly told to, or when asked for input.
+This gets rid of the flicker quite nicely.  The SVGAlib version of Maelstrom
+is much smoother than the X11 version.
+
+
+Sound:
+
+	The next component was sound.  Dave Taylor, author of the Linux port
+of DOOM!, worked with the author of the VoxWare sound driver for Linux,
+enhancing the real-time sound capabilities of the sound driver.  Recently,
+Terry Evans (tevans@cs.utah.edu) wrote a sound effects server for Linux that
+can mix multiple sounds.  I adapted the algorithm for sound mixing for my
+own sound server for Maelstrom.  Each loop of the mixer combines multiple
+channels of the sound mixer into a single chunk of sampled data which is
+sent to the audio device.  The original idea was to have a continuous loop,
+first checking for input, and then writing a chunk of sound (or silence) to
+the sound device.  This resulted in slow response time, because the a sound
+event had to wait the entire cycle of combining the sound channels until it
+could be acted upon.  I modified the original concept to support
+asynchronous input.  Now, the loop has been simplified to a simple
+continuous play of the sound channels, but at any time during the
+compilation of a sound chunk, new sound data can be placed into channels, or
+removed from the mixing channels.  This allows nearly instantaneous mixing
+of sound effects, in response to sound events.
+
+	I decided to run the sound server as a separate process from
+Maelstrom. The sound server has to continuously play sampled data (sound or
+silence) and respond instantly to sound events.  Maelstrom has to
+continuously update animated graphics.  I thought the best way to perform
+both of these functions simultaneously was to do them in separately running
+processes, communicating through a private UNIX domain socket.  The socket
+is set up for asynchronous I/O, and when one process sends a message to the
+other, they are interrupted by a SIGIO signal.  A handler is set up for each
+process, handling requests.  The sound server handles sound requests, and
+sends a "sound done playing" message when it finishes playing a sound.
+
+	This scheme works remarkably well, however there are still some
+problems with it.  If the sound fragment size is too large, the write to the
+sound device returns too soon, and the time the sound is played doesn't sync
+with the time the program thinks the sound is played.  On slow systems,
+sound requests can interrupt the write() system call, and if the requests
+come too quickly, a single write will never complete.  The current
+implementation tests the write() return value for EINTR, signaling it was
+interrupted, and performs a goto to restart the write.  It also has to
+re-set the signal handler at each interrupt, and can be interrupted during
+request processing.  This can result in infinite recursion on the signal
+handler on slow systems (this has not been observed on my system).
+
+	Regarding the accuracy of Maelstrom sound, there is a trade-off
+between the accuracy of the synchronization between Maelstrom and the sound
+server, and the smoothness of sound play.  The fragment size needs to be
+large enough so that the audio device continues playing while the Maelstrom
+process runs, and small enough so that the sound write returns soon after a
+sound is finished playing, i.e. not too much extra sound being played in a
+chunk after then end of a sound clip.  I've found that 1024 bytes is a fair
+number for the fragment size, weighing timing accuracy and smoothness of play.
+The only time the timing accuracy is really noticeable is at the end of the
+level in the bonus count-down screen.
+
+
+The Game:
+
+	The main body of the game, all of the hit detection, sprite
+updating, movement, etc was originally written as approximately five
+thousand lines of 68K assembler.  I rewrote and translated it all to
+fourteen hundred lines of in-lined C++.  I did not change any of the logic of
+the game, intending this port to be as faithful a representation of the
+original as possible.  The structure of the game was preserved as much as
+possible, changed only where the differences between the Macintosh and Linux
+environment required them.  These changes were primarily in the graphics
+interface.  Andrew Welch included the header file to his sound server, and
+I emulated his entry point functions (the API) in my C++ sound-client class.
+
+	The Maelstrom dialog boxes were captured from the screen of a
+Macintosh using the System 7.5 screen capture facility (Command-Shift-3) and
+then analyzed at the pixel level using 'xv', and recreated with custom
+written Mac-like Dialog classes and a Font handling class that can translate
+text strings, with Macintosh 'NFNT' resources, directly into blittable
+bitmaps.  They work almost 100% exactly like the originals. 
+
+	I thought about evolving some of the simple data structures used by
+Maelstrom, (e.g. arrays, sprite structs) into some of the more advanced data
+types, such as objects, supported by the C++ language.  This would improve
+the _look_ of the code quite a bit, but would slow it down as well.  If I
+were to do major redesigning of the way the game works, it might be
+worthwhile, but since it works well, and works fast, I would not want to add
+unnecessary data complexity.  One concession I made to the C++
+object-oriented paradigm was implementing the graphics display driver
+as a "FrameBuf" framebuffer graphics class.  I plugged in graphics modules
+for both X11 and SVGAlib so that the same executable program can run in
+both X Windows and Linux console environments.
+
+	At this point, the Linux version of Maelstrom is Freeware, by
+permission of Andrew Welch, the author of the original Macintosh version.
+It includes source code for the Linux version, and boldly displays the
+Ambrosia Software logo at startup.
+
+
+Problems:
+
+	When Maelstrom dies unexpectedly, it leaves shreds of shared memory
+lying around the system.  These need to be removed by hand, or reclaimed by
+Maelstrom itself.
+
+
+Future Enhancements:
+
+	I would like to find a way to reclaim shared memory that 
+has been orphaned, possibly by using a Maelstrom-specific shared memory 
+identifier.  I will look at the source to "ipcs" to find out how to 
+search out shared memory on a system.
+
+	I would like to port Maelstrom to the SGI.  A port to the SGI 
+would be fairly simple, except for one thing.  I know nothing about 
+the SGI sound interface.  All of the SGI systems I have access to do 
+not have the sound interface documentation installed.
+
+	I would like to eventually write an enhanced version of Maelstrom,
+with additional bonuses, "rubber" asteroids, etc.  Maelstrom+?  This would
+be in collaboration with Andrew Welch, and would require that I first...
+
+	It would be nice to extend my Macintosh Resource class to be able
+to write the Macintosh resource forks as well as read them.  I also want
+to expand my sound class to be able to understand other sound formats
+besides Macintosh sampled sound bites.
+
+
+Conclusion:
+
+	Ya HOO!!!  It can be done!!  My friends have played it and
+pronounced it a very good job.  As far as I can tell, the Linux version of
+Maelstrom is an authentic Maelstrom version, complete in every detail.  The
+timing is accurate, response time is accurate, animation is smooth, sound is
+clear and timely.
+
+	I feel that I have demonstrated that games of good quality,
+and real-time audio-visual applications of all kinds can be well written
+and well used in the Linux/X11 environment.
+
+Excuse me, I have to go play. :-)
+
+
+
+
+
+
+
+APPENDIX A:			CREDITS
+
+
+Thanks to all the people who helped this project be fulfilled.....
+
+(a partial list follows)
+
+Emily, who reminds me to take care of myself, without whom, I would 
+eat only chips and salsa, stay up until 5 A.M. every night, and sleep 
+through all my classes. :)
+
+Ron Olsson, who's giving me credit for having fun. :)
+
+Andrew Welch, the author of Maelstrom
+
+Larry, for being picky, and praising perfection.
+
+Dave, for letting me use your Mac all the time.
+
+Whoever that C++ teacher was... ;-)
+
+Paul Hargrove, author of the HFS file-system for Linux
+(hargrove@sccm.stanford.edu)
+
+Justin Kibell for inspiring me to write a good game for Linux.
+(jck@citri.edu.au)
+
+Terry Evans, author of that great mixer, "sfxserver"
+
+The combined authors of "Inside Macintosh" -- invaluable!
+
+The author of ResEdit
+
+The author of GraphicsConverter for the Mac
+
+John Bradley, author of "xv"
+
+Dave Taylor, author of the "DOOM!" for Linux port, who first turned 
+me on to MITSHM 
+
+Guido van Rossum, a man named Guido who wrote "mac2bdf".
+
+The XFree86 Team, for a great X11 windowing system! :)
+
+Cliff at ARDI -- I still say mine is faster! ;-)
+
+Manuel, who first showed me Maelstrom -- I'm addicted! :)
+
+
+Of course, Linus and Linux-heads everywhere, I wouldn't have Linux 
+without you....

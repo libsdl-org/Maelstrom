@@ -1,6 +1,6 @@
 /*
     MACRES:  A program to extract data from Macintosh (tm) resource forks
-    Copyright (C) 1997  Sam Lantinga
+    Copyright (C) 1997-2021 Sam Lantinga <slouken@libsdl.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,11 +15,6 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-    Sam Lantinga
-    5635-34 Springhouse Dr.
-    Pleasanton, CA 94588 (USA)
-    slouken@devolution.com
 */
 
 /* Test program to list and extract Macintosh resources from a resource fork */
@@ -54,7 +49,7 @@ int main(int argc, char *argv[])
 		printf("Resource set: type = '%s', contains %hd resources\n",
 					types[i], res->NumResources(types[i]));
 		for ( j=0; ids[j] < 0xFFFF; ++j ) {
-			printf("\tResource %hu (ID = %d): \"%s\"\n", j+1,
+			printf("\tResource %d (ID = %d): \"%s\"\n", j+1,
 				ids[j], res->ResourceName(types[i], ids[j]));
 			if ( argv[2] ) {
 				char path[23];

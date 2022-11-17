@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 aclocal
-automake --foreign --add-missing
+automake --foreign
 autoconf
 
 #./configure $*

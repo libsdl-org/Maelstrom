@@ -1,5 +1,9 @@
 
-Maelstrom 3.0.6 -- Public GPL version
+Maelstrom 3.0.7 -- Public GPL version
+
+Version 3.0.7:
+	Sam Lantinga - Tue Feb 2 21:04:21 PST 2021
+	*	Updated for SDL 2.0
 
 Version 3.0.6:
 	Sam Lantinga - Sat Oct 19 19:09:57 PDT 2002

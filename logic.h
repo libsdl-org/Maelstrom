@@ -11,7 +11,7 @@ extern int  InitLogic(void);
 extern int  InitPlayerSprites(void);
 extern void HaltLogic(void);
 extern void SetControl(unsigned char which, int toggle);
-extern int  SpecialKey(SDL_keysym key);
+extern int  SpecialKey(SDL_Keysym key);
 extern int GetScore(void);
 
 /* From game.cpp */

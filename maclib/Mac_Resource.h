@@ -1,6 +1,6 @@
 /*
     MACLIB:  A companion library to SDL for working with Macintosh (tm) data
-    Copyright (C) 1997  Sam Lantinga
+    Copyright (C) 1997-2021 Sam Lantinga <slouken@libsdl.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,11 +15,6 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-    Sam Lantinga
-    5635-34 Springhouse Dr.
-    Pleasanton, CA 94588 (USA)
-    slouken@devolution.com
 */
 
 #ifndef _Mac_Resource_h
@@ -43,6 +38,7 @@ typedef struct {
 
 
 class Mac_Resource {
+
 public:
 	Mac_Resource(const char *filename);
 	~Mac_Resource();
@@ -92,11 +88,11 @@ protected:
 	Uint32  base;				/* The offset of the rsrc */
 
 	/* Useful for getting error feedback */
-	void error(char *fmt, ...) {
+	void error(const char *fmt, ...) {
 		va_list ap;
 
 		va_start(ap, fmt);
-		vsprintf(errbuf, fmt, ap);
+		SDL_vsnprintf(errbuf, sizeof(errbuf), fmt, ap);
 		va_end(ap);
 		errstr = errbuf;
 	}

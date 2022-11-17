@@ -19,7 +19,7 @@
 #define NUM_SCORES		10		// Do not change this!
 
 /* Everyone can write to scores file if defined to 0 */
-#define SCORES_PERMMASK		0
+#define SCORES_PERMMASK		022
 
 #define CLR_DIALOG_WIDTH	281
 #define CLR_DIALOG_HEIGHT	111
@@ -29,7 +29,7 @@ Scores hScores[NUM_SCORES];
 
 void LoadScores(void)
 {
-	LibPath path;
+	SavePath path;
 	SDL_RWops *scores_src;
 	int i;
 
@@ -58,7 +58,7 @@ void LoadScores(void)
 
 void SaveScores(void)
 {
-	LibPath path;
+	SavePath path;
 	SDL_RWops *scores_src;
 	int i;
 #ifdef unix
@@ -185,17 +185,17 @@ static int Cancel2_callback(void) {
 
 int GetStartLevel(void)
 {
-	static char    *Ltext1 = 
+	static const char    *Ltext1 = 
 			"Enter the level to start from (1-40).  This";
-	static char    *Ltext2 = 
+	static const char    *Ltext2 = 
 			"disqualifies you from a high score...";
-	static char    *Ltext3 = "Level:";
-	static char    *Ltext4 = "Lives:";
+	static const char    *Ltext3 = "Level:";
+	static const char    *Ltext4 = "Lives:";
 	MFont *chicago;
 	Maclike_Dialog *dialog;
 	SDL_Surface *splash;
 	SDL_Surface *text1, *text2, *text3, *text4;
-	static char *turbotext = "Turbofunk On";
+	static const char *turbotext = "Turbofunk On";
 	int x, y, X, Y;
 	Mac_Button *doit;
 	Mac_Button *cancel;

@@ -22,12 +22,13 @@ extern void	ShowDawn(void);
 
 /* The controls structure */
 typedef struct {
-	SDLKey gPauseControl;
-	SDLKey gShieldControl;
-	SDLKey gThrustControl;
-	SDLKey gTurnRControl;
-	SDLKey gTurnLControl;
-	SDLKey gFireControl;
-	SDLKey gQuitControl;
+	SDL_Keycode gPauseControl;
+	SDL_Keycode gShieldControl;
+	SDL_Keycode gThrustControl;
+	SDL_Keycode gTurnRControl;
+	SDL_Keycode gTurnLControl;
+	SDL_Keycode gFireControl;
+	SDL_Keycode gQuitControl;
 } Controls;
 
+extern SDL_Keymod gToggleFullscreenMod;

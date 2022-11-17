@@ -9,35 +9,37 @@
 #include <string.h>
 #include <errno.h>
 
+#include "SDL.h"
 
-void error(char *fmt, ...)
+
+void error(const char *fmt, ...)
 {
 	char mesg[BUFSIZ];
 	va_list ap;
 
 	va_start(ap, fmt);
-	vsprintf(mesg, fmt, ap);
+	SDL_vsnprintf(mesg, sizeof(mesg), fmt, ap);
 	fputs(mesg, stderr);
 	va_end(ap);
 }
 
-void mesg(char *fmt, ...)
+void mesg(const char *fmt, ...)
 {
 	char mesg[BUFSIZ];
 	va_list ap;
 
 	va_start(ap, fmt);
-	vsprintf(mesg, fmt, ap);
+	SDL_vsnprintf(mesg, sizeof(mesg), fmt, ap);
 	fputs(mesg, stdout);
 	va_end(ap);
 }
 
-void myperror(char *msg)
+void myperror(const char *msg)
 {
 	char buffer[BUFSIZ];
 
 	if ( *msg ) {
-		sprintf(buffer, "%s: %s\n", msg, strerror(errno));
+		SDL_snprintf(buffer, sizeof(buffer), "%s: %s\n", msg, strerror(errno));
 		error(buffer);
 	} else
 		error((char *)strerror(errno));

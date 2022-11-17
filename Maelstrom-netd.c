@@ -1,6 +1,7 @@
 
 /* Here we go... */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
@@ -9,6 +10,7 @@
 #include <sys/time.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
 
@@ -104,7 +106,7 @@ void CheckPlayers(void)
 */
 void CheckNewGame(void)
 {
-	unsigned char buffer[BUFSIZ];
+	char buffer[BUFSIZ];
 	int first, i;
 	int numplayers, players_on;
 	int positions[MAX_PLAYERS];
@@ -181,7 +183,7 @@ void I_Crashed(int sig)
 	exit(sig);
 }
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	int netfd, i, slot;
 	struct sockaddr_in serv_addr;
@@ -255,7 +257,8 @@ printf("Waiting for players...\n");
 
 		/* Check for new players first */
 		if ( FD_ISSET(netfd, &fdset) ) {
-			int sockfd, clilen;
+			int sockfd;
+			socklen_t clilen;
 
 			for ( i=0; i<MAX_CONNECTIONS; ++i ) {
 				if ( players[i].state == UNCONNECTED )
@@ -364,7 +367,7 @@ printf("Connection received on port %d\n", i);
 			players[slot].raddr.sin_port = 
 						htons((short)ntohl(cliport));
 printf("Player %d arrived on port %d\n", player+1, slot);
-printf("  the remote address is %s:%lu\n",
+printf("  the remote address is %s:%hu\n",
 	inet_ntoa(players[slot].raddr.sin_addr),
 	ntohs(players[slot].raddr.sin_port));
 		}

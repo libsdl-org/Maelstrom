@@ -232,7 +232,7 @@ void DrawStatus(Bool first, Bool ForceDraw)
 
 			lastDisplayed = gDisplayed;
 			screen->FillRect(0, 0, SCREEN_WIDTH, 12, ourBlack);
-			sprintf(caption,
+			SDL_snprintf(caption, sizeof(caption),
 				"You are player %d --- displaying player %d",
 						gOurPlayer+1, gDisplayed+1);
 			DrawText(SPRITES_WIDTH, 11, caption, geneva,
@@ -357,7 +357,7 @@ void DrawStatus(Bool first, Bool ForceDraw)
 				/* -- Erase old and draw new score */
 				screen->FillRect(45, gStatusLine+1,
 					score_width, text_height, ourBlack);
-				sprintf(numbuf, "%d", Score);
+				SDL_snprintf(numbuf, sizeof(numbuf), "%d", Score);
 				score_width = DrawText(45, gStatusLine+11, 
 						numbuf, geneva, STYLE_BOLD,
 							0xFF, 0xFF, 0xFF);
@@ -380,7 +380,7 @@ void DrawStatus(Bool first, Bool ForceDraw)
 		if (lastWave != gWave) {
 			screen->FillRect(255, gStatusLine+1,
 					wave_width, text_height, ourBlack);
-			sprintf(numbuf, "%d", gWave);
+			SDL_snprintf(numbuf, sizeof(numbuf), "%d", gWave);
 			wave_width = DrawText(255, gStatusLine+11, 
 					numbuf, geneva, STYLE_BOLD,
 							0xFF, 0xFF, 0xFF);
@@ -391,7 +391,7 @@ void DrawStatus(Bool first, Bool ForceDraw)
 		if (lastLives != Lives) {
 			screen->FillRect(319, gStatusLine+1,
 					lives_width, text_height, ourBlack);
-			sprintf(numbuf, "%-3.1d", Lives);
+			SDL_snprintf(numbuf, sizeof(numbuf), "%-3.1d", Lives);
 			lives_width = DrawText(319, gStatusLine+11,
 					numbuf, geneva, STYLE_BOLD,
 							0xFF, 0xFF, 0xFF);
@@ -402,7 +402,7 @@ void DrawStatus(Bool first, Bool ForceDraw)
 		if (lastBonus != Bonus) {
 			screen->FillRect(384, gStatusLine+1,
 					bonus_width, text_height, ourBlack);
-			sprintf(numbuf, "%-7.1d", Bonus);
+			SDL_snprintf(numbuf, sizeof(numbuf), "%-7.1d", Bonus);
 			bonus_width = DrawText(384, gStatusLine+11,
 					numbuf, geneva, STYLE_BOLD,
 							0xFF, 0xFF, 0xFF);
@@ -414,7 +414,7 @@ void DrawStatus(Bool first, Bool ForceDraw)
 			if (lastFrags != Frags) {
 				screen->FillRect(fragoff, gStatusLine+1,
 					frags_width, text_height, ourBlack);
-				sprintf(numbuf, "%-3.1d", Frags);
+				SDL_snprintf(numbuf, sizeof(numbuf), "%-3.1d", Frags);
 				frags_width = DrawText(fragoff, gStatusLine+11,
 						numbuf, geneva, STYLE_BOLD,
 							0xFF, 0xFF, 0xFF);
@@ -699,7 +699,6 @@ static void DoGameOver(void)
 	int newyork_height, w, x;
 	int which = -1, i;
 	char handle[20];
-	Uint8 key;
 	int chars_in_handle = 0;
 	Bool done = false;
 
@@ -725,6 +724,7 @@ static void DoGameOver(void)
 		delete gSprites[gNumSprites-1];
 
 	/* -- Clear the screen */
+	screen->SetBackground(0, 0, 0);
 	screen->FillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ourBlack);
 
 	/* -- Draw the game over picture */
@@ -747,9 +747,9 @@ static void DoGameOver(void)
 		for ( i=0; i<gNumPlayers; ++i ) {
 			char buffer[BUFSIZ], num1[12], num2[12];
 
-			sprintf(num1, "%7.1d", final[i].Score);
-			sprintf(num2, "%3.1d", final[i].Frags);
-			sprintf(buffer, "Player %d: %-.7s Points, %-.3s Frags",
+			SDL_snprintf(num1, sizeof(num1), "%7.1d", final[i].Score);
+			SDL_snprintf(num2, sizeof(num2), "%3.1d", final[i].Frags);
+			SDL_snprintf(buffer, sizeof(buffer), "Player %d: %-.7s Points, %-.3s Frags",
 						final[i].Player, num1, num2);
 			DrawText(160, 380+i*newyork_height, buffer,
 				newyork, STYLE_NORM, 30000>>8, 30000>>8, 0xFF);
@@ -783,7 +783,7 @@ static void DoGameOver(void)
 		for ( i = 8; i >= which ; --i ) {
 			hScores[i + 1].score = hScores[i].score;
 			hScores[i + 1].wave = hScores[i].wave;
-			strcpy(hScores[i+1].name, hScores[i].name);
+			SDL_strlcpy(hScores[i+1].name, hScores[i].name, sizeof(hScores[i+1].name));
 		}
 
 		/* -- Draw the "Enter your name" string */
@@ -803,37 +803,33 @@ static void DoGameOver(void)
 		chars_in_handle = 0;
 
 		while ( screen->PollEvent(&event) ) /* Loop, flushing events */;
-		SDL_EnableUNICODE(1);
+		SDL_StartTextInput();
 		while ( !done ) {
 			screen->WaitEvent(&event);
 
 			/* -- Handle key down's (no UNICODE support) */
 			if ( event.type == SDL_KEYDOWN ) {
-				key = (Uint8)event.key.keysym.unicode;
-				switch ( key  ) {
-					case '\0':	// Ignore NUL char
-					case '\033':	// Ignore ESC char
-					case '\t':	// Ignore TAB too.
-						continue;
-					case '\003':
-					case '\r':
-					case '\n':
-						done = true;
-						continue;
-					case 127:
-					case '\b':
-						if ( chars_in_handle ) {
-							sound->PlaySound(gExplosionSound, 5);
-							--chars_in_handle;
-						}
-						break;
-					default:
-						if ( chars_in_handle < 15 ) {
-							sound->PlaySound(gShotSound, 5);
-							handle[chars_in_handle++] = (char)key;
-						} else
-							sound->PlaySound(gBonk, 5);
-						break;
+				switch ( event.key.keysym.sym ) {
+				case SDLK_RETURN:
+					done = true;
+					break;
+				case SDLK_DELETE:
+					if ( chars_in_handle ) {
+						sound->PlaySound(gExplosionSound, 5);
+						--chars_in_handle;
+					}
+					break;
+				default:
+					break;
+				}
+			} else if ( event.type == SDL_TEXTINPUT ) {
+				size_t len = SDL_strlen( event.text.text );
+				if ( chars_in_handle + len < 15 ) {
+					sound->PlaySound(gShotSound, 5);
+					SDL_memcpy( &handle[chars_in_handle], event.text.text, len );
+					chars_in_handle += len;
+				} else {
+					sound->PlaySound(gBonk, 5);
 				}
 				screen->FillRect(x, 300-newyork_height+2,
 						w, newyork_height, ourBlack);
@@ -845,14 +841,14 @@ static void DoGameOver(void)
 			}
 		}
 		delete newyork;
-		SDL_EnableUNICODE(0);
+		SDL_StopTextInput();
 
 		/* In case the user just pressed <Return> */
 		handle[chars_in_handle] = '\0';
 
 		hScores[which].wave = gWave;
 		hScores[which].score = OurShip->GetScore();
-		strcpy(hScores[which].name, handle);
+		SDL_strlcpy(hScores[which].name, handle, sizeof(hScores[which].name));
 
 		sound->HaltSound();
 		sound->PlaySound(gGotPrize, 6);
@@ -898,7 +894,7 @@ static void DoBonus(void)
 	
 
 	/* -- Draw the wave completed message */
-	sprintf(numbuf, "Wave %d completed.", gWave);
+	SDL_snprintf(numbuf, sizeof(numbuf), "Wave %d completed.", gWave);
 	sw = fontserv->TextWidth(numbuf, geneva, STYLE_BOLD);
 	x = (SCREEN_WIDTH - sw) / 2;
 	DrawText(x,  150, numbuf, geneva, STYLE_BOLD, 0xFF, 0xFF, 0x00);
@@ -935,7 +931,7 @@ static void DoBonus(void)
 		if (OurShip->GetBonusMult() != 1) {
 			SDL_Surface *sprite;
 
-			sprintf(numbuf, "%-5.1d", OurShip->GetBonus());
+			SDL_snprintf(numbuf, sizeof(numbuf), "%-5.1d", OurShip->GetBonus());
 			DrawText(x, 200, numbuf, geneva, STYLE_BOLD,
 							0xFF, 0xFF, 0xFF);
 			x += 75;
@@ -951,10 +947,10 @@ static void DoBonus(void)
 	Delay(SOUND_DELAY);
 	sound->PlaySound(gFunk, 5);
 
-	sprintf(numbuf, "%-5.1d", OurShip->GetBonus());
+	SDL_snprintf(numbuf, sizeof(numbuf), "%-5.1d", OurShip->GetBonus());
 	bonus_width = DrawText(x, 200, numbuf, geneva, STYLE_BOLD,
 							0xFF, 0xFF, 0xFF);
-	sprintf(numbuf, "%-5.1d", OurShip->GetScore());
+	SDL_snprintf(numbuf, sizeof(numbuf), "%-5.1d", OurShip->GetScore());
 	score_width = DrawText(xt, 220, numbuf, geneva, STYLE_BOLD,
 							0xFF, 0xFF, 0xFF);
 	screen->Update();
@@ -997,17 +993,20 @@ static void DoBonus(void)
 	
 			screen->FillRect(x, 200-text_height+2,
 					bonus_width, text_height, ourBlack);
-			sprintf(numbuf, "%-5.1d", OurShip->GetBonus());
+			SDL_snprintf(numbuf, sizeof(numbuf), "%-5.1d", OurShip->GetBonus());
 			bonus_width = DrawText(x, 200, numbuf,
 					geneva, STYLE_BOLD, 0xFF, 0xFF, 0xFF);
 			screen->FillRect(xt, 220-text_height+2,
 					score_width, text_height, ourBlack);
-			sprintf(numbuf, "%-5.1d", OurShip->GetScore());
+			SDL_snprintf(numbuf, sizeof(numbuf), "%-5.1d", OurShip->GetScore());
 			score_width = DrawText(xt, 220, numbuf,
 					geneva, STYLE_BOLD, 0xFF, 0xFF, 0xFF);
 
 			DrawStatus(false, true);
 			screen->Update();
+
+			// Prevent the "busy" cursor on macOS
+			SDL_PumpEvents();
 		}
 	}
 	while ( sound->Playing() )
@@ -1015,7 +1014,7 @@ static void DoBonus(void)
 	HandleEvents(10);
 
 	/* -- Draw the "next wave" message */
-	sprintf(numbuf, "Prepare for Wave %d...", gWave+1);
+	SDL_snprintf(numbuf, sizeof(numbuf), "Prepare for Wave %d...", gWave+1);
 	sw = fontserv->TextWidth(numbuf, geneva, STYLE_BOLD);
 	x = (SCREEN_WIDTH - sw)/2;
 	DrawText(x, 259, numbuf, geneva, STYLE_BOLD, 0xFF, 0xFF, 0x00);

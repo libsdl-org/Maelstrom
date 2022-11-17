@@ -100,11 +100,12 @@ void HaltNetData(void)
 	SDLNet_Quit();
 }
 
-int AddPlayer(char *playerstr)
+int AddPlayer(const char *player)
 {
 	int playernum;
 	int portnum;
 	char *host=NULL, *port=NULL;
+	char *playerstr = SDL_strdup(player);
 
 	/* Extract host and port information */
 	if ( (port=strchr(playerstr, ':')) != NULL )
@@ -123,6 +124,7 @@ int AddPlayer(char *playerstr)
 	/* Do some error checking */
 	if ( GotPlayer[--playernum] ) {
 		error("Player %d specified multiple times!\r\n", playernum+1);
+		SDL_free(playerstr);
 		return(-1);
 	}
 	if ( port ) {
@@ -135,6 +137,7 @@ int AddPlayer(char *playerstr)
 		SDLNet_ResolveHost(&PlayAddr[playernum], host, portnum);
 		if ( PlayAddr[playernum].host == INADDR_NONE ) {
 			error("Couldn't resolve host name for %s\r\n", host);
+			SDL_free(playerstr);
 			return(-1);
 		}
 	} else { /* No host specified, local player */
@@ -142,6 +145,7 @@ int AddPlayer(char *playerstr)
 			error(
 "More than one local player!  (players %d and %d specified as local players)\r\n",
 						gOurPlayer+1, playernum+1);
+			SDL_free(playerstr);
 			return(-1);
 		} else {
 			gOurPlayer = playernum;
@@ -152,13 +156,15 @@ int AddPlayer(char *playerstr)
 
 	/* We're done! */
 	GotPlayer[playernum] = 1;
+	SDL_free(playerstr);
 	return(0);
 }
 
-int SetServer(char *serverstr)
+int SetServer(const char *server)
 {
 	int portnum;
 	char *host=NULL, *port=NULL;
+	char *serverstr = SDL_strdup(server);
 
 	/* Extract host and port information */
 	if ( (host=strchr(serverstr, '@')) == NULL ) {
@@ -188,11 +194,13 @@ int SetServer(char *serverstr)
 	SDLNet_ResolveHost(&ServAddr, host, portnum);
 	if ( ServAddr.host == INADDR_NONE ) {
 		error("Couldn't resolve host name for %s\r\n", host);
+		SDL_free(serverstr);
 		return(-1);
 	}
 
 	/* We're done! */
 	UseServer = 1;
+	SDL_free(serverstr);
 	return(0);
 }
 
@@ -471,7 +479,7 @@ static inline void MakeNewPacket(int Wave, int Lives, int Turbo,
 }
 
 /* Flash an error up on the screen and pause for 3 seconds */
-static void ErrorMessage(char *message)
+static void ErrorMessage(const char *message)
 {
 	/* Display the error message */
 	Message(message);
@@ -503,7 +511,7 @@ static int AlertServer(int *Wave, int *Lives, int *Turbo)
 	Uint32 lives, seed;
 	int waiting;
 	int status;
-	char *message = NULL;
+	const char *message = NULL;
 
 	/* Our address server connection is through TCP */
 	Message("Connecting to Address Server");
@@ -667,10 +675,10 @@ int Send_NewGame(int *Wave, int *Lives, int *Turbo)
 	/* Wait for Ack's */
 	for ( nleft=gNumPlayers, n=0; nleft; ) {
 		/* Show a status */
-		strcpy(message, "Waiting for players:");
+		SDL_strlcpy(message, "Waiting for players:", sizeof(message));
 		for ( i=0; i<gNumPlayers; ++i ) {
 			if ( ! acked[i] )
-				sprintf(&message[strlen(message)], " %d", i+1);
+				SDL_snprintf(&message[strlen(message)], sizeof(message)-strlen(message), " %d", i+1);
 		}
 		Message(message);
 
@@ -725,7 +733,7 @@ int Send_NewGame(int *Wave, int *Lives, int *Turbo)
 			/* Check the player... */
 			if ( (i != gOurPlayer) && (netbuf[1] == gOurPlayer) ) {
 				/* Print message, sleep 3 seconds absolutely */
-				sprintf(message, 
+				SDL_snprintf(message, sizeof(message),
 	"Error: Another player (%d) thinks they are player 1!\r\n", i+1);
 				ErrorMessage(message);
 				/* Suck up retransmission packets */

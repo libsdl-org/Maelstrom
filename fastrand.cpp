@@ -15,7 +15,7 @@ void SeedRandom(Uint32 Seed)
   fprintf(stderr, "SeedRandom(%lu)\n", Seed);
 #endif
 	if ( ! Seed ) {
-		srand(time(NULL));
+		srand((unsigned int)time(NULL));
 		Seed = (((rand()%0xFFFF)<<16)|(rand()%0xFFFF));
 	}
 	randomSeed = Seed;

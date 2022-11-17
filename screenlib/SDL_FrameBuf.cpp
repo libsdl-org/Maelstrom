@@ -1,6 +1,6 @@
 /*
     SCREENLIB:  A framebuffer library based on the SDL library
-    Copyright (C) 1997  Sam Lantinga
+    Copyright (C) 1997-2021 Sam Lantinga <slouken@libsdl.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,11 +15,6 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-    Sam Lantinga
-    5635-34 Springhouse Dr.
-    Pleasanton, CA 94588 (USA)
-    slouken@devolution.com
 */
 
 #include <stdio.h>
@@ -51,34 +46,32 @@
 FrameBuf:: FrameBuf()
 {
 	/* Initialize various variables to null state */
+	window = NULL;
+	renderer = NULL;
+	texture = NULL;
+	staging = NULL;
 	screenfg = NULL;
 	screenbg = NULL;
+	palette = NULL;
 	blitQ = NULL;
 	dirtymap = NULL;
 	updatelist = NULL;
 	errstr = NULL;
 	faded = 0;
-	locked = 0;
 	images.next = NULL;
 	itail = &images;
 }
 
-static void PrintSurface(char *title, SDL_Surface *surface)
+static void PrintSurface(const char *title, SDL_Surface *surface)
 {
 #ifdef FRAMEBUF_DEBUG
 	fprintf(stderr, "%s:\n", title);
 	fprintf(stderr, "\t%dx%d at %d bpp\n", surface->w, surface->h,
 					surface->format->BitsPerPixel);
-	fprintf(stderr, "\tLocated in %s memory\n", 
-		(surface->flags & SDL_HWSURFACE) ? "video" : "system" );
-	if ( surface->flags & SDL_HWACCEL ) {
-		fprintf(stderr, "\t(hardware acceleration possible)\n");
-	}
 	if ( SDL_LockSurface(surface) == 0 ) {
-		fprintf(stderr, "\tPixels at 0x%x\n", surface->pixels);
+		fprintf(stderr, "\tPixels at %p\n", surface->pixels);
 		SDL_UnlockSurface(surface);
 	}
-	fprintf(stderr, "\n");
 #endif
 	return;
 }
@@ -87,24 +80,36 @@ int
 FrameBuf:: Init(int width, int height, Uint32 video_flags,
 					SDL_Color *colors, SDL_Surface *icon)
 {
-	/* Set the icon, if any */
-	if ( icon ) {
-		int masklen;
-		Uint8 *mask;
-
-		masklen = ((icon->w+7)/8)*icon->h;
-		mask = new Uint8[masklen];
-		memset(mask, 0xFF, masklen);
-		SDL_WM_SetIcon(icon, mask);
-		delete[] mask;
+	window = SDL_CreateWindow( "", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, video_flags);
+	if ( window == NULL )
+	{
+		SetError("Couldn't create window: %s", SDL_GetError());
+		return(-1);
 	}
 
-	/* Try for the 8-bit video mode that was requested, accept any depth */
-	//video_flags |= SDL_ANYFORMAT;
-	screenfg = SDL_SetVideoMode(width, height, 8, video_flags);
+	/* Set the icon, if any */
+	if ( icon ) {
+		SDL_SetWindowIcon(window, icon);
+	}
+
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
+	if ( renderer == NULL ) {
+		SetError("Couldn't create renderer: %s", SDL_GetError());
+		return(-1);
+	}
+
+	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
+	if ( texture == NULL ) {
+		SetError("Couldn't create texture: %s", SDL_GetError());
+		return(-1);
+	}
+	SDL_SetTextureScaleMode(texture, SDL_ScaleModeLinear);
+
+	SDL_RenderSetLogicalSize(renderer, width, height);
+
+	screenfg = SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0);
 	if ( screenfg == NULL ) {
-		SetError("Couldn't set %dx%d video mode: %s", 
-					width, height, SDL_GetError());
+		SetError("Couldn't create foreground: %s", SDL_GetError());
 		return(-1);
 	}
 	FocusFG();
@@ -122,6 +127,26 @@ FrameBuf:: Init(int width, int height, Uint32 video_flags,
 	}
 	PrintSurface("Created background", screenbg);
 
+	/* Create the staging surface */
+	staging = SDL_CreateRGBSurfaceWithFormatFrom(NULL, width, height, 32, 0, SDL_PIXELFORMAT_ARGB8888);
+	if ( staging == NULL ) {
+		SetError("Couldn't create staging surface: %s", SDL_GetError());
+		return(-1);
+	}
+	PrintSurface("Created staging", screenbg);
+
+	/* Create the palette */
+	if ( colors ) {
+		palette = SDL_AllocPalette(256);
+		if ( palette == NULL ) {
+			SetError("Couldn't create palette: %s", SDL_GetError());
+			return(-1);
+		}
+
+		SDL_SetSurfacePalette(screenfg, palette);
+		SDL_SetSurfacePalette(screenbg, palette);
+	}
+	
 	/* Create a dirty rectangle map of the screen */
 	dirtypitch = LOWER_PREC(width);
 	dirtymaplen = LOWER_PREC(height)*dirtypitch;
@@ -171,38 +196,47 @@ FrameBuf:: ~FrameBuf()
 {
 	image_list *ielem, *iold;
 
-	UNLOCK_IF_NEEDED();
 	for ( ielem = images.next; ielem; ) {
 		iold = ielem;
 		ielem = ielem->next;
 		SDL_FreeSurface(iold->image);
 		delete iold;
 	}
+	if ( palette )
+		SDL_FreePalette(palette);
+	if ( screenfg )
+		SDL_FreeSurface(screenfg);
 	if ( screenbg )
 		SDL_FreeSurface(screenbg);
+	if ( staging )
+		SDL_FreeSurface(staging);
 	if ( blitQ )
 		delete[] blitQ;
 	if ( dirtymap )
 		delete[] dirtymap;
 	if ( updatelist )
 		delete[] updatelist;
+	if ( texture )
+		SDL_DestroyTexture(texture);
+	if ( renderer )
+		SDL_DestroyRenderer(renderer);
+	if ( window )
+		SDL_DestroyWindow(window);
 }
 
 /* Setup routines */
 void
 FrameBuf:: SetPalette(SDL_Color *colors)
 {
-	int i;
+	SDL_SetPaletteColors(palette, colors, 0, 256);
 
-	if ( screenfg->format->palette ) {
-		SDL_SetColors(screenfg, colors, 0, 256);
-		SDL_SetColors(screenbg, screenfg->format->palette->colors,
-					0, screenfg->format->palette->ncolors);
+	for ( int i = 0; i < 256; ++i ) {
+		Uint8 r = palette->colors[i].r;
+		Uint8 g = palette->colors[i].g;
+		Uint8 b = palette->colors[i].b;
+		colormap[i] = SDL_MapRGB(staging->format, r, g, b);
 	}
-	for ( i=0; i<256; ++i ) {
-		image_map[i] = SDL_MapRGB(screenfg->format, 
-					colors[i].r, colors[i].g, colors[i].b);
-	}
+
 	SetBackground(BGrgb[0], BGrgb[1], BGrgb[2]);
 }
 void
@@ -231,30 +265,16 @@ FrameBuf:: ClipBlit(SDL_Rect *cliprect)
 void
 FrameBuf:: Lock(void)
 {
-	/* Keep trying to lock the screen until we succeed */
-	if ( ! locked ) {
-		++locked;
-		while ( SDL_LockSurface(screen) < 0 ) {
-			SDL_Delay(10);
-		}
-		screen_mem = (Uint8 *)screen->pixels;
-	}
+	screen_mem = (Uint8 *)screen->pixels;
 }
 void
 FrameBuf:: Unlock(void)
 {
-	if ( locked ) {
-		SDL_UnlockSurface(screen);
-		--locked;
-	}
 }
 void
 FrameBuf:: PerformBlits(void)
 {
 	if ( blitQlen > 0 ) {
-		/* Perform lazy unlocking */
-		UNLOCK_IF_NEEDED();
-
 		/* Blast and free the queued blits */
 		for ( int i=0; i<blitQlen; ++i ) {
 			SDL_LowerBlit(blitQ[i].src, &blitQ[i].srcrect,
@@ -276,11 +296,32 @@ FrameBuf:: Update(int auto_update)
 			SDL_LowerBlit(screenbg, &updatelist[i],
 			 		screenfg, &updatelist[i]);
 		}
-		SDL_UpdateRects(screenfg, updatelen, updatelist);
-	} else {
-		SDL_UpdateRects(screen, updatelen, updatelist);
+		UpdateScreen();
+	} else if ( screen == screenfg ) {
+		UpdateScreen();
 	}
 	ClearDirtyList();
+}
+void
+FrameBuf:: UpdateScreen(void)
+{
+	if ( SDL_LockTexture(texture, NULL, &staging->pixels, &staging->pitch) == 0 ) {
+		int w = staging->w;
+		int h = staging->h;
+		int row, col;
+
+		for ( row = 0; row < h; ++row ) {
+			Uint8 *src = (Uint8 *)screenfg->pixels + row * screenfg->pitch;
+			Uint32 *dst = (Uint32 *)((Uint8 *)staging->pixels + row * staging->pitch);
+			for ( col = 0; col < w; ++col ) {
+				*dst++ = colormap[ *src++ ];
+			}
+		}
+		SDL_UnlockTexture(texture);
+	}
+	SDL_RenderClear(renderer);
+	SDL_RenderCopy(renderer, texture, NULL, NULL);
+	SDL_RenderPresent(renderer);
 }
 
 /* Drawing routines */
@@ -294,7 +335,6 @@ FrameBuf:: Clear(Sint16 x, Sint16 y, Uint16 w, Uint16 h, clipval do_clip)
 		Uint8 screen_bpp;
 		Uint8 *screen_loc;
 
-		LOCK_IF_NEEDED();
 		screen_bpp = screen->format->BytesPerPixel;
 		screen_loc = screen_mem + y*screen->pitch + x*screen_bpp;
 		w *= screen_bpp;
@@ -321,7 +361,6 @@ FrameBuf:: DrawPoint(Sint16 x, Sint16 y, Uint32 color)
 	if ( y > screen->h ) return;
 
 	PerformBlits();
-	LOCK_IF_NEEDED();
 	PutPixel(screen_mem+y*screen->pitch+x*screen->format->BytesPerPixel,
 								screen, color);
 	dirty.x = x;
@@ -346,7 +385,6 @@ FrameBuf:: DrawLine(Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color)
 	ADJUSTX(x2); ADJUSTY(y2);
 	
 	PerformBlits();
-	LOCK_IF_NEEDED();
 	screen_bpp = screen->format->BytesPerPixel;
 	if ( y1 == y2 )  {  /* Horizontal line */
 		if ( x1 < x2 ) {
@@ -439,7 +477,6 @@ FrameBuf:: DrawRect(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint32 color)
 	if ( (y+h) > screen->h ) h = (Uint16)(screen->h-y);
 
 	PerformBlits();
-	LOCK_IF_NEEDED();
 	screen_bpp = screen->format->BytesPerPixel;
 
 	/* Horizontal lines */
@@ -493,7 +530,6 @@ FrameBuf:: FillRect(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint32 color)
 	dirty.h = h;
 
 	/* Semi-efficient, for now. :) */
-	LOCK_IF_NEEDED();
 	screen_bpp = screen->format->BytesPerPixel;
 	screen_loc = screen_mem + y*screen->pitch + x*screen_bpp;
 	skip = screen->pitch - (w*screen_bpp);
@@ -534,26 +570,30 @@ void
 FrameBuf:: Fade(void)
 {
 	const int max = 32;
-	Uint16 ramp[256];   
+	Uint8 ramp[256];
+	int i, j;
 
-	for ( int j = 1; j <= max; j++ ) {
-		int v = faded ? j : max - j + 1;
-		for ( int i = 0; i < 256; i++ ) {
-			ramp[i] = (i * v / max) << 8;
+	if ( palette ) {
+		for ( j = 1; j <= max; j++ ) {
+			int v = faded ? j : max - j;
+
+			for ( i = 0; i < 256; ++i ) {
+				ramp[i] = (Uint8)(i * v / max);
+			}
+			for ( i = 0; i < 256; ++i ) {
+				Uint8 r = ramp[palette->colors[i].r];
+				Uint8 g = ramp[palette->colors[i].g];
+				Uint8 b = ramp[palette->colors[i].b];
+				colormap[i] = SDL_MapRGB(staging->format, r, g, b);
+			}
+			UpdateScreen();
+
+			// Prevent the "busy" cursor on macOS
+			SDL_PumpEvents();
 		}
-		SDL_SetGammaRamp(ramp, ramp, ramp);
-		SDL_Delay(10);
-		Update();
 	}
+
 	faded = !faded;
-
-    if ( faded ) {
-		for ( int i = 0; i < 256; i++ ) {
-			ramp[i] = 0;
-		}
-		SDL_SetGammaRamp(ramp, ramp, ramp);
-		Update();
-	}
 } 
 
 SDL_Surface *
@@ -616,7 +656,7 @@ FrameBuf:: GrabArea(Uint16 x, Uint16 y, Uint16 w, Uint16 h)
 }
 
 int
-FrameBuf:: ScreenDump(char *prefix, Uint16 x, Uint16 y, Uint16 w, Uint16 h)
+FrameBuf:: ScreenDump(const char *prefix, Uint16 x, Uint16 y, Uint16 w, Uint16 h)
 {
 	SDL_Surface *dump;
 	int retval;
@@ -630,7 +670,7 @@ FrameBuf:: ScreenDump(char *prefix, Uint16 x, Uint16 y, Uint16 w, Uint16 h)
 
 		found = 0;
 		for ( which=0; !found; ++which ) {
-			sprintf(file, "%s%d.bmp", prefix, which);
+			SDL_snprintf(file, sizeof(file), "%s%d.bmp", prefix, which);
 			if ( ((fp=fopen(file, "r")) == NULL) &&
 			     ((fp=fopen(file, "w")) != NULL) ) {
 				found = 1;
@@ -689,7 +729,7 @@ FrameBuf:: LoadImage(Uint16 w, Uint16 h, Uint8 *pixels, Uint8 *mask)
 		for ( i=0; used[i] && i<256; ++i ) {
 			/* Keep looking */;
 		}
-		colorkey = image_map[(Uint8)i];
+		colorkey = (Uint8)i;
 	
 		/* Copy over the pixels */
 		pix_mem = pixels;
@@ -700,8 +740,7 @@ FrameBuf:: LoadImage(Uint16 w, Uint16 h, Uint8 *pixels, Uint8 *mask)
 					m = *mask++;
 				}
 				if ( m & 0x80 ) {
-					PutPixel(art_mem, screenfg,
-							image_map[*pix_mem]);
+					PutPixel(art_mem, screenfg, *pix_mem);
 				} else {
 					PutPixel(art_mem, screenfg, colorkey);
 				}
@@ -711,15 +750,14 @@ FrameBuf:: LoadImage(Uint16 w, Uint16 h, Uint8 *pixels, Uint8 *mask)
 			}
 			pix_mem += pad;
 		}
-		SDL_SetColorKey(artwork,SDL_SRCCOLORKEY|SDL_RLEACCEL,colorkey);
+		SDL_SetColorKey(artwork, SDL_RLEACCEL, colorkey);
 	} else {
 		/* Copy over the pixels */
 		pix_mem = pixels;
 		for ( i=0; i<h; ++i ) {
 			art_mem = (Uint8 *)artwork->pixels + i*artwork->pitch;
 			for ( j=0; j<w; ++j ) {
-				PutPixel(art_mem, screenfg,
-							image_map[*pix_mem]);
+				PutPixel(art_mem, screenfg, *pix_mem);
 				art_mem += artwork->format->BytesPerPixel;
 				pix_mem += 1;
 			}
@@ -850,8 +888,7 @@ FrameBuf:: AddDirtyRect(SDL_Rect *rect)
 			for ( i=0; i<dirtymaplen; ++i ) {
 				if ( dirtymap[i] != NULL ) {
 					dirtymap[i] = (SDL_Rect *)(
-					((size_t)dirtymap[i]-(size_t)updatelist) +
-								(size_t)newlist
+					((intptr_t)dirtymap[i]-(intptr_t)updatelist) + (intptr_t)newlist
 					);
 				}
 			}

@@ -23,7 +23,7 @@ SDL_Surface *Load_Icon(char **xpm)
 
 	/* Figure out the size of the picture */
 	index = 0;
-	if ( sscanf(xpm[index++], "%d %d %d %d", &width, &height, &num_colors, 
+	if ( SDL_sscanf(xpm[index++], "%d %d %d %d", &width, &height, &num_colors, 
 						&chars_per_pixel) != 4 ) {
 		SDL_SetError("Can't read XPM format");
 		return(NULL);
@@ -81,7 +81,7 @@ SDL_Surface *Load_Title(FrameBuf *screen, int title_id)
 	SDL_Surface *bmp, *title;
 	
 	/* Open the title file -- we know its colormap is our global one */
-	sprintf(file, "Images"DIR_SEP"Maelstrom_Titles#%d.bmp", title_id);
+	SDL_snprintf(file, sizeof(file), "Images" DIR_SEP "Maelstrom_Titles#%d.bmp", title_id);
 	bmp = SDL_LoadBMP(path.Path(file));
 	if ( bmp == NULL ) {
 		return(NULL);
@@ -103,7 +103,7 @@ SDL_Surface *GetCIcon(FrameBuf *screen, short cicn_id)
 	Uint16 w, h;
 	
 	/* Open the cicn sprite file.. */
-	sprintf(file, "Images"DIR_SEP"Maelstrom_Icon#%hd.cicn", cicn_id);
+	SDL_snprintf(file, sizeof(file), "Images" DIR_SEP "Maelstrom_Icon#%hd.cicn", cicn_id);
 	if ( (cicn_src=SDL_RWFromFile(path.Path(file), "r")) == NULL ) {
 		error("GetCIcon(%hd): Can't open CICN %s: ",
 					cicn_id, path.Path(file));
