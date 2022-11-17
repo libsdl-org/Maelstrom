@@ -153,7 +153,7 @@ void PrintUsage(void)
 	error("or\n");
 	error("Usage: %s <options>\n\n", progname);
 	error("Where <options> can be any of:\n\n"
-"	-fullscreen		# Run Maelstrom in full-screen mode\n"
+"	-windowed		# Run Maelstrom in windowed mode\n"
 "	-gamma [0-8]		# Set the gamma correction\n"
 "	-volume [0-8]		# Set the sound volume\n"
 "	-netscores		# Use the world-wide network score server\n"
