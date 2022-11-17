@@ -20,7 +20,7 @@
 extern int DoInitializations(Uint32 video_flags);		/* init.cc */
 
 static char *Version =
-"Maelstrom v1.4.3 (Linux version 3.0.3) -- 02/14/00 by Sam Lantinga\n";
+"Maelstrom v1.4.3 (GPL version 3.0.6) -- 10/19/2002 by Sam Lantinga\n";
 
 // Global variables set in this file...
 int	gStartLives;

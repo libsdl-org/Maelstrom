@@ -1,28 +1,10 @@
 
 				JOYSTICKS
 
-[NOTE:  Joystick support is temporarily broken - being added to SDL]
-
---- OLD README ---
-If you don't already have it, you need to download the Linux joystick
-driver and install it to use the joystick support in Maelstrom.
-
-Maelstrom was developed with version 1.7.3 of the joystick driver,
-available currently at sunsite.unc.edu in /pub/Linux/kernel/patches/console
-
-Note, you may have to tweak the driver some to get it to compile for
-the current version of Linux.  It shouldn't be too bad.
-
-Don't forget to create the joystick device and load the joystick module
-before you start Maelstrom with joystick support!
-
-Here's the command to create the joystick device:
-(as root)
-	mknod /dev/js0 c 15 0
-
-When you start Maelstrom for the first time, you'll want to give it
-the "-calibrate <device>" option, to calibrate your joystick.
-"<device>" is the pathname of your joystick device, i.e. /dev/js0
+Maelstrom uses SDL's joystick support, so they should just work.  Moving
+the joystick left and right rotates the ship, and pushing it forward will
+accelerate the ship.  The first joystick button fires the ship's weapons
+and the second joystick button activates the shields.
 
 Enjoy!
 	-Sam Lantinga			(slouken@devolution.com)

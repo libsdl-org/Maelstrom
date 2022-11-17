@@ -164,7 +164,6 @@ public:
 	void GetPos(int *X, int *Y) {
 		*X = x;
 		*Y = y;
-//error("X = %d, Y = %d\n", *X, *Y);
 	}
 	virtual void SetPos(int X, int Y) {
 		/* Set new X position */

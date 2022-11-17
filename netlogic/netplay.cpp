@@ -292,7 +292,7 @@ int SyncNetwork(void)
 	UDPpacket sent;
 	Uint32 seed, frame;
 	unsigned char buf[BUFSIZ];
-	int i, nleft;
+	int index, nleft;
 
 	/* Set the next inbound packet buffer */
 	TOGGLE(CurrIn);
@@ -305,8 +305,8 @@ int SyncNetwork(void)
 
 	/* Send the packet to all the players */
 	SDLNet_UDP_Send(gNetFD, 0, OutBound[CurrOut]);
-	for ( nleft=0, i=0; i<gNumPlayers; ++i ) {
-		if ( SyncPtr[i] == NULL ) {
+	for ( nleft=0, index=0; index<gNumPlayers; ++index ) {
+		if ( SyncPtr[index] == NULL ) {
 			++nleft;
 		}
 	}
@@ -322,9 +322,9 @@ int SyncNetwork(void)
 		if ( ready == 0 ) {
 error("Timed out waiting for frame %ld\r\n", NextFrame);
 			/* Timeout, resend the sync packet */
-			for ( i=0; i<gNumPlayers; ++i ) {
-				if ( SyncPtr[i] == NULL ) {
-					SDLNet_UDP_Send(gNetFD, i+1, OutBound[CurrOut]);
+			for ( index=0; index<gNumPlayers; ++index ) {
+				if ( SyncPtr[index] == NULL ) {
+					SDLNet_UDP_Send(gNetFD, index+1, OutBound[CurrOut]);
 				}
 			}
 		}
@@ -357,15 +357,16 @@ error("Timed out waiting for frame %ld\r\n", NextFrame);
 			error("Packet from unknown source\n");
 			continue;
 		}
+		index = sent.channel - 1;
 
 		/* Ignore it if it is a duplicate packet */
-		if ( SyncPtr[sent.channel-1] != NULL ) {
+		if ( SyncPtr[index] != NULL ) {
 			continue;
 		}
 
 		/* Check the frame number */
 		frame = SDLNet_Read32(&buf[1]);
-//error("Received a packet of frame %lu from player %d\r\n", frame, i+1);
+//error("Received a packet of frame %lu from player %d\r\n", frame, index+1);
 		if ( frame != NextFrame ) {
 			/* We kept the last frame cached, so send it */
 			if ( frame == (NextFrame-1) ) {
@@ -379,8 +380,8 @@ error("Received packet for next frame! (%lu, current = %lu)\r\n",
 				/* Cache this frame for next round,
 				   skip consistency check, for now */
 				memcpy(NextBuf[NextSync], &buf[PDATA_OFFSET], sent.len-PDATA_OFFSET);
-				NextPtr[i] = NextBuf[NextSync];
-				NextLen[i] = sent.len-PDATA_OFFSET;
+				NextPtr[index] = NextBuf[NextSync];
+				NextLen[index] = sent.len-PDATA_OFFSET;
 				++NextSync;
 			}
 else
@@ -393,10 +394,10 @@ error("Warning! Received packet for really old frame! (%lu, current = %lu)\r\n",
 		/* Do a consistency check!! */
 		Uint32 newseed = SDLNet_Read32(&buf[1+sizeof(frame)]);
 		if ( newseed != seed ) {
-//error("New seed (from player %d) is: 0x%x\r\n", i+1, newseed);
+//error("New seed (from player %d) is: 0x%x\r\n", index+1, newseed);
 			if ( gOurPlayer == 0 ) {
 				error(
-"Warning!! \a Frame consistency error with player %d!! (corrected)\r\n", i+1);
+"Warning!! \a Frame consistency error with player %d!! (corrected)\r\n", index+1);
 SDL_Delay(3000);
 			} else	/* Player 1 sent us good seed */
 				SeedRandom(newseed);
@@ -404,8 +405,8 @@ SDL_Delay(3000);
 
 		/* Okay, we finally have a valid timely packet */
 		memcpy(SyncBuf[ThisSync], &buf[PDATA_OFFSET], sent.len-PDATA_OFFSET);
-		SyncPtr[sent.channel-1] = SyncBuf[ThisSync];
-		SyncLen[sent.channel-1] = sent.len-PDATA_OFFSET;
+		SyncPtr[index] = SyncBuf[ThisSync];
+		SyncLen[index] = sent.len-PDATA_OFFSET;
 		++ThisSync;
 		--nleft;
 	}

@@ -27,6 +27,7 @@
 #include "Mac_Sound.h"
 #include "Mac_Compat.h"
 
+static int bogus_running = 0;
 
 extern "C" {
 static int BogusAudioThread(void *data)
@@ -62,7 +63,7 @@ static int BogusAudioThread(void *data)
 	spec->size *= spec->samples;
 	stream = new Uint8[spec->size];
 
-	for ( ; ; ) {
+	while ( bogus_running ) {
 		then = SDL_GetTicks();
 
 		/* Fill buffer */
@@ -74,6 +75,8 @@ static int BogusAudioThread(void *data)
 		if ( ticksleft > 0 )
 			SDL_Delay(ticksleft);
 	}
+	delete[] stream;
+
 	return(0);
 }
 
@@ -144,6 +147,7 @@ Sound:: Sound(const char *soundfile, Uint8 vol)
 	/* Empty the channels and start the music :-) */
 	HaltSound();
 	if ( vol == 0 ) {
+		bogus_running = 1;
 		bogus_audio = SDL_CreateThread(BogusAudioThread, spec);
 	} else {
 		Volume(vol);
@@ -156,11 +160,8 @@ Sound:: ~Sound()
 		SDL_CloseAudio();
 	else
 	if ( bogus_audio ) {
-		/* This isn't the recommended way of stopping a thread.
-		   You're _supposed_ to set a global variable and wait
-		   for the thread to exit on it's own.  Oh well...
-		 */
-		SDL_KillThread(bogus_audio);
+		bogus_running = 0;
+		SDL_WaitThread(bogus_audio, NULL);
 		bogus_audio = NULL;
 	}
 	FreeHash();
@@ -175,7 +176,8 @@ Sound:: Volume(Uint8 vol)
 	if ( (volume == 0) && (vol > 0) ) {
 		/* Kill bogus sound thread */
 		if ( bogus_audio ) {
-			SDL_KillThread(bogus_audio);
+			bogus_running = 0;
+			SDL_WaitThread(bogus_audio, NULL);
 			bogus_audio = NULL;
 		}
 
@@ -195,6 +197,7 @@ Sound:: Volume(Uint8 vol)
 		active = 0;
 
 		/* Run bogus sound thread */
+		bogus_running = 1;
 		bogus_audio = SDL_CreateThread(BogusAudioThread, spec);
 		if ( bogus_audio == NULL ) {
 			/* Oh well... :-) */
@@ -232,8 +235,7 @@ printf("Playing sound %hu on channel %d\n", sndID, channel);
 void
 Sound:: FillAudioU8(Sound *sound, Uint8 *stream, int len)
 {
-	Uint8  i;
-	Sint16 s;
+	int i, s;
 
 	/* Mix in each of the channels, assuming 8-bit unsigned audio data */
 	while ( len-- ) {

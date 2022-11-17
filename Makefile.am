@@ -59,7 +59,7 @@ EXTRA_DIST =			\
 	Maelstrom-Scores	\
 	ico_o			\
 	icon.bmp icon.xpm	\
-	Maelstrom.spec.in
+	Maelstrom.spec
 
 DIST_SUBDIRS = $(SUBDIRS) Images Docs
 
@@ -86,6 +86,4 @@ $(PACKAGE)-$(VERSION).tar.gz: dist
 
 # Rule to build RPM distribution package
 rpm: $(PACKAGE)-$(VERSION).tar.gz
-	cp $(PACKAGE)-$(VERSION).tar.gz /usr/src/redhat/SOURCES
-	rpm -ba Maelstrom.spec
-
+	rpm -ta $(PACKAGE)-$(VERSION).tar.gz

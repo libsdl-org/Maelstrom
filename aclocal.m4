@@ -1,6 +1,6 @@
-dnl aclocal.m4 generated automatically by aclocal 1.4
+dnl aclocal.m4 generated automatically by aclocal 1.4-p5
 
-dnl Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+dnl Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -44,7 +44,9 @@ AC_ARG_ENABLE(sdltest, [  --disable-sdltest       Do not try to compile and run 
      fi
   fi
 
-  AC_PATH_PROG(SDL_CONFIG, sdl-config, no)
+  AC_REQUIRE([AC_CANONICAL_TARGET])
+  PATH="$prefix/bin:$prefix/usr/bin:$PATH"
+  AC_PATH_PROG(SDL_CONFIG, sdl-config, no, [$PATH])
   min_sdl_version=ifelse([$1], ,0.11.0,$1)
   AC_MSG_CHECKING(for SDL - version >= $min_sdl_version)
   no_sdl=""
@@ -83,7 +85,7 @@ my_strdup (char *str)
   
   if (str)
     {
-      new_str = malloc ((strlen (str) + 1) * sizeof(char));
+      new_str = (char *)malloc ((strlen (str) + 1) * sizeof(char));
       strcpy (new_str, str);
     }
   else
@@ -92,12 +94,15 @@ my_strdup (char *str)
   return new_str;
 }
 
-int main ()
+int main (int argc, char *argv[])
 {
   int major, minor, micro;
   char *tmp_version;
 
+  /* This hangs on some systems (?)
   system ("touch conf.sdltest");
+  */
+  { FILE *fp = fopen("conf.sdltest", "a"); if ( fp ) fclose(fp); }
 
   /* HP/UX 9 (%@#!) writes to sscanf strings */
   tmp_version = my_strdup("$min_sdl_version");
@@ -149,6 +154,11 @@ int main ()
           AC_TRY_LINK([
 #include <stdio.h>
 #include "SDL.h"
+
+int main(int argc, char *argv[])
+{ return 0; }
+#undef  main
+#define main K_and_R_C_main
 ],      [ return 0; ],
         [ echo "*** The test program compiled, but did not run. This usually means"
           echo "*** that the run-time linker is not finding SDL or finding the wrong"
@@ -185,7 +195,7 @@ int main ()
 dnl Usage:
 dnl AM_INIT_AUTOMAKE(package,version, [no-define])
 
-AC_DEFUN(AM_INIT_AUTOMAKE,
+AC_DEFUN([AM_INIT_AUTOMAKE],
 [AC_REQUIRE([AC_PROG_INSTALL])
 PACKAGE=[$1]
 AC_SUBST(PACKAGE)
@@ -213,7 +223,7 @@ AC_REQUIRE([AC_PROG_MAKE_SET])])
 # Check to make sure that the build environment is sane.
 #
 
-AC_DEFUN(AM_SANITY_CHECK,
+AC_DEFUN([AM_SANITY_CHECK],
 [AC_MSG_CHECKING([whether build environment is sane])
 # Just in case
 sleep 1
@@ -254,7 +264,7 @@ AC_MSG_RESULT(yes)])
 
 dnl AM_MISSING_PROG(NAME, PROGRAM, DIRECTORY)
 dnl The program must properly implement --version.
-AC_DEFUN(AM_MISSING_PROG,
+AC_DEFUN([AM_MISSING_PROG],
 [AC_MSG_CHECKING(for working $2)
 # Run test in a subshell; some versions of sh will print an error if
 # an executable is not found, even if stderr is redirected.

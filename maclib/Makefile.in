@@ -1,6 +1,6 @@
-# Makefile.in generated automatically by automake 1.4 from Makefile.am
+# Makefile.in generated automatically by automake 1.4-p5 from Makefile.am
 
-# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+# Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -75,10 +75,10 @@ VERSION = @VERSION@
 
 noinst_LIBRARIES = libSDLmac.a
 
-libSDLmac_a_SOURCES =  	Mac_Compat.h			Mac_FontServ.cpp		Mac_FontServ.h			Mac_Resource.cpp		Mac_Resource.h			Mac_Sound.cpp			Mac_Sound.h			Mac_Wave.cpp			Mac_Wave.h			applefile.h			bitesex.h
+libSDLmac_a_SOURCES =  	Mac_Compat.h			Mac_FontServ.cpp		Mac_FontServ.h			Mac_Resource.cpp		Mac_Resource.h			Mac_Sound.cpp			Mac_Sound.h			Mac_Wave.cpp			Mac_Wave.h			applefile.h			macbinary.h			bitesex.h
 
 
-bin_PROGRAMS = macres playwave snd2wav
+noinst_PROGRAMS = macres playwave snd2wav
 
 macres_SOURCES = macres.cpp
 macres_LDADD = libSDLmac.a
@@ -101,7 +101,7 @@ libSDLmac_a_LIBADD =
 libSDLmac_a_OBJECTS =  Mac_FontServ.o Mac_Resource.o Mac_Sound.o \
 Mac_Wave.o
 AR = ar
-PROGRAMS =  $(bin_PROGRAMS)
+PROGRAMS =  $(noinst_PROGRAMS)
 
 macres_OBJECTS =  macres.o
 macres_DEPENDENCIES =  libSDLmac.a
@@ -174,30 +174,14 @@ libSDLmac.a: $(libSDLmac_a_OBJECTS) $(libSDLmac_a_DEPENDENCIES)
 	$(AR) cru libSDLmac.a $(libSDLmac_a_OBJECTS) $(libSDLmac_a_LIBADD)
 	$(RANLIB) libSDLmac.a
 
-mostlyclean-binPROGRAMS:
+mostlyclean-noinstPROGRAMS:
 
-clean-binPROGRAMS:
-	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+clean-noinstPROGRAMS:
+	-test -z "$(noinst_PROGRAMS)" || rm -f $(noinst_PROGRAMS)
 
-distclean-binPROGRAMS:
+distclean-noinstPROGRAMS:
 
-maintainer-clean-binPROGRAMS:
-
-install-binPROGRAMS: $(bin_PROGRAMS)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(bindir)
-	@list='$(bin_PROGRAMS)'; for p in $$list; do \
-	  if test -f $$p; then \
-	    echo "  $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
-	     $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
-	  else :; fi; \
-	done
-
-uninstall-binPROGRAMS:
-	@$(NORMAL_UNINSTALL)
-	list='$(bin_PROGRAMS)'; for p in $$list; do \
-	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
-	done
+maintainer-clean-noinstPROGRAMS:
 
 macres: $(macres_OBJECTS) $(macres_DEPENDENCIES)
 	@rm -f macres
@@ -250,14 +234,13 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$/$$file $(distdir)/$$file; \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
 	    || cp -p $$d/$$file $(distdir)/$$file || :; \
 	  fi; \
 	done
-
 info-am:
 info: info-am
 dvi-am:
@@ -266,7 +249,7 @@ check-am: all-am
 check: check-am
 installcheck-am:
 installcheck: installcheck-am
-install-exec-am: install-binPROGRAMS
+install-exec-am:
 install-exec: install-exec-am
 
 install-data-am:
@@ -275,14 +258,13 @@ install-data: install-data-am
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-am
-uninstall-am: uninstall-binPROGRAMS
+uninstall-am:
 uninstall: uninstall-am
 all-am: Makefile $(LIBRARIES) $(PROGRAMS)
 all-redirect: all-am
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs:
-	$(mkinstalldirs)  $(DESTDIR)$(bindir)
 
 
 mostlyclean-generic:
@@ -295,26 +277,26 @@ distclean-generic:
 
 maintainer-clean-generic:
 mostlyclean-am:  mostlyclean-noinstLIBRARIES mostlyclean-compile \
-		mostlyclean-binPROGRAMS mostlyclean-tags \
+		mostlyclean-noinstPROGRAMS mostlyclean-tags \
 		mostlyclean-generic
 
 mostlyclean: mostlyclean-am
 
-clean-am:  clean-noinstLIBRARIES clean-compile clean-binPROGRAMS \
+clean-am:  clean-noinstLIBRARIES clean-compile clean-noinstPROGRAMS \
 		clean-tags clean-generic mostlyclean-am
 
 clean: clean-am
 
 distclean-am:  distclean-noinstLIBRARIES distclean-compile \
-		distclean-binPROGRAMS distclean-tags distclean-generic \
-		clean-am
+		distclean-noinstPROGRAMS distclean-tags \
+		distclean-generic clean-am
 
 distclean: distclean-am
 
 maintainer-clean-am:  maintainer-clean-noinstLIBRARIES \
-		maintainer-clean-compile maintainer-clean-binPROGRAMS \
-		maintainer-clean-tags maintainer-clean-generic \
-		distclean-am
+		maintainer-clean-compile \
+		maintainer-clean-noinstPROGRAMS maintainer-clean-tags \
+		maintainer-clean-generic distclean-am
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 
@@ -323,11 +305,11 @@ maintainer-clean: maintainer-clean-am
 .PHONY: mostlyclean-noinstLIBRARIES distclean-noinstLIBRARIES \
 clean-noinstLIBRARIES maintainer-clean-noinstLIBRARIES \
 mostlyclean-compile distclean-compile clean-compile \
-maintainer-clean-compile mostlyclean-binPROGRAMS distclean-binPROGRAMS \
-clean-binPROGRAMS maintainer-clean-binPROGRAMS uninstall-binPROGRAMS \
-install-binPROGRAMS tags mostlyclean-tags distclean-tags clean-tags \
-maintainer-clean-tags distdir info-am info dvi-am dvi check check-am \
-installcheck-am installcheck install-exec-am install-exec \
+maintainer-clean-compile mostlyclean-noinstPROGRAMS \
+distclean-noinstPROGRAMS clean-noinstPROGRAMS \
+maintainer-clean-noinstPROGRAMS tags mostlyclean-tags distclean-tags \
+clean-tags maintainer-clean-tags distdir info-am info dvi-am dvi check \
+check-am installcheck-am installcheck install-exec-am install-exec \
 install-data-am install-data install-am install uninstall-am uninstall \
 all-redirect all-am all installdirs mostlyclean-generic \
 distclean-generic clean-generic maintainer-clean-generic clean \

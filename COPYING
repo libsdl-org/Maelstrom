@@ -1,14 +1,11 @@
 The source code to Maelstrom 3.0 and higher has been released under
 the GNU General Public License which can be found in COPYING.GPL.
 
-The artwork and sounds used by Maelstrom are copyright Ambrosia Software
-(http://www.ambrosiasw.com) and may not be redistributed separately from
-the Maelstrom public GPL release.
+The artwork and animations in Maelstrom may be used under the terms
+of the Creative Commons Attribution 3.0 license (unported):
+http://creativecommons.org/licenses/by/3.0/legalcode
 
 The following files must accompany any distribution of Maeltrom 3.0:
 	Ambrosia_Software,_Inc._FAQ
 	MaelstromGPL_press_release
 They can be found in the Docs directory.
-
-Copying, modifying, bundling, and burning to new ROMs is encouraged!
-

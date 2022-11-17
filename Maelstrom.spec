@@ -1,6 +1,6 @@
 # Note that this is NOT a relocatable package
-%define name @PACKAGE@
-%define version @VERSION@
+%define name Maelstrom
+%define version 3.0.6
 %define release 1
 %define prefix /usr
 

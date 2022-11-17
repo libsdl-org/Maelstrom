@@ -54,8 +54,12 @@ public:
 	/* Play the requested sound */
 	int  PlaySound(Uint16 sndID, Uint8 priority = 0, 
 				void (*callback)(Uint8 channel) = NULL) {
-		Uint8 i;
+		int i;
 
+		for ( i=0; i<NUM_CHANNELS; ++i ) {
+			if ( channels[i].len <= 0 )
+				return(PlaySound(sndID, priority, i, callback));
+		}
 		for ( i=0; i<NUM_CHANNELS; ++i ) {
 			if ( priority > Priority(i) )
 				return(PlaySound(sndID, priority, i, callback));

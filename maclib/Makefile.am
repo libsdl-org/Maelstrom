@@ -12,9 +12,10 @@ libSDLmac_a_SOURCES =		\
 	Mac_Wave.cpp		\
 	Mac_Wave.h		\
 	applefile.h		\
+	macbinary.h		\
 	bitesex.h
 
-bin_PROGRAMS = macres playwave snd2wav
+noinst_PROGRAMS = macres playwave snd2wav
 
 macres_SOURCES = macres.cpp
 macres_LDADD = libSDLmac.a

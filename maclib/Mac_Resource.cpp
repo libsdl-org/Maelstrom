@@ -44,6 +44,11 @@ Note: Most of the info in this file came from "Inside Macintosh"
 #define APPLEDOUBLE_MAGIC	0x00051607
 #include "applefile.h"
 
+/* The format for MacBinary files -- in a header file */
+#define MACBINARY_MASK		0xFCFF
+#define MACBINARY_MAGIC		0x8081
+#include "macbinary.h"
+
 /* These are the data structures that make up the Macintosh Resource Fork */
 struct Resource_Header {
 	Uint32	res_offset;	/* Offset of resources in file */
@@ -116,6 +121,56 @@ int Res_cmp(const void *A, const void *B)
    This function may be overkill, but I want to be able to find any Macintosh
    resource fork, darn it! :)
 */
+static void CheckAppleFile(FILE *resfile, Uint32 *resbase)
+{
+	ASHeader header;
+	if (fread(&header.magicNum,sizeof(header.magicNum),1,resfile)&&
+		(bytesex32(header.magicNum) == APPLEDOUBLE_MAGIC) ) {
+		fread(&header.versionNum,
+				sizeof(header.versionNum), 1, resfile);
+		bytesex32(header.versionNum);
+		fread(&header.filler,
+				sizeof(header.filler), 1, resfile);
+		fread(&header.numEntries,
+				sizeof(header.numEntries), 1, resfile);
+		bytesex16(header.numEntries);
+#ifdef APPLEDOUBLE_DEBUG
+mesg("Header magic: 0x%.8x, version 0x%.8x\n",
+			header.magicNum, header.versionNum);
+#endif
+
+		ASEntry entry;
+#ifdef APPLEDOUBLE_DEBUG
+mesg("Number of entries: %d, sizeof(entry) = %d\n",
+			header.numEntries, sizeof(entry));
+#endif
+		for ( int i = 0; i<header.numEntries; ++ i ) {
+			if (! fread(&entry, sizeof(entry), 1, resfile))
+				break;
+			bytesex32(entry.entryID);
+			bytesex32(entry.entryOffset);
+			bytesex32(entry.entryLength);
+#ifdef APPLEDOUBLE_DEBUG
+mesg("Entry (%d): ID = 0x%.8x, Offset = %d, Length = %d\n",
+	i+1, entry.entryID, entry.entryOffset, entry.entryLength);
+#endif
+			if ( entry.entryID == AS_RESOURCE ) {
+				*resbase = entry.entryOffset;
+				break;
+			}
+		}
+	}
+	fseek(resfile, 0, SEEK_SET);
+}
+static void CheckMacBinary(FILE *resfile, Uint32 *resbase)
+{
+	MBHeader header;
+	if (fread(header.data,sizeof(header.data),1,resfile)&&
+		((header.Version()&MACBINARY_MASK) == MACBINARY_MAGIC) ) {
+		*resbase = sizeof(header.data) + header.DataLength();
+	}
+	fseek(resfile, 0, SEEK_SET);
+}
 static FILE *Open_MacRes(char **original, Uint32 *resbase)
 {
 	char *filename, *dirname, *basename, *ptr, *newname;
@@ -160,6 +215,15 @@ static FILE *Open_MacRes(char **original, Uint32 *resbase)
 		}
 		delete[] newname;
 
+		/* Look for MacBinary files */
+		newname = new char[strlen(dirname)+2+strlen(basename)+4+1];
+		sprintf(newname, "%s%s%s.bin", dirname, (*dirname ? "/" : ""),
+								basename);
+		if ( (resfile=fopen(newname, "rb")) != NULL ) {
+			break;
+		}
+		delete[] newname;
+
 		/* Look for raw resource fork.. */
 		newname = new char[strlen(dirname)+2+strlen(basename)+1];
 		sprintf(newname, "%s%s%s", dirname, (*dirname ? "/" : ""),
@@ -171,47 +235,13 @@ static FILE *Open_MacRes(char **original, Uint32 *resbase)
 	/* Did we find anything? */
 	if ( iterations != N_SNRS ) {
 		*original = newname;
+		*resbase = 0;
 
 		/* Look for AppleDouble format header */
-		*resbase = 0;
-		ASHeader header;
-		if (fread(&header.magicNum,sizeof(header.magicNum),1,resfile)&&
-		 	(bytesex32(header.magicNum) == APPLEDOUBLE_MAGIC) ) {
-			fread(&header.versionNum,
-					sizeof(header.versionNum), 1, resfile);
-			bytesex32(header.versionNum);
-			fread(&header.filler,
-					sizeof(header.filler), 1, resfile);
-			fread(&header.numEntries,
-					sizeof(header.numEntries), 1, resfile);
-			bytesex16(header.numEntries);
-#ifdef APPLEDOUBLE_DEBUG
-mesg("Header magic: 0x%.8x, version 0x%.8x\n",
-				header.magicNum, header.versionNum);
-#endif
+		CheckAppleFile(resfile, resbase);
 
-			ASEntry entry;
-#ifdef APPLEDOUBLE_DEBUG
-mesg("Number of entries: %d, sizeof(entry) = %d\n",
-				header.numEntries, sizeof(entry));
-#endif
-			for ( int i = 0; i<header.numEntries; ++ i ) {
-				if (! fread(&entry, sizeof(entry), 1, resfile))
-					break;
-				bytesex32(entry.entryID);
-				bytesex32(entry.entryOffset);
-				bytesex32(entry.entryLength);
-#ifdef APPLEDOUBLE_DEBUG
-mesg("Entry (%d): ID = 0x%.8x, Offset = %d, Length = %d\n",
-		i+1, entry.entryID, entry.entryOffset, entry.entryLength);
-#endif
-				if ( entry.entryID == AS_RESOURCE ) {
-					*resbase = entry.entryOffset;
-					break;
-				}
-			}
-		}
-		(void) fseek(resfile, 0, SEEK_SET);
+		/* Look for MacBinary format header */
+		CheckMacBinary(resfile, resbase);
 	}
 #ifdef APPLEDOUBLE_DEBUG
 mesg("Resfile base = %d\n", *resbase);

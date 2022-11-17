@@ -6,7 +6,7 @@ AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
 dnl Setup for automake
-AM_INIT_AUTOMAKE(Maelstrom, 3.0.5)
+AM_INIT_AUTOMAKE(Maelstrom, 3.0.6)
 
 dnl Check for tools
 
