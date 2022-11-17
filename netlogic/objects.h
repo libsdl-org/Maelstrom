@@ -8,7 +8,7 @@ public:
 	Prize(int X, int Y, int xVel, int yVel) :
 				Object(X, Y, xVel, yVel, gPrize, 2) {
 		Set_TTL(PRIZE_DURATION);
-		sound->PlaySound(gPrizeAppears, 4, NULL);
+		sound->PlaySound(gPrizeAppears, 4);
 #ifdef SERIOUS_DEBUG
 error("Created a prize!\n");
 #endif
@@ -50,12 +50,12 @@ error("Created a prize!\n");
 				break;
 			case 6:
 				/* -- Put 'em on ICE */
-				sound->PlaySound(gFreezeSound, 4, NULL);
+				sound->PlaySound(gFreezeSound, 4);
 				gFreezeTime = FREEZE_DURATION;
 				break;
 			case 7:
 				/* Blow up everything */
-				sound->PlaySound(gNovaBoom, 5, NULL);
+				sound->PlaySound(gNovaBoom, 5);
 				OBJ_LOOP(i, gNumSprites) {
 					if ( gSprites[i] == this )
 						continue;
@@ -69,7 +69,7 @@ error("Created a prize!\n");
 				gShakeTime = SHAKE_DURATION;
 				break;
 		}
-		sound->PlaySound(gGotPrize, 4, NULL);
+		sound->PlaySound(gGotPrize, 4);
 		return(1);
 	}
 
@@ -82,7 +82,7 @@ error("Created a prize!\n");
 	}
 
 	void ExplodeSound(void) {
-		sound->PlaySound(gIdiotSound, 4, NULL);
+		sound->PlaySound(gIdiotSound, 4);
 	}
 };
 
@@ -95,7 +95,7 @@ public:
 		Set_TTL(MULT_DURATION);
 		multiplier = Mult;
 		solid = 0;
-		sound->PlaySound(gMultiplier, 4, NULL);
+		sound->PlaySound(gMultiplier, 4);
 #ifdef SERIOUS_DEBUG
 error("Created a multiplier!\n");
 #endif
@@ -103,17 +103,15 @@ error("Created a multiplier!\n");
 	~Multiplier() { }
 
 	int BeenShot(Object *ship, Shot *shot) {
-		Unused(shot);
 		ship->Multiplier(multiplier);
-		sound->PlaySound(gMultShotSound, 4, NULL);
+		sound->PlaySound(gMultShotSound, 4);
 		return(1);
 	}
 	int BeenDamaged(int damage) {
-		Unused(damage);
 		return(0);
 	}
 	int BeenTimedOut(void) {
-		sound->PlaySound(gMultiplierGone, 4, NULL);
+		sound->PlaySound(gMultiplierGone, 4);
 		return(-1);
 	}
 	void Shake(int shakiness) { }
@@ -130,7 +128,7 @@ public:
 		Set_TTL(gNova->numFrames*phasetime);
 		Set_Points(NOVA_PTS);
 		phase = 0;
-		sound->PlaySound(gNovaAppears, 4, NULL);
+		sound->PlaySound(gNovaAppears, 4);
 #ifdef SERIOUS_DEBUG
 error("Created a nova!\n");
 #endif
@@ -140,7 +138,7 @@ error("Created a nova!\n");
 	int BeenTimedOut(void) {
 		if ( ! Exploding ) {
 			int i;
-			sound->PlaySound(gNovaBoom, 5, NULL);
+			sound->PlaySound(gNovaBoom, 5);
 			OBJ_LOOP(i, gNumSprites) {
 				if ( gSprites[i] == this )
 					continue;
@@ -166,7 +164,7 @@ public:
 		Set_TTL(BONUS_DURATION);
 		solid = 0;
 		bonus = Bonus;
-		sound->PlaySound(gBonusAppears, 4, NULL);
+		sound->PlaySound(gBonusAppears, 4);
 #ifdef SERIOUS_DEBUG
 error("Created a bonus!\n");
 #endif
@@ -174,11 +172,10 @@ error("Created a bonus!\n");
 	~Bonus() { }
 
 	int BeenShot(Object *ship, Shot *shot) {
-		Unused(shot);
 
 		/* Increment the ship's bonus. :) */
 		ship->IncrBonus(bonus);
-		sound->PlaySound(gBonusShot, 4, NULL);
+		sound->PlaySound(gBonusShot, 4);
 
 		/* Display point bonus */
 		shootable = 0;
@@ -192,12 +189,11 @@ error("Created a bonus!\n");
 		return(0);
 	}
 	int BeenDamaged(int damage) {
-		Unused(damage);
 		return(0);
 	}
 	int BeenTimedOut(void) {
 		if ( bonus )
-			sound->PlaySound(gMultiplierGone, 4, NULL);
+			sound->PlaySound(gMultiplierGone, 4);
 		return(-1);
 	}
 	void Shake(int shakiness) { }
@@ -223,7 +219,6 @@ error("Created a shrapnel!\n");
 	~Shrapnel() { }
 
 	int BeenDamaged(int damage) {
-		Unused(damage);
 		return(0);
 	}
 };
@@ -235,7 +230,7 @@ public:
 	DamagedShip(int X, int Y, int xVel, int yVel) :
 			Object(X, Y, xVel, yVel, gDamagedShip, 1) {
 		Set_TTL(DAMAGED_DURATION*phasetime);
-		sound->PlaySound(gDamagedAppears, 4, NULL);
+		sound->PlaySound(gDamagedAppears, 4);
 #ifdef SERIOUS_DEBUG
 error("Created a damaged ship!\n");
 #endif
@@ -244,7 +239,7 @@ error("Created a damaged ship!\n");
 
 	int BeenRunOver(Object *ship) {
 		ship->IncrLives(1);
-		sound->PlaySound(gSavedShipSound, 4, NULL);
+		sound->PlaySound(gSavedShipSound, 4);
 		return(1);
 	}
 
@@ -312,7 +307,7 @@ error("Created a damaged ship!\n");
 	}
 
 	void ExplodeSound(void) {
-		sound->PlaySound(gShipHitSound, 5, NULL);
+		sound->PlaySound(gShipHitSound, 5);
 	}
 };
 
@@ -322,7 +317,7 @@ class Gravity : public Object {
 public:
 	Gravity(int X, int Y) : Object(X, Y, 0, 0, gVortexBlit, 2) {
 		Set_Points(GRAVITY_PTS);
-		sound->PlaySound(gGravAppears, 4, NULL);
+		sound->PlaySound(gGravAppears, 4);
 #ifdef SERIOUS_DEBUG
 error("Created a gravity well!\n");
 #endif
@@ -377,7 +372,7 @@ public:
 		Set_HitPoints(HOMING_HITS);
 		Set_Points(HOMING_PTS);
 		target=AcquireTarget();
-		sound->PlaySound(gHomingAppears, 4, NULL);
+		sound->PlaySound(gHomingAppears, 4);
 #ifdef SERIOUS_DEBUG
 error("Created a homing mine!\n");
 #endif
@@ -615,7 +610,7 @@ error("Created a steel asteroid!\n");
 
 			/* Turn into an Asteroid */
 			case 0:
-				sound->PlaySound(gFunk, 4, NULL);
+				sound->PlaySound(gFunk, 4);
 				newsprite = gNumSprites;
 				gSprites[newsprite] = new LargeRock(x, y,
 							xvec, yvec, phasetime);
@@ -627,7 +622,7 @@ error("Created a steel asteroid!\n");
 
 			/* Turn into a homing mine */
 			case 2:
-				sound->PlaySound(gHomingAppears,4,NULL);
+				sound->PlaySound(gHomingAppears, 4);
 				newsprite = gNumSprites;
 				gSprites[newsprite] =
 					new Homing(x, y, xvec, yvec);

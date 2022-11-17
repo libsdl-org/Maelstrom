@@ -1,0 +1,35 @@
+
+
+This directory contains C++ classes that make Macintosh resource forks useful
+for programs running on other operating systems:
+
+	Mac_Compat.h
+		A header with some inline Macintosh compatibility functions.
+
+	Mac_Resource.h
+		A class for reading data from a Macintosh resource fork.
+
+	Mac_FontServ.h
+		A class for loading Macintosh bitmap fonts and using them
+		to convert text to sprites suitable for blitting to a FrameBuf.
+
+	Mac_Wave.h
+		A class for converting WAVE files and Macintosh 'snd '
+		resources into a WAVE chunk of a particular frequency.
+
+	Mac_Sound.h
+		A class that takes a sounds from a Macintosh resource fork
+		and becomes an audio server, playing them on 4 channels.
+
+	macres.cc
+		A program to list and optionally extract resources from
+		a Macintosh resource fork file.
+
+	playwave.cc
+		A program to play a WAVE file using the SDL library.
+
+	snd2wav.cc
+		A program to convert a file full of Macintosh sound resources
+		to WAVE files, named "snd_N.wav" where N is the number of the
+		sound resource in the resource fork file.
+

@@ -13,8 +13,6 @@ public:
 			shots[i] = new Shot;
 			shots[i]->damage = PLAYER_HITS;
 		}
-		shotcolors = gEnemyShotColors;
-		shotmask = gShotMask;
 		nextshot = 0;
 		shotodds = ShotOdds;
 		target = AcquireTarget();
@@ -22,7 +20,7 @@ public:
 		numshots = 0;
 
 		gEnemySprite = this;
-		sound->PlaySound(gEnemyAppears, 4, NULL);
+		sound->PlaySound(gEnemyAppears, 4);
 	}
 	~Shinobi() {
 		for ( int i=0; i<MAX_SHOTS; ++i )
@@ -182,8 +180,7 @@ public:
 		OBJ_LOOP(i, numshots) {
 			int X = (shots[i]->x>>SPRITE_PRECISION);
 			int Y = (shots[i]->y>>SPRITE_PRECISION);
-			win->ClipBlit_Sprite(X, Y, 
-				SHOT_SIZE, SHOT_SIZE, shotcolors, shotmask);
+			screen->QueueBlit(X, Y, gEnemyShot);
 		}
 		Object::BlitSprite();
 	}
@@ -193,17 +190,16 @@ public:
 		OBJ_LOOP(i, numshots) {
 			int X = (shots[i]->x>>SPRITE_PRECISION);
 			int Y = (shots[i]->y>>SPRITE_PRECISION);
-			win->UnClipBlit_Sprite(X, Y,
-					SHOT_SIZE, SHOT_SIZE, shotmask);
+			screen->Clear(X, Y, SHOT_SIZE, SHOT_SIZE, DOCLIP);
 		}
 		Object::UnBlitSprite();
 	}
 
 	virtual void HitSound(void) {
-		sound->PlaySound(gBonk, 3, NULL);
+		sound->PlaySound(gBonk, 3);
 	}
 	virtual void ExplodeSound(void) {
-		sound->PlaySound(gExplosionSound, 3, NULL);
+		sound->PlaySound(gExplosionSound, 3);
 	}
 
 private:
@@ -213,8 +209,6 @@ private:
 	int target;
 	int barrel;
 	int numshots;
-	unsigned char *shotcolors;
-	unsigned char *shotmask;
 
 	virtual int MakeShot(int offset) {
 		int shotphase;

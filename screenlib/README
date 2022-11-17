@@ -1,0 +1,5 @@
+
+
+This is a library that sits on top of the SDL screen library and provides
+simple image blitting and drawing functions for the SDL framebuffer.
+

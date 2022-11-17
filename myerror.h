@@ -8,7 +8,5 @@ extern void error(char *fmt, ...);
 extern void mesg(char *fmt, ...);
 extern void myperror(char *msg);
 
-#define perror(msg)	myperror(msg)
-
 #endif /* _myerror_h */
 

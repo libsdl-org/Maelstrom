@@ -6,8 +6,9 @@ extern void	CalibrateJoystick(char *joystick);
 extern void	LoadControls(void);
 extern void	SaveControls(void);
 extern void	ConfigureControls(void);
-extern int	PollEvent(XEvent *event, int timeout);
+extern int	PollEvent(SDL_Event *event, int timeout);
 extern void	HandleEvents(int timeout);
+extern void	DropEvents(void);
 extern void	ShowDawn(void);
 
 /* Generic key control definitions */
@@ -21,12 +22,12 @@ extern void	ShowDawn(void);
 
 /* The controls structure */
 typedef struct {
-	unsigned short	gPauseControl;
-	unsigned short	gShieldControl;
-	unsigned short	gThrustControl;
-	unsigned short	gTurnRControl;
-	unsigned short	gTurnLControl;
-	unsigned short  gFireControl;
-	unsigned short	gQuitControl;
-	} Controls;
+	SDLKey gPauseControl;
+	SDLKey gShieldControl;
+	SDLKey gThrustControl;
+	SDLKey gTurnRControl;
+	SDLKey gTurnLControl;
+	SDLKey gFireControl;
+	SDLKey gQuitControl;
+} Controls;
 

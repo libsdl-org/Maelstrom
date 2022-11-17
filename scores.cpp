@@ -3,12 +3,16 @@
    This file handles the cheat dialogs and the high score file
 */
 
+#ifndef WIN32
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <string.h>
+#endif
+#include <stdio.h>
 
-#include "bitesex.h"
+#include "SDL_endian.h"
+
 #include "Maelstrom_Globals.h"
+#include "load.h"
 #include "dialog.h"
 
 #define MAELSTROM_SCORES	"Maelstrom-Scores"
@@ -20,24 +24,13 @@
 #define CLR_DIALOG_WIDTH	281
 #define CLR_DIALOG_HEIGHT	111
 
-Scores	hScores[NUM_SCORES];
-Bool   gNetScores = 0;
-
-#if BYTE_ORDER == BIG_ENDIAN
-static inline unsigned long fliplong(unsigned long x)
-{
-	return((x<<24)|((x&0xff00)<<8)|((x>>8)&0xff00)|(x>>24));
-}
-#else
-#define fliplong(x)	(x)
-#endif
-
-extern int NetLoadScores(void);		/* From netscore.cc */
+Bool gNetScores = 0;
+Scores hScores[NUM_SCORES];
 
 void LoadScores(void)
 {
-	char *scoresfile;
-	FILE *scores_fp;
+	LibPath path;
+	SDL_RWops *scores_src;
 	int i;
 
 	/* Try to load network scores, if we can */
@@ -49,52 +42,52 @@ void LoadScores(void)
 			gNetScores = 0;
 		}
 	}
-	scoresfile = file2libpath(MAELSTROM_SCORES);
 	memset(&hScores, 0, sizeof(hScores));
-	if ( (scores_fp=fopen(scoresfile, "r")) == NULL )
-		return;
-	(void) fread(&hScores, sizeof(hScores), 1, scores_fp);
-	fclose(scores_fp);
 
-	for ( i=0; i<NUM_SCORES; ++i ) {
-		hScores[i].wave = fliplong(hScores[i].wave);
-		hScores[i].score = fliplong(hScores[i].score);
+	scores_src = SDL_RWFromFile(path.Path(MAELSTROM_SCORES), "rb");
+	if ( scores_src != NULL ) {
+		for ( i=0; i<NUM_SCORES; ++i ) {
+			SDL_RWread(scores_src, hScores[i].name,
+			           sizeof(hScores[i].name), 1);
+			hScores[i].wave = SDL_ReadBE32(scores_src);
+			hScores[i].score = SDL_ReadBE32(scores_src);
+		}
+		SDL_RWclose(scores_src);
 	}
 }
 
 void SaveScores(void)
 {
-	char *scoresfile;
-	FILE *scores_fp;
-	int   omask, i;
+	LibPath path;
+	SDL_RWops *scores_src;
+	int i;
+#ifndef WIN32
+	int omask;
+#endif
 
 	/* Don't save network scores */
 	if ( gNetScores )
 		return;
 
-	scoresfile = file2libpath(MAELSTROM_SCORES);
-#ifndef __WIN95__
+#ifndef WIN32
 	omask=umask(SCORES_PERMMASK);
 #endif
-	scores_fp=fopen(scoresfile, "w");
+	scores_src = SDL_RWFromFile(path.Path(MAELSTROM_SCORES), "wb");
+	if ( scores_src != NULL ) {
+		for ( i=0; i<NUM_SCORES; ++i ) {
+			SDL_RWwrite(scores_src, hScores[i].name,
+			            sizeof(hScores[i].name), 1);
+			SDL_WriteBE32(scores_src, hScores[i].wave);
+			SDL_WriteBE32(scores_src, hScores[i].score);
+		}
+		SDL_RWclose(scores_src);
+	} else {
+		error("Warning: Couldn't save scores to %s\n",
+						path.Path(MAELSTROM_SCORES));
+	}
+#ifndef WIN32
 	umask(omask);
-	if ( scores_fp == NULL ) {
-		error("Warning: Couldn't save scores to %s: ", scoresfile);
-		error("\n\t\t");
-		perror("");
-		return;
-	}
-	for ( i=0; i<NUM_SCORES; ++i ) {
-		hScores[i].wave = fliplong(hScores[i].wave);
-		hScores[i].score = fliplong(hScores[i].score);
-	}
-	(void) fwrite(&hScores, sizeof(hScores), 1, scores_fp);
-	fclose(scores_fp);
-
-	for ( i=0; i<NUM_SCORES; ++i ) {
-		hScores[i].wave = fliplong(hScores[i].wave);
-		hScores[i].score = fliplong(hScores[i].score);
-	}
+#endif
 }
 
 /* Just show the high scores */
@@ -106,13 +99,12 @@ void PrintHighScores(void)
 	/* FIXME! -- Put all lines into a single formatted message */
 	printf("Name			Score	Wave\n");
 	for ( i=0; i<NUM_SCORES; ++i ) {
-		printf("%-20s	%-3.1ld	%d\n", hScores[i].name,
+		printf("%-20s	%-3.1u	%u\n", hScores[i].name,
 					hScores[i].score, hScores[i].wave);
 	}
 }
 
-
-static int     do_clear;
+static int do_clear;
 
 static int Clear_callback(void) {
 	do_clear = 1;
@@ -125,13 +117,12 @@ static int Cancel_callback(void) {
 
 int ZapHighScores(void)
 {
-	MFont          *chicago;
+	MFont *chicago;
 	Maclike_Dialog *dialog;
-	struct Title    splash;
-	int             i, X, Y;
-	Mac_Button     *clear;
-	Mac_Button     *cancel;
-	unsigned long   black, white;
+	int X, Y;
+	SDL_Surface *splash;
+	Mac_Button *clear;
+	Mac_Button *cancel;
 
 	/* Set up all the components of the dialog box */
 #ifdef CENTER_DIALOG
@@ -141,52 +132,38 @@ int ZapHighScores(void)
 	X=179;
 	Y=89;
 #endif
-	black = win->Map_Color(0x0000, 0x0000, 0x0000);
-	white = win->Map_Color(0xFFFF, 0xFFFF, 0xFFFF);
-	dialog = new Maclike_Dialog(win, X, Y, 
-				CLR_DIALOG_WIDTH, CLR_DIALOG_HEIGHT, white);
-	if ( (chicago = fontserv->New_Font("Chicago", 12)) == NULL ) {
+	if ( (chicago = fontserv->NewFont("Chicago", 12)) == NULL ) {
 		error("Can't use Chicago font!\n");
 		return(0);
 	}
-	if ( Load_Title(&splash, 102) < 0 ) {
+	if ( (splash = Load_Title(screen, 102)) == NULL ) {
 		error("Can't load score zapping splash!\n");
+		delete chicago;
 		return(0);
 	}
-	dialog->Add_Title(&splash, X+8, Y+8);
+	dialog = new Maclike_Dialog(X, Y, CLR_DIALOG_WIDTH, CLR_DIALOG_HEIGHT,
+								screen);
+	dialog->Add_Image(splash, 4, 4);
 	do_clear = 0;
-	clear = new Mac_Button(win, X+103, Y+78, BUTTON_WIDTH, BUTTON_HEIGHT,
-			"Clear", chicago, fontserv, black, white, 
-							Clear_callback);
+	clear = new Mac_Button(99, 74, BUTTON_WIDTH, BUTTON_HEIGHT,
+				"Clear", chicago, fontserv, Clear_callback);
 	dialog->Add_Dialog(clear);
-	cancel = new Mac_DefaultButton(win, X+103+BUTTON_WIDTH+14, Y+78, 
-			BUTTON_WIDTH, BUTTON_HEIGHT, "Cancel", 
-			chicago, fontserv, black, white, Cancel_callback);
+	cancel = new Mac_DefaultButton(99+BUTTON_WIDTH+14, 74, 
+				BUTTON_WIDTH, BUTTON_HEIGHT,
+				"Cancel", chicago, fontserv, Cancel_callback);
 	dialog->Add_Dialog(cancel);
-	win->Refresh();
 
 	/* Run the dialog box */
 	dialog->Run();
 
 	/* Clean up and return */
-	Free_Title(&splash);
-	delete clear;
-	delete cancel;
+	screen->FreeImage(splash);
+	delete chicago;
 	delete dialog;
-	fontserv->Free_Font(chicago);
 	if ( do_clear ) {
-		for ( i=0; i<10; ++i ) {
-			hScores[i].wave = 0;
-			hScores[i].score = 0L;
-			hScores[i].name[0] = '\0';
-		}
+		memset(hScores, 0, sizeof(hScores));
 		SaveScores();
 		gLastHigh = -1;
-
-		/* Fade for screen update */
-		win->Fade(FADE_STEPS/2);
-		gUpdateBuffer = true;
-		gFadeBack = true;
 	}
 	return(do_clear);
 }
@@ -214,79 +191,71 @@ int GetStartLevel(void)
 			"disqualifies you from a high score...";
 	static char    *Ltext3 = "Level:";
 	static char    *Ltext4 = "Lives:";
-	unsigned long   black, white;
-	MFont          *chicago;
+	MFont *chicago;
 	Maclike_Dialog *dialog;
-	CIcon          *splash;
-	BitMap         *text1, *text2, *text3, *text4;
-	static char    *turbotext = "Turbofunk On";
-	int             x, y, X, Y;
-	Dialog         *doit;
-	Dialog         *cancel;
-	Numeric_Entry  *numeric_entry;
-	CheckBox       *checkbox;
-	int             startlevel=10, startlives=5, turbofunk=0;
+	SDL_Surface *splash;
+	SDL_Surface *text1, *text2, *text3, *text4;
+	static char *turbotext = "Turbofunk On";
+	int x, y, X, Y;
+	Mac_Button *doit;
+	Mac_Button *cancel;
+	Mac_NumericEntry *numeric_entry;
+	Mac_CheckBox *checkbox;
+	int startlevel=10, startlives=5, turbofunk=0;
 
 	/* Set up all the components of the dialog box */
-	X=(SCREEN_WIDTH-LVL_DIALOG_WIDTH)/2;
-	Y=(SCREEN_HEIGHT-LVL_DIALOG_HEIGHT)/2;
-	black = win->Map_Color(0x0000, 0x0000, 0x0000);
-	white = win->Map_Color(0xFFFF, 0xFFFF, 0xFFFF);
-	dialog = new Maclike_Dialog(win, X, Y, 
-				LVL_DIALOG_WIDTH, LVL_DIALOG_HEIGHT, white);
-	if ( (chicago = fontserv->New_Font("Chicago", 12)) == NULL ) {
+	if ( (chicago = fontserv->NewFont("Chicago", 12)) == NULL ) {
 		error("Can't use Chicago font!\n");
 		return(0);
 	}
-	if ( (splash=GetCIcon(103)) == NULL ) {
+	if ( (splash = GetCIcon(screen, 103)) == NULL ) {
 		error("Can't load alien level splash!\n");
+		delete chicago;
 		return(0);
 	}
-	x = y = 18;
-	dialog->Add_CIcon(splash, X+x, Y+y);
-	x += (splash->width+14);
-	text1 = fontserv->Text_to_BitMap(Ltext1, chicago, STYLE_NORM);
-	dialog->Add_BitMap(text1, X+x, Y+y, black);
-	y += (text1->height+2);
-	text2 = fontserv->Text_to_BitMap(Ltext2, chicago, STYLE_NORM);
-	dialog->Add_BitMap(text2, X+x, Y+y, black);
+	X=(SCREEN_WIDTH-LVL_DIALOG_WIDTH)/2;
+	Y=(SCREEN_HEIGHT-LVL_DIALOG_HEIGHT)/2;
+	dialog = new Maclike_Dialog(X, Y, LVL_DIALOG_WIDTH, LVL_DIALOG_HEIGHT,
+								screen);
+	x = y = 14;
+	dialog->Add_Image(splash, x, y);
+	x += (splash->w+14);
+	text1 = fontserv->TextImage(Ltext1,chicago,STYLE_NORM,0x00,0x00,0x00);
+	dialog->Add_Image(text1, x, y);
+	y += (text1->h+2);
+	text2 = fontserv->TextImage(Ltext2, chicago, STYLE_NORM,
+							0x00, 0x00, 0x00);
+	dialog->Add_Image(text2, x, y);
 	do_level = 0;
-	cancel = new Mac_Button(win, X+170, Y+100, 73, BUTTON_HEIGHT,
-			"Cancel", chicago, fontserv, black, white, 
-							Cancel2_callback);
+	cancel = new Mac_Button(166, 96, 73, BUTTON_HEIGHT,
+				"Cancel", chicago, fontserv, Cancel2_callback);
 	dialog->Add_Dialog(cancel);
-	doit = new Mac_DefaultButton(win, X+170+73+14, Y+100, 
-			BUTTON_WIDTH, BUTTON_HEIGHT, "Do it!", 
-			chicago, fontserv, black, white, Level_callback);
+	doit = new Mac_DefaultButton(166+73+14, 96, BUTTON_WIDTH, BUTTON_HEIGHT,
+				"Do it!", chicago, fontserv, Level_callback);
 	dialog->Add_Dialog(doit);
-	numeric_entry = new Numeric_Entry(win, X, Y, chicago, fontserv,
-							black, white);
-	numeric_entry->Add_Entry(X+82, Y+64, 3, 1, &startlevel);
-	text3 = fontserv->Text_to_BitMap(Ltext3, chicago, STYLE_NORM);
-	dialog->Add_BitMap(text3, X+82-text3->width-2, Y+64+3, black);
-	numeric_entry->Add_Entry(X+82, Y+90, 3, 0, &startlives);
-	text4 = fontserv->Text_to_BitMap(Ltext4, chicago, STYLE_NORM);
-	dialog->Add_BitMap(text4, X+82-text3->width-2, Y+90+3, black);
+	numeric_entry = new Mac_NumericEntry(X, Y, chicago, fontserv);
+	numeric_entry->Add_Entry(78, 60, 3, 1, &startlevel);
+	text3 = fontserv->TextImage(Ltext3,chicago,STYLE_NORM,0x00,0x00,0x00);
+	dialog->Add_Image(text3, 78-text3->w-2, 60+3);
+	numeric_entry->Add_Entry(78, 86, 3, 0, &startlives);
+	text4 = fontserv->TextImage(Ltext4,chicago,STYLE_NORM,0x00,0x00,0x00);
+	dialog->Add_Image(text4, 78-text3->w-2, 86+3);
 	dialog->Add_Dialog(numeric_entry);
-	checkbox = new CheckBox(win, X+140, Y+68, turbotext, chicago,
-					fontserv, black, white, &turbofunk);
+	checkbox = new Mac_CheckBox(&turbofunk, 136, 64, turbotext,
+						chicago, fontserv);
 	dialog->Add_Dialog(checkbox);
-	win->Refresh();
 
 	/* Run the dialog box */
-	dialog->Run();
+	dialog->Run(EXPAND_STEPS);
 
 	/* Clean up and return */
-	FreeCIcon(splash);
-	fontserv->Free_Text(text1);
-	fontserv->Free_Text(text2);
-	fontserv->Free_Text(text3);
-	fontserv->Free_Text(text4);
-	delete cancel;
-	delete doit;
-	delete numeric_entry;
+	screen->FreeImage(splash);
+	fontserv->FreeText(text1);
+	fontserv->FreeText(text2);
+	fontserv->FreeText(text3);
+	fontserv->FreeText(text4);
+	delete chicago;
 	delete dialog;
-	fontserv->Free_Font(chicago);
 	if ( do_level ) {
 		if ( ! startlives || (startlives > 40) )
 			startlives = 3;
@@ -299,3 +268,4 @@ int GetStartLevel(void)
 	}
 	return(0);
 }
+

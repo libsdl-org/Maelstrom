@@ -80,10 +80,9 @@ void MakeMultiplier(void)
 {
 	int	newsprite, x, y;
 
-	x = FastRandom(gClipRect.right - gClipRect.left - 
-						SPRITES_WIDTH) + SPRITES_WIDTH;
-	y = FastRandom(gClipRect.bottom - gClipRect.top - 
-				SPRITES_WIDTH - STATUS_HEIGHT) + SPRITES_WIDTH;
+	x = FastRandom(gClipRect.w - SPRITES_WIDTH) + SPRITES_WIDTH;
+	y = FastRandom(gClipRect.h - SPRITES_WIDTH - STATUS_HEIGHT) 
+							+ SPRITES_WIDTH;
 
 	x *= SCALE_FACTOR;
 	y *= SCALE_FACTOR;
@@ -106,10 +105,9 @@ tryAgain:
 	if ( min_bad_distance )
 		--min_bad_distance;
 
-	x = FastRandom(gClipRect.right - gClipRect.left - 
-						SPRITES_WIDTH) + SPRITES_WIDTH;
-	y = FastRandom(gClipRect.bottom - gClipRect.top - 
-				SPRITES_WIDTH - STATUS_HEIGHT) + SPRITES_WIDTH;
+	x = FastRandom(gClipRect.w - SPRITES_WIDTH) + SPRITES_WIDTH;
+	y = FastRandom(gClipRect.h - SPRITES_WIDTH - STATUS_HEIGHT) 
+							+ SPRITES_WIDTH;
 
 	x *= SCALE_FACTOR;
 	y *= SCALE_FACTOR;
@@ -239,10 +237,9 @@ void MakeGravity(void)
 		if ( min_bad_distance )
 			--min_bad_distance;
 	
-		x = FastRandom(gClipRect.right - gClipRect.left - 
-						SPRITES_WIDTH) + SPRITES_WIDTH;
-		y = FastRandom(gClipRect.bottom - gClipRect.top - 
-				SPRITES_WIDTH - STATUS_HEIGHT) + SPRITES_WIDTH;
+		x = FastRandom(gClipRect.w - SPRITES_WIDTH) + SPRITES_WIDTH;
+		y = FastRandom(gClipRect.h - SPRITES_WIDTH - STATUS_HEIGHT) 
+							+ SPRITES_WIDTH;
 		x *= SCALE_FACTOR;
 		y *= SCALE_FACTOR;
 	

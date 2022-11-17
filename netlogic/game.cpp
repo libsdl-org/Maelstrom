@@ -4,52 +4,47 @@
 #include "player.h"
 #include "netplay.h"
 #include "make.h"
-
-#ifdef __WIN95__
-/* The Windows 95 version is not allowed for release by Andrew Welch! */
-//#define CRIPPLED_DEMO
-#endif
+#include "load.h"
 
 
 #ifdef MOVIE_SUPPORT
-extern int  gMovie;
-static Rect gMovieRect;
+extern int gMovie;
+static SDL_Rect gMovieRect;
 int SelectMovieRect(void)
 {
-	XEvent	event;
-	char    buf[127];
-	KeySym  key;
-	unsigned char *saved;
-	unsigned long  white;
-	int center_x, center_y, havecenter;
+	SDL_Event event;
+	SDL_Surface *saved;
+	Uint32 white;
+	int center_x, center_y;
 	int width, height;
 
 	/* Wait for initial button press */
-	win->Show_Cursor();
-	while ( 1 ) {
-		win->GetEvent(&event);
+	screen->ShowCursor();
+	center_x = 0;
+	center_y = 0;
+	while ( ! center_x && ! center_y ) {
+		screen->WaitEvent(&event);
 
 		/* Check for escape key */
-		if ( event.type == KeyPress ) {
-			win->KeyToAscii(&event, buf, 127, &key);
-			if ( key == XK_Escape ) {
-				win->Hide_Cursor();
-				return(0);
-			}
-			continue;
+		if ( (event.type == SDL_KEYEVENT) && 
+				(event.key.state == SDL_PRESSED) &&
+				(event.key.keysym.sym == SDL_ESCAPE) ) {
+			screen->HideCursor();
+			return(0);
 		}
 
 		/* Wait for button press */
-		if ( event.type == ButtonPress ) {
-			center_x = event.xbutton.x;
-			center_y = event.xbutton.y;
+		if ( (event.type == SDL_MOUSEBUTTONEVENT) && 
+				(event.button.state == SDL_PRESSED) ) {
+			center_x = event.button.x;
+			center_y = event.button.y;
 			break;
 		}
 	}
 
 	/* Save the screen */
-	white = win->Map_Color(0xFFFF, 0xFFFF, 0xFFFF);
-	saved = win->Grab_Area(0, 0, SCREEN_WIDTH-1, SCREEN_HEIGHT-1);
+	white = screen->MapRGB(0xFFFF, 0xFFFF, 0xFFFF);
+	saved = screen->GrabArea(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	/* As the box moves... */
 	width = height = 0;
@@ -57,41 +52,37 @@ int SelectMovieRect(void)
 		win->GetEvent(&event);
 
 		/* Check for escape key */
-		if ( event.type == KeyPress ) {
-			win->KeyToAscii(&event, buf, 127, &key);
-			if ( key == XK_Escape ) {
-				win->Set_Area(0, 0,
-					SCREEN_WIDTH-1, SCREEN_HEIGHT-1, saved);
-				delete[] saved;
-				win->Hide_Cursor();
-				win->Refresh();
-				return(0);
-			}
-			continue;
+		if ( (event.type == SDL_KEYEVENT) && 
+				(event.key.state == SDL_PRESSED) &&
+				(event.key.keysym.sym == SDL_ESCAPE) ) {
+			screen->QueueBlit(0, 0, saved, NOCLIP);
+			screen->Update();
+			screen->FreeImage(saved);
+			win->HideCursor();
+			return(0);
 		}
 
 		/* Check for ending button press */
 		if ( event.type == ButtonPress ) {
-			gMovieRect.left = center_x - width;
-			gMovieRect.right = center_x + width;
-			gMovieRect.top = center_y - height;
-			gMovieRect.bottom = center_y + height;
-			win->Set_Area(0, 0, SCREEN_WIDTH-1, SCREEN_HEIGHT-1,
-									saved);
-			delete[] saved;
-			win->Hide_Cursor();
-			win->Refresh();
+			gMovieRect.x = center_x - width;
+			gMovieRect.y = center_y - height;
+			gMovieRect.w = 2*width;
+			gMovieRect.h = 2*height;
+			screen->QueueBlit(0, 0, saved, NOCLIP);
+			screen->Update();
+			screen->FreeImage(saved);
+			win->HideCursor();
 			return(1);
 		}
 
 		if ( event.type == MotionNotify ) {
-			win->Set_Area(0, 0, SCREEN_WIDTH-1, SCREEN_HEIGHT-1,
-									saved);
-			width = abs(event.xmotion.x - center_x);
-			height = abs(event.xmotion.y - center_y);
-			win->DrawRectangle(center_x-width, center_y-height,
+			screen->QueueBlit(0, 0, saved, NOCLIP);
+			screen->Update();
+			width = abs(event.motion.x - center_x);
+			height = abs(event.motion.y - center_y);
+			screen->DrawRect(center_x-width, center_y-height,
 						2*width, 2*height, white);
-			win->Refresh();
+			screen->Update();
 		}
 	}
 	/* NEVERREACHED */
@@ -126,6 +117,8 @@ int	gWhenEnemy;
 
 // Local global variables;
 static MFont *geneva=NULL;
+static Uint32 ourGrey, ourWhite, ourBlack;
+static int text_height;
 
 // Local functions used in the game module of Maelstrom
 static void DoHouseKeeping(void);
@@ -139,43 +132,38 @@ static void TwinkleStars(void);
 
 void DrawStatus(Bool first, Bool ForceDraw)
 {
-	int             i;
-	static	int	nextDraw;
-	static  int	lastDisplayed;
+	static int nextDraw;
+	static int lastDisplayed;
 	int		Score;
-	static	int	lastScore, lastScores[MAX_PLAYERS];
-	static	int	lastWave;
+	static int	lastScore, lastScores[MAX_PLAYERS];
+	static int	lastWave;
 	int		Lives;
 	static	int	lastLives;
-	static	int	lastLife[MAX_PLAYERS];
+	static int	lastLife[MAX_PLAYERS];
 	int		Bonus;
-	static	int	lastBonus;
+	static int	lastBonus;
 	int		Frags;
 	static int	lastFrags;
 	int		AutoFire;
-	static	int	lastGun;
+	static int	lastGun;
 	int		AirBrakes;
-	static	int	lastBrakes;
+	static int	lastBrakes;
 	int		ShieldLevel;
-	static	int	lastShield;
+	static int	lastShield;
 	int		MultFactor;
-	static	int	lastMult;
+	static int	lastMult;
 	int		LongFire;
-	static	int	lastLong;
+	static int	lastLong;
 	int		TripleFire;
-	static	int	lastTriple;
+	static int	lastTriple;
 	int		LuckOfTheIrish;
-	static	int	lastLuck;
-	static	int	fragoff;
-	static	unsigned long ourGrey, ourWhite, ourBlack;
-	static  BitMap	*scoretext=NULL;
-	static  BitMap	*wavetext=NULL;
-	static  BitMap	*livestext=NULL;
-	static  BitMap	*bonustext=NULL;
-	static  BitMap	*fragstext=NULL;
-	static	BitMap	*disptext=NULL;
-	BitMap              *text;
-	char                 numbuf[128];
+	static int	lastLuck;
+	static int	fragoff;
+	static int score_width, wave_width;
+	static int lives_width, bonus_width;
+	static int frags_width;
+	int i;
+	char numbuf[128];
 
 	if (first) {
 		int x;
@@ -201,52 +189,37 @@ void DrawStatus(Bool first, Bool ForceDraw)
 		lastLong = -1;
 		lastTriple = -1;
 	
-		if ( ! geneva &&
-			((geneva = fontserv->New_Font("Geneva", 9)) == NULL) ) {
-			error("Can't use Geneva font! -- Exiting.\n");
-			exit(255);
-		}
-	
-/* -- Set up our colors */
-
-		ourGrey = win->Map_Color(30000, 30000, 0xFFFF);
-		ourWhite = win->Map_Color(0xFFFF, 0xFFFF, 0xFFFF);
-		ourBlack = win->Map_Color(0x0000, 0x0000, 0x0000);
-
-		win->DrawLine(0, gStatusLine, SCREEN_WIDTH-1, 
-							gStatusLine, ourWhite);
+		score_width = 0;
+		wave_width = 0;
+		lives_width = 0;
+		bonus_width = 0;
+		frags_width = 0;
 	
 /* -- Draw the status display */
 
-		text = fontserv->Text_to_BitMap("Score:", geneva, STYLE_BOLD);
+		screen->DrawLine(0, gStatusLine, SCREEN_WIDTH-1, 
+							gStatusLine, ourWhite);
 		x = 3;
-		DrawText(x, gStatusLine+11, text, ourGrey);
-		fontserv->Free_Text(text);
-		x += (fontserv->TextWidth("Score:", geneva, STYLE_BOLD)+70);
-		text = fontserv->Text_to_BitMap("Shield:", geneva, STYLE_BOLD);
-		DrawText(x, gStatusLine+11, text, ourGrey);
-		fontserv->Free_Text(text);
-		x += (fontserv->TextWidth("Shield:", geneva, STYLE_BOLD)+70);
-		text = fontserv->Text_to_BitMap("Wave:", geneva, STYLE_BOLD);
-		DrawText(x, gStatusLine+11, text, ourGrey);
-		fontserv->Free_Text(text);
-		x += (fontserv->TextWidth("Wave:", geneva, STYLE_BOLD)+30);
-		text = fontserv->Text_to_BitMap("Lives:", geneva, STYLE_BOLD);
-		DrawText(x, gStatusLine+11, text, ourGrey);
-		fontserv->Free_Text(text);
-		x += (fontserv->TextWidth("Lives:", geneva, STYLE_BOLD)+30);
-		text = fontserv->Text_to_BitMap("Bonus:", geneva, STYLE_BOLD);
-		DrawText(x, gStatusLine+11, text, ourGrey);
-		fontserv->Free_Text(text);
+		i = DrawText(x, gStatusLine+11, "Score:", geneva, STYLE_BOLD,
+						30000>>8, 30000>>8, 0xFF);
+		x += (i+70);
+		i = DrawText(x, gStatusLine+11, "Shield:", geneva, STYLE_BOLD,
+						30000>>8, 30000>>8, 0xFF);
+		x += (i+70);
+		i = DrawText(x, gStatusLine+11, "Wave:", geneva, STYLE_BOLD,
+						30000>>8, 30000>>8, 0xFF);
+		x += (i+30);
+		i = DrawText(x, gStatusLine+11, "Lives:", geneva, STYLE_BOLD,
+						30000>>8, 30000>>8, 0xFF);
+		x += (i+30);
+		DrawText(x, gStatusLine+11, "Bonus:", geneva, STYLE_BOLD,
+						30000>>8, 30000>>8, 0xFF);
 		/* Heh, DOOM style frag count */
 		if ( gNumPlayers > 1 ) {
 			x = 530;
-			text = fontserv->Text_to_BitMap("Frags:", geneva,
-								STYLE_BOLD);
-			DrawText(x, gStatusLine+11, text, ourGrey);
-			fontserv->Free_Text(text);
-			x += fontserv->TextWidth("Frags:", geneva, STYLE_BOLD);
-			fragoff = x+4;
+			i = DrawText(x, gStatusLine+11, "Frags:", geneva,
+					STYLE_BOLD, 30000>>8, 30000>>8, 0xFF);
+			fragoff = x+i+4;
 		}
 	}
 
@@ -255,22 +228,18 @@ void DrawStatus(Bool first, Bool ForceDraw)
 		/* -- Do incremental updates */
 	
 		if ( (gNumPlayers > 1) && (lastDisplayed != gDisplayed) ) {
-			char  buffer[BUFSIZ];
+			char caption[BUFSIZ];
 
 			lastDisplayed = gDisplayed;
-			if ( disptext ) {
-				UnDrawText(SPRITES_WIDTH, 11, disptext);
-				fontserv->Free_Text(disptext);
-			}
-			sprintf(buffer,
+			screen->FillRect(0, 0, SCREEN_WIDTH, 12, ourBlack);
+			sprintf(caption,
 				"You are player %d --- displaying player %d",
 						gOurPlayer+1, gDisplayed+1);
-			disptext = fontserv->Text_to_BitMap(buffer, geneva,
-								STYLE_BOLD);
-			DrawText(SPRITES_WIDTH, 11, disptext, ourGrey);
+			DrawText(SPRITES_WIDTH, 11, caption, geneva,
+					STYLE_BOLD, 30000>>8, 30000>>8, 0xFF);
 
 			/* Fill in the color by the frag count */
-			win->FillRectangle(518, gStatusLine+4, 4, 8,
+			screen->FillRect(518, gStatusLine+4, 4, 8,
 							TheShip->Color());
 		}
 
@@ -279,14 +248,13 @@ void DrawStatus(Bool first, Bool ForceDraw)
 			int	fact;
 
 			lastShield = ShieldLevel;
-			win->DrawRectangle(152, gStatusLine+4, SHIELD_WIDTH, 
+			screen->DrawRect(152, gStatusLine+4, SHIELD_WIDTH, 
 								8, ourWhite);
 			fact = ((SHIELD_WIDTH - 2) * ShieldLevel) / MAX_SHIELD;
-			win->FillRectangle(152+1,gStatusLine+4+1, fact, 6,
+			screen->FillRect(152+1,gStatusLine+4+1, fact, 6,
 								ourGrey);
-			win->FillRectangle(152+1+fact, gStatusLine+4+1,
-						SHIELD_WIDTH-2-fact, 6,
-								ourBlack);
+			screen->FillRect(152+1+fact, gStatusLine+4+1,
+					SHIELD_WIDTH-2-fact, 6, ourBlack);
 		}
 		
 		MultFactor = TheShip->GetBonusMult();
@@ -294,20 +262,20 @@ void DrawStatus(Bool first, Bool ForceDraw)
 			lastMult = MultFactor;
 		
 			switch (MultFactor) {
-				case 1:	win->FillRectangle(424,
+				case 1:	screen->FillRect(424,
 						gStatusLine+4, 8, 8, ourBlack);
 					break;
-				case 2:	BlitCIcon(424, 
-						gStatusLine+4, gMult2Icon);
+				case 2:	screen->QueueBlit(424, gStatusLine+4,
+							gMult2Icon, NOCLIP);
 					break;
-				case 3:	BlitCIcon(424, 
-						gStatusLine+4, gMult3Icon);
+				case 3:	screen->QueueBlit(424, gStatusLine+4,
+							gMult3Icon, NOCLIP);
 					break;
-				case 4:	BlitCIcon(424, 
-						gStatusLine+4, gMult4Icon);
+				case 4:	screen->QueueBlit(424, gStatusLine+4,
+							gMult4Icon, NOCLIP);
 					break;
-				case 5:	BlitCIcon(424, 
-						gStatusLine+4, gMult5Icon);
+				case 5:	screen->QueueBlit(424, gStatusLine+4,
+							gMult5Icon, NOCLIP);
 					break;
 				default:  /* WHAT? */
 					break;
@@ -321,10 +289,11 @@ void DrawStatus(Bool first, Bool ForceDraw)
 			lastGun = AutoFire;
 
 			if ( AutoFire > 0 ) {
-				BlitCIcon(438, gStatusLine+4, gAutoFireIcon);
+				screen->QueueBlit(438, gStatusLine+4,
+						gAutoFireIcon, NOCLIP);
 			} else {
-				win->FillRectangle(438,
-						gStatusLine+4, 8, 8, ourBlack);
+				screen->FillRect(438, gStatusLine+4, 8, 8,
+								ourBlack);
 			}
 		}
 	
@@ -333,10 +302,11 @@ void DrawStatus(Bool first, Bool ForceDraw)
 			lastBrakes = AirBrakes;
 
 			if ( AirBrakes > 0 ) {
-				BlitCIcon(454, gStatusLine+4, gAirBrakesIcon);
+				screen->QueueBlit(454, gStatusLine+4,
+						gAirBrakesIcon, NOCLIP);
 			} else {
-				win->FillRectangle(454,
-						gStatusLine+4, 8, 8, ourBlack);
+				screen->FillRect(454, gStatusLine+4, 8, 8,
+								ourBlack);
 			}
 		}
 	
@@ -345,11 +315,11 @@ void DrawStatus(Bool first, Bool ForceDraw)
 			lastLuck = LuckOfTheIrish;
 
 			if ( LuckOfTheIrish > 0 ) {
-				BlitCIcon(470, gStatusLine+4, 
-							gLuckOfTheIrishIcon);
+				screen->QueueBlit(470, gStatusLine+4, 
+						gLuckOfTheIrishIcon, NOCLIP);
 			} else {
-				win->FillRectangle(470,
-						gStatusLine+4, 8, 8, ourBlack);
+				screen->FillRect(470, gStatusLine+4, 8, 8,
+								ourBlack);
 			}
 		}
 	
@@ -358,10 +328,11 @@ void DrawStatus(Bool first, Bool ForceDraw)
 			lastTriple = TripleFire;
 
 			if ( TripleFire > 0 ) {
-				BlitCIcon(486, gStatusLine+4, gTripleFireIcon);
+				screen->QueueBlit(486, gStatusLine+4,
+						gTripleFireIcon, NOCLIP);
 			} else {
-				win->FillRectangle(486,
-						gStatusLine+4, 8, 8, ourBlack);
+				screen->FillRect(486, gStatusLine+4, 8, 8,
+								ourBlack);
 			}
 		}
 	
@@ -370,10 +341,11 @@ void DrawStatus(Bool first, Bool ForceDraw)
 			lastLong = LongFire;
 
 			if ( LongFire > 0 ) {
-				BlitCIcon(502, gStatusLine+4, gLongFireIcon);
+				screen->QueueBlit(502, gStatusLine+4,
+						gLongFireIcon, NOCLIP);
 			} else {
-				win->FillRectangle(502,
-						gStatusLine+4, 8, 8, ourBlack);
+				screen->FillRect(502, gStatusLine+4, 8, 8,
+								ourBlack);
 			}
 		}
 	
@@ -382,15 +354,13 @@ void DrawStatus(Bool first, Bool ForceDraw)
 			Score = gPlayers[i]->GetScore();
 	
 			if ( (i == gDisplayed) && (Score != lastScore) ) {
-				/* -- Draw the score */
-				if ( scoretext ) {
-					UnDrawText(45,gStatusLine+11,scoretext);
-					fontserv->Free_Text(scoretext);
-				}
+				/* -- Erase old and draw new score */
+				screen->FillRect(45, gStatusLine+1,
+					score_width, text_height, ourBlack);
 				sprintf(numbuf, "%d", Score);
-				scoretext = fontserv->Text_to_BitMap(numbuf,
-							geneva, STYLE_BOLD);
-				DrawText(45,gStatusLine+11,scoretext,ourWhite);
+				score_width = DrawText(45, gStatusLine+11, 
+						numbuf, geneva, STYLE_BOLD,
+							0xFF, 0xFF, 0xFF);
 				lastScore = Score;
 			}
 
@@ -403,67 +373,55 @@ void DrawStatus(Bool first, Bool ForceDraw)
 				gPlayers[i]->IncrLives(1);
 				lastLife[i] = (Score / NEW_LIFE) * NEW_LIFE;
 				if ( i == gOurPlayer )
-					sound->PlaySound(gNewLife, 5, NULL);
+					sound->PlaySound(gNewLife, 5);
 			}
 		}
 	
 		if (lastWave != gWave) {
-			if ( wavetext ) {
-				UnDrawText(255, gStatusLine+11, wavetext);
-				fontserv->Free_Text(wavetext);
-			}
-			lastWave = gWave;
+			screen->FillRect(255, gStatusLine+1,
+					wave_width, text_height, ourBlack);
 			sprintf(numbuf, "%d", gWave);
-			wavetext = fontserv->Text_to_BitMap(numbuf, geneva, 
-								STYLE_BOLD);
-			DrawText(255, gStatusLine+11, wavetext, ourWhite);
+			wave_width = DrawText(255, gStatusLine+11, 
+					numbuf, geneva, STYLE_BOLD,
+							0xFF, 0xFF, 0xFF);
+			lastWave = gWave;
 		}
 	
 		Lives = TheShip->GetLives();
 		if (lastLives != Lives) {
-			if ( livestext ) {
-				UnDrawText(319, gStatusLine+11, livestext);
-				fontserv->Free_Text(livestext);
-			}
-			lastLives = Lives;
+			screen->FillRect(319, gStatusLine+1,
+					lives_width, text_height, ourBlack);
 			sprintf(numbuf, "%-3.1d", Lives);
-			livestext = fontserv->Text_to_BitMap(numbuf, geneva, 
-								STYLE_BOLD);
-			DrawText(319, gStatusLine+11, livestext, ourWhite);
+			lives_width = DrawText(319, gStatusLine+11,
+					numbuf, geneva, STYLE_BOLD,
+							0xFF, 0xFF, 0xFF);
+			lastLives = Lives;
 		}
 	
 		Bonus = TheShip->GetBonus();
 		if (lastBonus != Bonus) {
-			if ( bonustext ) {
-				UnDrawText(384, gStatusLine+11, bonustext);
-				fontserv->Free_Text(bonustext);
-			}
-			lastBonus = Bonus;
+			screen->FillRect(384, gStatusLine+1,
+					bonus_width, text_height, ourBlack);
 			sprintf(numbuf, "%-7.1d", Bonus);
-			bonustext = fontserv->Text_to_BitMap(numbuf, geneva, 
-								STYLE_BOLD);
-			DrawText(384, gStatusLine+11, bonustext, ourWhite);
+			bonus_width = DrawText(384, gStatusLine+11,
+					numbuf, geneva, STYLE_BOLD,
+							0xFF, 0xFF, 0xFF);
+			lastBonus = Bonus;
 		}
 
 		if ( gNumPlayers > 1 ) {
 			Frags = TheShip->GetFrags();
 			if (lastFrags != Frags) {
-				if ( fragstext ) {
-					UnDrawText(fragoff, gStatusLine+11,
-								fragstext);
-					fontserv->Free_Text(fragstext);
-				}
-				lastFrags = Frags;
+				screen->FillRect(fragoff, gStatusLine+1,
+					frags_width, text_height, ourBlack);
 				sprintf(numbuf, "%-3.1d", Frags);
-				fragstext = fontserv->Text_to_BitMap(numbuf,
-							geneva, STYLE_BOLD);
-				DrawText(fragoff, gStatusLine+11, fragstext,
-								ourWhite);
+				frags_width = DrawText(fragoff, gStatusLine+11,
+						numbuf, geneva, STYLE_BOLD,
+							0xFF, 0xFF, 0xFF);
+				lastFrags = Frags;
 			}
 		}
 	}
-	win->RefreshArea(0, gStatusLine, 
-				gScrnRect.right-gScrnRect.left, STATUS_HEIGHT);
 }	/* -- DrawStatus */
 
 
@@ -487,11 +445,19 @@ void NewGame(void)
 		}
 	}
 
-#ifdef CRIPPLED_DEMO
-	mesg("Warning!!! This is DEMO code only!  DO NOT Release!!!!\n");
-#endif
-	win->Fade(FADE_STEPS);
-	win->Hide_Cursor();
+	/* Load the font and colors we use everywhere */
+	if ( (geneva = fontserv->NewFont("Geneva", 9)) == NULL ) {
+		error("Can't use Geneva font! -- Exiting.\n");
+		exit(255);
+	}
+	text_height = fontserv->TextHeight(geneva);
+	ourGrey = screen->MapRGB(30000>>8, 30000>>8, 0xFF);
+	ourWhite = screen->MapRGB(0xFF, 0xFF, 0xFF);
+	ourBlack = screen->MapRGB(0x00, 0x00, 0x00);
+
+	/* Fade into game mode */
+	screen->Fade();
+	screen->HideCursor();
 
 	/* Initialize some game variables */
 	gGameOn = 1;
@@ -506,13 +472,14 @@ void NewGame(void)
 	NextWave();
 
 	/* Play the game, dammit! */
-	while ((RunFrame() > 0) && gGameOn)
+	while ( (RunFrame() > 0) && gGameOn )
 		DoHouseKeeping();
 	
 /* -- Do the game over stuff */
 
 	DoGameOver();
-	win->Show_Cursor();
+	screen->ShowCursor();
+	delete geneva;
 }	/* -- NewGame */
 
 
@@ -578,10 +545,6 @@ static void DoHouseKeeping(void)
 			NextWave();
 	}
 	
-#ifdef CRIPPLED_DEMO
-	if ( ! TheShip->Alive() )
-		gGameOn = 0;
-#endif
 	/* -- Housekeping */
 	DrawStatus(false, false);
 }	/* -- DoHouseKeeping */
@@ -664,7 +627,7 @@ static void NextWave(void)
 	NewRoids = FastRandom(temp) + (gWave / 5) + 3;
 
 	/* -- Black the screen out and draw the wave */
-	win->Clear();
+	screen->Clear();
 
 	/* -- Kill any existing sprites */
 	while (gNumSprites > 0)
@@ -681,6 +644,7 @@ static void NextWave(void)
 	for ( index=gNumPlayers; index--; )
 		gPlayers[index]->NewWave();
 	DrawStatus(true, false);
+	screen->Update();
 
 	/* -- Create some asteroids */
 	for (index = 0; index < NewRoids; index++) {
@@ -699,13 +663,14 @@ static void NextWave(void)
 	}
 
 	/* -- Create the star field */
+	screen->FocusBG();
 	for ( index=0; index<MAX_STARS; ++index ) {
-		win->DrawBGPoint(gTheStars[index]->xCoord, 
+		screen->DrawPoint(gTheStars[index]->xCoord, 
 			gTheStars[index]->yCoord, gTheStars[index]->color);
-		win->RefreshArea(gTheStars[index]->xCoord,
-					gTheStars[index]->yCoord, 1, 1);
 	}
-	win->Fade(FADE_STEPS);
+	screen->Update(1);
+	screen->FocusFG();
+	screen->Fade();
 }	/* -- NextWave */
 
 /* ----------------------------------------------------------------- */
@@ -715,28 +680,28 @@ struct FinalScore {
 	int Player;
 	int Score;
 	int Frags;
-	};
+};
 
 static int cmp_byscore(const void *A, const void *B)
 {
-	return(((struct FinalScore *)B)->Score - ((struct FinalScore *)A)->Score);
+	return(((struct FinalScore *)B)->Score-((struct FinalScore *)A)->Score);
 }
 static int cmp_byfrags(const void *A, const void *B)
 {
-	return(((struct FinalScore *)B)->Frags - ((struct FinalScore *)A)->Frags);
+	return(((struct FinalScore *)B)->Frags-((struct FinalScore *)A)->Frags);
 }
 
 static void DoGameOver(void)
 {
-	struct	Title gameover;
-	MFont        *newyork;
-	BitMap       *text;
-	int	      xOff, yOff, index, x;
-	int	      which = -1, count, i;
-	char          handle[20];
-	int           chars_in_handle = 0;
-	Bool          done = false;
-	unsigned long clr;
+	SDL_Event event;
+	SDL_Surface *gameover;
+	MFont *newyork;
+	int newyork_height, w, x;
+	int which = -1, i;
+	char handle[20];
+	Uint8 key;
+	int chars_in_handle = 0;
+	Bool done = false;
 
 	/* Get the final scoring */
 	struct FinalScore *final = new struct FinalScore[gNumPlayers];
@@ -750,34 +715,33 @@ static void DoGameOver(void)
 	else
 		qsort(final,gNumPlayers,sizeof(struct FinalScore),cmp_byscore);
 
-	win->Fade(FADE_STEPS);
-	sound->HaltSounds();
+	screen->Fade();
+	sound->HaltSound();
 
 	/* -- Kill any existing sprites */
 	while (gNumSprites > 0)
 		delete gSprites[gNumSprites-1];
 
 	/* -- Clear the screen */
-	win->Clear();
+	screen->FillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ourBlack);
 
 	/* -- Draw the game over picture */
-	if ( Load_Title(&gameover, 128) < 0 ) {
+	gameover = Load_Title(screen, 128);
+	if ( gameover == NULL ) {
 		error("Can't load 'gameover' title!\n");
 		exit(255);
 	}
-	xOff = (SCREEN_WIDTH - gameover.width) / 2;
-	yOff = (SCREEN_HEIGHT - gameover.height) / 2;
-	win->Blit_Title(xOff, yOff-80, gameover.width, gameover.height,
-								gameover.data);
-	Free_Title(&gameover);
+	screen->QueueBlit((SCREEN_WIDTH-gameover->w)/2,
+			((SCREEN_HEIGHT-gameover->h)/2)-80, gameover, NOCLIP);
+	screen->FreeImage(gameover);
 
 	/* Show the player ranking */
 	if ( gNumPlayers > 1 ) {
-		clr = win->Map_Color(30000, 30000, 0xFFFF);
-		if ( (newyork = fontserv->New_Font("New York", 18)) == NULL ) {
+		if ( (newyork = fontserv->NewFont("New York", 18)) == NULL ) {
                         error("Can't use New York font! -- Exiting.\n");
                         exit(255);
                 }
+		newyork_height = fontserv->TextHeight(newyork);
 		for ( i=0; i<gNumPlayers; ++i ) {
 			char buffer[BUFSIZ], num1[12], num2[12];
 
@@ -785,33 +749,25 @@ static void DoGameOver(void)
 			sprintf(num2, "%3.1d", final[i].Frags);
 			sprintf(buffer, "Player %d: %-.7s Points, %-.3s Frags",
 						final[i].Player, num1, num2);
-			text = fontserv->Text_to_BitMap(buffer,
-							newyork, STYLE_NORM);
-			DrawText(160, 380+i*text->height, text, clr);
-			fontserv->Free_Text(text);
+			DrawText(160, 380+i*newyork_height, buffer,
+				newyork, STYLE_NORM, 30000>>8, 30000>>8, 0xFF);
 		}
-		fontserv->Free_Font(newyork);
+		delete newyork;
 	}
-	win->Flush(1);
+	screen->Update();
 
 	/* -- Play the game over sound */
-	sound->PlaySound(gGameOver, 5, NULL);
-	win->Fade(FADE_STEPS);
+	sound->PlaySound(gGameOver, 5);
+	screen->Fade();
 
-	while(sound->IsSoundPlaying(0))
+	while( sound->Playing() )
 		Delay(SOUND_DELAY);
-		
-#ifdef CRIPPLED_DEMO
-	mesg("Thanks for playing the Maelstrom95 DEMO!\n");
-	mesg(
-	"For comments, questions, please contact slouken@devolution.com\n");
-	exit(0);
-#else
+
 	/* -- See if they got a high score */
 	LoadScores();
-	for ( index = 0; index<10; index++ ) {
-		if ( OurShip->GetScore() > hScores[index].score ) {
-			which = index;
+	for ( i = 0; i<10; ++i ) {
+		if ( OurShip->GetScore() > hScores[i].score ) {
+			which = i;
 			break;
 		}
 	}
@@ -821,45 +777,39 @@ static void DoGameOver(void)
 
 	if ((which != -1) && (gStartLevel == 1) && (gStartLives == 3) &&
 					(gNumPlayers == 1) && !gDeathMatch ) {
-		sound->PlaySound(gBonusShot, 5, NULL);
-		for ( index = 8; index >= which; index-- ) {
-			hScores[index + 1].score = hScores[index].score;
-			hScores[index + 1].wave = hScores[index].wave;
-			strcpy(hScores[index+1].name, hScores[index].name);
+		sound->PlaySound(gBonusShot, 5);
+		for ( i = 8; i >= which ; --i ) {
+			hScores[i + 1].score = hScores[i].score;
+			hScores[i + 1].wave = hScores[i].wave;
+			strcpy(hScores[i+1].name, hScores[i].name);
 		}
 
 		/* -- Draw the "Enter your name" string */
-		clr = win->Map_Color(30000, 30000, 0xFFFF);
-		if ( (newyork = fontserv->New_Font("New York", 18)) == NULL ) {
+		if ( (newyork = fontserv->NewFont("New York", 18)) == NULL ) {
                         error("Can't use New York font! -- Exiting.\n");
                         exit(255);
                 }
-		text = fontserv->Text_to_BitMap("Enter your name: ", 
-							newyork, STYLE_NORM);
-		x = (SCREEN_WIDTH-(text->width*2))/2;
-		DrawText(x, 300, text, clr);
-		x += text->width;
-		fontserv->Free_Text(text);
+		newyork_height = fontserv->TextHeight(newyork);
+		x = (SCREEN_WIDTH-(fontserv->TextWidth("Enter your name: ",
+						newyork, STYLE_NORM)*2))/2;
+		x += DrawText(x, 300, "Enter your name: ",
+				newyork, STYLE_NORM, 30000>>8, 30000>>8, 0xFF);
+		screen->Update();
 
 		/* -- Let them enter their name */
-		clr = win->Map_Color(0xFFFF, 0xFFFF, 0xFFFF);
-		text = fontserv->Text_to_BitMap("", newyork, STYLE_NORM);
+		w = 0;
 		chars_in_handle = 0;
 
-		win->FlushEvents();
+		while ( screen->PollEvent(&event) ) /* Loop, flushing events */;
+		SDL_EnableUNICODE(1);
 		while ( !done ) {
-			char    buf[128];
-			XEvent	event;
-			KeySym  key;
-				
-			win->GetEvent(&event);
+			screen->WaitEvent(&event);
 
-			/* -- Handle key down's */
-			if ( event.type == KeyPress ) {
-				if ( ! (count=win->KeyToAscii(&event, buf, 127, &key)) ) {
-					continue;
-				}
-				switch ( buf[0]  ) {
+			/* -- Handle key down's (no UNICODE support) */
+			if ( event.type == SDL_KEYDOWN ) {
+				key = (Uint8)event.key.keysym.unicode;
+				switch ( key  ) {
+					case '\0':	// Ignore NUL char
 					case '\033':	// Ignore ESC char
 					case '\t':	// Ignore TAB too.
 						continue;
@@ -870,28 +820,29 @@ static void DoGameOver(void)
 					case 127:
 					case '\b':
 						if ( chars_in_handle ) {
-							sound->PlaySound(gExplosionSound, 5, NULL);
+							sound->PlaySound(gExplosionSound, 5);
 							--chars_in_handle;
 						}
 						break;
 					default:
 						if ( chars_in_handle < 15 ) {
-							sound->PlaySound(gShotSound, 5, NULL);
-							handle[chars_in_handle++] = buf[0];
+							sound->PlaySound(gShotSound, 5);
+							handle[chars_in_handle++] = (char)key;
 						} else
-							sound->PlaySound(gBonk, 5, NULL);
+							sound->PlaySound(gBonk, 5);
 						break;
 				}
-				UnDrawText(x, 300, text);
-				fontserv->Free_Text(text);
+				screen->FillRect(x, 300-newyork_height+2,
+						w, newyork_height, ourBlack);
 
 				handle[chars_in_handle] = '\0';
-				text = fontserv->Text_to_BitMap(handle,
-							newyork, STYLE_NORM);
-				DrawText(x, 300, text, clr);
+				w = DrawText(x, 300, handle,
+					newyork, STYLE_NORM, 0xFF, 0xFF, 0xFF);
+				screen->Update();
 			}
 		}
-		fontserv->Free_Font(newyork);
+		delete newyork;
+		SDL_EnableUNICODE(0);
 
 		/* In case the user just pressed <Return> */
 		handle[chars_in_handle] = '\0';
@@ -900,24 +851,22 @@ static void DoGameOver(void)
 		hScores[which].score = OurShip->GetScore();
 		strcpy(hScores[which].name, handle);
 
-		sound->HaltSounds();
-		sound->PlaySound(gGotPrize, 6, NULL);
+		sound->HaltSound();
+		sound->PlaySound(gGotPrize, 6);
 		if ( gNetScores )	// All time high!
 			RegisterHighScore(hScores[which]);
 		else
 			SaveScores();
 	} else
 	if ( gNumPlayers > 1 )	/* Let them watch their ranking */
-		sleep(3);
+		SDL_Delay(3000);
 
-	while (sound->IsSoundPlaying(0))
+	while ( sound->Playing() )
 		Delay(SOUND_DELAY);
 	HandleEvents(0);
-#endif /* CRIPPLED_DEMO */
 
-	win->Fade(FADE_STEPS);
+	screen->Fade();
 	gUpdateBuffer = true;
-	gFadeBack = true;
 }	/* -- DoGameOver */
 
 
@@ -926,59 +875,51 @@ static void DoGameOver(void)
 
 static void DoBonus(void)
 {
-	unsigned long clr, aWhite, aGray;
-	int           i, x, sw, xs, xt;
-	BitMap       *text, *score, *bonus;
-	char          numbuf[128];
+	int i, x, sw, xs, xt;
+	int bonus_width;
+	int score_width;
+	char numbuf[128];
 
 	DrawStatus(false, true);
+	screen->Update();
 
 	/* -- Now do the bonus */
-	sound->HaltSounds();
-	sound->PlaySound(gRiff, 6, NULL);
+	sound->HaltSound();
+	sound->PlaySound(gRiff, 6);
 
 	/* Fade out */
-	win->Fade(FADE_STEPS);
+	screen->Fade();
 
 	/* -- Clear the screen */
-	clr = win->Map_Color(0x0000, 0x0000, 0x0000);
-	win->FillRectangle(0, 0, SCREEN_WIDTH, gStatusLine-1, clr);
+	screen->FillRect(0, 0, SCREEN_WIDTH, gStatusLine-1, ourBlack);
 	
 
-	/* -- Draw the bonus scores */
-	aGray = win->Map_Color(30000, 30000, 0xFFFF);
-	aWhite = win->Map_Color(0xFFFF, 0xFFFF, 0xFFFF);
-	clr = win->Map_Color(0xFFFF, 0xFFFF, 0x0000);
-
+	/* -- Draw the wave completed message */
 	sprintf(numbuf, "Wave %d completed.", gWave);
-	text = fontserv->Text_to_BitMap(numbuf, geneva, STYLE_BOLD);
 	sw = fontserv->TextWidth(numbuf, geneva, STYLE_BOLD);
 	x = (SCREEN_WIDTH - sw) / 2;
-	DrawText(x,  150, text, clr);
-	fontserv->Free_Text(text);
+	DrawText(x,  150, numbuf, geneva, STYLE_BOLD, 0xFF, 0xFF, 0x00);
 
 	/* -- Draw the bonus */
-	text = fontserv->Text_to_BitMap("Bonus Score:     ",geneva,STYLE_BOLD);
 	sw = fontserv->TextWidth("Bonus Score:     ", geneva, STYLE_BOLD);
 	x = ((SCREEN_WIDTH - sw) / 2) - 20;
-	DrawText(x, 200, text, aGray);
-	fontserv->Free_Text(text);
+	DrawText(x, 200, "Bonus Score:     ", geneva, STYLE_BOLD,
+						30000>>8, 30000>>8, 0xFF);
 	xt = x+sw;
 
 	/* -- Draw the score */
-	text = fontserv->Text_to_BitMap("Score:     ", geneva, STYLE_BOLD);
 	sw = fontserv->TextWidth("Score:     ", geneva, STYLE_BOLD);
 	x = ((SCREEN_WIDTH - sw) / 2) - 3;
-	DrawText(x, 220, text, aGray);
-	fontserv->Free_Text(text);
+	DrawText(x, 220, "Score:     ", geneva, STYLE_BOLD,
+						30000>>8, 30000>>8, 0xFF);
 	xs = x+sw;
+	screen->Update();
 
 	/* Fade in */
-	win->Fade(FADE_STEPS);
-
-	while (sound->IsSoundPlaying(0))
+	screen->Fade();
+	while ( sound->Playing() )
 		Delay(SOUND_DELAY);
-	
+
 	/* -- Count the score down */
 	x = xs;
 
@@ -989,49 +930,44 @@ static void DoBonus(void)
 		}
 
 		if (OurShip->GetBonusMult() != 1) {
-			CSprite        *sprite;
+			SDL_Surface *sprite;
 
 			sprintf(numbuf, "%-5.1d", OurShip->GetBonus());
-			text = fontserv->Text_to_BitMap(numbuf, geneva,
-								STYLE_BOLD);
-			DrawText(x, 200, text, aWhite);
-			fontserv->Free_Text(text);
-
+			DrawText(x, 200, numbuf, geneva, STYLE_BOLD,
+							0xFF, 0xFF, 0xFF);
 			x += 75;
 			OurShip->MultBonus();
 			Delay(SOUND_DELAY);
-			sound->PlaySound(gMultiplier, 5, NULL);
+			sound->PlaySound(gMultiplier, 5);
 			sprite = gMult[OurShip->GetBonusMult()-2]->sprite[0];
-			win->Blit_CSprite(xs+34, 180, sprite);
+			screen->QueueBlit(xs+34, 180, sprite);
+			screen->Update();
 			Delay(60);
 		}
 	}
 	Delay(SOUND_DELAY);
-	sound->PlaySound(gFunk, 5, NULL);
+	sound->PlaySound(gFunk, 5);
 
 	sprintf(numbuf, "%-5.1d", OurShip->GetBonus());
-	bonus = fontserv->Text_to_BitMap(numbuf, geneva, STYLE_BOLD);
-	DrawText(x, 200, bonus, aWhite);
+	bonus_width = DrawText(x, 200, numbuf, geneva, STYLE_BOLD,
+							0xFF, 0xFF, 0xFF);
 	sprintf(numbuf, "%-5.1d", OurShip->GetScore());
-	score = fontserv->Text_to_BitMap(numbuf, geneva, STYLE_BOLD);
-	DrawText(xt, 220, score, aWhite);
-	win->Flush(1);
+	score_width = DrawText(xt, 220, numbuf, geneva, STYLE_BOLD,
+							0xFF, 0xFF, 0xFF);
+	screen->Update();
 	Delay(60);
 
 	/* -- Praise them or taunt them as the case may be */
 	if (OurShip->GetBonus() == 0) {
 		Delay(SOUND_DELAY);
-		sound->PlaySound(gNoBonus, 5, NULL);
-		while (sound->IsSoundPlaying(0))
-			Delay(SOUND_DELAY);
+		sound->PlaySound(gNoBonus, 5);
 	}
-
 	if (OurShip->GetBonus() > 10000) {
 		Delay(SOUND_DELAY);
-		sound->PlaySound(gPrettyGood, 5, NULL);
-		while (sound->IsSoundPlaying(0))
-			Delay(SOUND_DELAY);
+		sound->PlaySound(gPrettyGood, 5);
 	}
+	while ( sound->Playing() )
+		Delay(SOUND_DELAY);
 
 	/* -- Count the score down */
 	OBJ_LOOP(i, gNumPlayers) {
@@ -1043,68 +979,47 @@ static void DoBonus(void)
 			continue;
 		}
 
-		while (OurShip->GetBonus() > 500) {
-			HandleEvents(0);
-			while (sound->IsSoundPlaying(0))
+		while (OurShip->GetBonus() > 0) {
+			while ( sound->Playing() )
 				Delay(SOUND_DELAY);
-			/* Timing hack */
-			select_usleep(40000);
 
-			sound->PlaySound(gBonk, 5, NULL);
-			OurShip->IncrScore(500);
-			OurShip->IncrBonus(-500);
+			sound->PlaySound(gBonk, 5);
+			if ( OurShip->GetBonus() >= 500 ) {
+				OurShip->IncrScore(500);
+				OurShip->IncrBonus(-500);
+			} else {
+				OurShip->IncrScore(OurShip->GetBonus());
+				OurShip->IncrBonus(-OurShip->GetBonus());
+			}
 	
-			UnDrawText(x, 200, bonus);
-			fontserv->Free_Text(bonus);
+			screen->FillRect(x, 200-text_height+2,
+					bonus_width, text_height, ourBlack);
 			sprintf(numbuf, "%-5.1d", OurShip->GetBonus());
-			bonus = fontserv->Text_to_BitMap(numbuf, geneva,
-								STYLE_BOLD);
-			DrawText(x, 200, bonus, aWhite);
-			UnDrawText(xt, 220, score);
-			fontserv->Free_Text(score);
+			bonus_width = DrawText(x, 200, numbuf,
+					geneva, STYLE_BOLD, 0xFF, 0xFF, 0xFF);
+			screen->FillRect(xt, 220-text_height+2,
+					score_width, text_height, ourBlack);
 			sprintf(numbuf, "%-5.1d", OurShip->GetScore());
-			score = fontserv->Text_to_BitMap(numbuf, geneva, STYLE_BOLD);
-			DrawText(xt, 220, score, aWhite);
+			score_width = DrawText(xt, 220, numbuf,
+					geneva, STYLE_BOLD, 0xFF, 0xFF, 0xFF);
 
 			DrawStatus(false, true);
-			win->Flush(1);
+			screen->Update();
 		}
 	}
-	
-	while (sound->IsSoundPlaying(0))
+	while ( sound->Playing() )
 		Delay(SOUND_DELAY);
-	sound->PlaySound(gBonk, 5, NULL);
-
-	OurShip->IncrScore(OurShip->GetBonus());
-	OurShip->IncrBonus(-OurShip->GetBonus());
-	UnDrawText(x, 200, bonus);
-	fontserv->Free_Text(bonus);
-	sprintf(numbuf, "%-5.1d", OurShip->GetBonus());	// Duh, this is 0.
-	bonus = fontserv->Text_to_BitMap(numbuf, geneva, STYLE_BOLD);
-	DrawText(x, 200, bonus, aWhite);
-	fontserv->Free_Text(bonus);
-	UnDrawText(xt, 220, score);
-	fontserv->Free_Text(score);
-	sprintf(numbuf, "%-5.1d", OurShip->GetScore());
-	score = fontserv->Text_to_BitMap(numbuf, geneva, STYLE_BOLD);
-	DrawText(xt, 220, score, aWhite);
-	fontserv->Free_Text(score);
-	DrawStatus(false, true);
-	win->Flush(1);
 	HandleEvents(10);
-
 
 	/* -- Draw the "next wave" message */
 	sprintf(numbuf, "Prepare for Wave %d...", gWave+1);
-	text = fontserv->Text_to_BitMap(numbuf, geneva, STYLE_BOLD);
 	sw = fontserv->TextWidth(numbuf, geneva, STYLE_BOLD);
 	x = (SCREEN_WIDTH - sw)/2;
-	DrawText(x, 259, text, clr);
-	fontserv->Free_Text(text);
-	win->Flush(1);
+	DrawText(x, 259, numbuf, geneva, STYLE_BOLD, 0xFF, 0xFF, 0x00);
+	screen->Update();
 	HandleEvents(100);
 
-	win->Fade(FADE_STEPS);
+	screen->Fade();
 }	/* -- DoBonus */
 
 
@@ -1113,21 +1028,18 @@ static void DoBonus(void)
 
 static void TwinkleStars(void)
 {
-	unsigned long black;
-	int	      theStar;
+	int theStar;
 
 	theStar = FastRandom(MAX_STARS);
 
 	/* -- Draw the star */
-	black = win->Map_Color(0x0000, 0x0000, 0x0000);
-	win->DrawBGPoint(gTheStars[theStar]->xCoord, 
-					gTheStars[theStar]->yCoord, black);
-	win->RefreshArea(gTheStars[theStar]->xCoord,
-					gTheStars[theStar]->yCoord, 1, 1);
+	screen->FocusBG();
+	screen->DrawPoint(gTheStars[theStar]->xCoord, 
+					gTheStars[theStar]->yCoord, ourBlack);
 	SetStar(theStar);
-	win->DrawBGPoint(gTheStars[theStar]->xCoord, 
+	screen->DrawPoint(gTheStars[theStar]->xCoord, 
 			gTheStars[theStar]->yCoord, gTheStars[theStar]->color);
-	win->RefreshArea(gTheStars[theStar]->xCoord,
-					gTheStars[theStar]->yCoord, 1, 1);
+	screen->Update(1);
+	screen->FocusFG();
 }	/* -- TwinkleStars */
 

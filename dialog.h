@@ -1,18 +1,9 @@
 
 #include <stdio.h>
-#include <string.h>
-#include <unistd.h>
+#include <stdarg.h>
 
-#ifdef __WIN95__
-#include <windows.h>
-#endif
-
-/* From shared.cc */
-extern void select_usleep(unsigned long usec);
-
-#include "Sprite.h"
-#include "fontserv.h"
-#include "framebuf.h"
+#include "SDL_FrameBuf.h"
+#include "Mac_FontServ.h"
 
 /*  This is a class set for Macintosh-like dialogue boxes. :) */
 /*  Sorta complex... */
@@ -25,218 +16,231 @@ extern void select_usleep(unsigned long usec);
 #define BOX_WIDTH	170
 #define BOX_HEIGHT	20
 
-class Dialog {
+#define EXPAND_STEPS	50
+
+class Mac_Dialog {
 
 public:
-	Dialog(FrameBuf *win, int x, int y);
+	Mac_Dialog(int x, int y) {
+		Screen = NULL;
+		X = x;
+		Y = y;
+		button_callback = NULL;
+		key_callback = NULL;
+		errstr = NULL;
+	}
+	virtual ~Mac_Dialog() { }
 
-	virtual void SetButtonPress(void (*new_button_callback)(int x, int y,
-						int button, int *doneflag)) {
+	/* Input handling */
+	virtual void SetButtonPress(void (*new_button_callback)
+				(int x, int y, int button, int *doneflag)) {
 		button_callback = new_button_callback;
 	}
 	virtual void HandleButtonPress(int x, int y, int button, 
 							int *doneflag) {
-		(*button_callback)(x, y, button, doneflag);
+		if ( button_callback ) {
+			(*button_callback)(x, y, button, doneflag);
+		}
 	}
-	virtual void SetKeyPress(void (*new_key_callback)(KeySym key,
-							int *doneflag)) {
+	virtual void SetKeyPress(void (*new_key_callback)
+				(SDL_keysym key, int *doneflag)) {
 		key_callback = new_key_callback;
 	}
-	virtual void HandleKeyPress(KeySym key, int *doneflag) {
-		(*key_callback)(key, doneflag);
+	virtual void HandleKeyPress(SDL_keysym key, int *doneflag) {
+		if ( key_callback ) {
+			(*key_callback)(key, doneflag);
+		}
+	}
+
+	/* Display handling */
+	virtual void Map(int Xoff, int Yoff, FrameBuf *screen,
+				Uint8 R_bg, Uint8 G_bg, Uint8 B_bg,
+				Uint8 R_fg, Uint8 G_fg, Uint8 B_fg) {
+		X += Xoff;
+		Y += Yoff;
+		Screen = screen;
+	}
+	virtual void Show(void) {
+	}
+
+	/* Error message routine */
+	virtual char *Error(void) {
+		return(errstr);
 	}
 
 protected:
-	FrameBuf *Win;
+	FrameBuf *Screen;
 	int  X, Y;
 	void (*button_callback)(int x, int y, int button, int *doneflag);
-	void (*key_callback)(KeySym key, int *doneflag);
+	void (*key_callback)(SDL_keysym key, int *doneflag);
 
-	// Utility routines for dialogs
-	int IsSensitive(Rect *RecT, int x, int y) {
-		if ( (y > RecT->top) && (y < RecT->bottom) &&
-	    	     (x > RecT->left) && (x < RecT->right) )
+	/* Utility routines for dialogs */
+	int IsSensitive(SDL_Rect *area, int x, int y) {
+		if ( (y > area->y) && (y < (area->y+area->h)) &&
+	    	     (x > area->x) && (x < (area->x+area->w)) )
 			return(1);
 		return(0);
 	}
 
+	/* Error message */
+	virtual void SetError(char *fmt, ...) {
+		va_list ap;
+
+		va_start(ap, fmt);
+		vsprintf(errbuf, fmt, ap);
+		va_end(ap);
+		errstr = errbuf;
+        }
+	char *errstr;
+	char  errbuf[1024];
 };
 
-
-/* Macro to set a bit in a bytely scanline */
-#ifdef DEBUG
-#define SETBIT(scanline, i, bit) \
-		{ \
-			if ( bit << (7 - (i)%8) ) \
-				printf("X"); \
-			else \
-				printf(" "); \
-			(scanline[(i)/8] |= bit << (7 - (i)%8)); \
-		} 
-#else
-#define SETBIT(scanline, i, bit) \
-		(scanline[(i)/8] |= bit << (7 - (i)%8))
-#endif /* DEBUG */
 
 /* The button callbacks should return 1 if they finish the dialog,
    or 0 if they do not.
 */
 
-class Mac_Button : public Dialog {
+class Mac_Button : public Mac_Dialog {
 
 public:
-	Mac_Button(FrameBuf *win, int x, int y, int width, int height,
+	Mac_Button(int x, int y, int width, int height,
 				char *text, MFont *font, FontServ *fontserv, 
-				unsigned long fg, unsigned long bg, 
-				int (*callback)(void)) : Dialog(win, x, y) {
-		int            i;
-		unsigned char *byte_map;
+				int (*callback)(void)) : Mac_Dialog(x, y) {
+		SDL_Surface *textb;
+		SDL_Rect dstrect;
 
-		/* Build sensitivity area */
+		/* Set private variables */
 		Width = width;
 		Height = height;
-		sensitive.left = x;
-		sensitive.top  = y;
-		sensitive.right = x+Width;
-		sensitive.bottom = y+Height;
 
-		/* Build bitmap of the button */
-		byte_map = new unsigned char[Width*Height];
-		memset(byte_map, 0, Width*Height);
-		Bevel_ByteMap(byte_map, Width, Height);
-		button_map = ByteMap_to_BitMap(byte_map, Width, Height);
-		for ( i=0; i<(Width*Height); ++i )
-			byte_map[i] = (byte_map[i] ? 0x00 : 0x01);
-		Bevel_ByteMap(byte_map, Width, Height);
-		invert_map = ByteMap_to_BitMap(byte_map, Width, Height);
-		/* Display the Button */
-		Fontserv = fontserv;
-		label = Fontserv->Text_to_BitMap(text, font, STYLE_NORM);
-		Fg = fg;
-		Bg = bg;
-		Win->Blit_BitMap(X, Y, Width, Height, invert_map, Bg);
-		Win->Blit_BitMap(X, Y, Width, Height, button_map, Fg);
-		Win->Blit_BitMap(X+(Width-label->width)/2, Y+2, 
-				label->width, label->height, label->bits, Fg);
+		/* Build image of the button */
+		button = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height,
+							8, 0, 0, 0, 0);
+		if ( button == NULL ) {
+			SetError("%s", SDL_GetError());
+			return;
+		}
+		button->format->palette->colors[0].r = 0xFF;
+		button->format->palette->colors[0].g = 0xFF;
+		button->format->palette->colors[0].b = 0xFF;
+		button->format->palette->colors[1].r = 0x00;
+		button->format->palette->colors[1].g = 0x00;
+		button->format->palette->colors[1].b = 0x00;
+		textb = fontserv->TextImage(text, font, STYLE_NORM,
+						0x00, 0x00, 0x00);
+		if ( textb != NULL ) {
+			if ( (textb->w <= button->w) && 
+						(textb->h <= button->h) ) {
+				dstrect.x = (button->w-textb->w)/2;
+				dstrect.y = (button->h-textb->h)/2;
+				dstrect.w = textb->w;
+				dstrect.h = textb->h;
+				SDL_BlitSurface(textb, NULL, button, &dstrect);
+			}
+			fontserv->FreeText(textb);
+		}
+		Bevel_Button(button);
+
 		/* Set the callback */
 		Callback = callback;
-
-		/* Clean up and return */
-		delete[] byte_map;
 	}
-
 	virtual ~Mac_Button() {
-		delete[] button_map;
-		delete[] invert_map;
-		Fontserv->Free_Text(label);
+		SDL_FreeSurface(button);
 	}
-		
+
+	virtual void Map(int Xoff, int Yoff, FrameBuf *screen,
+				Uint8 R_bg, Uint8 G_bg, Uint8 B_bg,
+				Uint8 R_fg, Uint8 G_fg, Uint8 B_fg) {
+		/* Do the normal dialog mapping */
+		Mac_Dialog::Map(Xoff, Yoff, screen,
+				R_bg, G_bg, B_bg, R_fg, G_fg, B_fg);
+
+		/* Set up the button sensitivity */
+		sensitive.x = X;
+		sensitive.y  = Y;
+		sensitive.w = Width;
+		sensitive.h = Height;
+
+		/* Map the bitmap image */
+		button->format->palette->colors[0].r = R_bg;
+		button->format->palette->colors[0].g = G_bg;
+		button->format->palette->colors[0].b = B_bg;
+		button->format->palette->colors[1].r = R_fg;
+		button->format->palette->colors[1].g = G_fg;
+		button->format->palette->colors[1].b = B_fg;
+	}
+	virtual void Show(void) {
+		Screen->QueueBlit(X, Y, button, NOCLIP);
+	}
+
 	virtual void HandleButtonPress(int x, int y, int button, 
 							int *doneflag) {
-		Unused(button);		/* Default callback ignores button */
-
 		if ( IsSensitive(&sensitive, x, y) )
 			ActivateButton(doneflag);
 	}
 
 protected:
-	int            Width, Height;
-	BitMap        *label;
-	FontServ      *Fontserv;
-	unsigned long  Fg, Bg;
-	unsigned char *button_map;
-	unsigned char *invert_map;
-	Rect           sensitive;
-	int          (*Callback)(void);
+	int Width, Height;
+	SDL_Surface *button;
+	SDL_Rect sensitive;
+	int (*Callback)(void);
 
-	void ActivateButton(int *doneflag) {
-		Win->Blit_BitMap(X, Y, Width, Height, invert_map, Fg);
-		Win->Blit_BitMap(X+(Width-label->width)/2, Y+2, 
-				label->width, label->height, label->bits, Bg);
-		Win->Flush(1);
-		select_usleep(50000);
-		Win->Blit_BitMap(X, Y, Width, Height, invert_map, Bg);
-		Win->Blit_BitMap(X, Y, Width, Height, button_map, Fg);
-		Win->Blit_BitMap(X+(Width-label->width)/2, Y+2, 
-				label->width, label->height, label->bits, Fg);
-		Win->Flush(1);
+	virtual void Bevel_Button(SDL_Surface *image) {
+		Uint16 h;
+		Uint8 *image_bits;
+
+		image_bits = (Uint8 *)image->pixels;
+
+		/* Bevel upper corners */
+		memset(image_bits+3, 0x01, image->w-6);
+		image_bits += image->pitch;
+		memset(image_bits+1, 0x01, 2);
+		memset(image_bits+image->w-3, 0x01, 2);
+		image_bits += image->pitch;
+		memset(image_bits+1, 0x01, 1);
+		memset(image_bits+image->w-2, 0x01, 1);
+		image_bits += image->pitch;
+
+		/* Draw sides */
+		for ( h=3; h<(image->h-3); ++h ) {
+			image_bits[0] = 0x01;
+			image_bits[image->w-1] = 0x01;
+			image_bits += image->pitch;
+		}
+
+		/* Bevel bottom corners */
+		memset(image_bits+1, 0x01, 1);
+		memset(image_bits+image->w-2, 0x01, 1);
+		image_bits += image->pitch;
+		memset(image_bits+1, 0x01, 2);
+		memset(image_bits+image->w-3, 0x01, 2);
+		image_bits += image->pitch;
+		memset(image_bits+3, 0x01, image->w-6);
+	}
+	virtual void InvertImage(void) {
+		int i;
+		Uint8 *buf;
+
+		for ( i=button->h*button->pitch, buf=(Uint8 *)button->pixels;
+							i > 0; --i, ++buf ) {
+			*buf = !*buf;
+		}
+	}
+	virtual void ActivateButton(int *doneflag) {
+		/* Flash the button */
+		InvertImage();
+		Show();
+		Screen->Update();
+		SDL_Delay(50);
+		InvertImage();
+		Show();
+		Screen->Update();
+
+		/* Run the callback */
 		if ( Callback )
-			*doneflag = Callback();
+			*doneflag = (*Callback)();
 		else
 			*doneflag = 1;
-	}
-
-	// Utility Functions:
-	void Bevel_ByteMap(unsigned char *byte_map, int width, int height) {
-		/* Blast the crude outline */
-		for ( int i=0; i<height; ++i ) {
-			if ( (i < 3) || ((height-i-1) < 3) ) {
-				int row;
-				if ( (height-i-1) < 3 )
-					row = height-i-1;
-				else
-					row = i;
-				switch (row) {
-					case 0:
-				memset(&byte_map[i*width], 0x01, width);
-						break;
-					case 1:
-				memset(&byte_map[i*width], 0x01, 3);
-				memset(&byte_map[i*width+width-3], 0x01, 3);
-						break;
-					case 2:
-				memset(&byte_map[i*width], 0x01, 2);
-				memset(&byte_map[i*width+width-2], 0x01, 2);
-						break;
-				}
-			} else {
-				byte_map[i*width] = 0x01;
-				byte_map[i*width+width-1] = 0x01;
-			}
-		}
-
-		/* Now mask the corners */
-
-		/* Left upper corner */
-		byte_map[0] = 0x00;
-		byte_map[1] = 0x00;
-		byte_map[2] = 0x00;
-		byte_map[width] = 0x00;
-		byte_map[2*width] = 0x00;
-		/* Right upper corner */
-		byte_map[width-3] = 0x00;
-		byte_map[width-2] = 0x00;
-		byte_map[width-1] = 0x00;
-		byte_map[2*width-1] = 0x00;
-		byte_map[3*width-1] = 0x00;
-		/* Left lower corner */
-		byte_map[(height-3)*width] = 0x00;
-		byte_map[(height-2)*width] = 0x00;
-		byte_map[(height-1)*width] = 0x00;
-		byte_map[(height-1)*width+1] = 0x00;
-		byte_map[(height-1)*width+2] = 0x00;
-		/* Right lower corner */
-		byte_map[(height-2)*width-1] = 0x00;
-		byte_map[(height-1)*width-1] = 0x00;
-		byte_map[height*width-1] = 0x00;
-		byte_map[height*width-2] = 0x00;
-		byte_map[height*width-3] = 0x00;
-	}
-	unsigned char *ByteMap_to_BitMap(unsigned char *byte_map, 
-						int width, int height) {
-		unsigned char *bitmap=new unsigned char[((width/8)+1)*height];
-
-		memset(bitmap, 0, ((width/8)+1)*height);
-		for ( int row=0; row<height; ++row ) {
-			for ( int col=0; col<width; ++col ) {
-				int offset = row*width+col;
-				SETBIT(bitmap, offset, byte_map[offset]);
-			}
-#ifdef DEBUG
-			printf("\n");
-#endif
-		}
-		return(bitmap);
 	}
 };
 
@@ -246,283 +250,355 @@ protected:
 class Mac_DefaultButton : public Mac_Button {
 
 public:
-	Mac_DefaultButton(FrameBuf *win, int x, int y, int width, int height,
+	Mac_DefaultButton(int x, int y, int width, int height,
 				char *text, MFont *font, FontServ *fontserv, 
-				unsigned long fg, unsigned long bg, 
-				int (*callback)(void)) : 
-Mac_Button(win, x, y, width, height, text, font, fontserv, fg, bg, callback) {
-		ThickBevel(Win, X, Y, Width, Height, Fg);
+						int (*callback)(void)) : 
+	Mac_Button(x, y, width, height, text, font, fontserv, callback) {
 	}
+	virtual ~Mac_DefaultButton() { }
 
-	virtual void HandleKeyPress(KeySym key, int *doneflag) {
-		if ( key == XK_Return )
+	virtual void HandleKeyPress(SDL_keysym key, int *doneflag) {
+		if ( key.sym == SDLK_RETURN )
 			ActivateButton(doneflag);
 	}
 
-protected:
-	// More Utility routines...
-	void ThickBevel(FrameBuf *win, int x, int y, int width, int height,
-							unsigned long color) {
-		/* Expand outward.. */
-		x -= 4;
-		width += 8;
-		y -= 4;
-		height += 8;
-
-		/* Start doin' the blimey thing! :) */
-		win->DrawLine(x+5, y, x+width-5, y, color);
-		win->DrawLine(x+3, y+1, x+width-3, y+1, color);
-		win->DrawLine(x+2, y+2, x+width-2, y+2, color);
-		win->DrawLine(x+1, y+3, x+6, y+3, color);
-		win->DrawLine(x+width-1-5, y+3, x+width-1, y+3, color);
-		win->DrawLine(x+1, y+4, x+4, y+4, color);
-		win->DrawLine(x+width-1-3, y+4, x+width-1, y+4, color);
-		win->DrawLine(x, y+5, x+4, y+5, color);
-		win->DrawLine(x+width-1-3, y+5, x+width, y+5, color);
-
-		win->DrawLine(x, y+6, x, y+height-6, color);
-		win->DrawLine(x+width-1, y+6, x+width-1, y+height-6, color);
-		win->DrawLine(x+1, y+6, x+1, y+height-6, color);
-		win->DrawLine(x+width-1-1, y+6, x+width-1-1, y+height-6,color);
-		win->DrawLine(x+2, y+6, x+2, y+height-6, color);
-		win->DrawLine(x+width-1-2, y+6, x+width-1-2, y+height-6,color);
-
-		win->DrawLine(x, y+height-1-5, x+4, y+height-1-5, color);
-		win->DrawLine(x+width-1-3, y+height-1-5, x+width, 
-							y+height-1-5, color);
-		win->DrawLine(x+1, y+height-1-4, x+4, y+height-1-4, color);
-		win->DrawLine(x+width-1-3, y+height-1-4, x+width-1, 
-							y+height-1-4, color);
-		win->DrawLine(x+1, y+height-1-3, x+6, y+height-1-3, color);
-		win->DrawLine(x+width-1-5, y+height-1-3, x+width-1, 
-							y+height-1-3, color);
-		win->DrawLine(x+2, y+height-1-2,x+width-2, y+height-1-2,color);
-		win->DrawLine(x+3, y+height-1-1,x+width-3, y+height-1-1,color);
-		win->DrawLine(x+5, y+height-1, x+width-5, y+height-1, color);
-
-		/* Ahh, a refreshing return. */
-		win->RefreshArea(x, y, width, height);
+	virtual void Map(int Xoff, int Yoff, FrameBuf *screen,
+				Uint8 R_bg, Uint8 G_bg, Uint8 B_bg,
+				Uint8 R_fg, Uint8 G_fg, Uint8 B_fg) {
+		Mac_Button::Map(Xoff, Yoff, screen,
+				R_bg, G_bg, B_bg, R_fg, G_fg, B_fg);
+		Fg = Screen->MapRGB(R_fg, G_fg, B_fg);
 	}
+	virtual void Show(void) {
+		int x, y, maxx, maxy;
+
+		/* Show the normal button */
+		Mac_Button::Show();
+
+		/* Show the thick edge */
+		x = X-4;
+		maxx = x+4+Width+4-1;
+		y = Y-4;
+		maxy = y+4+Height+4-1;
+
+		Screen->DrawLine(x+5, y, maxx-5, y, Fg);
+		Screen->DrawLine(x+3, y+1, maxx-3, y+1, Fg);
+		Screen->DrawLine(x+2, y+2, maxx-2, y+2, Fg);
+		Screen->DrawLine(x+1, y+3, x+5, y+3, Fg);
+		Screen->DrawLine(maxx-5, y+3, maxx-1, y+3, Fg);
+		Screen->DrawLine(x+1, y+4, x+3, y+4, Fg);
+		Screen->DrawLine(maxx-3, y+4, maxx-1, y+4, Fg);
+		Screen->DrawLine(x, y+5, x+3, y+5, Fg);
+		Screen->DrawLine(maxx-3, y+5, maxx, y+5, Fg);
+
+		Screen->DrawLine(x, y+6, x, maxy-6, Fg);
+		Screen->DrawLine(maxx, y+6, maxx, maxy-6, Fg);
+		Screen->DrawLine(x+1, y+6, x+1, maxy-6, Fg);
+		Screen->DrawLine(maxx-1, y+6, maxx-1, maxy-6, Fg);
+		Screen->DrawLine(x+2, y+6, x+2, maxy-6, Fg);
+		Screen->DrawLine(maxx-2, y+6, maxx-2, maxy-6, Fg);
+
+		Screen->DrawLine(x, maxy-5, x+3, maxy-5, Fg);
+		Screen->DrawLine(maxx-3, maxy-5, maxx, maxy-5, Fg);
+		Screen->DrawLine(x+1, maxy-4, x+3, maxy-4, Fg);
+		Screen->DrawLine(maxx-3, maxy-4, maxx-1, maxy-4, Fg);
+		Screen->DrawLine(x+1, maxy-3, x+5, maxy-3, Fg);
+		Screen->DrawLine(maxx-5, maxy-3, maxx-1, maxy-3, Fg);
+		Screen->DrawLine(x+2, maxy-2, maxx-2, maxy-2, Fg);
+		Screen->DrawLine(x+3, maxy-1, maxx-3, maxy-1, Fg);
+		Screen->DrawLine(x+5, maxy, maxx-5, maxy, Fg);
+	}
+
+protected:
+	Uint32 Fg;		/* The foreground color of the dialog */
+
 };
 
 /* Class of checkboxes */
 
 #define CHECKBOX_SIZE	12
 
-class CheckBox : public Dialog {
+class Mac_CheckBox : public Mac_Dialog {
 
 public:
-	CheckBox(FrameBuf *win, int x, int y, char *text, MFont *font, 
-		FontServ *fontserv, unsigned long fg, unsigned long bg, 
-					int *toggle) : Dialog(win, x, y) {
-		BitMap *textBM;
+	Mac_CheckBox(int *toggle, int x, int y, char *text,
+			MFont *font, FontServ *fontserv) : Mac_Dialog(x, y) {
+		/* Create the text label */
+		Fontserv = fontserv;
+		label = Fontserv->TextImage(text, font, STYLE_NORM, 0, 0, 0);
 
-		sensitive.left = X;
-		sensitive.top = Y;
-		sensitive.right = X+CHECKBOX_SIZE;
-		sensitive.bottom = Y+CHECKBOX_SIZE;
-		Fg = fg;
-		Bg = bg;
-		Win->DrawRectangle(X, Y, CHECKBOX_SIZE, CHECKBOX_SIZE, Fg);
-		textBM = fontserv->Text_to_BitMap(text, font, STYLE_NORM);
-		Win->Blit_BitMap(X+CHECKBOX_SIZE+4, Y-2, textBM->width,
-					textBM->height, textBM->bits, Fg);
-		togglevar = toggle;
-		Update_Toggle();
-		fontserv->Free_Text(textBM);
+		/* Set the checkbox variable */
+		checkval = toggle;
+	}
+	virtual ~Mac_CheckBox() {
+		if ( label ) {
+			Fontserv->FreeText(label);
+		}
 	}
 
 	virtual void HandleButtonPress(int x, int y, int button, 
 							int *doneflag) {
-		Unused(button);		/* Default callback ignores button */
-		Unused(doneflag);	/* Callback doesn't set doneflag */
-
 		if ( IsSensitive(&sensitive, x, y) ) {
-			if ( *togglevar )
-				*togglevar = 0;
-			else
-				*togglevar = 1;
-			Update_Toggle();
-			Win->RefreshArea(X, Y, CHECKBOX_SIZE, CHECKBOX_SIZE);
+			*checkval = !*checkval;
+			Check_Box(*checkval);
+			Screen->Update();
 		}
 	}
 
+	virtual void Map(int Xoff, int Yoff, FrameBuf *screen,
+				Uint8 R_bg, Uint8 G_bg, Uint8 B_bg,
+				Uint8 R_fg, Uint8 G_fg, Uint8 B_fg) {
+		/* Do the normal dialog mapping */
+		Mac_Dialog::Map(Xoff, Yoff, screen,
+				R_bg, G_bg, B_bg, R_fg, G_fg, B_fg);
+
+		/* Set up the checkbox sensitivity */
+		sensitive.x = X;
+		sensitive.y = Y;
+		sensitive.w = CHECKBOX_SIZE;
+		sensitive.h = CHECKBOX_SIZE;
+
+		/* Get the screen colors */
+		Fg = Screen->MapRGB(R_fg, G_fg, B_fg);
+		Bg = Screen->MapRGB(R_bg, G_bg, B_bg);
+
+		/* Map the checkbox text */
+		label->format->palette->colors[1].r = R_fg;
+		label->format->palette->colors[1].g = G_fg;
+		label->format->palette->colors[1].b = B_fg;
+	}
+	virtual void Show(void) {
+		Screen->DrawRect(X, Y, CHECKBOX_SIZE, CHECKBOX_SIZE, Fg);
+		if ( label ) {
+			Screen->QueueBlit(X+CHECKBOX_SIZE+4, Y-2, label,NOCLIP);
+		}
+		Check_Box(*checkval);
+	}
+
 private:
-	unsigned long Fg, Bg;
-	int          *togglevar;
-	Rect          sensitive;
+	FontServ *Fontserv;
+	SDL_Surface *label;
+	Uint32 Fg, Bg;
+	int *checkval;
+	SDL_Rect sensitive;
 
-	void Update_Toggle(void) {
-		unsigned long color;
+	void Check_Box(int checked) {
+		Uint32 color;
 
-		if ( *togglevar )
+		if ( checked )
 			color = Fg;
 		else
 			color = Bg;
 
-		Win->DrawLine(X+1, Y+1, X+CHECKBOX_SIZE,
-						Y+CHECKBOX_SIZE, color);
-		Win->DrawLine(X+CHECKBOX_SIZE-1, Y+1, X, 
-						Y+CHECKBOX_SIZE, color);
+		Screen->DrawLine(X, Y,
+				X+CHECKBOX_SIZE-1, Y+CHECKBOX_SIZE-1, color);
+		Screen->DrawLine(X, Y+CHECKBOX_SIZE-1,
+					X+CHECKBOX_SIZE-1, Y, color);
 	}
 };
 
 /* Class of radio buttons */
 
-class Radio_List : public Dialog {
+class Mac_RadioList : public Mac_Dialog {
 
 public:
-	Radio_List(FrameBuf *win, int x, int y, int nradios);
-	virtual ~Radio_List() { delete[] radio_list; }
+	Mac_RadioList(int *variable, int x, int y,
+			MFont *font, FontServ *fontserv) : Mac_Dialog(x, y) {
+		Fontserv = fontserv;
+		Font = font;
+		radiovar = variable;
+		*radiovar = 0;
+		radio_list.next = NULL;
+	}
+	virtual ~Mac_RadioList() {
+		struct radio *radio, *old;
+
+		for ( radio=radio_list.next; radio; ) {
+			old = radio;
+			radio = radio->next;
+			if ( old->label )
+				Fontserv->FreeText(old->label);
+			delete old;
+		}
+	}
 
 	virtual void HandleButtonPress(int x, int y, int button, 
 							int *doneflag) {
 		int n;
+		struct radio *radio, *oldradio;
 
-		Unused(button);		/* Default callback ignores button */
-		Unused(doneflag);	/* Callback doesn't set doneflag */
-
-		for ( n=0; n<numradios; ++n ) {
-			if ( IsSensitive(&radio_list[n].sensitive, x, y) ) {
-				UnSpot(radio_list[curradio].x, 
-							radio_list[curradio].y);
-				curradio = n;
+		oldradio = radio_list.next;
+		for (n=0, radio=radio_list.next; radio; radio=radio->next, ++n){
+			if ( n == *radiovar ) {
+				oldradio = radio;
+				break;
+			}
+		}
+		for (n=0, radio=radio_list.next; radio; radio=radio->next, ++n){
+			if ( IsSensitive(&radio->sensitive, x, y) ) {
+				Spot(oldradio->x, oldradio->y, Bg);
 				*radiovar = n;
-				Spot(radio_list[curradio].x, 
-							radio_list[curradio].y);
-				Win->Refresh();
+				Spot(radio->x, radio->y, Fg);
+				Screen->Update();
 			}
 		}
 	}
 
-	virtual void Set_RadioVar(int *var) {
-		radiovar = var;
+	virtual void Add_Radio(int x, int y, char *text) {
+		struct radio *radio;
+
+		for ( radio=&radio_list; radio->next; radio=radio->next )
+			/* Loop to end of radio box list */;
+/* Which is ANSI C++? */
+#ifdef linux
+		radio->next = new struct Mac_RadioList::radio;
+#else
+		radio->next = new struct radio;
+#endif
+		radio = radio->next;
+		radio->label = Fontserv->TextImage(text, Font,
+							STYLE_NORM, 0, 0, 0);
+		radio->x = x;
+		radio->y = y;
+		radio->sensitive.x = x;
+		radio->sensitive.y = y;
+		radio->sensitive.w = 20+radio->label->w;
+		radio->sensitive.h = BOX_HEIGHT;
+		radio->next = NULL;
 	}
-	virtual void Add_Radio(int x, int y, int is_default, BitMap *label) {
-		Circle(x, y);
-		if ( is_default ) {
-			Spot(x, y);
-			curradio = numradios;
+
+	virtual void Map(int Xoff, int Yoff, FrameBuf *screen,
+				Uint8 R_bg, Uint8 G_bg, Uint8 B_bg,
+				Uint8 R_fg, Uint8 G_fg, Uint8 B_fg) {
+		struct radio *radio;
+
+		/* Do the normal dialog mapping */
+		Mac_Dialog::Map(Xoff, Yoff, screen,
+				R_bg, G_bg, B_bg, R_fg, G_fg, B_fg);
+
+		/* Get the screen colors */
+		Fg = Screen->MapRGB(R_fg, G_fg, B_fg);
+		Bg = Screen->MapRGB(R_bg, G_bg, B_bg);
+
+		/* Adjust sensitivity and map the radiobox text */
+		for ( radio=radio_list.next; radio; radio=radio->next ) {
+			radio->x += Xoff;
+			radio->y += Yoff;
+			radio->sensitive.x += Xoff;
+			radio->sensitive.y += Yoff;
+			radio->label->format->palette->colors[1].r = R_fg;
+			radio->label->format->palette->colors[1].g = G_fg;
+			radio->label->format->palette->colors[1].b = B_fg;
 		}
-		Win->Blit_BitMap(x+21, y+3, label->width, label->height,
-							label->bits, black);
-		radio_list[numradios].sensitive.top = y;
-		radio_list[numradios].sensitive.left = x;
-		radio_list[numradios].sensitive.bottom = y+BOX_HEIGHT;
-		radio_list[numradios].sensitive.right = x+20+label->width;
-		radio_list[numradios].x = x;
-		radio_list[numradios].y = y;
-		++numradios;
+	}
+	virtual void Show(void) {
+		int n;
+		struct radio *radio;
+
+		for (n=0, radio=radio_list.next; radio; radio=radio->next, ++n){
+			Circle(radio->x, radio->y);
+			if ( n == *radiovar ) {
+				Spot(radio->x, radio->y, Fg);
+			}
+			if ( radio->label ) {
+				Screen->QueueBlit(radio->x+21, radio->y+3,
+							radio->label, NOCLIP);
+			}
+		}
 	}
 
 private:
-	unsigned long black, white;
-	int  numradios;
-	int  curradio;
+	FontServ *Fontserv;
+	MFont *Font;
+	Uint32 Fg, Bg;
 	int *radiovar;
 	struct radio {
-		Rect sensitive;
-		int  x, y;
-		} *radio_list;
+		SDL_Surface *label;
+		int x, y;
+		SDL_Rect sensitive;
+		struct radio *next;
+	} radio_list;
 
 	void Circle(int x, int y) {
 		x += 5;
 		y += 5;
-		Win->DrawLine(x+4, y, x+8, y, black);
-		Win->DrawLine(x+2, y+1, x+4, y+1, black);
-		Win->DrawLine(x+8, y+1, x+10, y+1, black);
-		Win->DrawLine(x+1, y+2, x+1, y+4, black);
-		Win->DrawLine(x+10, y+2, x+10, y+4, black);
-		Win->DrawLine(x, y+4, x, y+8, black);
-		Win->DrawLine(x+11, y+4, x+11, y+8, black);
-		Win->DrawLine(x+1, y+8, x+1, y+10, black);
-		Win->DrawLine(x+10, y+8, x+10, y+10, black);
-		Win->DrawLine(x+2, y+10, x+4, y+10, black);
-		Win->DrawLine(x+8, y+10, x+10, y+10, black);
-		Win->DrawLine(x+4, y+11, x+8, y+11, black);
+		Screen->DrawLine(x+4, y, x+7, y, Fg);
+		Screen->DrawLine(x+2, y+1, x+3, y+1, Fg);
+		Screen->DrawLine(x+8, y+1, x+9, y+1, Fg);
+		Screen->DrawLine(x+1, y+2, x+1, y+3, Fg);
+		Screen->DrawLine(x+10, y+2, x+10, y+3, Fg);
+		Screen->DrawLine(x, y+4, x, y+7, Fg);
+		Screen->DrawLine(x+11, y+4, x+11, y+7, Fg);
+		Screen->DrawLine(x+1, y+8, x+1, y+9, Fg);
+		Screen->DrawLine(x+10, y+8, x+10, y+9, Fg);
+		Screen->DrawLine(x+2, y+10, x+3, y+10, Fg);
+		Screen->DrawLine(x+8, y+10, x+9, y+10, Fg);
+		Screen->DrawLine(x+4, y+11, x+7, y+11, Fg);
 	}
-	void PutSpot(int x, int y, unsigned long color)
+	void Spot(int x, int y, Uint32 color)
 	{
 		x += 8;
 		y += 8;
-		Win->DrawLine(x+1, y, x+5, y, color);
+		Screen->DrawLine(x+1, y, x+4, y, color);
 		++y;
-		Win->DrawLine(x, y, x+6, y, color);
+		Screen->DrawLine(x, y, x+5, y, color);
 		++y;
-		Win->DrawLine(x, y, x+6, y, color);
+		Screen->DrawLine(x, y, x+5, y, color);
 		++y;
-		Win->DrawLine(x, y, x+6, y, color);
+		Screen->DrawLine(x, y, x+5, y, color);
 		++y;
-		Win->DrawLine(x, y, x+6, y, color);
+		Screen->DrawLine(x, y, x+5, y, color);
 		++y;
-		Win->DrawLine(x+1, y, x+5, y, color);
-	}
-	void Spot(int x, int y) {
-		PutSpot(x, y, black);
-	}
-	void UnSpot(int x, int y) {
-		PutSpot(x, y, white);
+		Screen->DrawLine(x+1, y, x+4, y, color);
 	}
 };
 		
 
-/* Numeric entry class */
+/* Class of numeric entry boxes */
 
-class Numeric_Entry : public Dialog {
+class Mac_NumericEntry : public Mac_Dialog {
 
 public:
-	Numeric_Entry(FrameBuf *win, int x, int y, MFont *font, 
-		FontServ *fontserv, unsigned long fg, unsigned long bg) :
-							Dialog(win, x, y) {
-		BitMap *space;
-
-		Win = win;
+	Mac_NumericEntry(int x, int y,
+			MFont *font, FontServ *fontserv) : Mac_Dialog(x, y) {
 		Fontserv = fontserv;
 		Font = font;
-		Fg = fg;
-		Bg = bg;
+		Cwidth = Fontserv->TextWidth("0", Font, STYLE_NORM);
+		Cheight = Fontserv->TextHeight(font);
 		entry_list.next = NULL;
 		current = &entry_list;
-		space = Fontserv->Text_to_BitMap("0", Font, STYLE_NORM);
-		Cwidth = space->width;
-		Cheight = space->height;
-		Fontserv->Free_Text(space);
 	}
- 
-	virtual ~Numeric_Entry() { 
-		struct numeric_entry *nent, *ntmp;
+	virtual ~Mac_NumericEntry() { 
+		struct numeric_entry *entry, *old;
 
-		for ( nent=entry_list.next; nent; ) {
-			ntmp = nent;
-			nent = nent->next;
-			delete ntmp;
+		for ( entry=entry_list.next; entry; ) {
+			old = entry;
+			entry = entry->next;
+			if ( old->text )
+				Fontserv->FreeText(old->text);
+			delete old;
 		}
 	}
 
 	virtual void HandleButtonPress(int x, int y, int button, 
 							int *doneflag) {
-		struct numeric_entry *nent;
+		struct numeric_entry *entry;
 
-		Unused(button);		/* Default callback ignores button */
-		Unused(doneflag);	/* Callback doesn't set doneflag */
-
-		for ( nent=entry_list.next; nent; nent=nent->next ) {
-			if ( IsSensitive(&nent->sensitive, x, y) ) {
+		for ( entry=entry_list.next; entry; entry=entry->next ) {
+			if ( IsSensitive(&entry->sensitive, x, y) ) {
 				current->hilite = 0;
 				Update_Entry(current);
-				current = nent;
+				current = entry;
 				DrawCursor(current);
-				Win->Refresh();
+				Screen->Update();
 			}
 		}
 	}
-	virtual void HandleKeyPress(KeySym key, int *doneflag) {
+	virtual void HandleKeyPress(SDL_keysym key, int *doneflag) {
 		int n;
 
-		Unused(doneflag);	/* Callback doesn't set doneflag */
-
-		switch (key) {
-			case XK_Tab:
+		switch (key.sym) {
+			case SDLK_TAB:
 				current->hilite = 0;
 				Update_Entry(current);
 				if ( current->next )
@@ -533,10 +609,8 @@ public:
 				Update_Entry(current);
 				break;
 
-			case XK_Delete:
-#if XK_Delete != XK_BackSpace
-			case XK_BackSpace:
-#endif
+			case SDLK_DELETE:
+			case SDLK_BACKSPACE:
 				if ( current->hilite ) {
 					*current->variable = 0;
 					current->hilite = 0;
@@ -546,164 +620,187 @@ public:
 				DrawCursor(current);
 				break;
 
-			case XK_0:
-				Press_Num(0);
-				break;
-			case XK_1:
-				Press_Num(1);
-				break;
-			case XK_2:
-				Press_Num(2);
-				break;
-			case XK_3:
-				Press_Num(3);
-				break;
-			case XK_4:
-				Press_Num(4);
-				break;
-			case XK_5:
-				Press_Num(5);
-				break;
-			case XK_6:
-				Press_Num(6);
-				break;
-			case XK_7:
-				Press_Num(7);
-				break;
-			case XK_8:
-				Press_Num(8);
-				break;
-			case XK_9:
-				Press_Num(9);
+			case SDLK_0:
+			case SDLK_1:
+			case SDLK_2:
+			case SDLK_3:
+			case SDLK_4:
+			case SDLK_5:
+			case SDLK_6:
+			case SDLK_7:
+			case SDLK_8:
+			case SDLK_9:
+				n = (key.sym-SDLK_0);
+				if ( (current->end+Cwidth) > current->width )
+					return;
+				if ( current->hilite ) {
+					*current->variable = n;
+					current->hilite = 0;
+				} else {
+					*current->variable *= 10;
+					*current->variable += n;
+				}
+				Update_Entry(current);
+				DrawCursor(current);
 				break;
 
 			default:
 				break;
 		}
-		Win->Refresh();
+		Screen->Update();
 	}
 
 	virtual void Add_Entry(int x, int y, int width, int is_default, 
-								int *var) {
-		struct numeric_entry *nent;
+							int *variable) {
+		struct numeric_entry *entry;
 
-		for ( nent=&entry_list; nent->next; nent=nent->next );
-		nent->next = new struct Numeric_Entry::numeric_entry;
-		nent = nent->next;
+		for ( entry=&entry_list; entry->next; entry=entry->next )
+			/* Loop to end of numeric entry list */;
+#ifdef linux
+		entry->next = new struct Mac_NumericEntry::numeric_entry;
+#else
+		entry->next = new struct numeric_entry;
+#endif
+		entry = entry->next;
 
-		nent->variable = var;
+		entry->variable = variable;
 		if ( is_default ) {
-			current = nent;
-			nent->hilite = 1;
+			current = entry;
+			entry->hilite = 1;
 		} else
-			nent->hilite = 0;
-		nent->x = x+3;
-		nent->y = y+3;
-		nent->width = width*Cwidth;
-		nent->height = Cheight;
-		nent->sensitive.top = y;
-		nent->sensitive.left = x;
-		nent->sensitive.bottom = y+3+Cheight+3;
-		nent->sensitive.right = x+3+(width*Cwidth)+3;
-		nent->next = NULL;
-		Win->DrawRectangle(x, y, 3+(width*Cwidth)+3, 3+Cheight+3, Fg);
-		Update_Entry(nent);
+			entry->hilite = 0;
+		entry->x = x+3;
+		entry->y = y+3;
+		entry->width = width*Cwidth;
+		entry->height = Cheight;
+		entry->sensitive.x = x;
+		entry->sensitive.y = y;
+		entry->sensitive.w = 3+(width*Cwidth)+3;
+		entry->sensitive.h = 3+Cheight+3;
+		entry->text = NULL;
+		entry->next = NULL;
+	}
+
+	virtual void Map(int Xoff, int Yoff, FrameBuf *screen,
+				Uint8 R_bg, Uint8 G_bg, Uint8 B_bg,
+				Uint8 R_fg, Uint8 G_fg, Uint8 B_fg) {
+		struct numeric_entry *entry;
+
+		/* Do the normal dialog mapping */
+		Mac_Dialog::Map(Xoff, Yoff, screen,
+				R_bg, G_bg, B_bg, R_fg, G_fg, B_fg);
+
+		/* Get the screen colors */
+		foreground.r = R_fg;
+		foreground.g = G_fg;
+		foreground.b = B_fg;
+		background.r = R_bg;
+		background.g = G_bg;
+		background.b = B_bg;
+		Fg = Screen->MapRGB(R_fg, G_fg, B_fg);
+		Bg = Screen->MapRGB(R_bg, G_bg, B_bg);
+
+		/* Adjust sensitivity and map the radiobox text */
+		for ( entry=entry_list.next; entry; entry=entry->next ) {
+			entry->x += Xoff;
+			entry->y += Yoff;
+			entry->sensitive.x += Xoff;
+			entry->sensitive.y += Yoff;
+		}
+	}
+	virtual void Show(void) {
+		struct numeric_entry *entry;
+
+		for ( entry=entry_list.next; entry; entry=entry->next ) {
+			Screen->DrawRect(entry->x-3, entry->y-3,
+					3+entry->width+3, 3+Cheight+3, Fg);
+			Update_Entry(entry);
+		}
 	}
 
 private:
-	FontServ     *Fontserv;
-	MFont        *Font;
-	int           Cwidth, Cheight;
-	unsigned long Fg, Bg;
+	FontServ *Fontserv;
+	MFont *Font;
+	Uint32 Fg, Bg;
+	int Cwidth, Cheight;
+	SDL_Color foreground;
+	SDL_Color background;
 
 	struct numeric_entry {
+		SDL_Surface *text;
 		int *variable;
-		Rect sensitive;
+		SDL_Rect sensitive;
 		int  x, y;
 		int  width, height;
 		int  end;
 		int  hilite;
 		struct numeric_entry *next;
-		} entry_list, *current;
+	} entry_list, *current;
 
-	void Press_Num(int n) {
-		if ( (current->end+Cwidth) > current->width )
-			return;
-		if ( current->hilite ) {
-			*current->variable = n;
-			current->hilite = 0;
-		} else {
-			*current->variable *= 10;
-			*current->variable += n;
-		}
-		Update_Entry(current);
-		DrawCursor(current);
-	}
 
 	void Update_Entry(struct numeric_entry *entry) {
-		BitMap       *text;
-		char          buf[128];
-		unsigned long color;
+		char buf[128];
+		Uint32 clear;
 
-		/* Clear the entry */
-		Win->FillRectangle(entry->x, entry->y, entry->width,
-							entry->height, Bg);
-		/* Create the new entry */
+		/* Create the new entry text */
+		if ( entry->text ) {
+			Fontserv->FreeText(entry->text);
+		}
 		sprintf(buf, "%d", *entry->variable);
-		text = Fontserv->Text_to_BitMap(buf, Font, STYLE_NORM);
-		entry->end = text->width;
 
-		/* Print it, with appropriate highlighting */
 		if ( entry->hilite ) {
-			Win->FillRectangle(entry->x, entry->y, entry->width,
-							entry->height, Fg);
-			color = Bg;
-		} else
-			color = Fg;
-
-		Win->Blit_BitMap(entry->x, entry->y, text->width,
-					text->height, text->bits, color);
-		Fontserv->Free_Text(text);
+			entry->text = Fontserv->TextImage(buf, Font, STYLE_NORM,
+							background,foreground);
+			clear = Fg;
+		} else {
+			entry->text = Fontserv->TextImage(buf, Font, STYLE_NORM,
+							background,foreground);
+			clear = Bg;
+		}
+		entry->end = entry->text->w;
+		Screen->FillRect(entry->x, entry->y,
+					entry->width, entry->height, clear);
+		Screen->QueueBlit(entry->x, entry->y, entry->text, NOCLIP);
 	}
-
 	void DrawCursor(struct numeric_entry *entry) {
-		Win->DrawLine(entry->x+entry->end, entry->y,
+		Screen->DrawLine(entry->x+entry->end, entry->y,
 			entry->x+entry->end, entry->y+entry->height, Fg);
-	}
-	void UnDrawCursor(struct numeric_entry *entry) {
-		Win->DrawLine(entry->x+entry->end, entry->y,
-			entry->x+entry->end, entry->y+entry->height, Bg);
 	}
 };
 		
-/* Miscellaneous list elements */
 
 /* Finally, the macintosh-like dialog class */
 
 class Maclike_Dialog {
 
 public:
-	Maclike_Dialog(FrameBuf *win, int x, int y, int width, int height,
-							unsigned long white);
+	Maclike_Dialog(int x, int y, int width, int height, FrameBuf *screen);
 	~Maclike_Dialog();
 
-	void Add_Dialog(Dialog *dialog);
-	void Add_Title(struct Title *title, int x, int y);
-	void Add_BitMap(BitMap *bitmap, int x, int y, unsigned long color);
-	void Add_CIcon(CIcon *icon, int x, int y);
+	void Add_Rectangle(int x, int y, int w, int h, Uint32 color);
+	void Add_Image(SDL_Surface *image, int x, int y);
+	void Add_Dialog(Mac_Dialog *dialog);
 
-	void Run(void);
+	void Run(int expand_steps = 1);
 
 private:
-	struct dialog_elem {
-		Dialog *dialog;
-		struct dialog_elem *next;
-	} dialog_list;
-
-	FrameBuf *Win;
-	unsigned char *SavedArea;
-
+	FrameBuf *Screen;
 	int X, Y;
 	int Width, Height;
-	int done;
+
+	struct rect_elem {
+		Sint16 x, y;
+		Uint16 w, h;
+		Uint32 color;
+		struct rect_elem *next;
+	} rect_list;
+	struct image_elem {
+		SDL_Surface *image;
+		int x, y;
+		struct image_elem *next;
+	} image_list;
+	struct dialog_elem {
+		Mac_Dialog *dialog;
+		struct dialog_elem *next;
+	} dialog_list;
 };

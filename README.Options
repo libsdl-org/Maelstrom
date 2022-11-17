@@ -65,38 +65,3 @@ Command Line Options:
 			48-frame, 360 degree rotation of your ship.  It is
 			for comparative information only.
 
-
-Extra Compile-Time Options:
-These options can be added to the "FEATURES =" line in the Makeflags file.
-
-	-DPIXEL_DOUBLING
-			This option makes Maelstrom display graphics
-			in a blown-up 1280x960 pixel display.  The price
-			for this size is that the graphics run much slower.
-			On fast machines this is not a problem.  On slow
-			machines, this renders the game unuseable.
-
-	-DFORCE_XSHM
-			This option prevents Maelstrom from running on remote
-			displays, but slightly speeds up Maelstrom on local X
-			sessions.
-
-
-Status of Maelstrom Ports:
-
-	Linux 2.0	Development platform -- 100% functionality.
-
-	IRIX 5.3	Works nicely -- 100% functionality.
-			Requires audio libraries to compile.
-
-	Solaris 2.4	Works nicely -- 100% functionality.
-
-	HPUX 10.01	Works nicely.  Sound works, but doesn't sound
-			very good due to loss of synchronization.
-
-	ULTRIX 4.4	Works nicely.  No sound.
-
-	AIX 3.2		Hacked port.  No sound.
-
-	OSF/1 4.0	Port soon to be in progress.
-

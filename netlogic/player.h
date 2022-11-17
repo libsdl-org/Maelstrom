@@ -1,9 +1,4 @@
 
-#ifdef __WIN95__
-#include <winsock.h>
-#else
-#include <arpa/inet.h>
-#endif
 #include "protocol.h"
 
 /* Special features of the player */
@@ -44,8 +39,8 @@ public:
 	virtual void UnBlitSprite(void);
 
 	/* Small access functions */
-	virtual unsigned long Color(void) {
-		return(mycolor);
+	virtual Uint32 Color(void) {
+		return(ship_color);
 	}
 	virtual void IncrLives(int lives);
 	virtual int GetLives(void) {
@@ -54,8 +49,12 @@ public:
 	virtual void IncrScore(int score) {
 		Score += score;
 	}
-	virtual int GetScore(void) {
-		return(Score);
+	virtual unsigned int GetScore(void) {
+		if ( Score < 0 ) {
+			return(0);
+		} else {
+			return(Score);
+		}
 	}
 	virtual void IncrFrags(void);
 	virtual int GetFrags(void) {
@@ -99,6 +98,16 @@ public:
 	virtual void HitSound(void);
 	virtual void ExplodeSound(void);
 
+	virtual void ShowDot(void) {
+		/* Draw our identity dot */
+		int X, Y;
+		X = (x>>SPRITE_PRECISION)+12;
+		Y = (y>>SPRITE_PRECISION)+12;
+		if ( (X > gClipRect.x) && (X < (gClipRect.x+gClipRect.w-4)) &&
+		     (Y > gClipRect.y) && (Y < (gClipRect.y+gClipRect.h-4)) ) {
+			screen->FillRect(X, Y, 4, 4, ship_color);
+		}
+	}
 	virtual void AbortGame(void);
 
 private:
@@ -121,7 +130,6 @@ private:
 	int Shooting;
 	int WasShooting;
 	int Rotating;
-	int KeyCheck;
 	unsigned char special;
 	int Playing;
 	int Dead;
@@ -131,10 +139,7 @@ private:
 	int shotodds;
 	int target;
 	int numshots;
-	unsigned char *shotcolors;
-	unsigned char *shotmask;
-	unsigned char *thedot;
-	unsigned long mycolor;
+	Uint32 ship_color;
 
 	struct sockaddr_in *myaddr;
 
@@ -149,4 +154,4 @@ private:
 
 /* The Players!! */
 extern Player *gPlayers[MAX_PLAYERS];
-extern int     gPlayerColors[MAX_PLAYERS][3];
+extern Uint8   gPlayerColors[MAX_PLAYERS][3];

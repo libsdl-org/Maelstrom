@@ -1,27 +1,9 @@
 
-Maelstrom Installation
-----------------------
+To build and install the game, get the Simple DirectMedia Layer
+library from http://www.devolution.com/~slouken/SDL/ and install
+it.  Then run:
+	./configure; make; make install
 
-For most systems, installation should just be a matter of typing 'make'
-and then 'make install'.
-
-You need the XPM library, which is available (with binaries for some
-systems) from ftp.devolution.com in the /pub/maelstrom
-directory.  Linux usually comes with this library pre-installed.
-
-If you run Maelstrom without installing it, set the environment variable
-"MAELSTROM_LIB" to the full pathname of this directory.
-
-To run Maelstrom, make sure the directory containing the Maelstrom and
-Maelstrom_sound binaries is in your path, and just type "Maelstrom" at
-a shell prompt.
-
-Linux user's note:  As with all svgalib programs, Maelstrom with SVGA
-support needs to be set-uid root, or only root will be able to play.
-SVGAlib games are set-uid at your own risk, even though I have done
-everything I know to make Maelstrom as safe as possible.
-
-Good luck!
-
-	-Sam Lantinga			(slouken@devolution.com)
+If you are building with Visual C++, unpack VisualC.zip and open
+the VC++ project file found in the new "VisualC" directory.
 

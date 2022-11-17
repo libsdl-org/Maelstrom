@@ -35,10 +35,10 @@ int RunFrame(void)
 	/* Play the boom sounds */
 	if ( --gNextBoom == 0 ) {
 		if ( gBoomPhase ) {
-			sound->PlaySound(gBoom1, 0, NULL);
+			sound->PlaySound(gBoom1, 0);
 			gBoomPhase = 0;
 		} else {
-			sound->PlaySound(gBoom2, 0, NULL);
+			sound->PlaySound(gBoom2, 0);
 			gBoomPhase = 1;
 		}
 		gNextBoom = gBoomDelay;
@@ -121,11 +121,17 @@ int RunFrame(void)
 		gSprites[i]->BlitSprite();
 	OBJ_LOOP(i, gNumPlayers)
 		gPlayers[i]->BlitSprite();
+	screen->Update();
 
 	/* Make sure someone is still playing... */
 	for ( i=0, PlayersLeft=0; i < gNumPlayers; ++i ) {
 		if ( gPlayers[i]->Kicking() )
 			++PlayersLeft;
+	}
+	if ( gNumPlayers > 1 ) {
+		OBJ_LOOP(i, gNumPlayers)
+			gPlayers[i]->ShowDot();
+		screen->Update();
 	}
 
 #ifdef SERIOUS_DEBUG
@@ -147,12 +153,11 @@ printf("\n");
 #endif /* SERIOUS_DEBUG */
 
 	/* Timing handling -- Delay the FRAME_DELAY */
-	win->Flush(1);
+	screen->Update();
 	if ( ! gNoDelay ) {
-		unsigned long ticks;
-		while ( ((ticks=Ticks())-gLastDrawn) < FRAME_DELAY ) {
-//printf("ticks = %d, gLastDrawn = %d, A-B=%d\n", ticks, gLastDrawn, ticks-gLastDrawn);
-			select_usleep(1);
+		Uint32 ticks;
+		while ( ((ticks=Ticks)-gLastDrawn) < FRAME_DELAY ) {
+			SDL_Delay(1);
 		}
 		gLastDrawn = ticks;
 	}

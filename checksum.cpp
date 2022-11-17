@@ -19,20 +19,28 @@
    and code tampering, as long as the private key remains private.
 */
 
+/* These checksum routines are activated by -DUSE_CHECKSUM */
+#if defined(WIN32) || defined(__BEOS__)
+/* How do we get the end of the text segment with this OS? */
+#undef USE_CHECKSUM
+#endif
+
+#ifdef USE_CHECKSUM
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/time.h>
+#ifdef WIN32
+#include <windows.h>
+#endif
 #include "checksum.h"
 #include "myerror.h"
 
-/* These checksum routines are activated by -DUSE_CHECKSUM */
-#ifdef USE_CHECKSUM
-
 /* RSA MD5 checksum, public key routines */
-#include "../RSA/source/global.h"
-#include "../RSA/source/rsaref.h"
+#include "global.h"
+#include "rsaref.h"
 extern "C" {
 	extern int RSAPublicEncrypt (
 			unsigned char *output,	/* output block */
@@ -53,11 +61,13 @@ static char *armour_encrypt(unsigned char *buf, unsigned int len);
 static unsigned char our_checksum[MD5LEN];
 static unsigned char weak_encoder;
 
+/* How many times do you see this? :) */
+extern "C" int main(int argc, char *argv[]);
+
 /* Call this to calculate the checksum -- first thing in main()! */
 void checksum(void)
 {
-	/* How many times do you see this? :) */
-	extern void main(int argc, char *argv[]);
+	struct timeval now;
 
 	/* These are the end of the text and data segments. */
 	extern int etext, edata;
@@ -72,7 +82,7 @@ error("Main = 0x%x, etext = 0x%x, edata = 0x%x\n",main,&etext,&edata);
 
 	/* Find the end of our code segment */
 	mem_end = &etext;
-	if ( (int)mem_end < (int)main ) {	// Uh oh...
+	if ( (caddr_t)mem_end < (caddr_t)main ) {	// Uh oh...
 		error("Warning: unexpected environment -- no checksum!!\n");
 		return;
 	}
@@ -80,8 +90,7 @@ error("Main = 0x%x, etext = 0x%x, edata = 0x%x\n",main,&etext,&edata);
 	/* Allocate and calculate our checksum */
  	ctx = new MD5_CTX;
 	MD5Init(ctx);
-	MD5Update(ctx, (unsigned char *)main,
-				(unsigned int)mem_end-(unsigned int)main);
+	MD5Update(ctx, (unsigned char *)main, (caddr_t)mem_end-(caddr_t)main);
 	MD5Final(our_checksum, ctx);
 
 /* ERASE THIS!! */
@@ -93,7 +102,6 @@ error("\n");
 #endif
 
 	/* Use weak random encoding, to discourage hackers */
-	struct timeval now;
 	gettimeofday(&now, NULL);
 	weak_encoder = (now.tv_usec&0xFF);
 	memset(&now, 0, sizeof(now));

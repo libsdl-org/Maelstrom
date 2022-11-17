@@ -1,111 +1,132 @@
 
+#define library(X)	(X)
+
+#ifdef COMPUTE_VELTABLE
 #include <math.h>
+#endif
 #include <signal.h>
 #include <stdlib.h>
 
 #include "Maelstrom_Globals.h"
-#include "Maelstrom_icon.xpm"
+#include "load.h"
 #include "colortable.h"
+#include "fastrand.h"
 
 
 // Global variables set in this file...
+Sound    *sound = NULL;
+FontServ *fontserv = NULL;
+FrameBuf *screen = NULL;
 
-SoundClient *sound;
-FontServ    *fontserv;
-FrameBuf    *win;
-
-int     gLastHigh;
-unsigned long     gLastDrawn;
+Sint32	gLastHigh;
+Uint32	gLastDrawn;
 int     gNumSprites;
 Rect	gScrnRect;
-Rect	gClipRect;
+SDL_Rect gClipRect;
 int	gStatusLine;
 int	gTop, gLeft, gBottom, gRight;
 MPoint	gShotOrigins[SHIP_FRAMES];
 MPoint	gThrustOrigins[SHIP_FRAMES];
 MPoint	gVelocityTable[SHIP_FRAMES];
 StarPtr	gTheStars[MAX_STARS];
-unsigned char *gStarColors;
+Uint32	gStarColors[20];
 
 /* -- The blit'ers we use */
-BlitPtr		gRock1R, gRock2R, gRock3R, gDamagedShip;
-BlitPtr		gRock1L, gRock2L, gRock3L, gShipExplosion;
-BlitPtr		gPlayerShip, gExplosion, gNova, gEnemyShip, gEnemyShip2;
-BlitPtr		gMult[4], gSteelRoidL;
-BlitPtr		gSteelRoidR, gPrize, gBonusBlit, gPointBlit;
-BlitPtr		gVortexBlit, gMineBlitL, gMineBlitR, gShieldBlit;
-BlitPtr		gThrust1, gThrust2, gShrapnel1, gShrapnel2;
+BlitPtr	gRock1R, gRock2R, gRock3R, gDamagedShip;
+BlitPtr	gRock1L, gRock2L, gRock3L, gShipExplosion;
+BlitPtr	gPlayerShip, gExplosion, gNova, gEnemyShip, gEnemyShip2;
+BlitPtr	gMult[4], gSteelRoidL;
+BlitPtr	gSteelRoidR, gPrize, gBonusBlit, gPointBlit;
+BlitPtr	gVortexBlit, gMineBlitL, gMineBlitR, gShieldBlit;
+BlitPtr	gThrust1, gThrust2, gShrapnel1, gShrapnel2;
 
 /* -- The prize CICN's */
 
-CIconPtr gAutoFireIcon, gAirBrakesIcon, gMult2Icon, gMult3Icon;
-CIconPtr gMult4Icon, gMult5Icon, gLuckOfTheIrishIcon, gLongFireIcon;
-CIconPtr gTripleFireIcon, gKeyIcon, gShieldIcon;
+SDL_Surface *gAutoFireIcon, *gAirBrakesIcon, *gMult2Icon, *gMult3Icon;
+SDL_Surface *gMult4Icon, *gMult5Icon, *gLuckOfTheIrishIcon, *gLongFireIcon;
+SDL_Surface *gTripleFireIcon, *gKeyIcon, *gShieldIcon;
 
 // Local functions used in this file.
-static int LoadSounds(void);
 static void DrawLoadBar(int first);
 static int InitSprites(void);
-static int LoadBlits(void);
+static int LoadBlits(Mac_Resource *spriteres);
 static int LoadCICNS(void);
 static void BackwardsSprite(BlitPtr *theBlit, BlitPtr oldBlit);
-static int LoadSprite(BlitPtr *theBlit, int baseID, int numFrames);
-static int LoadSmallSprite(BlitPtr *theBlit, int baseID, int numFrames);
+static int LoadSprite(Mac_Resource *spriteres,
+			BlitPtr *theBlit, int baseID, int numFrames);
+static int LoadSmallSprite(Mac_Resource *spriteres,
+			BlitPtr *theBlit, int baseID, int numFrames);
+
+
+/* Put up an Ambrosia Software splash screen */
+void DoSplash(void)
+{
+	SDL_Surface *splash;
+
+	splash = Load_Title(screen, 999);
+	if ( splash == NULL ) {
+		error("Can't load Ambrosia splash title! (ID=%d)\n", 999);
+		return;
+        }
+	screen->QueueBlit(SCREEN_WIDTH/2-splash->w/2,
+			  SCREEN_HEIGHT/2-splash->h/2, splash, NOCLIP);
+	screen->Update();
+	screen->FreeImage(splash);
+}
 
 /* ----------------------------------------------------------------- */
 /* -- Put up our intro splash screen */
 
 void DoIntroScreen(void)
 {
-	MFont *geneva;
-	BitMap *text;
-	struct Title intro;
-	unsigned short Yoff, Xoff;
-	unsigned long  clr, ltClr, ltrClr;
+	MFont  *geneva;
+	SDL_Surface *intro, *text;
+	Uint16  Yoff, Xoff;
+	Uint32  clr, ltClr, ltrClr;
 
-	if ( Load_Title(&intro, 130) < 0 ) {
-		error("Can't load intro title!\n");
-		exit(255);
+	intro = Load_Title(screen, 130);
+	if ( intro == NULL ) {
+		error("Can't load intro title! (ID=%d)\n", 130);
+		return;
 	}
-	Xoff = ((SCREEN_WIDTH-intro.width)/2); 
-	Yoff = ((SCREEN_HEIGHT-intro.height)/2); 
-
+	
 	// -- Draw a border
-	ltClr = win->Map_Color(40000, 40000, 0xFFFF);
-	ltrClr = win->Map_Color(50000, 50000, 0xFFFF);
-	clr = win->Map_Color(30000, 30000, 0xFFFF);
+	clr = screen->MapRGB(30000>>8, 30000>>8, 0xFF);
+	ltClr = screen->MapRGB(40000>>8, 40000>>8, 0xFF);
+	ltrClr = screen->MapRGB(50000>>8, 50000>>8, 0xFF);
 
-	win->Clear();
-	win->DrawRectangle(Xoff-1, Yoff-1, intro.width+2, intro.height+2, clr);
-	win->DrawRectangle(Xoff-2, Yoff-2, intro.width+4, intro.height+4, clr);
-	win->DrawRectangle(Xoff-3, Yoff-3, 
-				intro.width+6, intro.height+6, ltClr);
-	win->DrawRectangle(Xoff-4, Yoff-4, 
-				intro.width+8, intro.height+8, ltClr);
-	win->DrawRectangle(Xoff-5, Yoff-5, 
-				intro.width+10, intro.height+10, ltrClr);
-	win->DrawRectangle(Xoff-6, Yoff-6, 
-				intro.width+12, intro.height+12, ltClr);
-	win->DrawRectangle(Xoff-7, Yoff-7, 
-				intro.width+14, intro.height+14, clr);
-	win->Blit_Title(Xoff, Yoff, intro.width, intro.height, intro.data);
-	Free_Title(&intro);
+	screen->Clear();
+	Xoff = (SCREEN_WIDTH-intro->w)/2;
+	Yoff = (SCREEN_HEIGHT-intro->h)/2;
+	screen->DrawRect(Xoff-1, Yoff-1, intro->w+2, intro->h+2, clr);
+	screen->DrawRect(Xoff-2, Yoff-2, intro->w+4, intro->h+4, clr);
+	screen->DrawRect(Xoff-3, Yoff-3, intro->w+6, intro->h+6, ltClr);
+	screen->DrawRect(Xoff-4, Yoff-4, intro->w+8, intro->h+8, ltClr);
+	screen->DrawRect(Xoff-5, Yoff-5, intro->w+10, intro->h+10, ltrClr);
+	screen->DrawRect(Xoff-6, Yoff-6, intro->w+12, intro->h+12, ltClr);
+	screen->DrawRect(Xoff-7, Yoff-7, intro->w+14, intro->h+14, clr);
+	Yoff += intro->h;
+	screen->QueueBlit(SCREEN_WIDTH/2-intro->w/2, SCREEN_HEIGHT/2-intro->h/2,
+								intro, NOCLIP);
+	screen->FreeImage(intro);
 
 /* -- Draw the loading message */
 
-	clr = win->Map_Color(0xFFFF, 0xFFFF, 0x0000);
-	if ( (geneva = fontserv->New_Font("Geneva", 9)) == NULL ) {
-		error("Can't use Geneva font! -- Exiting.\n");
-		exit(255);
+	geneva = fontserv->NewFont("Geneva", 9);
+	if ( geneva == NULL ) {
+		error("Warning: %s\n", fontserv->Error());
+		return;
 	}
-	text = fontserv->Text_to_BitMap("Loading...", geneva, STYLE_BOLD);
-	
-	Xoff = (SCREEN_WIDTH - text->width) / 2;
-	DrawText(Xoff, Yoff+intro.height+20, text, clr);
-	fontserv->Free_Text(text);
-	fontserv->Free_Font(geneva);
+	text = fontserv->TextImage("Loading...", geneva, STYLE_BOLD,
+						0xFF, 0xFF, 0x00);
+	if ( text ) {
+		screen->QueueBlit(SCREEN_WIDTH/2-text->w/2,
+				Yoff+20-text->h/2, text, NOCLIP);
+		fontserv->FreeText(text);
+	}
+	delete geneva;
 
-	win->Refresh();
+	screen->Update();
 }	// -- DoIntroScreen
 
 
@@ -116,69 +137,113 @@ void DoIntroScreen(void)
 
 static void DrawLoadBar(int first)
 {
-	static int    stage;
-	static int    fact;
+	static int stage;
+	Uint32 black, clr;
+	int fact;
 
-	unsigned long black, clr;
-
+	DropEvents();
 	if (first) {
 		stage = 1;
 	
-		black = win->Map_Color(0x0000, 0x0000, 0x0000);
-		win->DrawRectangle((SCREEN_WIDTH-200)/2, 
+		black = screen->MapRGB(0x00, 0x00, 0x00);
+		screen->DrawRect((SCREEN_WIDTH-200)/2, 
 				   ((SCREEN_HEIGHT-10)/2)+185, 200, 10, black);
-		clr = win->Map_Color(0xFFFF, 0xFFFF, 0xFFFF);
-		win->DrawRectangle(((SCREEN_WIDTH-200)/2)+1, 
+		clr = screen->MapRGB(0xFF, 0xFF, 0xFF);
+		screen->DrawRect(((SCREEN_WIDTH-200)/2)+1, 
 				   ((SCREEN_HEIGHT-10)/2)+185+1, 
 							200-2, 10-2, clr);
-		clr = win->Map_Color(0x8FFF, 0x8FFF, 0xFFFF);
-		win->FillRectangle(((SCREEN_WIDTH-200)/2)+1+1, 
+		clr = screen->MapRGB(0x8F, 0x8F, 0xFF);
+		screen->FillRect(((SCREEN_WIDTH-200)/2)+1+1, 
 				   ((SCREEN_HEIGHT-10)/2)+185+1+1, 
 							200-2-2, 10-2-2, clr);
-		win->Refresh();
 	}
-	clr = win->Map_Color(0x6FFF, 0x6FFF, 0xFFFF);
+	clr = screen->MapRGB(0x6F, 0x6F, 0xFF);
 	fact = ((200-2-2) * stage) / MAX_BAR;
-	win->FillRectangle(((SCREEN_WIDTH-200)/2)+1+1, 
-				   ((SCREEN_HEIGHT-10)/2)+185+1+1, 
-							fact, 10-2-2, clr);
-	win->RefreshArea(((SCREEN_WIDTH-200)/2)+1+1, 
-			((SCREEN_HEIGHT-10)/2)+185+1+1, fact+1, 10-2-2+1);
-	win->Flush(0);
+	screen->FillRect(((SCREEN_WIDTH-200)/2)+1+1, 
+			 ((SCREEN_HEIGHT-10)/2)+185+1+1, fact, 10-2-2, clr);
+	screen->Update();
 	stage++;
 }	/* -- DrawLoadBar */
 
+
+/* ----------------------------------------------------------------- */
+/* -- Set a star */
+
+void SetStar(int which)
+{
+	gTheStars[which]->xCoord = gClipRect.x+FastRandom(gClipRect.w);
+	gTheStars[which]->yCoord = gClipRect.y+FastRandom(gClipRect.h);
+	gTheStars[which]->color = gStarColors[FastRandom(20)];
+}	/* -- SetStar */
 
 /* ----------------------------------------------------------------- */
 /* -- Initialize the stars */
 
 static void InitStars(void)
 {
-	int	index;
-	unsigned char StarColors[20];
+	int index;
 
 	/* Map star pixel colors to new colormap */
-	StarColors[0] = 0xEB;
-	StarColors[1] = 0xEC;
-	StarColors[2] = 0xED;
-	StarColors[3] = 0xEE;
-	StarColors[4] = 0xEF;
-	StarColors[5] = 0xD9;
-	StarColors[6] = 0xDA;
-	StarColors[7] = 0xDB;
-	StarColors[8] = 0xDC;
-	StarColors[9] = 0xDD;
-	StarColors[10] = 0xE4;
-	StarColors[11] = 0xE5;
-	StarColors[12] = 0xE6;
-	StarColors[13] = 0xE7;
-	StarColors[14] = 0xE8;
-	StarColors[15] = 0xF7;
-	StarColors[16] = 0xF8;
-	StarColors[17] = 0xF9;
-	StarColors[18] = 0xFA;
-	StarColors[19] = 0xFB;
-	win->ReColor(StarColors, &gStarColors, 20);
+	gStarColors[0] = screen->MapRGB(colors[gGammaCorrect][0xEB].r,
+					colors[gGammaCorrect][0xEB].g,
+					colors[gGammaCorrect][0xEB].b);
+	gStarColors[1] = screen->MapRGB(colors[gGammaCorrect][0xEC].r,
+					colors[gGammaCorrect][0xEC].g,
+					colors[gGammaCorrect][0xEC].b);
+	gStarColors[2] = screen->MapRGB(colors[gGammaCorrect][0xED].r,
+					colors[gGammaCorrect][0xED].g,
+					colors[gGammaCorrect][0xED].b);
+	gStarColors[3] = screen->MapRGB(colors[gGammaCorrect][0xEE].r,
+					colors[gGammaCorrect][0xEE].g,
+					colors[gGammaCorrect][0xEE].b);
+	gStarColors[4] = screen->MapRGB(colors[gGammaCorrect][0xEF].r,
+					colors[gGammaCorrect][0xEF].g,
+					colors[gGammaCorrect][0xEF].b);
+	gStarColors[5] = screen->MapRGB(colors[gGammaCorrect][0xD9].r,
+					colors[gGammaCorrect][0xD9].g,
+					colors[gGammaCorrect][0xD9].b);
+	gStarColors[6] = screen->MapRGB(colors[gGammaCorrect][0xDA].r,
+					colors[gGammaCorrect][0xDA].g,
+					colors[gGammaCorrect][0xDA].b);
+	gStarColors[7] = screen->MapRGB(colors[gGammaCorrect][0xDB].r,
+					colors[gGammaCorrect][0xDB].g,
+					colors[gGammaCorrect][0xDB].b);
+	gStarColors[8] = screen->MapRGB(colors[gGammaCorrect][0xDC].r,
+					colors[gGammaCorrect][0xDC].g,
+					colors[gGammaCorrect][0xDC].b);
+	gStarColors[9] = screen->MapRGB(colors[gGammaCorrect][0xDD].r,
+					colors[gGammaCorrect][0xDD].g,
+					colors[gGammaCorrect][0xDD].b);
+	gStarColors[10] = screen->MapRGB(colors[gGammaCorrect][0xE4].r,
+					colors[gGammaCorrect][0xE4].g,
+					colors[gGammaCorrect][0xE4].b);
+	gStarColors[11] = screen->MapRGB(colors[gGammaCorrect][0xE5].r,
+					colors[gGammaCorrect][0xE5].g,
+					colors[gGammaCorrect][0xE5].b);
+	gStarColors[12] = screen->MapRGB(colors[gGammaCorrect][0xE6].r,
+					colors[gGammaCorrect][0xE6].g,
+					colors[gGammaCorrect][0xE6].b);
+	gStarColors[13] = screen->MapRGB(colors[gGammaCorrect][0xE7].r,
+					colors[gGammaCorrect][0xE7].g,
+					colors[gGammaCorrect][0xE7].b);
+	gStarColors[14] = screen->MapRGB(colors[gGammaCorrect][0xE8].r,
+					colors[gGammaCorrect][0xE8].g,
+					colors[gGammaCorrect][0xE8].b);
+	gStarColors[15] = screen->MapRGB(colors[gGammaCorrect][0xF7].r,
+					colors[gGammaCorrect][0xF7].g,
+					colors[gGammaCorrect][0xF7].b);
+	gStarColors[16] = screen->MapRGB(colors[gGammaCorrect][0xF8].r,
+					colors[gGammaCorrect][0xF8].g,
+					colors[gGammaCorrect][0xF8].b);
+	gStarColors[17] = screen->MapRGB(colors[gGammaCorrect][0xF9].r,
+					colors[gGammaCorrect][0xF9].g,
+					colors[gGammaCorrect][0xF9].b);
+	gStarColors[18] = screen->MapRGB(colors[gGammaCorrect][0xFA].r,
+					colors[gGammaCorrect][0xFA].g,
+					colors[gGammaCorrect][0xFA].b);
+	gStarColors[19] = screen->MapRGB(colors[gGammaCorrect][0xFB].r,
+					colors[gGammaCorrect][0xFB].g,
+					colors[gGammaCorrect][0xFB].b);
 
 	for (index = 0; index < MAX_STARS; index++) {
 		gTheStars[index] = new Star;
@@ -193,11 +258,11 @@ static void InitStars(void)
 
 static void InitShots(void)
 {
-	int	       xx = 30;
+	int xx = 30;
 
-	/* Remap the shot colors */
-	win->ReColor(gPlayerShotColors,&gPlayerShotColors,SHOT_SIZE*SHOT_SIZE);
-	win->ReColor(gEnemyShotColors, &gEnemyShotColors, SHOT_SIZE*SHOT_SIZE);
+	/* Load the shot images */
+	gPlayerShot = screen->LoadImage(SHOT_SIZE,SHOT_SIZE,gPlayerShotColors);
+	gEnemyShot = screen->LoadImage(SHOT_SIZE, SHOT_SIZE, gEnemyShotColors);
 
 	/* Now setup the shot origin table */
 
@@ -499,8 +564,28 @@ static void InitShots(void)
 
 static void BuildVelocityTable(void)
 {
-#define PRECOMPUTE_VELTABLE
-#ifdef PRECOMPUTE_VELTABLE
+#ifdef COMPUTE_VELTABLE
+	/* Calculate the appropriate values */
+	int	index;
+	double	factor;
+	double	ss;
+
+	ss = SHIP_FRAMES;
+	factor = (360.0 / ss);
+
+	for (index = 0; index < SHIP_FRAMES; index++) {
+		ss = index;
+		ss = -(((ss * factor) * PI) / 180.0);
+		gVelocityTable[index].h = (int)(sin(ss) * -8.0);
+		gVelocityTable[index].v = (int)(cos(ss) * -8.0);
+#ifdef PRINT_TABLE
+		printf("\tgVelocityTable[%d].h = %d;\n", index,
+						gVelocityTable[index].h);
+		printf("\tgVelocityTable[%d].v = %d;\n", index,
+						gVelocityTable[index].v);
+#endif
+	}
+#else
 	/* Because PI, sin() and cos() return _slightly_ different
 	   values across architectures, we need to precompute our
 	   velocity table -- make it standard across compilations. :)
@@ -601,158 +686,87 @@ static void BuildVelocityTable(void)
 	gVelocityTable[46].v = -7;
 	gVelocityTable[47].h = -1;
 	gVelocityTable[47].v = -7;
-#else
-	/* Calculate the appropriate values */
-	int	index;
-	double	factor;
-	double	ss;
-
-	ss = SHIP_FRAMES;
-	factor = (360.0 / ss);
-
-	for (index = 0; index < SHIP_FRAMES; index++) {
-		ss = index;
-		ss = -(((ss * factor) * PI) / 180.0);
-		gVelocityTable[index].h = (int)(sin(ss) * -8.0);
-		gVelocityTable[index].v = (int)(cos(ss) * -8.0);
-#ifdef PRINT_TABLE
-		printf("\tgVelocityTable[%d].h = %d;\n", index,
-						gVelocityTable[index].h);
-		printf("\tgVelocityTable[%d].v = %d;\n", index,
-						gVelocityTable[index].v);
-#endif
-	}
-#endif /* PRECOMPUTE_VELTABLE */
+#endif /* COMPUTE_VELTABLE */
 }	/* -- BuildVelocityTable */
 
-/* ----------------------------------------------------------------- */
-/* -- Open/Close the Macintosh Resource files */
 
-static Mac_Resource *spriteres;
-static int OpenFiles(void)
+/* This function needs to be able to properly clean up from any stage
+   of the program at any time, including itself if interrupted during
+   cleanup.  *sigh*  reentrant multi-threading can be a pain. :)
+*/
+void CleanUp(void)
 {
-	spriteres = new Mac_Resource(file2libpath(SPRITES_NAME));
-	return(0);
+	HaltLogic();
+	if ( fontserv ) {
+		delete fontserv;
+		fontserv = NULL;
+	}
+	if ( sound ) {
+		delete sound;
+		sound = NULL;
+	}
+	if ( screen ) {
+		delete screen;
+		screen = NULL;
+	}
+	SaveControls();
+	SDL_Quit();
 }
-static void CloseFiles(void)
-{
-	delete spriteres;
-}
+
 
 /* ----------------------------------------------------------------- */
 /* -- Perform some initializations and report failure if we choke */
-int DoInitializations(int fullscreen, int private_cmap, int dofade)
+int DoInitializations(Uint32 video_flags)
 {
+	LibPath library;
+	int i;
+	SDL_Surface *icon;
+
+	/* Make sure we clean up properly at exit */
+	if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) < 0 ) {
+		error("Couldn't initialize SDL: %s\n", SDL_GetError());
+		return(-1);
+	}
+	atexit(CleanUp);
+	signal(SIGSEGV, exit);
+
 	// -- Initialize some variables
 	gLastHigh = -1;
 
 	// -- Create our scores file
 	LoadScores();
 
-	// -- Open up the resource files we need
-	if ( OpenFiles() < 0 )
-		return(-1);
-
-	/* Initialize the main system modules
-	   They are loaded in order of failure importance
-	 */
 	/* Load the Font Server */
-	fontserv = new FontServ(file2libpath("Maelstrom Fonts"));
-
-#ifdef __WIN95__
-	/* DirectSound requires a window for the initialization.
-	   Create our own, and provide it for the sound module.
-	 */
-#ifdef USE_MGL
-	win = new MGL_FrameBuf(SCREEN_WIDTH, SCREEN_HEIGHT, 1, fullscreen);
-#else
-	win = new DX_FrameBuf(SCREEN_WIDTH, SCREEN_HEIGHT, 1, fullscreen);
-#endif /* SciTech MGL API */
-#endif /* Win95 */
-
-	/* Load the Sound Server and initialize sound */
-	sound = new SoundClient();
-	(void) sound->SetVolume(gSoundLevel);
-
-	/* Load sounds here, before we try to create the window */
-	if ( LoadSounds() < 0 )
-		return(-1);
-
-	/* Now create the display (what a mess) */
-#ifndef __WIN95__
-	if ( getenv("DISPLAY") ) {
-#ifdef USE_DGA
-		if ( fullscreen )
-			win = new DGA_FrameBuf(SCREEN_WIDTH, SCREEN_HEIGHT, 1);
-		else
-#endif
-		win = new X11_FrameBuf(SCREEN_WIDTH, SCREEN_HEIGHT, 1,
-				fullscreen, "Maelstrom", Maelstrom_icon);
-#if defined(USE_SVGALIB) && defined(linux)
-	} else if ( On_Console() ) {
-		win = new VGA_FrameBuf(SCREEN_WIDTH, SCREEN_HEIGHT, 1);
-	} else {
-		error("Not running under X11 or a Linux console.\n");
-#else
-	} else {
-		error("Not running under X11.\n");
-#endif
+	fontserv = new FontServ(library.Path("Maelstrom Fonts"));
+	if ( fontserv->Error() ) {
+		error("Fatal: %s\n", fontserv->Error());
 		return(-1);
 	}
-#endif /* Win95 */
-	win->SetFade(dofade);
-	win->Hide_Cursor();
 
-	/* Make sure we clean up properly at exit */
-	atexit(CleanUp);
-#ifdef SIGHUP
-	signal(SIGHUP, Killed);
-#endif
-#ifdef SIGINT
-	signal(SIGINT, Killed);
-#endif
-#ifdef SIGQUIT
-	signal(SIGQUIT, Killed);
-#endif
-#ifdef SIGILL
-	signal(SIGILL, Killed);
-#endif
-#ifdef SIGTRAP
-	signal(SIGTRAP, Killed);
-#endif
-#ifdef SIGPIPE
-	signal(SIGPIPE, Killed);
-#endif
-#ifdef SIGBUS
-	signal(SIGBUS, Killed);
-#endif
-#ifdef SIGSEGV
-	signal(SIGSEGV, Killed);
-#endif
-#ifdef SIGTERM
-	signal(SIGTERM, Killed);
-#endif
-#ifdef SIGCHLD
-	signal(SIGCHLD, ReapChild);
-#endif
+	/* Load the Sound Server and initialize sound */
+	sound = new Sound(library.Path("Maelstrom Sounds"), gSoundLevel);
+	if ( sound->Error() ) {
+		error("Fatal: %s\n", sound->Error());
+		return(-1);
+	}
 
-	// -- Load in the palette we want to use
-	int GammaLevel = gGammaCorrect;
-#ifdef DEBUG
-error("Gamma correction level %d\n", GammaLevel);
-#endif
-#ifdef INTERLACE_DOUBLED
-	/* Increase gamma to compensate for losing every other scanline */
-	if ( GammaLevel < MAX_GAMMA )
-		++GammaLevel;
-	/* Twice */
-	if ( GammaLevel < MAX_GAMMA )
-		++GammaLevel;
-#endif
-	if ( private_cmap )
-		win->Alloc_Private_Cmap(full_colors[GammaLevel]);
-	else
-		win->Alloc_Cmap(full_colors[GammaLevel]);
+	/* Load the Maelstrom icon */
+	icon = SDL_LoadBMP(library.Path("icon.bmp"));
+	if ( icon == NULL ) {
+		error("Fatal: Couldn't load icon: %s\n", SDL_GetError());
+		return(-1);
+	}
+
+	/* Initialize the screen */
+	screen = new FrameBuf;
+	if (screen->Init(SCREEN_WIDTH, SCREEN_HEIGHT, video_flags,
+					colors[gGammaCorrect], icon) < 0){
+		error("Fatal: %s\n", screen->Error());
+		return(-1);
+	}
+	screen->SetCaption("Maelstrom");
+	atexit(CleanUp);		// Need to reset this under X11 DGA
+	SDL_FreeSurface(icon);
 
 	/* -- We want to access the FULL screen! */
 	SetRect(&gScrnRect, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -763,25 +777,41 @@ error("Gamma correction level %d\n", GammaLevel);
 	gBottom = gScrnRect.bottom - gScrnRect.top;
 	gRight = gScrnRect.right - gScrnRect.left;
 
-	SetRect(&gClipRect, gLeft+SPRITES_WIDTH, gTop+SPRITES_WIDTH,
-		gRight-SPRITES_WIDTH, gBottom+STATUS_HEIGHT-SPRITES_WIDTH);
-	win->Set_BlitClip(gClipRect.left, gClipRect.top,
-				gClipRect.right, gClipRect.bottom);
+	gClipRect.x = gLeft+SPRITES_WIDTH;
+	gClipRect.y = gTop+SPRITES_WIDTH;
+	gClipRect.w = gRight-gLeft-2*SPRITES_WIDTH;
+	gClipRect.h = gBottom-gTop-2*SPRITES_WIDTH+STATUS_HEIGHT;
+	screen->ClipBlit(&gClipRect);
 
 	/* Do the Ambrosia Splash screen */
-	win->Fade(FADE_STEPS);
+	screen->Clear();
+	screen->Update();
+	screen->Fade();
 	DoSplash();
-	win->Fade(FADE_STEPS);
-	Delay(60*5);
-	win->Fade(FADE_STEPS);
+	screen->Fade();
+	for ( i=0; i<5; ++i ) {
+		Delay(60);
+		DropEvents();
+	}
+
 	/* -- Throw up our intro screen */
+	screen->Fade();
 	DoIntroScreen();
-	sound->PlaySound(gPrizeAppears, 1, NULL);
-	win->Fade(FADE_STEPS);
+	sound->PlaySound(gPrizeAppears, 1);
+	screen->Fade();
 
 	/* -- Load in our sprites and other needed resources */
-	if ( LoadBlits() < 0 )
-		return(-1);
+	{
+		Mac_Resource spriteres(library.Path("Maelstrom Sprites"));
+
+		if ( spriteres.Error() ) {
+			error("%s\n", spriteres.Error());
+			return(-1);
+		}
+		if ( LoadBlits(&spriteres) < 0 ) {
+			return(-1);
+		}
+	}
 
 	/* -- Create the shots array */
 	InitShots();
@@ -800,253 +830,172 @@ error("Gamma correction level %d\n", GammaLevel);
 	/* -- Set up the velocity tables */
 	BuildVelocityTable();
 
-	/* -- Return OKAY! */
-	CloseFiles();
 	return(0);
 }	/* -- DoInitializations */
 
 
 /* ----------------------------------------------------------------- */
-/* -- Load in the sounds we need */
-
-static int LoadSounds(void)
-{
-/* -- Load in the sound resources */
-
-	if ( sound->LoadSound(gPrizeAppears) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gBonusShot) )
-		return(-1);
-	if ( sound->LoadSound(gShotSound) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gIdiotSound) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gMultiplier) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gShipHitSound) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gExplosionSound) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gBoom1) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gBoom2) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gMultiplierGone) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gMultShotSound) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gSteelHit) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gBonk) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gRiff) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gGotPrize) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gGameOver) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gNewLife) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gBonusAppears) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gNoBonus) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gGravAppears) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gHomingAppears) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gShieldOnSound) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gNoShieldSound) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gNovaAppears) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gNovaBoom) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gLuckySound) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gDamagedAppears) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gSavedShipSound) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gFunk) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gEnemyAppears) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gPrettyGood) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gThrusterSound) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gEnemyFire) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gFreezeSound) < 0 )
-		return(-1);
-	if ( sound->LoadSound(gPauseSound) < 0 )
-		return(-1);
-	return(0);
-}	/* -- sound->LoadSounds */
-
-
-/* ----------------------------------------------------------------- */
 /* -- Load in the blits */
 
-static int LoadBlits(void)
+static int LoadBlits(Mac_Resource *spriteres)
 {
+
 	DrawLoadBar(1);
 
 /* -- Load in the thrusters */
 
-	if ( LoadSmallSprite(&gThrust1, 400, SHIP_FRAMES) < 0 )
+	if ( LoadSmallSprite(spriteres, &gThrust1, 400, SHIP_FRAMES) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
-	if ( LoadSmallSprite(&gThrust2, 500, SHIP_FRAMES) < 0 )
+	if ( LoadSmallSprite(spriteres, &gThrust2, 500, SHIP_FRAMES) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
 /* -- Load in the player's ship */
 
-	if ( LoadSprite(&gPlayerShip, 200, SHIP_FRAMES) < 0 )
+	if ( LoadSprite(spriteres, &gPlayerShip, 200, SHIP_FRAMES) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
 /* -- Load in the large rock */
 
-	if ( LoadSprite(&gRock1R, 500, 60) < 0 )
+	if ( LoadSprite(spriteres, &gRock1R, 500, 60) < 0 )
 		return(-1);
 	BackwardsSprite(&gRock1L, gRock1R);
 	DrawLoadBar(0);
 
 /* -- Load in the medium rock */
 
-	if ( LoadSprite(&gRock2R, 400, 40) < 0 )
+	if ( LoadSprite(spriteres, &gRock2R, 400, 40) < 0 )
 		return(-1);
 	BackwardsSprite(&gRock2L, gRock2R);
 	DrawLoadBar(0);
 
 /* -- Load in the small rock */
 
-	if ( LoadSmallSprite(&gRock3R, 300, 20) < 0 )
+	if ( LoadSmallSprite(spriteres, &gRock3R, 300, 20) < 0 )
 		return(-1);
 	BackwardsSprite(&gRock3L, gRock3R);
 	DrawLoadBar(0);
 
 /* -- Load in the explosion */
 
-	if ( LoadSprite(&gExplosion, 600, 12) < 0 )
+	if ( LoadSprite(spriteres, &gExplosion, 600, 12) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
 /* -- Load in the 2x multiplier */
 
-	if ( LoadSprite(&gMult[0], 2000, 1) < 0 )
+	if ( LoadSprite(spriteres, &gMult[0], 2000, 1) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
 /* -- Load in the 3x multiplier */
 
-	if ( LoadSprite(&gMult[1], 2002, 1) < 0 )
+	if ( LoadSprite(spriteres, &gMult[1], 2002, 1) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
 /* -- Load in the 4x multiplier */
 
-	if ( LoadSprite(&gMult[2], 2004, 1) < 0 )
+	if ( LoadSprite(spriteres, &gMult[2], 2004, 1) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
 /* -- Load in the 5x multiplier */
 
-	if ( LoadSprite(&gMult[3], 2006, 1) < 0 )
+	if ( LoadSprite(spriteres, &gMult[3], 2006, 1) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
 /* -- Load in the steel asteroid */
 
-	if ( LoadSprite(&gSteelRoidL, 700, 40) < 0 )
+	if ( LoadSprite(spriteres, &gSteelRoidL, 700, 40) < 0 )
 		return(-1);
 	BackwardsSprite(&gSteelRoidR, gSteelRoidL);
 	DrawLoadBar(0);
 
 /* -- Load in the prize */
 
-	if ( LoadSprite(&gPrize, 800, 30) < 0 )
+	if ( LoadSprite(spriteres, &gPrize, 800, 30) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
 /* -- Load in the bonus */
 
-	if ( LoadSprite(&gBonusBlit, 900, 10) < 0 )
+	if ( LoadSprite(spriteres, &gBonusBlit, 900, 10) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
 /* -- Load in the bonus */
 
-	if ( LoadSprite(&gPointBlit, 1000, 6) < 0 )
+	if ( LoadSprite(spriteres, &gPointBlit, 1000, 6) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
 /* -- Load in the vortex */
 
-	if ( LoadSprite(&gVortexBlit, 1100, 10) < 0 )
+	if ( LoadSprite(spriteres, &gVortexBlit, 1100, 10) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
 /* -- Load in the homing mine */
 
-	if ( LoadSprite(&gMineBlitR, 1200, 40) < 0 )
+	if ( LoadSprite(spriteres, &gMineBlitR, 1200, 40) < 0 )
 		return(-1);
 	BackwardsSprite(&gMineBlitL, gMineBlitR);
 	DrawLoadBar(0);
 
 /* -- Load in the shield */
 
-	if ( LoadSprite(&gShieldBlit, 1300, 2) < 0 )
+	if ( LoadSprite(spriteres, &gShieldBlit, 1300, 2) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
 /* -- Load in the nova */
 
-	if ( LoadSprite(&gNova, 1400, 18) < 0 )
+	if ( LoadSprite(spriteres, &gNova, 1400, 18) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
 /* -- Load in the ship explosion */
 
-	if ( LoadSprite(&gShipExplosion, 1500, 21) < 0 )
+	if ( LoadSprite(spriteres, &gShipExplosion, 1500, 21) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
 /* -- Load in the shrapnel */
 
-	if ( LoadSprite(&gShrapnel1, 1800, 50) < 0 )
+	if ( LoadSprite(spriteres, &gShrapnel1, 1800, 50) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
-	if ( LoadSprite(&gShrapnel2, 1900, 42) < 0 )
+	if ( LoadSprite(spriteres, &gShrapnel2, 1900, 42) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
 /* -- Load in the damaged ship */
 
-	if ( LoadSprite(&gDamagedShip, 1600, 10) < 0 )
+	if ( LoadSprite(spriteres, &gDamagedShip, 1600, 10) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
 /* -- Load in the enemy ship */
 
-	if ( LoadSprite(&gEnemyShip, 1700, 40) < 0 )
+	if ( LoadSprite(spriteres, &gEnemyShip, 1700, 40) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
 /* -- Load in the enemy ship */
 
-	if ( LoadSprite(&gEnemyShip2, 2100, 40) < 0 )
+	if ( LoadSprite(spriteres, &gEnemyShip2, 2100, 40) < 0 )
 		return(-1);
 	DrawLoadBar(0);
 
 	return(0);
 }	/* -- LoadBlits */
+
 
 /* -- Initialize our sprites */
 
@@ -1060,13 +1009,14 @@ int InitSprites(void)
 	return(InitPlayerSprites());
 }	/* -- InitSprites */
 
+
 /* ----------------------------------------------------------------- */
 /* -- Load in the sprites we use */
 
 static void BackwardsSprite(BlitPtr *theBlit, BlitPtr oldBlit)
 {
 	BlitPtr	aBlit;
-	int	index, nFrames;
+	int index, nFrames;
 
 	aBlit = new Blit;
 	nFrames = oldBlit->numFrames;
@@ -1079,13 +1029,8 @@ static void BackwardsSprite(BlitPtr *theBlit, BlitPtr oldBlit)
 
 	/* -- Reverse the sprite images */
 	for (index = 0; index < aBlit->numFrames; index++) {
-#ifdef IMAGES_NEEDED
-		aBlit->spriteImages[index] = 
-				oldBlit->spriteImages[nFrames - index - 1];
-#endif
-		aBlit->imageMasks[index] = 
-				oldBlit->imageMasks[nFrames - index - 1];
 		aBlit->sprite[index] = oldBlit->sprite[nFrames - index - 1];
+		aBlit->mask[index] = oldBlit->mask[nFrames - index - 1];
 	}
 	(*theBlit) = aBlit;
 }	/* -- BackwardsSprite */
@@ -1094,14 +1039,16 @@ static void BackwardsSprite(BlitPtr *theBlit, BlitPtr oldBlit)
 /* ----------------------------------------------------------------- */
 /* -- Load in the sprites we use */
 
-static int LoadSprite(BlitPtr *theBlit, int baseID, int numFrames)
+static int LoadSprite(Mac_Resource *spriteres,
+			BlitPtr *theBlit, int baseID, int numFrames)
 {
-	struct Mac_ResData D;
+	Mac_ResData *S, *M;
 	int	index;
 	BlitPtr	aBlit;
+	Uint32	offset;
 	int	top, left, bottom, right;
-	int	row, col, offset;
-	unsigned char *mask, *pdata;
+	int	row, col;
+	Uint8	*mask;
 
 	aBlit = new Blit;
 	aBlit->numFrames = numFrames;
@@ -1114,22 +1061,23 @@ static int LoadSprite(BlitPtr *theBlit, int baseID, int numFrames)
 
 	/* -- Load in the image data */
 	for (index = 0; index < numFrames; index++) {
-		if ( spriteres->get_resource("icl8", baseID+index, &D) < 0 ) {
-			error(
-	"LoadSprite(%d+%d): Couldn't load icl8 resource!\n", baseID, index);
-			return(-1);
-		}
-		win->ReColor(D.data, &aBlit->spriteImages[index], D.length);
-		delete[] D.data;
 
-		if ( spriteres->get_resource("ICN#", baseID+index, &D) < 0 ) {
+		M = spriteres->Resource("ICN#", baseID+index);
+		if ( M== NULL ) {
 			error(
 	"LoadSprite(%d+%d): Couldn't load ICN# resource!\n", baseID, index);
 			return(-1);
 		}
+		mask = M->data+128;
+		
+		S = spriteres->Resource("icl8", baseID+index);
+		if ( S == NULL ) {
+			error(
+	"LoadSprite(%d+%d): Couldn't load icl8 resource!\n", baseID, index);
+			return(-1);
+		}
 
 		/* -- Figure out the hit rectangle */
-		mask = D.data+128;
 		/* -- Do the top/left first */
 		for ( row=0; row<32; ++row ) {
 			for ( col=0; col<32; ++col ) {
@@ -1155,15 +1103,19 @@ static int LoadSprite(BlitPtr *theBlit, int baseID, int numFrames)
 		}
 		SetRect(&aBlit->hitRect, left, top, right, bottom);
 				
-		aBlit->sprite[index] = win->Compile_Sprite(32, 32, 
-					aBlit->spriteImages[index], mask);
-#ifndef IMAGES_NEEDED
-		win->FreeArt(aBlit->spriteImages[index]);
-#endif
+		/* Load the image */
+		aBlit->sprite[index] = screen->LoadImage(32, 32, S->data, mask);
+		if ( aBlit->sprite[index] == NULL ) {
+			error(
+	"LoadSprite(%d+%d): Couldn't convert sprite image!\n", baseID, index);
+			return(-1);
+		}
+
 		/* Create the bytemask */
-		aBlit->imageMasks[index] = new unsigned char[(D.length-128)*8];
-		for ( offset=0; offset<((D.length-128)*8); ++offset ) {
-			aBlit->imageMasks[index][offset] = 
+		M->length = (M->length-128)*8;
+		aBlit->mask[index] = new Uint8[M->length];
+		for ( offset=0; offset<M->length; ++offset ) {
+			aBlit->mask[index][offset] = 
 				((mask[offset/8]>>(7-(offset%8)))&0x01);
 		}
 	}
@@ -1177,27 +1129,27 @@ static int LoadSprite(BlitPtr *theBlit, int baseID, int numFrames)
 
 static int LoadCICNS(void)
 {
-	if ( (gAutoFireIcon = GetCIcon(128)) == NULL )
+	if ( (gAutoFireIcon = GetCIcon(screen, 128)) == NULL )
 		return(-1);
-	if ( (gAirBrakesIcon = GetCIcon(129)) == NULL )
+	if ( (gAirBrakesIcon = GetCIcon(screen, 129)) == NULL )
 		return(-1);
-	if ( (gMult2Icon = GetCIcon(130)) == NULL )
+	if ( (gMult2Icon = GetCIcon(screen, 130)) == NULL )
 		return(-1);
-	if ( (gMult3Icon = GetCIcon(131)) == NULL )
+	if ( (gMult3Icon = GetCIcon(screen, 131)) == NULL )
 		return(-1);
-	if ( (gMult4Icon = GetCIcon(132)) == NULL )
+	if ( (gMult4Icon = GetCIcon(screen, 132)) == NULL )
 		return(-1);
-	if ( (gMult5Icon = GetCIcon(134)) == NULL )
+	if ( (gMult5Icon = GetCIcon(screen, 134)) == NULL )
 		return(-1);
-	if ( (gLuckOfTheIrishIcon = GetCIcon(133)) == NULL )
+	if ( (gLuckOfTheIrishIcon = GetCIcon(screen, 133)) == NULL )
 		return(-1);
-	if ( (gTripleFireIcon = GetCIcon(135)) == NULL )
+	if ( (gTripleFireIcon = GetCIcon(screen, 135)) == NULL )
 		return(-1);
-	if ( (gLongFireIcon = GetCIcon(136)) == NULL )
+	if ( (gLongFireIcon = GetCIcon(screen, 136)) == NULL )
 		return(-1);
-	if ( (gShieldIcon = GetCIcon(137)) == NULL )
+	if ( (gShieldIcon = GetCIcon(screen, 137)) == NULL )
 		return(-1);
-	if ( (gKeyIcon = GetCIcon(100)) == NULL )
+	if ( (gKeyIcon = GetCIcon(screen, 100)) == NULL )
 		return(-1);
 	return(0);
 }	/* -- LoadCICNS */
@@ -1206,14 +1158,16 @@ static int LoadCICNS(void)
 /* ----------------------------------------------------------------- */
 /* -- Load in the sprites we use */
 
-static int LoadSmallSprite(BlitPtr *theBlit, int baseID, int numFrames)
+static int LoadSmallSprite(Mac_Resource *spriteres,
+				BlitPtr *theBlit, int baseID, int numFrames)
 {
-	struct Mac_ResData D;
+	Mac_ResData *S, *M;
 	int	index;
 	BlitPtr	aBlit;
+	Uint32	offset;
 	int	top, left, bottom, right;
-	int	row, col, offset;
-	unsigned char *mask, *pdata;
+	int	row, col;
+	Uint8	*mask;
 
 	aBlit = new Blit;
 	aBlit->numFrames = numFrames;
@@ -1227,22 +1181,23 @@ static int LoadSmallSprite(BlitPtr *theBlit, int baseID, int numFrames)
 	/* -- Load in the image data */
 
 	for (index = 0; index < numFrames; index++) {
-		if ( spriteres->get_resource("ics8", baseID+index, &D) < 0 ) {
-			error(
-	"LoadSmallSprite(%d+%d): Couldn't load ics8 resource!\n", baseID,index);
-			return(-1);
-		}
-		win->ReColor(D.data, &aBlit->spriteImages[index], D.length);
-		delete[] D.data;
 
-		if ( spriteres->get_resource("ics#", baseID+index, &D) < 0 ) {
+		M = spriteres->Resource("ics#", baseID+index);
+		if ( M == NULL ) {
 			error(
 	"LoadSmallSprite(%d+%d): Couldn't load ics# resource!\n", baseID,index);
 			return(-1);
 		}
+		mask = M->data+32;
+
+		S = spriteres->Resource("ics8", baseID+index);
+		if ( S == NULL ) {
+			error(
+	"LoadSmallSprite(%d+%d): Couldn't load ics8 resource!\n", baseID,index);
+			return(-1);
+		}
 
 		/* -- Figure out the hit rectangle */
-		mask = D.data+32;
 		/* -- Do the top/left first */
 		for ( row=0; row<16; ++row ) {
 			for ( col=0; col<16; ++col ) {
@@ -1268,44 +1223,23 @@ static int LoadSmallSprite(BlitPtr *theBlit, int baseID, int numFrames)
 		}
 		SetRect(&aBlit->hitRect, left, top, right, bottom);
 
-		aBlit->sprite[index] = win->Compile_Sprite(16, 16, 
-					aBlit->spriteImages[index], mask);
-#ifndef IMAGES_NEEDED
-		win->FreeArt(aBlit->spriteImages[index]);
-#endif
+		/* Load the image */
+		aBlit->sprite[index] = screen->LoadImage(16, 16, S->data, mask);
+		if ( aBlit->sprite[index] == NULL ) {
+			error(
+	"LoadSprite(%d+%d): Couldn't convert sprite image!\n", baseID, index);
+			return(-1);
+		}
+
 		/* Create the bytemask */
-		aBlit->imageMasks[index] = new unsigned char[(D.length-32)*8];
-		for ( offset=0; offset<((D.length-32)*8); ++offset ) {
-			aBlit->imageMasks[index][offset] = 
+		M->length = (M->length-32)*8;
+		aBlit->mask[index] = new Uint8[M->length];
+		for ( offset=0; offset<M->length; ++offset ) {
+			aBlit->mask[index][offset] = 
 				((mask[offset/8]>>(7-(offset%8)))&0x01);
 		}
 	}
 	(*theBlit) = aBlit;
 	return(0);
 }	/* -- LoadSmallSprite */
-
-
-/* ----------------------------------------------------------------- */
-/* -- Set a star */
-
-void SetStar(int which)
-{
-	int bpp = win->DisplayBPP();
-	gTheStars[which]->xCoord = FastRandom(SCREEN_WIDTH);
-	gTheStars[which]->yCoord = FastRandom(SCREEN_HEIGHT-STATUS_HEIGHT);
-	switch (bpp) {
-		case 1:
-			gTheStars[which]->color = gStarColors[FastRandom(20)];
-			break;
-		case 2:
-			gTheStars[which]->color = 
-				*((short *)&gStarColors[FastRandom(20)*2]);
-			break;
-		case 3:
-		case 4:
-			gTheStars[which]->color = 
-				*((long *)&gStarColors[FastRandom(20)*4]);
-			break;
-	}
-}	/* -- SetStar */
 

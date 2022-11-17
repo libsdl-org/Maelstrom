@@ -7,4 +7,4 @@
 #define KEY_LEN		4	/* Auth key length in bytes */
 
 /*			         CRC  Name    Score Wave */
-#define SCOREFMT	"NEWSCORE\t%s\t%s\t%-3.1ld\t%d\n"
+#define SCOREFMT	"NEWSCORE\t%s\t%s\t%-3.1u\t%u\n"

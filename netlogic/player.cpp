@@ -6,61 +6,42 @@
 #include "globals.h"
 #include "objects.h"
 
-#include <errno.h>
 
 /* ----------------------------------------------------------------- */
 /* -- The thrust sound callback */
 
-static void ThrustCallback(unsigned short theChannel)
+static void ThrustCallback(Uint8 theChannel)
 {
 #ifdef DEBUG
 error("Thrust called back on channel %hu\n", theChannel);
 #endif
 	/* -- Check the control key */
 	if ( gPlayers[gOurPlayer]->IsThrusting() )
-		sound->PlayChannel(gThrusterSound,1,theChannel,ThrustCallback);
+		sound->PlaySound(gThrusterSound,1,theChannel,ThrustCallback);
 }	/* -- ThrustCallback */
 
 
 /* ----------------------------------------------------------------- */
 /* -- The Player class */
 
-Player::Player(int index) :
-			Object(0, 0, 0, 0, gPlayerShip, NO_PHASE_CHANGE)
+Player:: Player(int index) : Object(0, 0, 0, 0, gPlayerShip, NO_PHASE_CHANGE)
 {
-		int i, bpp;
-		Index = index;
-		for ( i=0; i<MAX_SHOTS; ++i ) {
-			shots[i] = new Shot;
-			shots[i]->damage = 1;
-		}
-		shotcolors = gPlayerShotColors;
-		shotmask = gShotMask;
-		bpp = win->DisplayBPP();
-		mycolor = win->Map_Color(gPlayerColors[index][0],
-						gPlayerColors[index][1],
-						gPlayerColors[index][2]);
-		thedot = new unsigned char [SHOT_SIZE*SHOT_SIZE*bpp];
-		switch (bpp) {
-			case 1:
-				for ( i=0; i<(SHOT_SIZE*SHOT_SIZE); ++i )
-					thedot[i] = (char)mycolor;
-				break;
-			case 2:
-				for ( i=0; i<(SHOT_SIZE*SHOT_SIZE); ++i ) {
-					*((short *)(&thedot[i*2])) =
-							(short)mycolor;
-				}
-				break;
-			case 3:
-			case 4:
-				for ( i=0; i<(SHOT_SIZE*SHOT_SIZE); ++i )
-					memcpy(&thedot[i*bpp], &mycolor, bpp);
-				break;
-		}
-		numshots = 0;
-		Score = 0;
-		--gNumSprites;		// We aren't really a sprite
+	int i;
+
+	Index = index;
+	Score = 0;
+	for ( i=0; i<MAX_SHOTS; ++i ) {
+		shots[i] = new Shot;
+		shots[i]->damage = 1;
+	}
+	numshots = 0;
+
+	/* Create a colored dot for this player */
+	ship_color = screen->MapRGB(gPlayerColors[index][0],
+				    gPlayerColors[index][1],
+				    gPlayerColors[index][2]);
+
+	--gNumSprites;		// We aren't really a sprite
 }
 Player::~Player()
 {
@@ -80,7 +61,6 @@ Player::NewGame(int lives)
 	Score = 0;
 	Frags = 0;
 	special = 0;
-	KeyCheck = KEYCHK_FRAMES;
 	NewShip();
 }
 void 
@@ -184,7 +164,7 @@ Player::BeenShot(Object *ship, Shot *shot)
 	if ( AutoShield || (ShieldOn && (ShieldLevel > 0)) )
 		return(0);
 	if ( (special & LUCKY_IRISH) && (FastRandom(LUCK_ODDS) == 0) ) {
-		sound->PlaySound(gLuckySound, 4, NULL);
+		sound->PlaySound(gLuckySound, 4);
 		return(0);
 	}
 	return(Object::BeenShot(ship, shot));
@@ -200,7 +180,7 @@ Player::BeenRunOver(Object *ship) {
 	if ( ship->IsPlayer() )		/* Players phase through eachother */
 		return(0);
 	if ( (special & LUCKY_IRISH) && (FastRandom(LUCK_ODDS) == 0) ) {
-		sound->PlaySound(gLuckySound, 4, NULL);
+		sound->PlaySound(gLuckySound, 4);
 		return(0);
 	}
 	return(Object::BeenRunOver(ship));
@@ -215,7 +195,7 @@ Player::BeenDamaged(int damage)
 	if ( AutoShield || (ShieldOn && (ShieldLevel > 0)) )
 		return(0);
 	if ( (special & LUCKY_IRISH) && (FastRandom(LUCK_ODDS) == 0) ) {
-		sound->PlaySound(gLuckySound, 4, NULL);
+		sound->PlaySound(gLuckySound, 4);
 		return(0);
 	}
 	return(Object::BeenDamaged(damage));
@@ -406,7 +386,7 @@ printf("\n");
 		/* Thrust speeds us up! :)  */
 		if ( Thrusting ) {
 			if ( ! WasThrusting ) {
-				sound->PlayChannel(gThrusterSound,
+				sound->PlaySound(gThrusterSound,
 							1, 3, ThrustCallback);
 				WasThrusting = 1;
 			}
@@ -426,7 +406,7 @@ printf("\n");
 
 				/* Make a single bullet */
 				MakeShot(0);
-				sound->PlaySound(gShotSound, 2, NULL);
+				sound->PlaySound(gShotSound, 2);
 
 				if ( special & TRIPLE_FIRE ) {
 					/* Followed by two more.. */
@@ -454,12 +434,12 @@ printf("\n");
 		} else if ( ShieldOn ) {
 			if ( ShieldLevel > 0 ) {
 				if ( ! WasShielded ) {
-					sound->PlaySound(gShieldOnSound,1,NULL);
+					sound->PlaySound(gShieldOnSound, 1);
 					WasShielded = 1;
 				}
 				--ShieldLevel;
 			} else {
-				sound->PlaySound(gNoShieldSound, 2, NULL);
+				sound->PlaySound(gNoShieldSound, 2);
 			}
 		} else
 			WasShielded = 0;
@@ -474,12 +454,6 @@ Player::HandleKeys(void)
 	unsigned char *inbuf;
 	int len, i;
 
-#if KEYCHK_FRAMES > 1
-	if ( --KeyCheck > 0 )
-		return;
-	KeyCheck = KEYCHK_FRAMES;
-#endif
-
 	if ( (len=GetSyncBuf(Index, &inbuf)) <= 0 )
 		return;
 
@@ -492,7 +466,7 @@ Player::HandleKeys(void)
 						if ( gPaused > 0 ) {
 							--gPaused;
 						} else {
-							sound->PlaySound(gPauseSound, 5, NULL);
+							sound->PlaySound(gPauseSound, 5);
 							++gPaused;
 						}
 					}
@@ -521,7 +495,7 @@ Player::HandleKeys(void)
 						if ( gPaused > 0 ) {
 							--gPaused;
 						} else {
-							sound->PlaySound(gPauseSound, 5, NULL);
+							sound->PlaySound(gPauseSound, 5);
 							++gPaused;
 						}
 						break;
@@ -537,8 +511,8 @@ Player::HandleKeys(void)
 				switch(inbuf[++i]) {
 					case THRUST_KEY:
 						Thrusting = 0;
-						if ( sound->IsSoundPlaying(gThrusterSound) )
-							sound->HaltChannel(3);
+						if ( sound->Playing(gThrusterSound) )
+							sound->HaltSound(3);
 						break;
 					case RIGHT_KEY:
 						Rotating &= ~0x01;
@@ -578,12 +552,11 @@ Player::BlitSprite(void)
 	OBJ_LOOP(i, numshots) {
 		int X = (shots[i]->x>>SPRITE_PRECISION);
 		int Y = (shots[i]->y>>SPRITE_PRECISION);
-		win->ClipBlit_Sprite(X, Y, 
-				SHOT_SIZE, SHOT_SIZE, shotcolors, shotmask);
+		screen->QueueBlit(X, Y, gPlayerShot);
 	}
 	/* Draw the shield, if necessary */
 	if ( AutoShield || (ShieldOn && (ShieldLevel > 0)) ) {
-		win->Blit_CSprite(x>>SPRITE_PRECISION, y>>SPRITE_PRECISION,
+		screen->QueueBlit(x>>SPRITE_PRECISION, y>>SPRITE_PRECISION,
 						gShieldBlit->sprite[Sphase]);
 	}
 	/* Draw the thrust, if necessary */
@@ -591,20 +564,13 @@ Player::BlitSprite(void)
 		int thrust_x, thrust_y;
 		thrust_x = x + gThrustOrigins[phase].h;
 		thrust_y = y + gThrustOrigins[phase].v;
-		win->Blit_CSprite(thrust_x>>SPRITE_PRECISION,
+		screen->QueueBlit(thrust_x>>SPRITE_PRECISION,
 					thrust_y>>SPRITE_PRECISION,
 						ThrustBlit->sprite[phase]);
 	}
 	
 	/* Draw our ship */
 	Object::BlitSprite();
-
-	/* Draw our identity dot */
-	if ( gNumPlayers > 1 ) {
-		win->ClipBlit_Sprite((x>>SPRITE_PRECISION)+(xsize/2),
-				(y>>SPRITE_PRECISION)+(ysize/2), 
-				SHOT_SIZE, SHOT_SIZE, thedot, shotmask);
-	}
 }
 void 
 Player::UnBlitSprite(void)
@@ -618,47 +584,36 @@ Player::UnBlitSprite(void)
 	OBJ_LOOP(i, numshots) {
 		int X = (shots[i]->x>>SPRITE_PRECISION);
 		int Y = (shots[i]->y>>SPRITE_PRECISION);
-		win->UnClipBlit_Sprite(X, Y, SHOT_SIZE, SHOT_SIZE, shotmask);
-	}
-	/* Erase the shield, if necessary */
-	if ( WasShielded ) {
-		win->UnBlit_CSprite(x>>SPRITE_PRECISION, y>>SPRITE_PRECISION,
-						gShieldBlit->sprite[Sphase]);
-		if ( Sphase )
-			Sphase = 0;
-		else
-			Sphase = 1;
+		screen->Clear(X, Y, SHOT_SIZE, SHOT_SIZE, DOCLIP);
 	}
 	/* Erase the thrust, if necessary */
 	if ( WasThrusting ) {
 		int thrust_x, thrust_y;
-		thrust_x = x + gThrustOrigins[phase].h;
-		thrust_y = y + gThrustOrigins[phase].v;
-		win->UnBlit_CSprite(thrust_x>>SPRITE_PRECISION,
-					thrust_y>>SPRITE_PRECISION,
-						ThrustBlit->sprite[phase]);
+		thrust_x = (x + gThrustOrigins[phase].h)>>SPRITE_PRECISION;
+		thrust_y = (y + gThrustOrigins[phase].v)>>SPRITE_PRECISION;
+		screen->Clear(thrust_x, thrust_y, 16, 16, DOCLIP);
 		if ( ThrustBlit == gThrust1 )
 			ThrustBlit = gThrust2;
 		else
 			ThrustBlit = gThrust1;
 	}
-	/* Remove our identity dot */
-	win->UnClipBlit_Sprite((x>>SPRITE_PRECISION)+(xsize/2),
-				(y>>SPRITE_PRECISION)+(ysize/2), 
-					SHOT_SIZE, SHOT_SIZE, shotmask);
-
-	/* Erase the ship */
+	if ( WasShielded ) {
+		if ( Sphase )
+			Sphase = 0;
+		else
+			Sphase = 1;
+	}
 	Object::UnBlitSprite();
 }
 void 
 Player::HitSound(void)
 {
-	sound->PlaySound(gSteelHit, 3, NULL);
+	sound->PlaySound(gSteelHit, 3);
 }
 void 
 Player::ExplodeSound(void)
 {
-	sound->PlaySound(gShipHitSound, 3, NULL);
+	sound->PlaySound(gShipHitSound, 3);
 }
 
 void
@@ -722,31 +677,25 @@ Player::KillShot(int index)
 
 /* The Shot sprites for the Shinobi and Player */
 
-static unsigned char PlayerShotColors[] = {
+Uint8 gPlayerShotColors[] = {
 	0xF0, 0xCC, 0xCC, 0xF0,
 	0xCC, 0x96, 0xC6, 0xCC,
 	0xCC, 0xC6, 0xC6, 0xCC,
 	0xF0, 0xCC, 0xCC, 0xF0
 };
-unsigned char *gPlayerShotColors = PlayerShotColors;
-static unsigned char EnemyShotColors[] = {
+SDL_Surface *gPlayerShot;
+Uint8 gEnemyShotColors[] = {
 	0xDC, 0xDA, 0xDA, 0xDC,
 	0xDA, 0x17, 0x23, 0xDA,
 	0xDA, 0x23, 0x23, 0xDA,
 	0xDC, 0xDA, 0xDA, 0xDC
 };
-unsigned char *gEnemyShotColors = EnemyShotColors;
-unsigned char gShotMask[] = {
-	0xFF, 0xFF, 0xFF, 0xFF,
-	0xFF, 0xFF, 0xFF, 0xFF,
-	0xFF, 0xFF, 0xFF, 0xFF,
-	0xFF, 0xFF, 0xFF, 0xFF
-};
+SDL_Surface *gEnemyShot;
 
-int gPlayerColors[MAX_PLAYERS][3] = {
-	{ 0x0000, 0x0000, 0xFFFF },		/* Player 1 */
-	{ 0xFFFF, 0x9999, 0xFFFF },		/* Player 2 */
-	{ 0x3333, 0x9999, 0x0000 },		/* Player 3 */
+Uint8 gPlayerColors[MAX_PLAYERS][3] = {
+	{ 0x00, 0x00, 0xF},		/* Player 1 */
+	{ 0xFF, 0x99, 0xFF},		/* Player 2 */
+	{ 0x33, 0x99, 0x00},		/* Player 3 */
 };
 
 /* The players!! */

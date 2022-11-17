@@ -11,19 +11,37 @@
 #ifdef _AIX
 #include <sys/select.h>
 #endif
-#include <errno.h>
-#ifdef __WIN95__
-#include <winsock.h>
-#define write(fd, buf, len)	send(fd, buf, len, 0)
-#define read(fd, buf, len)	recv(fd, buf, len, 0)
-#define close(fd)		closesocket(fd)
+#ifdef WIN32
+extern "C" {
+#define Win32_Winsock
+#include <windows.h>
+};
+#ifndef errno
+#define errno	WSAGetLastError()
+#endif
+#define EINTR	WSAEINTR
+#define EAGAIN	WSATRY_AGAIN
 #define perror(str)		neterror(str)
+#define write(fd, buf, len)	send(fd, (char *)buf, len, 0)
+#define read(fd, buf, len)	recv(fd, (char *)buf, len, 0)
+#define close(fd)		closesocket(fd)
+#define RESET_ERRNO()
 #else
+#include <sys/time.h>
+#include <unistd.h>
 #include <netdb.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#ifndef __BEOS__
 #include <arpa/inet.h>
-#endif /* Win95 */
+#endif
+#include <errno.h>
+#define RESET_ERRNO()	errno = 0
+#endif /* WIN32 */
+
+#if !defined(linux) && !defined(__SVR4)
+typedef int socklen_t;
+#endif
 
 int   gNumPlayers;
 int   gOurPlayer;
@@ -67,7 +85,7 @@ static int            CurrIn;
 #define TOGGLE(var)	var = (var ? 0 : 1)
 
 
-#ifdef __WIN95__
+#ifdef WIN32
 static void neterror(char *str) {
 	char *errmsg;
 
@@ -111,14 +129,14 @@ static void neterror(char *str) {
 	else
 		error("%s\n", errmsg);
 }
-#endif /* __WIN95__ */
+#endif /* WIN32 */
 
 
 void InitNetData(void)
 {
 	int i;
 
-#ifdef __WIN95__
+#ifdef WIN32
 	/* Start up the windows networking */
 	WORD version_wanted = MAKEWORD(1,1);
 	WSADATA wsaData;
@@ -153,7 +171,7 @@ void InitNetData(void)
 
 void HaltNetData(void)
 {
-#ifdef __WIN95__
+#ifdef WIN32
 	if ( WSACleanup() == SOCKET_ERROR ) {
 		if ( WSAGetLastError() == WSAEINPROGRESS ) {
 			(void) WSACancelBlockingCall();
@@ -180,7 +198,7 @@ int AddPlayer(char *playerstr)
 		error(
 "Argument to '-player' must be in integer between 1 and %d inclusive.\r\n",
 								MAX_PLAYERS);
-		PukeUsage();
+		PrintUsage();
 	}
 
 	/* Do some error checking */
@@ -196,7 +214,7 @@ int AddPlayer(char *playerstr)
 			if ((hp=gethostbyname(host)) == NULL) {
 				error(
 			"Couldn't resolve host name for %s\r\n", host);
-#ifdef __WIN95__
+#ifdef WIN32
 				perror("Problem was");
 #endif
 				return(-1);
@@ -236,7 +254,7 @@ int SetServer(char *serverstr)
 	if ( (host=strchr(serverstr, '@')) == NULL ) {
 		error(
 		"Server host must be specified in the -server option.\r\n");
-		PukeUsage();
+		PrintUsage();
 	} else
 		*(host++) = '\0';
 	if ( (port=strchr(serverstr, ':')) != NULL )
@@ -248,7 +266,7 @@ int SetServer(char *serverstr)
 		error(
 "The number of players must be an integer between 1 and %d inclusive.\r\n",
 								MAX_PLAYERS);
-		PukeUsage();
+		PrintUsage();
 	}
 
 	/* Resolve the remote address */
@@ -352,7 +370,8 @@ void QueueKey(unsigned char Op, unsigned char Type)
 int SyncNetwork(void)
 {
 	int  nleft;
-	int  i, clen, len;
+	int  i, len;
+	socklen_t clen;
 	struct sockaddr_in from;
 	unsigned long frame, seed, newseed;
 	struct timeval timeout;
@@ -379,7 +398,7 @@ int SyncNetwork(void)
 		if (sendto(gNetFD,(char *)OutBuf,OutLen,0,(struct sockaddr *)
 				&PlayAddr[i], sizeof(PlayAddr[i])) != OutLen) {
 			/* Clear errno here, so select() doesn't get it */
-			errno = 0;
+			RESET_ERRNO();
 		}
 		if ( SyncPtr[i] != NULL )
 			--nleft;
@@ -404,7 +423,7 @@ getit:
 #else
 		if ( select(gNetFD+1, &fdset, NULL, NULL, &timeout) <= 0 ) {
 #endif
-#ifdef __WIN95__
+#ifdef WIN32
 			if ( ! WSAGetLastError() ) {
 #else
 			if ( ! errno ) {
@@ -418,13 +437,14 @@ error("Timed out waiting for frame %ld\r\n", NextFrame);
 					}
 				}
 				continue;
-			} else if ( (errno != EINTR) && (errno != EAGAIN) ) {
+			}
+			else if ( (errno != EINTR) && (errno != EAGAIN) ) {
 				perror("select() error");
 				return(-1);
 			}
 			/* Don't reset the timer -- we had sound I/O */
 //perror("Select error, EINTR");
-			errno = 0;
+			RESET_ERRNO();
 			goto getit;
 		}
 
@@ -435,10 +455,9 @@ readit:
 					(struct sockaddr *)&from, &clen);
 		if ( len <= 0 ) {
 			if ( errno == EINTR ) {
-				errno = 0;
+				RESET_ERRNO();
 				goto readit;
 			}
-
 			perror("Network error: recvfrom()");
 			return(-1);
 		}
@@ -514,7 +533,7 @@ error("Warning! Received packet for really old frame! (%lu, current = %lu)\r\n",
 				if ( gOurPlayer == 0 ) {
 					error(
 "Warning!! \a Frame consistency error with player %d!! (corrected)\r\n", i+1);
-sleep(3);
+SDL_Delay(3000);
 				} else	/* Player 1 sent us good seed */
 					SeedRandom(newseed);
 			}
@@ -567,7 +586,7 @@ inline void SuckPackets(void)
 	struct timeval timeout;
 	fd_set fdset;
 	char   netbuf[BUFSIZ];
-	int    clen;
+	socklen_t clen;
 	struct sockaddr_in from;
 	
 	timeout.tv_sec = 0;
@@ -617,7 +636,6 @@ static inline void MakeNewPacket(int Wave, int Lives, int Turbo,
 static void ErrorMessage(char *message, int errnum)
 {
 	char   mesgbuf[BUFSIZ];
-	time_t then, now;
 
 	/* Display the error message */
 	if ( errnum )
@@ -627,11 +645,7 @@ static void ErrorMessage(char *message, int errnum)
 	Message(mesgbuf);
 
 	/* Wait exactly (almost) 3 seconds */
-	then = time(NULL);
-	do {
-		sleep(1);
-		now = time(NULL);
-	} while ( (now-then) < 3 );
+	SDL_Delay(3000);
 }
 
 /* If we use an address server, we go here, instead of using Send_NewGame()
@@ -654,7 +668,8 @@ static int AlertServer(int *Wave, int *Lives, int *Turbo)
 	unsigned long  wave, lives, seed, myport;
 	struct timeval timeout;
 	fd_set         fdset;
-	int            i, len, clen;
+	int            i, len;
+	socklen_t      clen;
 	int            sockfd, done = 0;
 
 	/* Our address server connection is through TCP */
@@ -698,7 +713,7 @@ static int AlertServer(int *Wave, int *Lives, int *Turbo)
 #else
 		if ( select(sockfd+1, &fdset, NULL, NULL, &timeout) <= 0 ) {
 #endif
-#ifdef __WIN95__
+#ifdef WIN32
 			if ( ! WSAGetLastError() ) {
 #else
 			if ( ! errno ) {	// Timeout, handle keys.
@@ -717,7 +732,7 @@ static int AlertServer(int *Wave, int *Lives, int *Turbo)
 				OutLen = PDATA_OFFSET;
 			} else {
 				/* We ignore other errors.. who cares. :) */
-				errno = 0;
+				RESET_ERRNO();
 			}
 			continue;
 		}
@@ -807,7 +822,8 @@ int Send_NewGame(int *Wave, int *Lives, int *Turbo)
 	char message[BUFSIZ];
 	int  nleft, n;
 	int  acked[MAX_PLAYERS];
-	int  i, clen, len;
+	int  i, len;
+	socklen_t clen;
 	struct sockaddr_in from;
 	struct timeval timeout;
 	fd_set fdset;
@@ -853,7 +869,7 @@ getit:
 #else
 		if ( select(gNetFD+1, &fdset, NULL, NULL, &timeout) <= 0 ) {
 #endif
-#ifdef __WIN95__
+#ifdef WIN32
 			if ( ! WSAGetLastError() ) {
 #else
 			if ( ! errno ) {	// Timeout, handle keys.
@@ -869,7 +885,7 @@ getit:
 				OutLen = PDATA_OFFSET;
 			} else {
 				/* We ignore other errors.. who cares. :) */
-				errno = 0;
+				RESET_ERRNO();
 			}
 
 			/* Every three seconds...resend the new game packet */
@@ -939,7 +955,8 @@ getit:
 int Await_NewGame(int *Wave, int *Lives, int *Turbo)
 {
 	unsigned char netbuf[BUFSIZ];
-	int   i, clen, len, gameon;
+	int   i, len, gameon;
+	socklen_t clen;
 	struct sockaddr_in from;
 	fd_set fdset;
 	struct timeval timeout;
@@ -965,7 +982,7 @@ int Await_NewGame(int *Wave, int *Lives, int *Turbo)
 #else
 		if ( select(gNetFD+1, &fdset, NULL, NULL, &timeout) <= 0 ) {
 #endif
-#ifdef __WIN95__
+#ifdef WIN32
 			if ( ! WSAGetLastError() ) {
 #else
 			if ( ! errno ) {	// Timeout, handle keys.
@@ -982,7 +999,7 @@ int Await_NewGame(int *Wave, int *Lives, int *Turbo)
 				continue;
 			}
 			if ( (errno == EINTR) && (errno != EAGAIN) ) {
-				errno = 0;
+				RESET_ERRNO();
 				continue;
 			}
 			perror("Select() error in Await_NewGame()");

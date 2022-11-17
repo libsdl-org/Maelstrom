@@ -34,7 +34,7 @@ int LogicParseArgs(char ***argvptr, int *argcptr)
 		if ( ! argv[2] ) {
 			error(
 			"The '-player' option requires an argument!\n");
-			PukeUsage();
+			PrintUsage();
 		}
 		if ( AddPlayer(argv[2]) < 0 )
 			exit(1);
@@ -47,7 +47,7 @@ int LogicParseArgs(char ***argvptr, int *argcptr)
 	if ( strcmp(argv[1], "-server") == 0 ) {
 		if ( ! argv[2] ) {
 			error("The '-server' option requires an argument!\n");
-			PukeUsage();
+			PrintUsage();
 		}
 		if ( SetServer(argv[2]) < 0 )
 			exit(1);
@@ -92,9 +92,9 @@ int InitPlayerSprites(void)
 	return(0);
 }
 
-int SpecialKey(KeySym key)
+int SpecialKey(SDL_keysym key)
 {
-	if ( key == XK_F1 ) {
+	if ( key.sym == SDLK_F1 ) {
 		/* Special key -- switch displayed player */
 		if ( ++gDisplayed == gNumPlayers )
 			gDisplayed = 0;

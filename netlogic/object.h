@@ -2,8 +2,6 @@
 #ifndef _object_h
 #define _object_h
 
-#include "Sprite.h"
-
 
 /* The screen object class */
 class Object {
@@ -39,7 +37,6 @@ public:
 		TTL = ttl+1;
 	}
 	virtual void IncrScore(int pts) {
-		Unused(pts);
 		return;
 	}
 	virtual void IncrFrags(void) {
@@ -49,7 +46,6 @@ public:
 	/* Shot and hit detection */
 	virtual Shot *ShotHit(Rect *hitRect) {
 		/* This function is called to see if we shot something */
-		Unused(hitRect);		/* Just a stub function */
 		return(NULL);
 	}
 	virtual int Collide(Object *object) {
@@ -67,8 +63,8 @@ public:
 		int checkwidth, checkheight, w;
 
 		/* -- Load the ptrs to the sprite masks */
-		mask1 = myblit->imageMasks[phase];
-		mask2 = (object->myblit)->imageMasks[object->phase];
+		mask1 = myblit->mask[phase];
+		mask2 = (object->myblit)->mask[object->phase];
 
 		/* See where the sprites are relative to eachother, x-Axis */
 		if ( R2->left < R1->left ) {
@@ -227,19 +223,14 @@ public:
 
 	/* Player access functions (not used here) */
 	virtual void SetSpecial(unsigned char Spec) {
-		Unused(Spec);
 	}
 	virtual void IncrShieldLevel(int level) {
-		Unused(level);
 	}
 	virtual void Multiplier(int multiplier) {
-		Unused(multiplier);
 	}
 	virtual void IncrBonus(int bonus) {
-		Unused(bonus);
 	}
 	virtual void IncrLives(int lives) {
-		Unused(lives);
 	}
 
 protected:

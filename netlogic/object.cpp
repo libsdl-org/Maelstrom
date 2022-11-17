@@ -1,6 +1,5 @@
 
 #include "Maelstrom_Globals.h"
-#include "Sprite.h"
 #include "object.h"
 
 
@@ -81,7 +80,7 @@ Object::Move(int Frozen)		// This is called every timestep.
 void
 Object::BlitSprite(void)
 {
-	win->Blit_CSprite(x>>SPRITE_PRECISION, y>>SPRITE_PRECISION,
+	screen->QueueBlit(x>>SPRITE_PRECISION, y>>SPRITE_PRECISION,
 							myblit->sprite[phase]);
 	onscreen = 1;
 }
@@ -92,8 +91,13 @@ Object::UnBlitSprite(void)
 	if ( ! onscreen )
 		return;
 
-	win->UnBlit_CSprite(x>>SPRITE_PRECISION, y>>SPRITE_PRECISION,
-							myblit->sprite[phase]);
+	if ( myblit->isSmall ) {
+		screen->Clear(x>>SPRITE_PRECISION, y>>SPRITE_PRECISION, 16, 16,
+									DOCLIP);
+	} else {
+		screen->Clear(x>>SPRITE_PRECISION, y>>SPRITE_PRECISION, 32, 32,
+									DOCLIP);
+	}
 	onscreen = 0;
 }
 
@@ -101,12 +105,12 @@ Object::UnBlitSprite(void)
 void 
 Object::HitSound(void)
 {
-	sound->PlaySound(gSteelHit, 3, NULL);
+	sound->PlaySound(gSteelHit, 3);
 }
 void 
 Object::ExplodeSound(void)
 {
-	sound->PlaySound(gExplosionSound, 3, NULL);
+	sound->PlaySound(gExplosionSound, 3);
 }
 
 /* The objects!! */

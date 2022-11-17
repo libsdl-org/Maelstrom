@@ -1,113 +1,68 @@
 
-#include <sys/time.h>
-#include <unistd.h>
 #include <stdlib.h>
 
-#include "mydebug.h"
-#include "Mac_Resource.h"
-#include "sound.h"
-#include "fontserv.h"
-#include "framebuf.h"
-#ifdef __WIN95__
-#ifdef USE_MGL
-#include "mgl_framebuf.h"
-#else
-#include "dx_framebuf.h"
-#endif /* USE_MGL */
-#else
-#include "x11_framebuf.h"
-#include "vga_framebuf.h"
-#include "dga_framebuf.h"
-#endif /* Win95 */
+#include "SDL_FrameBuf.h"
+#include "Mac_FontServ.h"
+#include "Mac_Sound.h"
+#include "Mac_Compat.h"
 
 #include "Maelstrom.h"
-#include "Maelstrom_Inline.h"
+
+#include "myerror.h"
+#include "fastrand.h"
 #include "logic.h"
 #include "scores.h"
 #include "controls.h"
 
-/* Define true and false, if not already defined */
-#ifndef true
-#define true	1
-#endif
-#ifndef false
-#define false	0
-#endif
-#ifndef True
-#define True	1
-#endif
-#ifndef False
-#define False	0
-#endif
-
-#define SCREEN_WIDTH	640
-#define SCREEN_HEIGHT	480
 
 // The Font Server :)
 extern FontServ *fontserv;
 
 // The Sound Server *grin*
-extern SoundClient *sound;
+extern Sound *sound;
 
 // The SCREEN!! :)
-extern FrameBuf *win;
+extern FrameBuf *screen;
+
+/* Boolean type */
+typedef Uint8 Bool;
+#define true	1
+#define false	0
 
 // Functions from main.cc
-extern void   PukeUsage(void);
-extern void   CleanUp(void);
-extern void   Quit(int status);
-extern void   ReapChild(int sig);
-extern void   Killed(int sig);
-extern void   HandleMouse(XEvent *event);
-extern void   DrawText(int x, int y, BitMap *text, unsigned long color);
-extern void   UnDrawText(int x, int y, BitMap *text);
-extern void   DoSplash(void);
+extern void   PrintUsage(void);
+extern int    DrawText(int x, int y, char *text, MFont *font, Uint8 style,
+						Uint8 R, Uint8 G, Uint8 B);
 extern void   Message(char *message);
 
-// Functions from Utils.cc
-extern int    Load_Title(struct Title *title, int title_id);
-extern void   Free_Title(struct Title *title);
-extern CIcon *GetCIcon(short cicn_id);
-extern void   BlitCIcon(int x, int y, CIcon *cicn);
-extern void   FreeCIcon(CIcon *cicn);
-extern void   SetRect(Rect *R, int left, int top, int right, int bottom);
-extern void   OffsetRect(Rect *R, int x, int y);
-extern void   InsetRect(Rect *R, int x, int y);
-
-// Functions from shared.cc
-extern char  *file2libpath(char *filename);
-extern void   select_usleep(unsigned long usec);
-
 // Functions from init.cc
-extern int   DoInitializations(int fullscreen, int private_cmap, int dofade);
 extern void  SetStar(int which);
 
 // Functions from netscore.cc
-extern void	RegisterHighScore(Scores high);
-extern int	NetLoadScores(void);
+extern void  RegisterHighScore(Scores high);
+extern int   NetLoadScores(void);
 
 // External variables...
 // in main.cc : 
 extern Bool	gUpdateBuffer;
 extern Bool	gRunning;
-extern Bool	gFadeBack;
 extern int	gNoDelay;
+
 // in init.cc : 
-extern int	gLastHigh;
+extern Sint32	gLastHigh;
 extern Rect	gScrnRect;
-extern Rect	gClipRect;
+extern SDL_Rect	gClipRect;
 extern int	gStatusLine;
 extern int	gTop, gLeft, gBottom, gRight;
 extern MPoint	gShotOrigins[SHIP_FRAMES];
 extern MPoint	gThrustOrigins[SHIP_FRAMES];
 extern MPoint	gVelocityTable[SHIP_FRAMES];
 extern StarPtr	gTheStars[MAX_STARS];
-extern unsigned char *gStarColors;
+extern Uint32	gStarColors[];
 // in controls.cc :
 extern Controls	controls;
-extern int	gSoundLevel;
-extern int	gGammaCorrect;
-extern int	gRefreshDisplay;
+extern Uint8	gSoundLevel;
+extern Uint8	gGammaCorrect;
 // int scores.cc :
 extern Scores	hScores[];
 
@@ -116,7 +71,7 @@ extern Scores	hScores[];
 extern int	gStartLives;
 extern int	gStartLevel;
 // in init.cc : 
-extern unsigned long	gLastDrawn;
+extern Uint32	gLastDrawn;
 extern int	gNumSprites;
 // in scores.cc :
 extern Bool	gNetScores;
@@ -158,7 +113,6 @@ extern Bool	gNetScores;
 #define gIdiotSound	135
 #define gPauseSound	136
 
-
 /* -- The blit'ers we use */
 extern BlitPtr	gRock1R, gRock2R, gRock3R, gDamagedShip;
 extern BlitPtr	gRock1L, gRock2L, gRock3L, gShipExplosion;
@@ -170,6 +124,6 @@ extern BlitPtr	gThrust1, gThrust2, gShrapnel1, gShrapnel2;
 
 /* -- The prize CICN's */
 
-extern CIconPtr gAutoFireIcon, gAirBrakesIcon, gMult2Icon, gMult3Icon;
-extern CIconPtr gMult4Icon, gMult5Icon, gLuckOfTheIrishIcon, gLongFireIcon;
-extern CIconPtr gTripleFireIcon, gKeyIcon, gShieldIcon;
+extern SDL_Surface *gAutoFireIcon, *gAirBrakesIcon, *gMult2Icon, *gMult3Icon;
+extern SDL_Surface *gMult4Icon, *gMult5Icon, *gLuckOfTheIrishIcon;
+extern SDL_Surface *gLongFireIcon, *gTripleFireIcon, *gKeyIcon, *gShieldIcon;

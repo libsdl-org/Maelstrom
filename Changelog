@@ -1,6 +1,14 @@
 
 Maelstrom 1.4.3 -- Linux version
 
+Version 3.0.1:
+	*	Source code released under the GPL 11/18/1999
+	*	Added full autoconf support and made RPM package
+
+Version 3.0.0:
+	*	Ported to Simple DirectMedia Layer library
+		(http://www.devolution.com/~slouken/SDL/)
+
 Version 2.0.7:
 	*	Added a netscore environment variable: MAELSTROM_SCORESERVER
 	*	Fixed long-standing 24/32 bpp X display detection problem

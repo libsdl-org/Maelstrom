@@ -5,22 +5,17 @@
    Note especially that this includes timing constants, etc.
 */
 
-/* Maelstrom version... */
-#define	VERSION			"2.0.7"
+
+#include "rect.h"
+
+#define SCREEN_WIDTH		640
+#define SCREEN_HEIGHT		480
+
 #define	SOUND_DELAY		6
 #define	FADE_STEPS		40
 
-#ifndef PI
-#define	PI			(22.0 / 7.0)
-#endif
-
-#define	SPRITES_NAME	"Maelstrom Sprites"
-
 /* Time in 60'th of second between frames */
 #define FRAME_DELAY		2
-
-/* Number of frames between keyboard poll (default of 1 -- poll every frame) */
-#define KEYCHK_FRAMES		1
 
 #define MAX_SPRITES		100
 #define MAX_SPRITE_FRAMES	60
@@ -73,22 +68,19 @@
 typedef struct {
 	int h;
 	int v;
-	} MPoint;
+} MPoint;
 
 typedef struct {
 	int		xCoord;
 	int		yCoord;
 	unsigned long	color;
-	} Star;
-typedef Star* StarPtr;
+} Star, *StarPtr;
 
 /* Sprite blitting information structure */
 typedef	struct {
-	int      numFrames;
-	int      isSmall;
-	Rect     hitRect;
-	CSprite *sprite[MAX_SPRITE_FRAMES];
-	unsigned char *spriteImages[MAX_SPRITE_FRAMES];
-	unsigned char *imageMasks[MAX_SPRITE_FRAMES];
-	} Blit;
-typedef Blit *BlitPtr;
+	int numFrames;
+	int isSmall;
+	Rect hitRect;
+	SDL_Surface *sprite[MAX_SPRITE_FRAMES];
+	Uint8 *mask[MAX_SPRITE_FRAMES];
+} Blit, *BlitPtr;

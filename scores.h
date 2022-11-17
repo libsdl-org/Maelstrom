@@ -8,8 +8,8 @@ extern void	PrintHighScores(void);
 
 /* The high scores structure */
 typedef	struct {
-	char	name[20];
-	int	wave;
-	unsigned long score;	
-	} Scores;
+	char name[20];
+	Uint32 wave;
+	Uint32 score;	
+} Scores;
 

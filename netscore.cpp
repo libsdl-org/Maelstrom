@@ -5,16 +5,22 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <ctype.h>
-#include <errno.h>
 
-#ifdef __WIN95__
-#include <winsock.h>
+#ifdef WIN32
+extern "C" {
+#define Win32_Winsock
+#include <windows.h>
+};
 #else /* UNIX */
+#include <unistd.h>
+#ifndef __BEOS__
 #include <arpa/inet.h>
+#endif
 #include <netinet/in.h>
 #include <netdb.h>
 #include <sys/socket.h>
-#endif /* Win95 */
+#include <errno.h>
+#endif /* WIN32 */
 
 #include "Maelstrom_Globals.h"
 #include "netscore.h"
@@ -22,7 +28,7 @@
 
 #define NUM_SCORES	10		// Copied from scores.cc 
 
-#ifdef __WIN95__
+#ifdef WIN32
 #define write(fd, buf, len)	send(fd, buf, len, 0)
 #define read(fd, buf, len)	recv(fd, buf, len, 0)
 #define close(fd)		closesocket(fd)
@@ -35,9 +41,10 @@ int Win_StartNet(void)
 	WSADATA wsaData;
 
 	if ( WSAStartup(version_wanted, &wsaData) != 0 ) {
-		error("Couldn't initialize Win95 networking!\n");
+		error("Couldn't initialize Win32 networking!\n");
 		return(-1);
 	}
+	return(0);
 }
 void Win_HaltNet(void)
 {
@@ -191,14 +198,14 @@ int NetLoadScores(void)
 				strncpy(hScores[i].name, netbuf,
 						sizeof(hScores[i].name)-1);
 				if ( (len=strlen(netbuf)) >
-						(sizeof(hScores[i].name)-1) )
+					(int)(sizeof(hScores[i].name)-1) )
 					len = (sizeof(hScores[i].name)-1);
 				hScores[i].name[len] = '\0';
 				*ptr = '\t';
 				break;
 			}
 		}
-		if ( sscanf(ptr, "%ld %d", &hScores[i].score,
+		if ( sscanf(ptr, "%u %u", &hScores[i].score,
 						&hScores[i].wave) != 2 ) {
 			error(
 			"Warning: Couldn't read complete score list!\r\n");
@@ -213,24 +220,18 @@ int NetLoadScores(void)
 static int timed_out;
 static void timeout(int sig)
 {
-	Unused(sig);
 	timed_out = 1;
 }
 static int Goto_ScoreServer(char *server, int port)
 {
 	struct sockaddr_in serv_addr;
-	struct hostent    *hp;
-	int                sockfd;
-	FILE		  *stream;
+	struct hostent *hp;
+	int sockfd;
 
-#ifdef __WIN95__
+#ifdef WIN32
 	if ( Win_StartNet() < 0 )
 		return(-1);
 #endif
-	/* Allow the user to override the score server */
-	if ( getenv("MAELSTROM_SCORESERVER") != NULL ) {
-		server = getenv("MAELSTROM_SCORESERVER");
-	}
 	/*
 	 * Fill in the structure "serv_addr" with the address of the
 	 * server that we want to connect with.
@@ -263,15 +264,19 @@ static int Goto_ScoreServer(char *server, int port)
 	timed_out=0;
 	if ( connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr))
 									< 0 ) {
+#ifdef EAGAIN
 		if ( errno == EINTR )
 			errno = EAGAIN;
+#endif
 		return(-1);
 	}
 #ifdef SIGALRM
 	alarm(0);		/* Reset alarm */
 #endif
 	if ( timed_out ) {
+#ifdef EAGAIN
 		errno = EAGAIN;
+#endif
 		return(-1);
 	}
 	return(sockfd);
@@ -281,7 +286,7 @@ static void Leave_ScoreServer(int sockfd)
 {
 	if ( sockfd >= 0 )
 		close(sockfd);
-#ifdef __WIN95__
+#ifdef WIN32
 	Win_HaltNet();
 #endif
 }

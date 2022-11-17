@@ -1,6 +1,9 @@
 
 				JOYSTICKS
 
+[NOTE:  Joystick support is temporarily broken - being added to SDL]
+
+--- OLD README ---
 If you don't already have it, you need to download the Linux joystick
 driver and install it to use the joystick support in Maelstrom.
 

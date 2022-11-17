@@ -1,6 +1,4 @@
 
-This is a BETA release of networked Maelstrom.
-
 Networking has been tested on Linux, SGI and DEC.  It is known to
 work between SGI and DEC systems (cross-platform), and between systems
 of the same type.
@@ -19,7 +17,7 @@ Up to three players can play, and the syntax is as follows:
 
 You can also use a network address server that handles the difficulties
 of getting all the players and addresses right.  The address server is
-in the 'netplayd' directory, and if run on say "servhost", the syntax
+installed as 'Maelstrom-netd', and if run on say "servhost", the syntax
 for a three player game would be:
 
 (On machine A)

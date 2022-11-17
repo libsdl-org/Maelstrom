@@ -6,35 +6,9 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-#include <errno.h>
 #include <string.h>
+#include <errno.h>
 
-#ifdef __WIN95__
-#include <windows.h>
-
-
-void error(char *fmt, ...)
-{
-	char mesgbuf[BUFSIZ];
-	va_list ap;
-
-	va_start(ap, fmt);
-	vsprintf(mesgbuf, fmt, ap);
-	MessageBox(GetActiveWindow(), mesgbuf, "Error", MB_OK);
-	va_end(ap);
-}
-
-void mesg(char *fmt, ...)
-{
-	char mesgbuf[BUFSIZ];
-	va_list ap;
-
-	va_start(ap, fmt);
-	vsprintf(mesgbuf, fmt, ap);
-	MessageBox(GetActiveWindow(), mesgbuf, "Note", MB_OK);
-	va_end(ap);
-}
-#else
 
 void error(char *fmt, ...)
 {
@@ -57,8 +31,6 @@ void mesg(char *fmt, ...)
 	fputs(mesg, stdout);
 	va_end(ap);
 }
-
-#endif /* Win95 */
 
 void myperror(char *msg)
 {

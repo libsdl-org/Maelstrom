@@ -3,52 +3,74 @@
 */
 
 #include <string.h>
+#include <ctype.h>
 
 #include "Maelstrom_Globals.h"
+#include "load.h"
 #include "dialog.h"
-#include "keyboard.h"
-#include "joystick.h"
+//#include "keyboard.h"
+//#include "joystick.h"
 
 #define MAELSTROM_DATA	".Maelstrom-data"
 
 
 /* Savable and configurable controls/data */
 
-       /* Pause         Shield    Thrust TurnR     TurnL    Fire    Quit     */
+/* Pause        Shield     Thrust  TurnR      TurnL     Fire     Quit  */
 #ifdef FAITHFUL_SPECS
 Controls controls =
-	{ XK_Caps_Lock, XK_space, XK_Up, XK_Right, XK_Left, XK_Tab, XK_Escape };
+{ SDLK_CAPSLOCK,SDLK_SPACE,SDLK_UP,SDLK_RIGHT,SDLK_LEFT,SDLK_TAB,SDLK_ESCAPE };
 #else
 Controls controls =
-	{ XK_Pause, XK_space, XK_Up, XK_Right, XK_Left, XK_Tab, XK_Escape };
+   { SDLK_PAUSE,SDLK_SPACE,SDLK_UP,SDLK_RIGHT,SDLK_LEFT,SDLK_TAB,SDLK_ESCAPE };
 #endif
 
 #ifdef MOVIE_SUPPORT
 int	gMovie = 0;
 #endif
-int     gSoundLevel = 4;
-int	gGammaCorrect = 0;
+Uint8 gSoundLevel = 4;
+Uint8 gGammaCorrect = 3;
 #ifdef USE_JOYSTICK
 Joystick *Jstick = NULL;
 #endif
 
 
 /* Map a keycode to a key name */
-char *KeyName(unsigned short keycode)
+void KeyName(SDLKey keycode, char *namebuf)
 {
-	int i;
+	char *name, ch;
+	int starting;
 
-	/* Check normal keys */
-	for ( i=0; keycodes[i].name; ++i ) {
-		if ( keycode == keycodes[i].key )
-			return(keycodes[i].name);
+	/* Get the name of the key */
+	name = SDL_GetKeyName(keycode);
+
+	/* Add "arrow" to the arrow keys */
+	if ( strcmp(name, "up") == 0 ) {
+		name = "up arrow";
+	} else
+	if ( strcmp(name, "down") == 0 ) {
+		name = "down arrow";
+	} else
+	if ( strcmp(name, "right") == 0 ) {
+		name = "right arrow";
+	} else
+	if ( strcmp(name, "left") == 0 ) {
+		name = "left arrow";
 	}
-	/* Check shifted keys */
-	for ( i=0; keycodes[i].name; ++i ) {
-		if ( keycode == keycodes[i].shift )
-			return(keycodes[i].name);
+	/* Make the key names uppercased */
+	for ( starting = 1; *name; ++name ) {
+		ch = *name;
+		if ( starting ) {
+			if ( islower(ch) )
+				ch = toupper(ch);
+			starting = 0;
+		} else {
+			if ( ch == ' ' )
+				starting = 1;
+		}
+		*namebuf++ = ch;
 	}
-	return(NULL);
+	*namebuf = '\0';
 }
 
 static FILE *OpenData(char *mode, char **fname)
@@ -57,27 +79,19 @@ static FILE *OpenData(char *mode, char **fname)
 	char *home;
 	FILE *data;
 
-#ifdef __WIN95__
+#ifdef WIN32
 	home = ".";
 #else
 	if ( (home=getenv("HOME")) == NULL )
 		home="";
 #endif
 
-	if ( fname )
+	if ( fname ) {
 		*fname = datafile;
-#ifdef SYSTEM
-	sprintf(datafile,  "%s/%s-%s", home, MAELSTROM_DATA, SYSTEM);
-	if ( (data=fopen(datafile, mode)) == NULL ) {
-		sprintf(datafile,  "%s/%s", home, MAELSTROM_DATA);
-		if ( (data=fopen(datafile, mode)) == NULL )
-			return(NULL);
 	}
-#else
 	sprintf(datafile,  "%s/%s", home, MAELSTROM_DATA);
 	if ( (data=fopen(datafile, mode)) == NULL )
 		return(NULL);
-#endif
 	return(data);
 }
 
@@ -87,19 +101,21 @@ void LoadControls(void)
 	FILE *data;
 
 	/* Open our control data file */
-	if ( (data=OpenData("r", &datafile)) == NULL )
+	data = OpenData("r", &datafile);
+	if ( data == NULL ) {
 		return;
+	}
 
-	if ( (fread(buffer, 1, 4, data) != 4) || strncmp(buffer, "MAEL", 4) ) {
+	/* Read the controls */
+	if ( (fread(buffer, 1, 5, data) != 5) || strncmp(buffer, "MAEL3", 5) ) {
 		error(
 		"Warning: Data file '%s' is corrupt! (will fix)\n", datafile);
 		fclose(data);
 		return;
 	}
-	(void) fread(&gSoundLevel, sizeof(gSoundLevel), 1, data);
-	(void) fread(&controls, sizeof(controls), 1, data);
-	if ( ! fread(&gGammaCorrect, sizeof(gGammaCorrect), 1, data) )
-		gGammaCorrect = 0;
+	fread(&gSoundLevel, sizeof(gSoundLevel), 1, data);
+	fread(&controls, sizeof(controls), 1, data);
+	fread(&gGammaCorrect, sizeof(gGammaCorrect), 1, data);
 #ifdef USE_JOYSTICK
 #define JOYSTICK_MAGIC	(('J'+'O'+'Y')&0xFF)
 	if ( ! Jstick ) {
@@ -161,8 +177,6 @@ void CalibrateJoystick(char *joystick)
 		fclose(data);
 	}
 	return;
-#else
-	Unused(joystick);
 #endif
 }
 
@@ -179,16 +193,14 @@ void SaveControls(void)
 		newmode = "w";
 
 	if ( (data=OpenData(newmode, &datafile)) == NULL ) {
-		error("Warning: Couldn't save controls to %s: ", datafile);
-		error("\n\t\t");
-		perror("");
+		error("Warning: Couldn't save controls to %s\n", datafile);
 		return;
 	}
 
-	(void) fwrite("MAEL", 1, 4, data);
-	(void) fwrite(&gSoundLevel, sizeof(gSoundLevel), 1, data);
-	(void) fwrite(&controls, sizeof(controls), 1, data);
-	(void) fwrite(&gGammaCorrect, sizeof(gGammaCorrect), 1, data);
+	fwrite("MAEL3", 1, 5, data);
+	fwrite(&gSoundLevel, sizeof(gSoundLevel), 1, data);
+	fwrite(&controls, sizeof(controls), 1, data);
+	fwrite(&gGammaCorrect, sizeof(gGammaCorrect), 1, data);
 	fclose(data);
 }
 
@@ -210,7 +222,7 @@ Controls newcontrols;
 static struct {
 	char *label;
 	int  yoffset;
-	unsigned short *control;
+	SDLKey *control;
 } checkboxes[] = {
 	{ "Fire",	0*BOX_HEIGHT+0*SP, &newcontrols.gFireControl },
 	{ "Thrust",	1*BOX_HEIGHT+1*SP, &newcontrols.gThrustControl },
@@ -220,14 +232,13 @@ static struct {
 			4*BOX_HEIGHT+4*SP, &newcontrols.gTurnLControl },
 	{ "Pause",	5*BOX_HEIGHT+5*SP, &newcontrols.gPauseControl },
 	{ "Abort Game",	6*BOX_HEIGHT+6*SP, &newcontrols.gQuitControl },
-	};
+};
 
-static int     X=0;
-static int     Y=0;
-static MFont  *chicago;
-static BitMap *keynames[NUM_CTLS];
-static int     currentbox, valid;
-static unsigned long black, white;
+static int X=0;
+static int Y=0;
+static MFont *chicago;
+static SDL_Surface *keynames[NUM_CTLS];
+static int currentbox, valid;
 
 static int OK_callback(void) {
 	valid = 1;
@@ -237,171 +248,154 @@ static int Cancel_callback(void) {
 	valid = 0;
 	return(1);
 }
-static void BoxKeyPress(KeySym key, int *doneflag)
+static void BoxKeyPress(SDL_keysym key, int *doneflag)
 {
-	char *keyname;
-	int   i;
+	SDL_Color black = { 0x00, 0x00, 0x00, 0 };
+	SDL_Color white = { 0xFF, 0xFF, 0xFF, 0 };
+	int i;
+	char keyname[128];
 
-	Unused(doneflag);		/* Callback doesn't set doneflag */
-
-	if ( key == *checkboxes[currentbox].control )
+	if ( key.sym == *checkboxes[currentbox].control )
 		return;
 
 	/* Make sure the key isn't in use! */
 	for ( i=0; i<NUM_CTLS; ++i ) {
-		if ( key == *checkboxes[i].control ) {
-			key = *checkboxes[currentbox].control;
+		if ( key.sym == *checkboxes[i].control ) {
+			key.sym = (SDLKey)*checkboxes[currentbox].control;
 
 			/* Clear the current text */
-			win->Blit_BitMap(
-				X+96+(BOX_WIDTH-keynames[currentbox]->width)/2, 
+			fontserv->InvertText(keynames[currentbox]);
+			screen->QueueBlit(
+				X+96+(BOX_WIDTH-keynames[currentbox]->w)/2, 
 				Y+75+SP+checkboxes[currentbox].yoffset,
-				keynames[currentbox]->width, 
-				keynames[currentbox]->height,
-					keynames[currentbox]->bits, white);
-			fontserv->Free_Text(keynames[currentbox]);
+						keynames[currentbox], NOCLIP);
+			screen->Update();
+			fontserv->FreeText(keynames[currentbox]);
 
 			/* Blit the new message */
-			keyname = "That key is in use!";
-			keynames[currentbox] = fontserv->Text_to_BitMap(keyname,
-							chicago, STYLE_NORM);
-			win->Blit_BitMap(
-				X+96+(BOX_WIDTH-keynames[currentbox]->width)/2, 
+			strcpy(keyname, "That key is in use!");
+			keynames[currentbox] = fontserv->TextImage(keyname,
+					chicago, STYLE_NORM, black, white);
+			screen->QueueBlit(
+				X+96+(BOX_WIDTH-keynames[currentbox]->w)/2, 
 				Y+75+SP+checkboxes[currentbox].yoffset,
-				keynames[currentbox]->width, 
-				keynames[currentbox]->height,
-					keynames[currentbox]->bits, black);
-			win->Refresh();
-			win->Flush(1);
-			sleep(1);
+					keynames[currentbox], NOCLIP);
+			screen->Update();
+			SDL_Delay(1000);
 			break;
 		}
 	}
 
 	/* Clear the current text */
-	win->Blit_BitMap(X+96+(BOX_WIDTH-keynames[currentbox]->width)/2, 
-		Y+75+SP+checkboxes[currentbox].yoffset,
-		keynames[currentbox]->width, keynames[currentbox]->height,
-					 keynames[currentbox]->bits, white);
-	fontserv->Free_Text(keynames[currentbox]);
+	fontserv->InvertText(keynames[currentbox]);
+	screen->QueueBlit(X+96+(BOX_WIDTH-keynames[currentbox]->w)/2, 
+				Y+75+SP+checkboxes[currentbox].yoffset,
+						keynames[currentbox], NOCLIP);
+	screen->Update();
+	fontserv->FreeText(keynames[currentbox]);
 
 	/* Display the new key */
-	*checkboxes[currentbox].control = key;
-	if (!(keyname=KeyName(*checkboxes[currentbox].control)))
-		keyname = "Unknown Key";
-	keynames[currentbox] = fontserv->Text_to_BitMap(keyname,
-							chicago, STYLE_NORM);
-	win->Blit_BitMap(X+96+(BOX_WIDTH-keynames[currentbox]->width)/2, 
-		Y+75+SP+checkboxes[currentbox].yoffset,
-		keynames[currentbox]->width, keynames[currentbox]->height,
-					 keynames[currentbox]->bits, black);
-	win->Refresh();
+	*checkboxes[currentbox].control = key.sym;
+	KeyName(*checkboxes[currentbox].control, keyname);
+	keynames[currentbox] = fontserv->TextImage(keyname, chicago, STYLE_NORM,
+								black, white);
+	screen->QueueBlit(X+96+(BOX_WIDTH-keynames[currentbox]->w)/2, 
+				Y+75+SP+checkboxes[currentbox].yoffset,
+						keynames[currentbox], NOCLIP);
+	screen->Update();
 }
 
 void ConfigureControls(void)
 {
 #ifdef FAITHFUL_SPECS
-	static char    *C_text1 = 
+	static char *C_text1 = 
 		"While playing Maelstrom, CAPS LOCK pauses the game and";
-	static char    *C_text2 = 
+	static char *C_text2 = 
 		"ESC aborts the game.";
-	BitMap         *text1, *text2;
+	SDL_Surface *text1, *text2;
 #endif
+	Uint32 black;
+	int i;
+	char keyname[128];
 	Maclike_Dialog *dialog;
-	struct Title    splash;
-	BitMap         *labels[NUM_CTLS];
-	int             i;
-	char           *keyname;
-	Mac_Button     *okay;
-	Mac_Button     *cancel;
-	Radio_List     *radiobuttons;
-	Dialog         *boxes;
+	SDL_Surface *splash;
+	Mac_Button *cancel, *okay;
+	Mac_RadioList *radiobuttons;
+	Mac_Dialog *boxes;
 
 
 	/* Set up all the components of the dialog box */
-	X=(SCREEN_WIDTH-CTL_DIALOG_WIDTH)/2;
-	Y=(SCREEN_HEIGHT-CTL_DIALOG_HEIGHT)/2;
-	black = win->Map_Color(0x0000, 0x0000, 0x0000);
-	white = win->Map_Color(0xFFFF, 0xFFFF, 0xFFFF);
-	dialog = new Maclike_Dialog(win, X, Y, 
-				CTL_DIALOG_WIDTH, CTL_DIALOG_HEIGHT, white);
-	if ( (chicago = fontserv->New_Font("Chicago", 12)) == NULL ) {
+	black = screen->MapRGB(0x00, 0x00, 0x00);
+	if ( (chicago = fontserv->NewFont("Chicago", 12)) == NULL ) {
 		error("Can't use Chicago font!\n");
 		return;
 	}
-	if ( Load_Title(&splash, 100) < 0 ) {
+	if ( (splash = Load_Title(screen, 100)) == NULL ) {
 		error("Can't load configuration splash!\n");
+		delete chicago;
 		return;
 	}
-	dialog->Add_Title(&splash, X+8, Y+8);
+	X=(SCREEN_WIDTH-CTL_DIALOG_WIDTH)/2;
+	Y=(SCREEN_HEIGHT-CTL_DIALOG_HEIGHT)/2;
+	dialog = new Maclike_Dialog(X, Y, CTL_DIALOG_WIDTH, CTL_DIALOG_HEIGHT,
+									screen);
+	dialog->Add_Image(splash, 4, 4);
 #ifdef FAITHFUL_SPECS
-	text1 = fontserv->Text_to_BitMap(C_text1, chicago, STYLE_NORM);
-	text2 = fontserv->Text_to_BitMap(C_text2, chicago, STYLE_NORM);
-	dialog->Add_BitMap(text1, X+70, Y+220, black);
-	dialog->Add_BitMap(text2, X+70, Y+236, black);
+	text1 = fontserv->TextImage(C_text1,chicago,STYLE_NORM,0x00,0x00,0x00);
+	text2 = fontserv->TextImage(C_text2,chicago,STYLE_NORM,0x00,0x00,0x00);
+	dialog->Add_Image(text1, 66, 216);
+	dialog->Add_Image(text2, 66, 232);
 #endif
 	valid = 0;
-	cancel = new Mac_Button(win, X+295, Y+269, BUTTON_WIDTH, BUTTON_HEIGHT,
-			"Cancel", chicago, fontserv, black, white, 
-							Cancel_callback);
+	cancel = new Mac_Button(291, 265, BUTTON_WIDTH, BUTTON_HEIGHT,
+				"Cancel", chicago, fontserv, Cancel_callback);
 	dialog->Add_Dialog(cancel);
-	okay = new Mac_Button(win, X+295+BUTTON_WIDTH+26, Y+269, 
-			BUTTON_WIDTH, BUTTON_HEIGHT, "OK", chicago, 
-					fontserv, black, white, OK_callback);
+	okay = new Mac_Button(291+BUTTON_WIDTH+26, 265, 
+					BUTTON_WIDTH, BUTTON_HEIGHT,
+				"OK", chicago, fontserv, OK_callback);
 	dialog->Add_Dialog(okay);
 	memcpy(&newcontrols, &controls, sizeof(controls));
-	radiobuttons = new Radio_List(win, X+266, Y+75, NUM_CTLS);
-	boxes = new Dialog(win, X+96, Y+75);
+	radiobuttons = new Mac_RadioList(&currentbox, X+266, Y+75,
+							chicago, fontserv);
 	currentbox = FIRE_CTL;
 	for ( i=0; i<NUM_CTLS; ++i ) {
-		labels[i] = fontserv->Text_to_BitMap(checkboxes[i].label,
-							chicago, STYLE_NORM);
-		if ( (keyname=KeyName(*checkboxes[i].control)) == NULL )
-			keyname = "Unknown key";
-		keynames[i] = fontserv->Text_to_BitMap(keyname,
-							chicago, STYLE_NORM);
+		KeyName(*checkboxes[i].control, keyname);
+		keynames[i] = fontserv->TextImage(keyname, chicago, STYLE_NORM,
+							0x00, 0x00, 0x00);
 		/* Only display "Fire" through "Turn Counter-Clockwise" */
 #ifdef FAITHFUL_SPECS
 		if ( i <  PAUSE_CTL ) {
 #else
 		if ( i <  NUM_CTLS ) {
 #endif
-			radiobuttons->Add_Radio(X+267, 
-				Y+75+checkboxes[i].yoffset,
-						i == FIRE_CTL, labels[i]);
-			win->DrawRectangle(X+96, Y+75+checkboxes[i].yoffset,
-						BOX_WIDTH,BOX_HEIGHT,black);
-			win->Blit_BitMap(
-				X+96+(BOX_WIDTH-keynames[i]->width)/2, 
-				Y+75+SP+checkboxes[i].yoffset,
-				keynames[i]->width, keynames[i]->height,
-						keynames[i]->bits, black);
+			radiobuttons->Add_Radio(263, 71+checkboxes[i].yoffset,
+							checkboxes[i].label);
+			dialog->Add_Rectangle(92, 71+checkboxes[i].yoffset,
+						BOX_WIDTH, BOX_HEIGHT, black);
+			dialog->Add_Image(keynames[i],
+					92+(BOX_WIDTH-keynames[i]->w)/2, 
+						71+SP+checkboxes[i].yoffset);
 		}
 	}
-	radiobuttons->Set_RadioVar(&currentbox);
 	dialog->Add_Dialog(radiobuttons);
+	boxes = new Mac_Dialog(92, 71);
 	boxes->SetKeyPress(BoxKeyPress);
 	dialog->Add_Dialog(boxes);
-	win->Refresh();
 
 	/* Run the dialog box */
-	dialog->Run();
+	dialog->Run(EXPAND_STEPS);
 
 	/* Clean up and return */
-	Free_Title(&splash);
-	delete cancel;
-	delete okay;
-	delete radiobuttons;
-	delete dialog;
+	screen->FreeImage(splash);
 #ifdef FAITHFUL_SPECS
-	fontserv->Free_Text(text1);
-	fontserv->Free_Text(text2);
+	fontserv->FreeText(text1);
+	fontserv->FreeText(text2);
 #endif
 	for ( i=0; i<NUM_CTLS; ++i ) {
-		fontserv->Free_Text(labels[i]);
-		fontserv->Free_Text(keynames[i]);
+		fontserv->FreeText(keynames[i]);
 	}
-	fontserv->Free_Font(chicago);
+	delete chicago;
+	delete dialog;
 	if ( valid ) {
 		memcpy(&controls, &newcontrols, sizeof(controls));
 		SaveControls();
@@ -409,47 +403,16 @@ void ConfigureControls(void)
 	return;
 }
 
-/* Wait for next event; timeout is specified in 1/60 of a second */
-int PollEvent(XEvent *event, int timeout)
+static void HandleEvent(SDL_Event *event)
 {
-	do { 
-		if ( win->NumEvents() ) {
-			win->GetEvent(event);
-			return(1);
-		}
-		if ( timeout ) {
-			/* Delay 1/60 of a second... */
-			Delay(1);
-		}
-	} while ( timeout-- );
-	return(0);
-}
+	SDLKey key;
 
-int gRefreshDisplay;
-static void HandleEvent(int numevents)
-{
-	char   buf[128];
-	KeySym key;
-	XEvent event;
-
-	while ( numevents-- ) {
-		win->GetEvent(&event);
-
-		switch (event.type) {
-			/* -- Handle unknown refresh */
-			case Expose:
-				gRefreshDisplay = 1;
-				break;
-			/* -- Handle mouse clicks */
-			case ButtonPress:
-				HandleMouse(&event);
-				break;
-			/* -- Handle key presses/releases */
-			case KeyPress:
-//error("Down!\n");
-				/* Clear state info */
-				event.xkey.state = 0;
-				win->KeyToAscii(&event, buf, 127, &key);
+	switch (event->type) {
+		/* -- Handle key presses/releases */
+		case SDL_KEYDOWN:
+		case SDL_KEYUP:
+			key = event->key.keysym.sym;
+			if ( event->key.state == SDL_PRESSED ) {
 				/* Check for various control keys */
 				if ( key == controls.gFireControl )
 					SetControl(FIRE_KEY, 1);
@@ -465,16 +428,14 @@ static void HandleEvent(int numevents)
 					SetControl(PAUSE_KEY, 1);
 				else if ( key == controls.gQuitControl )
 					SetControl(ABORT_KEY, 1);
-				else if ( SpecialKey(key) == 0 )
+				else if ( SpecialKey(event->key.keysym) == 0 )
 					/* The key has been handled */;
-				else if ( key == XK_F3 ) {
+				else if ( key == SDLK_F3 ) {
 					/* Special key --
 						Do a screen dump here.
 					 */
-					win->ScreenDump("ScreenShot", NULL);
-// DEBUG
-				} else if ( key == XK_F4 ) {
-					win->DebugArt();
+					screen->ScreenDump("ScreenShot",
+								0, 0, 0, 0);
 #ifdef MOVIE_SUPPORT
 				} else if ( key == XK_F5 ) {
 					/* Special key --
@@ -488,12 +449,7 @@ static void HandleEvent(int numevents)
 mesg("Movie is %s...\n", gMovie ? "started" : "stopped");
 #endif
 				}
-				break;
-			case KeyRelease:
-//error("Up!\n");
-				/* Clear state info */
-				event.xkey.state = 0;
-				win->KeyToAscii(&event, buf, 127, &key);
+			} else {
 				/* Update control key status */
 				if ( key == controls.gFireControl )
 					SetControl(FIRE_KEY, 0);
@@ -505,8 +461,12 @@ mesg("Movie is %s...\n", gMovie ? "started" : "stopped");
 					SetControl(SHIELD_KEY, 0);
 				else if ( key == controls.gThrustControl )
 					SetControl(THRUST_KEY, 0);
-				break;
-		}
+			}
+			break;
+
+		case SDL_QUIT:
+			SetControl(ABORT_KEY, 1);
+			break;
 	}
 }
 
@@ -572,21 +532,29 @@ void HandleJoystick(void)
 */
 void HandleEvents(int timeout)
 {
-	int numevents;
+	SDL_Event event;
 
 	do { 
 #ifdef USE_JOYSTICK
 		HandleJoystick();
 #endif
-		if ( (numevents=win->NumEvents()) ) {
-			HandleEvent(numevents);
-			return;
+		while ( SDL_PollEvent(&event) ) {
+			HandleEvent(&event);
 		}
 		if ( timeout ) {
 			/* Delay 1/60 of a second... */
 			Delay(1);
 		}
 	} while ( timeout-- );
+}
+
+void DropEvents(void)
+{
+	SDL_Event event;
+
+	while ( SDL_PollEvent(&event) ) {
+		/* Keep going */;
+	}
 }
 
 #define DAWN_DIALOG_WIDTH	318
@@ -602,12 +570,11 @@ void ShowDawn(void)
 		                "the",
 		                    "dawn."
 	};
-	BitMap         *text[6];
-	MFont          *chicago;
+	MFont *chicago;
+	SDL_Surface *splash, *text[6];
 	Maclike_Dialog *dialog;
-	CIcon          *splash;
-	int             i, x, y, X, Y;
-	Mac_Button     *def_button;
+	Mac_Button *OK;
+	int i, x, y, X, Y;
 
 	/* Set up all the components of the dialog box */
 #ifdef CENTER_DIALOG
@@ -617,45 +584,42 @@ void ShowDawn(void)
 	X=160;
 	Y=73;
 #endif
-	black = win->Map_Color(0x0000, 0x0000, 0x0000);
-	white = win->Map_Color(0xFFFF, 0xFFFF, 0xFFFF);
-	dialog = new Maclike_Dialog(win, X, Y, 
-				DAWN_DIALOG_WIDTH, DAWN_DIALOG_HEIGHT, white);
-	if ( (chicago = fontserv->New_Font("Chicago", 12)) == NULL ) {
+	if ( (chicago = fontserv->NewFont("Chicago", 12)) == NULL ) {
 		error("Can't use Chicago font!\n");
 		return;
 	}
-	if ( (splash=GetCIcon(103)) == NULL ) {
+	if ( (splash = GetCIcon(screen, 103)) == NULL ) {
 		error("Can't load alien dawn splash!\n");
 		return;
 	}
-	x = y = 23;
-	dialog->Add_CIcon(splash, X+x, Y+y);
-	x += (splash->width+26);
-	text[0] = fontserv->Text_to_BitMap(D_text[0], chicago, STYLE_NORM);
-	dialog->Add_BitMap(text[0], X+x, Y+y, black);
+	dialog = new Maclike_Dialog(X, Y, DAWN_DIALOG_WIDTH, DAWN_DIALOG_HEIGHT,
+									screen);
+	x = y = 19;
+	dialog->Add_Image(splash, x, y);
+	x += (splash->w+26);
+	text[0] = fontserv->TextImage(D_text[0], chicago, STYLE_NORM,
+							0x00, 0x00, 0x00);
+	dialog->Add_Image(text[0], x, y);
 	for ( i=1; i<6; ++i ) {
-		y += (text[i-1]->height+2);
-		text[i] = fontserv->Text_to_BitMap(D_text[i], 
-						chicago, STYLE_NORM);
-		dialog->Add_BitMap(text[i], X+x, Y+y, black);
-		x += (text[i]->width+2);
+		y += (text[i-1]->h+2);
+		text[i] = fontserv->TextImage(D_text[i], chicago, STYLE_NORM,
+							0x00, 0x00, 0x00);
+		dialog->Add_Image(text[i], x, y);
+		x += (text[i]->w+2);
 	}
-	def_button = new Mac_DefaultButton(win, X+214, Y+164,
-			90, BUTTON_HEIGHT, "OK", chicago, fontserv, 
-							black, white, NULL);
-	dialog->Add_Dialog(def_button);
-	win->Refresh();
+	OK = new Mac_DefaultButton(210, 160, 90, BUTTON_HEIGHT,
+						"OK", chicago, fontserv, NULL);
+	dialog->Add_Dialog(OK);
 
 	/* Run the dialog box */
-	dialog->Run();
+	dialog->Run(EXPAND_STEPS);
 
 	/* Clean up and return */
-	FreeCIcon(splash);
+	screen->FreeImage(splash);
 	for ( i=0; i<6; ++i )
-		fontserv->Free_Text(text[i]);
-	delete def_button;
+		fontserv->FreeText(text[i]);
+	delete chicago;
 	delete dialog;
-	fontserv->Free_Font(chicago);
 	return;
 }
+

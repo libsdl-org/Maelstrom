@@ -1,42 +1,42 @@
 
 /* -- Return a random value between 0 and range - 1 */
 
-#include <sys/time.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
 
+#include "SDL_types.h"
 
-static	unsigned long	   randomSeed;
+static Uint32 randomSeed;
 
-void SeedRandom(unsigned long Seed)
+void SeedRandom(Uint32 Seed)
 {
-	struct timeval tv;
-
 #ifdef SERIOUS_DEBUG
-printf("SeedRandom(%lu)\n", Seed);
+  fprintf(stderr, "SeedRandom(%lu)\n", Seed);
 #endif
 	if ( ! Seed ) {
-		gettimeofday(&tv, NULL);
-		randomSeed = ((tv.tv_usec<<16)|((tv.tv_sec^tv.tv_usec)&0xFFFF));
-		return;
+		srand(time(NULL));
+		Seed = (((rand()%0xFFFF)<<16)|(rand()%0xFFFF));
 	}
 	randomSeed = Seed;
 }
 
-unsigned long GetRandSeed(void)
+Uint32 GetRandSeed(void)
 {
 	return(randomSeed);
 }
 
 /* This magic is wholly the result of Andrew Welch, not me. :-) */
-short FastRandom(short range)
+Uint16 FastRandom(Uint16 range)
 {
-	short			result;
-	register unsigned long 	  calc;
-	register unsigned long 	  regD0;
-	register unsigned long 	  regD1;
-	register unsigned long 	  regD2;
+	Uint16 result;
+	register Uint32 calc;
+	register Uint32 regD0;
+	register Uint32 regD1;
+	register Uint32 regD2;
 
 #ifdef SERIOUS_DEBUG
-printf("FastRandom(%hd)  Seed in: %lu ", range, randomSeed);
+  fprintf(stderr, "FastRandom(%hd)  Seed in: %lu ", range, randomSeed);
 #endif
 	calc = randomSeed;
 	regD0 = 0x41A7;
@@ -72,7 +72,7 @@ printf("FastRandom(%hd)  Seed in: %lu ", range, randomSeed);
 	
 	randomSeed = regD0;
 #ifdef SERIOUS_DEBUG
-printf("Seed out: %lu ", randomSeed);
+  fprintf(stderr, "Seed out: %lu ", randomSeed);
 #endif
 	
 	if ((regD0 & 0x0000FFFF) == 0x8000)
@@ -86,7 +86,7 @@ printf("Seed out: %lu ", randomSeed);
 	
 	result = regD1;
 #ifdef SERIOUS_DEBUG
-printf("Result: %hu\n", result);
+  fprintf(stderr, "Result: %hu\n", result);
 #endif
 	
 	return result;

@@ -1,6 +1,7 @@
 
 /* Game Logic interface routines and variables */
 
+#define NETPLAY
 #ifdef NETPLAY
 #include "netlogic/netlogic.h"
 #else
@@ -15,7 +16,7 @@ extern int  InitLogic(void);
 extern int  InitPlayerSprites(void);
 extern void HaltLogic(void);
 extern void SetControl(unsigned char which, int toggle);
-extern int  SpecialKey(KeySym key);
+extern int  SpecialKey(SDL_keysym key);
 extern int GetScore(void);
 
 /* From game.cpp */
@@ -25,7 +26,8 @@ extern void NewGame(void);
 extern void DoAbout(void);
 
 /* From blit.cpp (fastlogic) player.cpp (netlogic) */
-extern unsigned char *gPlayerShotColors;
-extern unsigned char *gEnemyShotColors;
-extern unsigned char gShotMask[SHOT_SIZE*SHOT_SIZE];
+extern Uint8 gPlayerShotColors[];
+extern SDL_Surface *gPlayerShot;
+extern Uint8 gEnemyShotColors[];
+extern SDL_Surface *gEnemyShot;
 
