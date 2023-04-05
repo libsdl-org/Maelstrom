@@ -16,7 +16,7 @@ public:
 
 	void Add_Button(Uint16 x, Uint16 y, Uint16 width, Uint16 height, 
 						void (*callback)(void)) {
-		struct button *belem;
+		button *belem;
 		
 		for ( belem=&button_list; belem->next; belem=belem->next );
 		belem->next = new button;
@@ -30,7 +30,7 @@ public:
 	}
 
 	void Activate_Button(Uint16 x, Uint16 y) {
-		struct button *belem;
+		button *belem;
 
 		for ( belem=button_list.next; belem; belem=belem->next ) {
 			if ( (x >= belem->x1) && (x <= belem->x2) &&
@@ -42,7 +42,7 @@ public:
 	}
 
 	void Delete_Buttons(void) {
-		struct button *belem, *btemp;
+		button *belem, *btemp;
 
 		for ( belem=button_list.next; belem; ) {
 			btemp = belem;
@@ -58,7 +58,7 @@ private:
 		Uint16 x1, y1;
 		Uint16 x2, y2;
 		void (*callback)(void);
-		struct button *next;
+		button *next;
 	} button;
 	button button_list;
 };
