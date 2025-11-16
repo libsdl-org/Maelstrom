@@ -801,6 +801,7 @@ static void DoGameOver(void)
 		/* -- Let them enter their name */
 		w = 0;
 		chars_in_handle = 0;
+		handle[chars_in_handle] = '\0';
 
 		while ( screen->PollEvent(&event) ) /* Loop, flushing events */;
 		SDL_StartTextInput();
@@ -813,10 +814,12 @@ static void DoGameOver(void)
 				case SDLK_RETURN:
 					done = true;
 					break;
+				case SDLK_BACKSPACE:
 				case SDLK_DELETE:
 					if ( chars_in_handle ) {
 						sound->PlaySound(gExplosionSound, 5);
 						--chars_in_handle;
+						handle[chars_in_handle] = '\0';
 					}
 					break;
 				default:
@@ -831,20 +834,15 @@ static void DoGameOver(void)
 				} else {
 					sound->PlaySound(gBonk, 5);
 				}
-				screen->FillRect(x, 300-newyork_height+2,
-						w, newyork_height, ourBlack);
-
 				handle[chars_in_handle] = '\0';
-				w = DrawText(x, 300, handle,
-					newyork, STYLE_NORM, 0xFF, 0xFF, 0xFF);
-				screen->Update();
 			}
+
+			screen->FillRect(x, 300 - newyork_height + 2, w, newyork_height, ourBlack);
+			w = DrawText(x, 300, handle, newyork, STYLE_NORM, 0xFF, 0xFF, 0xFF);
+			screen->Update();
 		}
 		delete newyork;
 		SDL_StopTextInput();
-
-		/* In case the user just pressed <Return> */
-		handle[chars_in_handle] = '\0';
 
 		hScores[which].wave = gWave;
 		hScores[which].score = OurShip->GetScore();
