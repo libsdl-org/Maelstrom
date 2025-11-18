@@ -1,44 +1,49 @@
 /*
-    MACLIB:  A companion library to SDL for working with Macintosh (tm) data
-    Copyright (C) 1997-2021 Sam Lantinga <slouken@libsdl.org>
+  maclib:  A companion library to SDL for working with Macintosh (tm) data
+  Copyright (C) 1997-2011 Sam Lantinga <slouken@libsdl.org>
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+  This software is provided 'as-is', without any express or implied
+  warranty.  In no event will the authors be held liable for any damages
+  arising from the use of this software.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+  2. Altered source versions must be plainly marked as such, and must not be
+     misrepresented as being the original software.
+  3. This notice may not be removed or altered from any source distribution.
 */
 
 /* This is a general mixer that takes Macintosh sound resource files
    and mixes various sounds on command.
 */
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
 #include "SDL_types.h"
 #include "SDL_mutex.h"
 #include "SDL_thread.h"
 #include "SDL_audio.h"
-#include "Mac_Wave.h"
+
+#include "../utils/ErrorBase.h"
 
 #define MAX_VOLUME	8		/* Software volume ranges from 0 - 8 */
 #define NUM_CHANNELS	4		/* 4 sound mixing channels, limit 128 */
 #define DSP_FREQUENCY	11025		/* Convert the SNDs to this frequency */
 
-class Sound {
+struct Wave {
+	Uint8 *data;
+	Uint32 size;
+};
+
+class Sound : public ErrorBase {
 
 public:
 	Sound(const char *soundfile, Uint8 vol = 4);
-	~Sound();
+	virtual ~Sound();
 
 	/* Set volume in the range 0-8 */
 	Uint8 Volume(Uint8 vol);
@@ -110,10 +115,6 @@ public:
 		return(0);
 	}
 
-	char *Error(void) {
-		return(errstr);
-	}
-
 	/* These functions really do all the work */
 	static void FillAudioU8(Sound *sound, Uint8 *stream, int len);
 
@@ -128,7 +129,7 @@ private:
 		void (*callback)(Uint8 channel);
 	} channels[NUM_CHANNELS];
 
-	SDL_AudioSpec *spec;
+	SDL_AudioSpec spec;
 	Uint8      volume;
 
 	/* Fake audio handler, in case we can't open the real thing */
@@ -189,15 +190,5 @@ printf("Freeing Wave id %hu at hash page %d/%d\n",(upper<<8)|lower,upper,lower);
 		delete[] hashpage;
 	}
 
-	/* Useful for getting error feedback */
-	void error(const char *fmt, ...) {
-		va_list ap;
-
-		va_start(ap, fmt);
-		SDL_vsnprintf(errbuf, sizeof(errbuf), fmt, ap);
-		va_end(ap);
-		errstr = errbuf;
-	}
-	char *errstr;
-	char  errbuf[BUFSIZ];
+	Wave *LoadSound(Uint16 sndID);
 };

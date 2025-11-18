@@ -1,0 +1,93 @@
+<UITemplates>
+	<Panel templateName="FramedPanel">
+		<Elements>
+			<Rectangle>
+				<Color r="0x75" g="0x75" b="0xFF"/>
+				<Size w="514" h="386"/>
+			</Rectangle>
+			<Rectangle>
+				<Color r="0x75" g="0x75" b="0xFF"/>
+				<Size w="516" h="388"/>
+			</Rectangle>
+			<Rectangle>
+				<Color r="0x9C" g="0x9C" b="0xFF"/>
+				<Size w="518" h="390"/>
+			</Rectangle>
+			<Rectangle>
+				<Color r="0x9C" g="0x9C" b="0xFF"/>
+				<Size w="520" h="392"/>
+			</Rectangle>
+			<Rectangle>
+				<Color r="0xC3" g="0xC3" b="0xFF"/>
+				<Size w="522" h="394"/>
+			</Rectangle>
+			<Rectangle>
+				<Color r="0x9C" g="0x9C" b="0xFF"/>
+				<Size w="524" h="396"/>
+			</Rectangle>
+			<Rectangle>
+				<Color r="0x75" g="0x75" b="0xFF"/>
+				<Size w="526" h="398"/>
+			</Rectangle>
+		</Elements>
+	</Panel>
+
+	<Label templateName="Small" font="Geneva:9:BOLD"/>
+	<Label templateName="SmallWhite" template="Small">
+		<Color r="0xFF" g="0xFF" b="0xFF"/>
+	</Label>
+	<Label templateName="SmallBlack" template="Small">
+		<Color r="0x00" g="0x00" b="0x00"/>
+	</Label>
+	<Label templateName="SmallYellow" template="Small">
+		<Color r="0xFF" g="0xFF" b="0x00"/>
+	</Label>
+	<Label templateName="SmallBlue" template="Small">
+		<Color r="0x75" g="0x75" b="0xFF"/>
+	</Label>
+
+	<Label templateName="Medium" font="New York:14:BOLD"/>
+	<Label templateName="MediumWhite" template="Medium">
+		<Color r="0xFF" g="0xFF" b="0xFF"/>
+	</Label>
+	<Label templateName="MediumYellow" template="Medium">
+		<Color r="0xFF" g="0xFF" b="0x00"/>
+	</Label>
+	<Label templateName="MediumBlue" template="Medium">
+		<Color r="0x75" g="0x75" b="0xFF"/>
+	</Label>
+
+	<Label templateName="Large" font="New York:18"/>
+	<Label templateName="LargeWhite" template="Large">
+		<Color r="0xFF" g="0xFF" b="0xFF"/>
+	</Label>
+	<Label templateName="LargeYellow" template="Large">
+		<Color r="0xFF" g="0xFF" b="0x00"/>
+	</Label>
+	<Label templateName="LargeBlue" template="Large">
+		<Color r="0x75" g="0x75" b="0xFF"/>
+	</Label>
+	<Label templateName="LargeYellowUnderline" font="New York:18:UNDERLINE">
+		<Color r="0xFF" g="0xFF" b="0x00"/>
+	</Label>
+
+	<Button templateName="HotkeyOnly">
+		<Size w="0" h="0"/>
+	</Button>
+
+	<Button templateName="MenuButton" image="keyicon" font="Geneva:9:BOLD">
+		<Size w="32" h="32"/>
+		<TextArea>
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="13" y="9"/>
+		</TextArea>
+		<TextShadow offset="1,1">
+			<Color r="0xFF" g="0xFF" b="0xFF"/>
+		</TextShadow>
+		<Color r="0x00" g="0x00" b="0x00"/>
+	</Button>
+
+	<Rectangle templateName="ControlKeyBox">
+		<Size w="170" h="20"/>
+		<Color r="0x00" g="0x00" b="0x00"/>
+	</Rectangle>
+</UITemplates>

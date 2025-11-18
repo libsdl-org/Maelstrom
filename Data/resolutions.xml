@@ -1,0 +1,8 @@
+<resolutions>
+	<resolution w="2048" h="1536" path_suffix="_1024x768" file_suffix="@2x" scale="1536/480"/>
+	<resolution w="1024" h="768" path_suffix="_1024x768" file_suffix="" scale="768/480"/>
+	<resolution w="960" h="640" path_suffix="_480x320" file_suffix="@2x" scale="640/480"/>
+	<resolution w="480" h="320" path_suffix="_480x320" file_suffix="" scale="320/480"/>
+	<resolution w="0" h="0" path_suffix="" file_suffix="" scale="1/1"/>
+	<resolution w="0" h="0" path_suffix="_Classic" file_suffix="" scale="1/1"/>
+</resolutions>

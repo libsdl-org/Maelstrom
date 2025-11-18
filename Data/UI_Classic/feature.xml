@@ -1,0 +1,27 @@
+<Dialog>
+	<Size w="408" h="168"/>
+	<Elements>
+		<DialogLabel name="message" template="DialogLabel" text="Would you like to purchase this feature?">
+			<Size w="392"/>
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="8" y="8"/>
+		</DialogLabel>
+		<DialogLabel name="title" template="DialogLabel">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="message" x="0" y="8"/>
+		</DialogLabel>
+		<DialogLabel name="description" template="DialogLabel">
+			<Size w="392"/>
+			<TextArea><Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT"/></TextArea>
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="title" x="0" y="8"/>
+		</DialogLabel>
+		<DialogLabel name="price" template="DialogLabel">
+			<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="title" x="8" y="0"/>
+		</DialogLabel>
+
+		<DialogButton name="button1" template="DialogButton" text="Buy it!" id="1" default="true">
+			<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-10" y="-11"/>
+		</DialogButton>
+		<DialogButton template="DialogButton" text="Cancel">
+			<Anchor anchorFrom="RIGHT" anchorTo="LEFT" anchor="button1" x="-14"/>
+		</DialogButton>
+	</Elements>
+</Dialog>

@@ -1,0 +1,34 @@
+<Panel template="FramedPanel" delegate="AboutPanel">
+	<Elements>
+		<Title name="image" id="134"/>
+
+		<!-- Shield icon -->
+		<Icon id="137">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="image" x="25" y="314"/>
+		</Icon>
+		<!-- Airbrakes icon -->
+		<Icon id="129">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="image" x="41" y="314"/>
+		</Icon>
+		<!-- Longfire icon -->
+		<Icon id="136">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="image" x="25" y="328"/>
+		</Icon>
+		<!-- Triplefire icon -->
+		<Icon id="135">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="image" x="41" y="328"/>
+		</Icon>
+		<!-- Autofire icon -->
+		<Icon id="128">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="image" x="25" y="342"/>
+		</Icon>
+		<!-- Lucky icon -->
+		<Icon id="133">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="image" x="41" y="342"/>
+		</Icon>
+
+		<!-- Buttons -->
+		<Button hotkey="any" clickPanel="main" clickSound="106"/>
+		<Button hotkey="Return" clickPanel="about_credits" clickSound="102"/>
+	</Elements>
+</Panel>

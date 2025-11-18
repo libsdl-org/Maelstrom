@@ -1,0 +1,2 @@
+
+void InitGameCenter(void);

@@ -1,6 +1,9 @@
 
-To build and install the game, get the Simple DirectMedia Layer
-library from http://www.libsdl.org and install it.
+To build and install the game, get the following libraries and install them:
+http;//www.libsdl.org
+http://www.libsdl.org/projects/SDL_net
+http://www.icculus.org/physfs
+
 Then run:
 	./configure; make; make install
 

@@ -1,0 +1,34 @@
+<Panel cursor="false" enterSound="113" delegate="GameOverPanel">
+	<Elements>
+		<Title name="image" id="128">
+			<Anchor anchorFrom="CENTER" anchorTo="CENTER" y="-80"/>
+		</Title>
+
+		<!-- Multiplayer rankings -->
+		<Image name="rank1">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="CENTER" x="-120" y="20"/>
+		</Image>
+		<Label name="rank1_label" template="LargeBlue">
+			<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="rank1" x="4"/>
+		</Label>
+		<Image name="rank2">
+			<Anchor anchorFrom="TOP" anchorTo="BOTTOM" anchor="rank1" y="4"/>
+		</Image>
+		<Label name="rank2_label" template="LargeBlue">
+			<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="rank2" x="4"/>
+		</Label>
+		<Image name="rank3">
+			<Anchor anchorFrom="TOP" anchorTo="BOTTOM" anchor="rank2" y="4"/>
+		</Image>
+		<Label name="rank3_label" template="LargeBlue">
+			<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="rank3" x="4"/>
+		</Label>
+
+		<Label name="name_label" template="LargeBlue" text="Enter your name: ">
+			<Anchor anchorFrom="TOPRIGHT" anchorTo="CENTER" y="-8"/>
+		</Label>
+		<Label name="name" bindText="Handle" template="LargeWhite">
+			<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="name_label"/>
+		</Label>
+	</Elements>
+</Panel>

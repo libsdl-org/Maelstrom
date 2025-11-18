@@ -1,12 +1,13 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(README.txt)
+AC_INIT(README)
+AC_CONFIG_AUX_DIR(build-scripts)
 
 dnl Detect the canonical target build environment
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
 dnl Setup for automake
-AM_INIT_AUTOMAKE(Maelstrom, 3.0.7)
+AM_INIT_AUTOMAKE(Maelstrom, 4.0.0)
 
 dnl Check for tools
 
@@ -26,33 +27,50 @@ esac
 dnl Figure out which math and networking libraries to use
 case "$target" in
     *-*-mingw32*)
-        MATHLIB=""
-        INETLIB="-lwsock32"
+        EXTRA_LIBS="-lwsock32"
         ;;
     *-*-beos*)
-        MATHLIB=""
-        INETLIB=""
+        EXTRA_LIBS=""
         ;;
     *-*-darwin*)
-        MATHLIB=""
-        INETLIB=""
+        EXTRA_LIBS="-framework CoreFoundation"
         ;;
     *)
-        MATHLIB="-lm"
-        INETLIB=""
+        EXTRA_LIBS="-lm"
         ;;
 esac
-AC_SUBST(MATHLIB)
-AC_SUBST(INETLIB)
+AC_SUBST(EXTRA_LIBS)
 
 dnl Check for SDL
-SDL_VERSION=2.0.14
+SDL_VERSION=2.0.0
 AM_PATH_SDL2($SDL_VERSION,
             :,
             AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
 )
 CFLAGS="$CFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
+
+dnl Check for SDL_image
+AC_CHECK_LIB(SDL2_image, IMG_Init, have_SDL_image=yes)
+if test x$have_SDL_image = xyes; then
+    LIBS="$LIBS -lSDL2_image"
+else
+    AC_MSG_ERROR([*** Can't find the SDL_image library
+The SDL_image library can be found at:
+http://www.libsdl.org/projects/SDL_image/
+])
+fi
+
+dnl Check for SDL_ttf
+AC_CHECK_LIB(SDL2_ttf, TTF_Init, have_SDL_ttf=yes)
+if test x$have_SDL_ttf = xyes; then
+    LIBS="$LIBS -lSDL2_ttf"
+else
+    AC_MSG_ERROR([*** Can't find the SDL_ttf library
+The SDL_ttf library can be found at:
+http://www.libsdl.org/projects/SDL_ttf/
+])
+fi
 
 dnl Check for SDL_net
 AC_CHECK_LIB(SDL2_net, SDLNet_Init, have_SDL_net=yes)
@@ -65,22 +83,9 @@ http://www.libsdl.org/projects/SDL_net/
 ])
 fi
 
-dnl Check for RSA checksum authentication
-AC_MSG_CHECKING(for RSA checksum authentication)
-if test -d $HOME/RSA; then
-    CFLAGS="$CFLAGS -DUSE_CHECKSUM -I$HOME/RSA/source"
-    LIBS="$LIBS $HOME/RSA/install/rsaref.a"
-    use_checksum=yes
-else
-    use_checksum=no
-fi
-AC_MSG_RESULT($use_checksum)
-
-dnl Add the include directories for the object libraries
-CFLAGS="$CFLAGS -I\$(top_srcdir)"
-CFLAGS="$CFLAGS -I\$(top_srcdir)/netlogic"
-CFLAGS="$CFLAGS -I\$(top_srcdir)/screenlib"
-CFLAGS="$CFLAGS -I\$(top_srcdir)/maclib"
+dnl Check for zlib
+#CHECK_ZLIB
+LIBS="$LIBS -lz"
 
 dnl Set up the icon object file, for Mingw32
 case "$target" in
@@ -109,7 +114,6 @@ case "$target" in
         ;;
 esac
 AC_SUBST(GAME_INSTALLDIR)
-CFLAGS="$CFLAGS -DLIBDIR=\\\"$GAME_INSTALLDIR\\\""
 
 dnl C++ flags are the same as the C flags
 CXXFLAGS="$CXXFLAGS $CFLAGS"
@@ -117,10 +121,10 @@ CXXFLAGS="$CXXFLAGS $CFLAGS"
 # Finally create all the generated files
 AC_OUTPUT([
 Makefile
-netlogic/Makefile
+game/Makefile
 screenlib/Makefile
 maclib/Makefile
-Images/Makefile
-Docs/Makefile
+physfs/Makefile
+utils/Makefile
 Maelstrom.spec
 ])

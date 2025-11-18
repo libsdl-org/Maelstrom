@@ -1,26 +1,30 @@
 /*
-    MACLIB:  A companion library to SDL for working with Macintosh (tm) data
-    Copyright (C) 1997-2021 Sam Lantinga <slouken@libsdl.org>
+  maclib:  A companion library to SDL for working with Macintosh (tm) data
+  Copyright (C) 1997-2011 Sam Lantinga <slouken@libsdl.org>
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+  This software is provided 'as-is', without any express or implied
+  warranty.  In no event will the authors be held liable for any damages
+  arising from the use of this software.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+  2. Altered source versions must be plainly marked as such, and must not be
+     misrepresented as being the original software.
+  3. This notice may not be removed or altered from any source distribution.
 */
 
+#include <stdio.h>
 #include <signal.h>
 
 #include "Mac_Sound.h"
 #include "Mac_Compat.h"
+#include "../utils/files.h"
 
 static int bogus_running = 0;
 
@@ -84,66 +88,35 @@ static void FillAudio(void *udata, Uint8 *stream, int len)
 /* extern "C" */
 };
 
-Sound:: Sound(const char *soundfile, Uint8 vol)
+Sound:: Sound(const char *soundfile, Uint8 vol) : ErrorBase()
 {
-	Wave         *wave;
-	Mac_Resource *soundres;
 	int           i, p;
-	Uint16       *ids;
-	Mac_ResData  *snd;
 
 	/* Initialize variables */
 	volume  = 0;
 	playing = 0;
 	bogus_audio = NULL;
 	InitHash();
-	errstr = NULL;
 
-	/* Load the sounds from the resource files */
-	soundres = new Mac_Resource(soundfile);
-	if ( soundres->Error() ) {
-		error("%s", soundres->Error());
-		return;
-	}
-	if ( soundres->NumResources("snd ") == 0 ) {
-		error("No sound resources in '%s'", soundfile);
-		return;
-	}
-	ids = soundres->ResourceIDs("snd ");
-	wave = NULL;
-	for ( i=0; ids[i] != 0xFFFF; ++i ) {
-		snd = soundres->Resource("snd ", ids[i]);
-		if ( snd == NULL ) {
-			error("%s", soundres->Error());
-			delete soundres;
-			return;
-		}
-		wave = new Wave(snd, DSP_FREQUENCY);
-		if ( wave->Error() ) {
-			error("%s", wave->Error());
-			delete wave;
-			delete soundres;
-			return;
-		}
-		Hash(ids[i], wave);
-	}
-	delete soundres;
-	spec = wave->Spec();
 	/* Allow ~ 1/30 second time-lag in audio buffer -- samples is x^2  */
-	spec->samples = (wave->Frequency()*wave->SampleSize())/30;
-	for ( p = 0; spec->samples > 1; ++p )
-		spec->samples /= 2;
+	spec.freq = DSP_FREQUENCY;
+	spec.format = AUDIO_U8;
+	spec.channels = 1;
+	spec.silence = 0x80;
+	spec.samples = (spec.freq*spec.channels)/30;
+	for ( p = 0; spec.samples > 1; ++p )
+		spec.samples /= 2;
 	++p;
 	for ( i = 0; i < p; ++i )
-		spec->samples *= 2;
-	spec->callback = FillAudio;
-	spec->userdata = (void *)this;
+		spec.samples *= 2;
+	spec.callback = FillAudio;
+	spec.userdata = (void *)this;
 
 	/* Empty the channels and start the music :-) */
 	HaltSound();
 	if ( vol == 0 ) {
 		bogus_running = 1;
-		bogus_audio = SDL_CreateThread(BogusAudioThread, "Maelstrom Audio", spec);
+		bogus_audio = SDL_CreateThread(BogusAudioThread, "Fake Audio", &spec);
 	} else {
 		Volume(vol);
 	}
@@ -177,7 +150,7 @@ Sound:: Volume(Uint8 vol)
 		}
 
 		/* Try to open the audio */
-		if ( SDL_OpenAudio(spec, NULL) < 0 )
+		if ( SDL_OpenAudio(&spec, NULL) < 0 )
 			vol = 0;		/* Fake sound */
 		active = 1;
 		SDL_PauseAudio(0);		/* Go! */
@@ -193,13 +166,39 @@ Sound:: Volume(Uint8 vol)
 
 		/* Run bogus sound thread */
 		bogus_running = 1;
-		bogus_audio = SDL_CreateThread(BogusAudioThread, "Maelstrom Audio", spec);
+		bogus_audio = SDL_CreateThread(BogusAudioThread, "Fake Audio", &spec);
 		if ( bogus_audio == NULL ) {
 			/* Oh well... :-) */
 		}
 	}
 	playing = active;
 	return(volume);
+}
+
+Wave *
+Sound:: LoadSound(Uint16 sndID)
+{
+	char file[128];
+	SDL_RWops *fp;
+	Wave *wave;
+	SDL_AudioSpec spec;
+
+	SDL_snprintf(file, sizeof(file), "Sounds/snd_%d.wav", sndID);
+	fp = OpenRead(file);
+	if (!fp) {
+		fprintf(stderr, "Couldn't open %s\n", file);
+		return NULL;
+	}
+
+	wave = new Wave;
+	if (!SDL_LoadWAV_RW(fp, 1, &spec, &wave->data, &wave->size)) {
+		fprintf(stderr, "Couldn't decode audio from %s\n", file);
+		delete wave;
+		return NULL;
+	}
+	Hash(sndID, wave);
+
+	return wave;
 }
 
 int
@@ -212,13 +211,16 @@ Sound:: PlaySound(Uint16 sndID, Uint8 priority, Uint8 channel,
 		return(-1);
 
 	wave = Hash(sndID);
+	if ( wave == NULL ) {
+		wave = LoadSound(sndID);
+	}
 	if ( wave == NULL )
 		return(-1);
 
 	channels[channel].ID = sndID;
 	channels[channel].priority = priority;
-	channels[channel].len = wave->DataLeft();
-	channels[channel].src = wave->Data();
+	channels[channel].len = wave->size;
+	channels[channel].src = wave->data;
 	channels[channel].callback = callback;
 #ifdef DEBUG_SOUND
 printf("Playing sound %hu on channel %d\n", sndID, channel);

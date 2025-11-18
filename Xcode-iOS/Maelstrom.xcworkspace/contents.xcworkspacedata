@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:Maelstrom.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:../../../../../3rdparty/iphone/SDL/Xcode-iOS/SDL/SDL.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:../../../../../3rdparty/iphone/SDL_image/Xcode-iOS/SDL_image.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:../../../../../3rdparty/iphone/SDL_ttf/Xcode-iOS/SDL_ttf.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:../../../../../3rdparty/iphone/SDL_net/Xcode-iOS/SDL_net.xcodeproj">
+   </FileRef>
+</Workspace>

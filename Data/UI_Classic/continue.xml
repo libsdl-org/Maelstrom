@@ -1,0 +1,21 @@
+<Dialog delegate="ContinuePanel">
+	<Size w="273" h="103"/>
+	<Anchor anchorFrom="TOPLEFT" anchorTo="CENTER" x="-137" y="-147"/>
+	<Elements>
+		<Icon name="icon" id="103">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="19" y="19"/>
+		</Icon>
+		<DialogLabel name="line1" text="Would you like to continue?">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="icon" x="25"/>
+		</DialogLabel>
+		<DialogLabel name="timeout" text="10">
+			<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
+		</DialogLabel>
+		<DialogButton name="cancelButton" text="Cancel">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="99" y="74"/>
+		</DialogButton>
+		<DialogButton text="Do it!" id="1" default="true">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="cancelButton" x="13"/>
+		</DialogButton>
+	</Elements>
+</Dialog>
