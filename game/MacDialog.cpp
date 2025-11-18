@@ -29,10 +29,8 @@
 #include "Maelstrom_Globals.h"
 #include "MacDialog.h"
 
-#define CLASSIC_DIALOG_FONT	"Chicago"
-#define CLASSIC_DIALOG_FONT_SIZE 12
-#define MODERN_DIALOG_FONT	"FreeSansBold"
-#define MODERN_DIALOG_FONT_SIZE 12
+#define DIALOG_FONT	"Chicago"
+#define DIALOG_FONT_SIZE 12
 
 #define EXPAND_STEPS	30
 
@@ -148,11 +146,7 @@ MacDialogDrawEngine::Init(UIElement *element)
 	// Set the default colors and font for dialog elements
 	m_element->SetFillColor(0xFF, 0xFF, 0xFF);
 	m_element->SetColor(0x00, 0x00, 0x00);
-	if (gClassic) {
-		m_element->SetFont(CLASSIC_DIALOG_FONT, CLASSIC_DIALOG_FONT_SIZE, UIFONT_STYLE_NORMAL);
-	} else {
-		m_element->SetFont(MODERN_DIALOG_FONT, MODERN_DIALOG_FONT_SIZE, UIFONT_STYLE_NORMAL);
-	}
+    m_element->SetFont(DIALOG_FONT, DIALOG_FONT_SIZE, UIFONT_STYLE_NORMAL);
 }
 
 //////////////////////////////////////////////////////////////////////////////

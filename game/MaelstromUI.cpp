@@ -212,9 +212,6 @@ MaelstromUI::MaelstromUI(FrameBuf *screen, Prefs *prefs) : UIManager(screen, pre
 #if __IPHONEOS__
 	SetCondition("IOS");
 #endif
-	if (gClassic) {
-		SetCondition("CLASSIC");
-	}
 
 	/* Load up our UI templates */
 	ClearLoadPath();
