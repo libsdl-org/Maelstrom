@@ -1,0 +1,423 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\game">
+      <UniqueIdentifier>{8ed8ca95-ef40-42a7-9bc3-61e03342f18c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\maclib">
+      <UniqueIdentifier>{09b642d3-df15-4979-8ffb-b13e734a2014}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\utils">
+      <UniqueIdentifier>{58125e70-ca4f-4e85-a68d-99c5b04a958b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\physfs">
+      <UniqueIdentifier>{158d6f59-d203-4a0e-81d1-6cb583ff26f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\screenlib">
+      <UniqueIdentifier>{29db6152-ed86-46ee-8b78-bf138507d808}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\mainstub.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\about.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\continue.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\controls.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\fastrand.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\game.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\gameinfo.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\gameover.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\init.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\load.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\lobby.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\MacDialog.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\MaelstromUI.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\main.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\make.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\myerror.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\netplay.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\object.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\objects.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\player.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\rect.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\replay.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\scores.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\maclib\Mac_FontServ.cpp">
+      <Filter>Source Files\maclib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\maclib\Mac_Sound.cpp">
+      <Filter>Source Files\maclib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utils\hashtable.c">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utils\loadxml.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utils\physfsrwops.c">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utils\prefs.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\physfs\archiver_dir.c">
+      <Filter>Source Files\physfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\physfs\archiver_zip.c">
+      <Filter>Source Files\physfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\physfs\physfs.c">
+      <Filter>Source Files\physfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\physfs\physfs_byteorder.c">
+      <Filter>Source Files\physfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\physfs\physfs_unicode.c">
+      <Filter>Source Files\physfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\physfs\platform_beos.cpp">
+      <Filter>Source Files\physfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\physfs\platform_macosx.c">
+      <Filter>Source Files\physfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\physfs\platform_posix.c">
+      <Filter>Source Files\physfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\physfs\platform_unix.c">
+      <Filter>Source Files\physfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\physfs\platform_windows.c">
+      <Filter>Source Files\physfs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\screenlib\SDL_FrameBuf.cpp">
+      <Filter>Source Files\screenlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\screenlib\UIArea.cpp">
+      <Filter>Source Files\screenlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\screenlib\UIBaseElement.cpp">
+      <Filter>Source Files\screenlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\screenlib\UIContainer.cpp">
+      <Filter>Source Files\screenlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\screenlib\UIDialog.cpp">
+      <Filter>Source Files\screenlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\screenlib\UIDialogButton.cpp">
+      <Filter>Source Files\screenlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\screenlib\UIDrawEngine.cpp">
+      <Filter>Source Files\screenlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\screenlib\UIElement.cpp">
+      <Filter>Source Files\screenlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\screenlib\UIElementButton.cpp">
+      <Filter>Source Files\screenlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\screenlib\UIElementCheckbox.cpp">
+      <Filter>Source Files\screenlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\screenlib\UIElementEditbox.cpp">
+      <Filter>Source Files\screenlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\screenlib\UIElementRadio.cpp">
+      <Filter>Source Files\screenlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\screenlib\UIManager.cpp">
+      <Filter>Source Files\screenlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\screenlib\UIPanel.cpp">
+      <Filter>Source Files\screenlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\screenlib\UITemplates.cpp">
+      <Filter>Source Files\screenlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\screenlib\UITexture.cpp">
+      <Filter>Source Files\screenlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utils\files.c">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\store.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\game\ServiceManager.cpp">
+      <Filter>Source Files\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\screenlib\UIElementThumbstick.cpp">
+      <Filter>Source Files\screenlib</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\game\about.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\colortable.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\continue.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\controls.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\fastrand.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\game.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\gameinfo.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\gameover.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\init.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\load.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\lobby.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\MacDialog.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\Maelstrom.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\Maelstrom_Globals.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\MaelstromUI.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\main.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\make.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\myerror.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\netplay.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\object.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\objects.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\packet.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\player.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\protocol.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\rect.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\replay.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\scores.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\shinobi.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\maclib\bitesex.h">
+      <Filter>Source Files\maclib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\maclib\Mac_Compat.h">
+      <Filter>Source Files\maclib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\maclib\Mac_FontServ.h">
+      <Filter>Source Files\maclib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\maclib\Mac_Sound.h">
+      <Filter>Source Files\maclib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\array.h">
+      <Filter>Source Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\ErrorBase.h">
+      <Filter>Source Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\hashtable.h">
+      <Filter>Source Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\loadxml.h">
+      <Filter>Source Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\physfsrwops.h">
+      <Filter>Source Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\prefs.h">
+      <Filter>Source Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\rapidxml.h">
+      <Filter>Source Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\rapidxml.hpp">
+      <Filter>Source Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\physfs\physfs.h">
+      <Filter>Source Files\physfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\physfs\physfs_casefolding.h">
+      <Filter>Source Files\physfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\physfs\physfs_internal.h">
+      <Filter>Source Files\physfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\physfs\physfs_miniz.h">
+      <Filter>Source Files\physfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\physfs\physfs_platforms.h">
+      <Filter>Source Files\physfs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\SDL_FrameBuf.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\UIArea.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\UIBaseElement.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\UIContainer.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\UIDialog.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\UIDialogButton.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\UIDrawEngine.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\UIElement.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\UIElementButton.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\UIElementCheckbox.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\UIElementEditbox.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\UIElementRadio.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\UIFontInterface.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\UIImageInterface.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\UIManager.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\UIPanel.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\UISoundInterface.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\UITemplates.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\UITexture.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils\files.h">
+      <Filter>Source Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\store.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\game\ServiceManager.h">
+      <Filter>Source Files\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\screenlib\UIElementThumbstick.h">
+      <Filter>Source Files\screenlib</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Maelstrom.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Maelstrom.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

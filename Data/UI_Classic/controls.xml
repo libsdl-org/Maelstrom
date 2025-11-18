@@ -1,0 +1,84 @@
+<Dialog delegate="ControlsDialog">
+	<Size w="474" h="292"/>
+	<Elements>
+		<Title id="100">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="4" y="4"/>
+		</Icon>
+
+		<Rectangle name="control1_box" template="ControlKeyBox">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="92" y="71"/>
+		</Rectangle>
+		<DialogLabel name="control1">
+			<Anchor anchor="control1_box"/>
+		</DialogLabel>
+		<Rectangle name="control2_box" template="ControlKeyBox">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="control1_box" y="3"/>
+		</Rectangle>
+		<DialogLabel name="control2">
+			<Anchor anchor="control2_box"/>
+		</DialogLabel>
+		<Rectangle name="control3_box" template="ControlKeyBox">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="control2_box" y="3"/>
+		</Rectangle>
+		<DialogLabel name="control3">
+			<Anchor anchor="control3_box"/>
+		</DialogLabel>
+		<Rectangle name="control4_box" template="ControlKeyBox">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="control3_box" y="3"/>
+		</Rectangle>
+		<DialogLabel name="control4">
+			<Anchor anchor="control4_box"/>
+		</DialogLabel>
+		<Rectangle name="control5_box" template="ControlKeyBox">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="control4_box" y="3"/>
+		</Rectangle>
+		<DialogLabel name="control5">
+			<Anchor anchor="control5_box"/>
+		</DialogLabel>
+		<Rectangle name="control6_box" template="ControlKeyBox">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="control5_box" y="3"/>
+		</Rectangle>
+		<DialogLabel name="control6">
+			<Anchor anchor="control6_box"/>
+		</DialogLabel>
+		<Rectangle name="control7_box" template="ControlKeyBox">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="control6_box" y="3"/>
+		</Rectangle>
+		<DialogLabel name="control7">
+			<Anchor anchor="control7_box"/>
+		</DialogLabel>
+
+		<DialogRadioGroup name="controlsRadioGroup">
+			<Elements>
+				<DialogRadioButton text="Fire" id="1">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="control1_box"/>
+				</DialogRadioButton>
+				<DialogRadioButton text="Thrust" id="2">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="control2_box"/>
+				</DialogRadioButton>
+				<DialogRadioButton text="Shield" id="3">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="control3_box"/>
+				</DialogRadioButton>
+				<DialogRadioButton text="Turn Clockwise" id="4">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="control4_box"/>
+				</DialogRadioButton>
+				<DialogRadioButton text="Turn Counter-Clockwise" id="5">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="control5_box"/>
+				</DialogRadioButton>
+				<DialogRadioButton text="Pause" id="6">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="control6_box"/>
+				</DialogRadioButton>
+				<DialogRadioButton text="Abort Game" id="7">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="control7_box"/>
+				</DialogRadioButton>
+			</Elements>
+		</DialogRadioGroup>
+
+		<DialogButton name="cancelButton" text="Cancel">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="291" y="265"/>
+		</DialogButton>
+		<DialogButton text="OK" id="1">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="cancelButton"x="25"/>
+		</DialogButton>
+	</Elements>
+</Dialog>

@@ -1,20 +1,22 @@
 /*
-    MACLIB:  A companion library to SDL for working with Macintosh (tm) data
-    Copyright (C) 1997-2021 Sam Lantinga <slouken@libsdl.org>
+  maclib:  A companion library to SDL for working with Macintosh (tm) data
+  Copyright (C) 1997-2011 Sam Lantinga <slouken@libsdl.org>
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+  This software is provided 'as-is', without any express or implied
+  warranty.  In no event will the authors be held liable for any damages
+  arising from the use of this software.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+  2. Altered source versions must be plainly marked as such, and must not be
+     misrepresented as being the original software.
+  3. This notice may not be removed or altered from any source distribution.
 */
 
 #ifndef _fontserv_h
@@ -35,8 +37,10 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#include "Mac_Resource.h"
-#include "SDL_FrameBuf.h"
+#include "SDL_ttf.h"
+
+#include "../utils/ErrorBase.h"
+#include "../screenlib/SDL_FrameBuf.h"
 
 /* Different styles supported by the font server */
 #define STYLE_NORM	0x00
@@ -68,7 +72,9 @@ struct FontHdr {
                rowWords;        /* Row width of bit image in words */
 };
 
-typedef struct {
+typedef struct MFont {
+	char *name;
+	int ptsize;
 	struct FontHdr *header;		/* The NFNT header! */
 
 	/* Variable-length tables */
@@ -77,20 +83,25 @@ typedef struct {
 	Sint16 *owTable;	/* owTable[lastchar+3-firstChar]; */ 
 
 	/* The Raw Data */
-	Mac_ResData *nfnt;
+	Uint8 *nfnt;
+
+	/* TrueType font information */
+	TTF_Font *font;
 } MFont;
 
-class FontServ {
+class FontServ : public ErrorBase {
 
 public:
 	/* The "fontfile" parameter should be a Macintosh Resource fork file
-	   that contains FOND and NFNT information for the desired fonts.
+	   that contains FOND and NFNT information for the desired fonts, or
+	   a TrueType font file.
 	*/
-	FontServ(const char *fontfile);
-	~FontServ();
+	FontServ(FrameBuf *screen, const char *fontfile);
+	virtual ~FontServ();
 	
-	/* The font returned by NewFont() should be delete'd */
+	/* The font returned by NewFont() should be freed with FreeFont() */
 	MFont  *NewFont(const char *fontname, int ptsize);
+	void FreeFont(MFont *font);
 
 	/* Determine the final width/height of a text block (in pixels) */
 	Uint16	TextWidth(const char *text, MFont *font, Uint8 style);
@@ -99,22 +110,27 @@ public:
 	/* Returns a bitmap image filled with the requested text.
 	   The text should be freed with FreeText() after it is used.
 	 */
-	SDL_Surface *TextImage(const char *text, MFont *font, Uint8 style,
-				SDL_Color background, SDL_Color foreground);
-	SDL_Surface *TextImage(const char *text, MFont *font, Uint8 style,
+	SDL_Texture *TextImage(const char *text, MFont *font, Uint8 style,
+						SDL_Color foreground);
+	SDL_Texture *TextImage(const char *text, MFont *font, Uint8 style,
+						Uint32 rgb) {
+		SDL_Color foreground;
+
+		foreground.r = (rgb >> 16) & 0xFF;
+		foreground.g = (rgb >>  8) & 0xFF;
+		foreground.b = (rgb >>  0) & 0xFF;
+		return(TextImage(text, font, style, foreground));
+	}
+	SDL_Texture *TextImage(const char *text, MFont *font, Uint8 style,
 						Uint8 R, Uint8 G, Uint8 B) {
-		SDL_Color background = { 0xFF, 0xFF, 0xFF, 0 };
 		SDL_Color foreground;
 
 		foreground.r = R;
 		foreground.g = G;
 		foreground.b = B;
-		return(TextImage(text, font, style, foreground, background));
+		return(TextImage(text, font, style, foreground));
 	}
-	void FreeText(SDL_Surface *text);
-
-	/* Inverts the color of the text image */
-	int InvertText(SDL_Surface *text);
+	void FreeText(SDL_Texture *text);
 
 	/* Returns NULL if everything is okay, or an error message if not */
 	char *Error(void) {
@@ -122,20 +138,7 @@ public:
 	}
 
 private:
-	Mac_Resource *fontres;
-	int text_allocated;
-
-	/* Useful for getting error feedback */
-	void SetError(const char *fmt, ...) {
-		va_list ap;
-
-		va_start(ap, fmt);
-		SDL_vsnprintf(errbuf, sizeof(errbuf), fmt, ap);
-		va_end(ap);
-		errstr = errbuf;
-	}
-	char *errstr;
-	char  errbuf[BUFSIZ];
+	FrameBuf *screen;
 };
 
 #endif /* _fontserv_h */

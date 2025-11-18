@@ -1,0 +1,22 @@
+<Panel template="FramedPanel">
+	<Elements>
+		<Title name="image" id="135"/>
+
+		<!-- Porting credits -->
+		<Rectangle fill="true">
+			<Color r="0x00" g="0x00" b="0x00"/>
+			<Size w="338" h="62"/>
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="image" x="166" y="282"/>
+		</Rectangle>
+		<Label name="port_label" template="Large" text="Port to SDL:   ">
+			<Color r="0xFF" g="0xFF" b="0x55"/>
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="image" x="188" y="298"/>
+		</Label>
+		<Label template="LargeWhite" text="Sam Lantinga">
+			<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="port_label"/>
+		</Label>
+
+		<!-- Buttons -->
+		<Button hotkey="any" clickPanel="main" clickSound="131"/>
+	</Elements>
+</Panel>

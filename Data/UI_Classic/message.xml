@@ -1,0 +1,21 @@
+<Dialog>
+	<Size w="273" h="103"/>
+	<Anchor anchorFrom="TOPLEFT" anchorTo="CENTER" x="-137" y="-147"/>
+	<Elements>
+		<DialogLabel name="message" template="DialogLabel">
+			<Size w="267"/>
+			<TextArea><Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT"/></TextArea>
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="8" y="8"/>
+		</DialogLabel>
+
+		<DialogButton name="button1" template="DialogButton" default="true">
+			<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-10" y="-11"/>
+		</DialogButton>
+		<DialogButton name="button2" template="DialogButton">
+			<Anchor anchorFrom="RIGHT" anchorTo="LEFT" anchor="button1" x="-10"/>
+		</DialogButton>
+		<DialogButton name="button3" template="DialogButton">
+			<Anchor anchorFrom="RIGHT" anchorTo="LEFT" anchor="button2" x="-10"/>
+		</DialogButton>
+	</Elements>
+</Dialog>

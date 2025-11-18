@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectName>Maelstrom</ProjectName>
+    <ProjectGuid>{E2652516-8AC0-403D-B271-795443AB5B1C}</ProjectGuid>
+    <RootNamespace>Maelstrom</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>17.0.36518.2</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(SolutionDir)\external\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL2main.lib;SDL2.lib;SDL2_image.lib;SDL2_net.lib;SDL2_ttf.lib;zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\external\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Message>Copy data and libraries</Message>
+      <Command>copy $(SolutionDir)\external\lib\*.dll $(TargetDir)
+copy $(SolutionDir)\..\Maelstrom_Data.zip $(TargetDir)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>$(SolutionDir)\external\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL2main.lib;SDL2.lib;SDL2_image.lib;SDL2_net.lib;zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\external\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Message>Copy data</Message>
+      <Command>copy $(SolutionDir)\..\Maelstrom_Data.zip $(TargetDir)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\game\about.cpp" />
+    <ClCompile Include="..\game\continue.cpp" />
+    <ClCompile Include="..\game\controls.cpp" />
+    <ClCompile Include="..\game\fastrand.cpp" />
+    <ClCompile Include="..\game\game.cpp" />
+    <ClCompile Include="..\game\gameinfo.cpp" />
+    <ClCompile Include="..\game\gameover.cpp" />
+    <ClCompile Include="..\game\init.cpp" />
+    <ClCompile Include="..\game\load.cpp" />
+    <ClCompile Include="..\game\lobby.cpp" />
+    <ClCompile Include="..\game\MacDialog.cpp" />
+    <ClCompile Include="..\game\MaelstromUI.cpp" />
+    <ClCompile Include="..\game\main.cpp" />
+    <ClCompile Include="..\game\make.cpp" />
+    <ClCompile Include="..\game\myerror.cpp" />
+    <ClCompile Include="..\game\netplay.cpp" />
+    <ClCompile Include="..\game\object.cpp" />
+    <ClCompile Include="..\game\objects.cpp" />
+    <ClCompile Include="..\game\player.cpp" />
+    <ClCompile Include="..\game\rect.cpp" />
+    <ClCompile Include="..\game\replay.cpp" />
+    <ClCompile Include="..\game\scores.cpp" />
+    <ClCompile Include="..\game\ServiceManager.cpp" />
+    <ClCompile Include="..\game\store.cpp" />
+    <ClCompile Include="..\maclib\Mac_FontServ.cpp" />
+    <ClCompile Include="..\maclib\Mac_Sound.cpp" />
+    <ClCompile Include="..\mainstub.cpp" />
+    <ClCompile Include="..\physfs\archiver_dir.c" />
+    <ClCompile Include="..\physfs\archiver_zip.c" />
+    <ClCompile Include="..\physfs\physfs.c" />
+    <ClCompile Include="..\physfs\physfs_byteorder.c" />
+    <ClCompile Include="..\physfs\physfs_unicode.c" />
+    <ClCompile Include="..\physfs\platform_beos.cpp" />
+    <ClCompile Include="..\physfs\platform_macosx.c" />
+    <ClCompile Include="..\physfs\platform_posix.c" />
+    <ClCompile Include="..\physfs\platform_unix.c" />
+    <ClCompile Include="..\physfs\platform_windows.c" />
+    <ClCompile Include="..\screenlib\SDL_FrameBuf.cpp" />
+    <ClCompile Include="..\screenlib\UIArea.cpp" />
+    <ClCompile Include="..\screenlib\UIBaseElement.cpp" />
+    <ClCompile Include="..\screenlib\UIContainer.cpp" />
+    <ClCompile Include="..\screenlib\UIDialog.cpp" />
+    <ClCompile Include="..\screenlib\UIDialogButton.cpp" />
+    <ClCompile Include="..\screenlib\UIDrawEngine.cpp" />
+    <ClCompile Include="..\screenlib\UIElement.cpp" />
+    <ClCompile Include="..\screenlib\UIElementButton.cpp" />
+    <ClCompile Include="..\screenlib\UIElementCheckbox.cpp" />
+    <ClCompile Include="..\screenlib\UIElementEditbox.cpp" />
+    <ClCompile Include="..\screenlib\UIElementRadio.cpp" />
+    <ClCompile Include="..\screenlib\UIElementThumbstick.cpp" />
+    <ClCompile Include="..\screenlib\UIManager.cpp" />
+    <ClCompile Include="..\screenlib\UIPanel.cpp" />
+    <ClCompile Include="..\screenlib\UITemplates.cpp" />
+    <ClCompile Include="..\screenlib\UITexture.cpp" />
+    <ClCompile Include="..\utils\files.c" />
+    <ClCompile Include="..\utils\hashtable.c" />
+    <ClCompile Include="..\utils\loadxml.cpp" />
+    <ClCompile Include="..\utils\physfsrwops.c" />
+    <ClCompile Include="..\utils\prefs.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\game\about.h" />
+    <ClInclude Include="..\game\colortable.h" />
+    <ClInclude Include="..\game\continue.h" />
+    <ClInclude Include="..\game\controls.h" />
+    <ClInclude Include="..\game\fastrand.h" />
+    <ClInclude Include="..\game\game.h" />
+    <ClInclude Include="..\game\gameinfo.h" />
+    <ClInclude Include="..\game\gameover.h" />
+    <ClInclude Include="..\game\init.h" />
+    <ClInclude Include="..\game\load.h" />
+    <ClInclude Include="..\game\lobby.h" />
+    <ClInclude Include="..\game\MacDialog.h" />
+    <ClInclude Include="..\game\Maelstrom.h" />
+    <ClInclude Include="..\game\MaelstromUI.h" />
+    <ClInclude Include="..\game\Maelstrom_Globals.h" />
+    <ClInclude Include="..\game\main.h" />
+    <ClInclude Include="..\game\make.h" />
+    <ClInclude Include="..\game\myerror.h" />
+    <ClInclude Include="..\game\netplay.h" />
+    <ClInclude Include="..\game\object.h" />
+    <ClInclude Include="..\game\objects.h" />
+    <ClInclude Include="..\game\packet.h" />
+    <ClInclude Include="..\game\player.h" />
+    <ClInclude Include="..\game\protocol.h" />
+    <ClInclude Include="..\game\rect.h" />
+    <ClInclude Include="..\game\replay.h" />
+    <ClInclude Include="..\game\scores.h" />
+    <ClInclude Include="..\game\ServiceManager.h" />
+    <ClInclude Include="..\game\shinobi.h" />
+    <ClInclude Include="..\game\store.h" />
+    <ClInclude Include="..\maclib\bitesex.h" />
+    <ClInclude Include="..\maclib\Mac_Compat.h" />
+    <ClInclude Include="..\maclib\Mac_FontServ.h" />
+    <ClInclude Include="..\maclib\Mac_Sound.h" />
+    <ClInclude Include="..\physfs\physfs.h" />
+    <ClInclude Include="..\physfs\physfs_casefolding.h" />
+    <ClInclude Include="..\physfs\physfs_internal.h" />
+    <ClInclude Include="..\physfs\physfs_miniz.h" />
+    <ClInclude Include="..\physfs\physfs_platforms.h" />
+    <ClInclude Include="..\screenlib\SDL_FrameBuf.h" />
+    <ClInclude Include="..\screenlib\UIArea.h" />
+    <ClInclude Include="..\screenlib\UIBaseElement.h" />
+    <ClInclude Include="..\screenlib\UIContainer.h" />
+    <ClInclude Include="..\screenlib\UIDialog.h" />
+    <ClInclude Include="..\screenlib\UIDialogButton.h" />
+    <ClInclude Include="..\screenlib\UIDrawEngine.h" />
+    <ClInclude Include="..\screenlib\UIElement.h" />
+    <ClInclude Include="..\screenlib\UIElementButton.h" />
+    <ClInclude Include="..\screenlib\UIElementCheckbox.h" />
+    <ClInclude Include="..\screenlib\UIElementEditbox.h" />
+    <ClInclude Include="..\screenlib\UIElementRadio.h" />
+    <ClInclude Include="..\screenlib\UIElementThumbstick.h" />
+    <ClInclude Include="..\screenlib\UIFontInterface.h" />
+    <ClInclude Include="..\screenlib\UIImageInterface.h" />
+    <ClInclude Include="..\screenlib\UIManager.h" />
+    <ClInclude Include="..\screenlib\UIPanel.h" />
+    <ClInclude Include="..\screenlib\UISoundInterface.h" />
+    <ClInclude Include="..\screenlib\UITemplates.h" />
+    <ClInclude Include="..\screenlib\UITexture.h" />
+    <ClInclude Include="..\utils\array.h" />
+    <ClInclude Include="..\utils\ErrorBase.h" />
+    <ClInclude Include="..\utils\files.h" />
+    <ClInclude Include="..\utils\hashtable.h" />
+    <ClInclude Include="..\utils\loadxml.h" />
+    <ClInclude Include="..\utils\physfsrwops.h" />
+    <ClInclude Include="..\utils\prefs.h" />
+    <ClInclude Include="..\utils\rapidxml.h" />
+    <ClInclude Include="..\utils\rapidxml.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Maelstrom.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Maelstrom.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

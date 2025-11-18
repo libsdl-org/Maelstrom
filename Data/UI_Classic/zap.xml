@@ -1,0 +1,15 @@
+<Dialog>
+	<Size w="273" h="103"/>
+	<Anchor anchorFrom="TOPLEFT" anchorTo="CENTER" x="-137" y="-147"/>
+	<Elements>
+		<Title id="102">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="4" y="4"/>
+		</Title>
+		<DialogButton name="clearButton" text="Clear" action="zap">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="99" y="74"/>
+		</DialogButton>
+		<DialogButton text="Cancel" default="true">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="clearButton" x="13"/>
+		</DialogButton>
+	</Elements>
+</Dialog>

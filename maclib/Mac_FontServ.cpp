@@ -1,20 +1,22 @@
 /*
-    MACLIB:  A companion library to SDL for working with Macintosh (tm) data
-    Copyright (C) 1997-2021 Sam Lantinga <slouken@libsdl.org>
+  maclib:  A companion library to SDL for working with Macintosh (tm) data
+  Copyright (C) 1997-2011 Sam Lantinga <slouken@libsdl.org>
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+  This software is provided 'as-is', without any express or implied
+  warranty.  In no event will the authors be held liable for any damages
+  arising from the use of this software.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+  2. Altered source versions must be plainly marked as such, and must not be
+     misrepresented as being the original software.
+  3. This notice may not be removed or altered from any source distribution.
 */
 
 /* The Macintosh Font Server module */
@@ -26,6 +28,7 @@
 
 #include "SDL_types.h"
 #include "bitesex.h"
+#include "../utils/files.h"
 #include "Mac_FontServ.h"
 
 #define copy_short(S, D)	memcpy(&S, D, 2); D += 2;
@@ -67,37 +70,51 @@ struct FOND {
 };
 
 
-FontServ:: FontServ(const char *fontfile)
+static TTF_Font *GetTrueTypeFont(const char *name, int ptsize)
 {
-	fontres = new Mac_Resource(fontfile);
-	text_allocated = 0;
-	if ( fontres->Error() ) {
-		SetError("Couldn't load resources from %s", fontfile);
-		return;
+	char file[128];
+	SDL_RWops *src;
+
+	SDL_snprintf(file, sizeof(file), "Fonts/%s.ttf", name);
+	src = OpenRead(file);
+	if (src) {
+		return TTF_OpenFontRW(src, 1, ptsize);
 	}
-	if ( fontres->NumResources("FOND") == 0 ) {
-		SetError("FontServ: No 'FOND' resources in %s", fontfile);
-		return;
-	}
-	errstr = NULL;
+	return NULL;
 }
 
-FontServ:: ~FontServ()
+static Uint8 *GetFontData(const char *type, int ID)
 {
-	if ( text_allocated != 0 ) {
-		fprintf(stderr,
-			"FontServ: Warning: %d text surfaces extant\n",
-							text_allocated);
-	}
-	delete fontres;
+	char file[128];
+	SDL_snprintf(file, sizeof(file), "Fonts/Maelstrom_%s#%d", type, ID);
+	return (Uint8 *)LoadFile(file);
+}
+
+FontServ::FontServ(FrameBuf *_screen, const char *fontfile) : ErrorBase()
+{
+	screen = _screen;
+	TTF_Init();
+}
+
+FontServ::~FontServ()
+{
+	TTF_Quit();
 }
 
 
 MFont *
-FontServ:: NewFont(const char *fontname, int ptsize)
+FontServ::NewFont(const char *fontname, int ptsize)
 {
-	Mac_ResData *fond;
-	Uint8 *data;
+	static struct {
+		const char *fontname;
+		int ID;
+	} fonts[] = {
+		{ "Chicago", 0 },
+		{ "New York", 2 },
+		{ "Geneva", 3 },
+	};
+
+	Uint8 *fond, *data;
 	struct FOND Fond;
 	struct Font_entry Fent;
 	int nchars;		/* number of chars including 'missing char' */
@@ -105,15 +122,32 @@ FontServ:: NewFont(const char *fontname, int ptsize)
 	int i, swapfont;
 	MFont *font;
 
+	font = new MFont;
+	SDL_zerop(font);
+
+	/* See if this is a TrueType font */
+	font->font = GetTrueTypeFont(fontname, ptsize);
+	if ( font->font ) {
+		/* That was easy :) */
+		return font;
+	}
+
 	/* Get the font family */
-	fond = fontres->Resource("FOND", fontname);
+	fond = NULL;
+	for (i = 0; i < (int)SDL_arraysize(fonts); ++i) {
+		if (SDL_strcmp(fontname, fonts[i].fontname) == 0) {
+			fond = GetFontData("FOND", fonts[i].ID);
+			break;
+		}
+	}
 	if ( fond == NULL ) {
+		delete font;
 		SetError("Warning: Font family '%s' not found", fontname);
 		return(NULL);
 	}
+	data = fond;
 
 	/* Find out what font ID we need */
-	data = fond->data;
         copy_short(Fond.flags, data);
         copy_short(Fond.ID, data);
         copy_short(Fond.firstCH, data);
@@ -137,7 +171,9 @@ FontServ:: NewFont(const char *fontname, int ptsize)
 		if ( (Fent.size == ptsize) && ! Fent.style )
 			break;
 	} 
+	SDL_free(fond);
 	if ( i == Fond.num_fonts ) {
+		delete font;
 		SetError(
 		"Warning: Font family '%s' doesn't have %d pt fonts",
 							fontname, ptsize);
@@ -145,8 +181,11 @@ FontServ:: NewFont(const char *fontname, int ptsize)
 	}
 
 	/* Now, Fent.ID is the ID of the correct NFNT resource */
-	font = new MFont;
-	font->nfnt = fontres->Resource("NFNT", Fent.ID);
+	size_t size = SDL_strlen(fontname)+1;
+	font->name = new char[size];
+	SDL_strlcpy(font->name, fontname, size);
+	font->ptsize = ptsize;
+	font->nfnt = GetFontData("NFNT", Fent.ID);
 	if ( font->nfnt == NULL ) {
 		delete font;
 		SetError(
@@ -157,7 +196,7 @@ FontServ:: NewFont(const char *fontname, int ptsize)
 	/* Now that we have the resource, fiddle with the font structure
 	   so we can use it.  (Code taken from 'mac2bdf' -- Thanks! :)
 	 */
-	font->header = (struct FontHdr *)(font->nfnt)->data;
+	font->header = (struct FontHdr *)font->nfnt;
 	if ( ((font->header->fontType & ~3) != PROPFONT) &&
 			((font->header->fontType & ~3) != FIXEDFONT) ) {
 		swapfont = 1;
@@ -186,7 +225,7 @@ FontServ:: NewFont(const char *fontname, int ptsize)
 	nwords= (font->header)->rowWords * (font->header)->fRectHeight;
 	
 	/* Read the tables.  They follow sequentially in the resource */
-	font->bitImage = (Uint16 *)((font->nfnt)->data+sizeof(*font->header));
+	font->bitImage = (Uint16 *)(font->nfnt+sizeof(*font->header));
 	font->locTable = (Uint16 *)(font->bitImage+nwords);
 	font->owTable = (Sint16 *)(font->locTable+nchars+1);
 	
@@ -199,7 +238,23 @@ FontServ:: NewFont(const char *fontname, int ptsize)
 		byteswap(font->locTable, nchars+1);
 		byteswap((Uint16 *)font->owTable, nchars);
 	}
+
 	return(font);
+}
+
+void
+FontServ::FreeFont(MFont *font)
+{
+	if ( font->font ) {
+		TTF_CloseFont(font->font);
+	}
+	if ( font->name ) {
+		delete[] font->name;
+	}
+	if ( font->nfnt ) {
+		SDL_free(font->nfnt);
+	}
+	delete font;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -210,12 +265,19 @@ FontServ:: NewFont(const char *fontname, int ptsize)
    specified font and style.
 */
 Uint16
-FontServ:: TextWidth(const char *text, MFont *font, Uint8 style)
+FontServ::TextWidth(const char *text, MFont *font, Uint8 style)
 {
 	int nchars, i;
 	int space_width;	/* The width of the whole character */
 	int extra_width;	/* Stylistic width */
 	Uint16 Width;
+
+	if ( font->font ) {
+		int w = 0, h = 0;
+
+		TTF_SizeText(font->font, text, &w, &h);
+		return w;
+	}
 
 	switch (style) {
 		case STYLE_NORM:	extra_width = 0;
@@ -226,7 +288,7 @@ FontServ:: TextWidth(const char *text, MFont *font, Uint8 style)
 					break;
 		default:		return(0);
 	}
-	nchars = strlen(text);
+	nchars = SDL_strlen(text);
 
 	Width = 0;
 	for ( i = 0; i < nchars; ++i ) {
@@ -244,24 +306,25 @@ FontServ:: TextWidth(const char *text, MFont *font, Uint8 style)
 	return(Width);
 }
 Uint16
-FontServ:: TextHeight(MFont *font)
+FontServ::TextHeight(MFont *font)
 {
+	if ( font->font ) {
+		return TTF_FontHeight(font->font);
+	}
 	return((font->header)->fRectHeight);
 }
 
 /* Get/Set bit i of a scan line */
 #define GETBIT(scanline, i) \
 		((scanline[(i)/16] >> (15 - (i)%16)) & 1)
-#define SETBIT(scanline, i, bit) \
-		(scanline[(i)/8] |= bit << (7 - (i)%8))
 
-SDL_Surface *
-FontServ:: TextImage(const char *text, MFont *font, Uint8 style,
-			SDL_Color foreground, SDL_Color background)
+SDL_Texture *
+FontServ::TextImage(const char *text, MFont *font, Uint8 style, SDL_Color fg)
 {
-	Uint16 width, height;
-	SDL_Surface *image;
-	Uint8 *bitmap;
+	int width, height;
+	SDL_Texture *image;
+	Uint32 *bitmap;
+	Uint32 color;
 	int nchars;
 	int bit_offset;		/* The current bit offset into a scanline */
 	int space_width;	/* The width of the whole character */
@@ -271,6 +334,41 @@ FontServ:: TextImage(const char *text, MFont *font, Uint8 style,
 	int bold_offset, boldness;
 	int ascii, i, y;
 	int bit;
+
+	if ( font->font ) {
+		SDL_Color white = { 0xff, 0xff, 0xff, 0xff };
+		SDL_Surface *surface;
+
+		switch (style) {
+		case STYLE_NORM:
+			TTF_SetFontStyle(font->font, TTF_STYLE_NORMAL);
+			break;
+		case STYLE_BOLD:
+			TTF_SetFontStyle(font->font, TTF_STYLE_BOLD);
+			break;
+		case STYLE_ULINE:
+			TTF_SetFontStyle(font->font, TTF_STYLE_UNDERLINE);
+			break;
+		case STYLE_ITALIC:
+			TTF_SetFontStyle(font->font, TTF_STYLE_ITALIC);
+			break;
+		default:		SetError(
+					"FontServ: Unknown text style!");
+					return(NULL);
+		}
+
+		surface = TTF_RenderText_Blended(font->font, text, white);
+		if (!surface) {
+			SetError(SDL_GetError());
+			return(NULL);
+		}
+
+		image = screen->LoadImage(surface);
+		SDL_FreeSurface(surface);
+		SDL_SetTextureBlendMode(image, SDL_BLENDMODE_BLEND);
+		SDL_SetTextureColorMod(image, fg.r, fg.g, fg.b);
+		return image;
+	}
 
 	switch (style) {
 		case STYLE_NORM:	bold_offset = 0;
@@ -326,17 +424,14 @@ FontServ:: TextImage(const char *text, MFont *font, Uint8 style,
 	}
 	height = (font->header)->fRectHeight;
 
-	/* Allocate the text bitmap image */
-	image = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 1, 0,0,0,0);
-	if ( image == NULL ) {
-		SetError("Unable to allocate bitmap: %s", SDL_GetError());
-		return(NULL);
-	}
-	bitmap = (Uint8 *)image->pixels;
+	/* Allocate the text pixels */
+	bitmap = new Uint32[width*height];
+	memset(bitmap, 0, width*height*sizeof(Uint32));
+	color = screen->MapRGB(fg.r, fg.g, fg.b);
 
 	/* Print the individual characters */
 	/* Note: this could probably be optimized.. eh, who cares. :) */
-	nchars = strlen(text);
+	nchars = SDL_strlen(text);
 	for ( boldness=0; boldness <= bold_offset; ++boldness ) {
 		bit_offset=0;
 		for ( i = 0; i < nchars; ++i ) {
@@ -358,13 +453,12 @@ FontServ:: TextImage(const char *text, MFont *font, Uint8 style,
 				int     dst_offset;
 				Uint16 *src_scanline;
 			
-				dst_offset = (y*image->pitch*8+
-						bit_offset+space_offset);
+				dst_offset = (y*width+bit_offset+space_offset);
 				src_scanline = font->bitImage + 
 						y*(font->header)->rowWords;
 				for ( bit = 0; bit<glyph_width; ++bit ) {
-					SETBIT(bitmap, dst_offset+bit+boldness, 
-				  		GETBIT(src_scanline, glyph_line_offset+bit));
+					bitmap[dst_offset+bit+boldness] |=
+				  		GETBIT(src_scanline, glyph_line_offset+bit)*0xFFFFFFFF;
 				}
 			}
 #ifdef WIDE_BOLD
@@ -376,38 +470,22 @@ FontServ:: TextImage(const char *text, MFont *font, Uint8 style,
 	}
 	if ( (style&STYLE_ULINE) == STYLE_ULINE ) {
 		y = (height-(font->header)->descent+1);
-		bit_offset = (y*image->pitch*8);
+		bit_offset = (y*width);
 		for ( bit=0; bit<width; ++bit )
-			SETBIT(bitmap, bit_offset+bit, 0x01);
+			bitmap[bit_offset++] = 0xFFFFFFFF;
 	}
 
-	/* Map the image and return */
-	SDL_SetColorKey(image, SDL_TRUE, 0);
-	image->format->palette->colors[0] = background;
-	image->format->palette->colors[1] = foreground;
-	++text_allocated;
+	/* Create the image */
+	image = screen->LoadImage(width, height, bitmap);
+	delete[] bitmap;
+	SDL_SetTextureBlendMode(image, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureColorMod(image, fg.r, fg.g, fg.b);
+
 	return(image);
 }
+
 void
-FontServ:: FreeText(SDL_Surface *text)
+FontServ::FreeText(SDL_Texture *text)
 {
-	--text_allocated;
-	SDL_FreeSurface(text);
-}
-int
-FontServ:: InvertText(SDL_Surface *text)
-{
-	SDL_Color colors[2];
-
-	/* Only works on bitmap images */
-	if ( text->format->BitsPerPixel != 1 ) {
-		SetError("Not a text bitmap");
-		return(-1);
-	}
-
-	/* Swap background and foreground colors */
-	colors[0] = text->format->palette->colors[1];
-	colors[1] = text->format->palette->colors[0];
-	SDL_SetPaletteColors(text->format->palette, colors, 0, 2);
-	return(0);
+	screen->FreeImage(text);
 }

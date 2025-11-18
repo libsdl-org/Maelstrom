@@ -1,0 +1,38 @@
+<Panel fullscreen="false" enterSound="110">
+	<Elements>
+		<Label name="wave" template="SmallYellow">
+			<Anchor anchorFrom="TOP" anchorTo="CENTER" y="-90"/>
+		</Label>
+		<Label name="bonus_label" template="SmallBlue" text="Bonus Score:     ">
+			<Anchor anchorFrom="TOP" anchorTo="TOP" anchor="wave" x="-20" y="50"/>
+		</Label>
+		<Label name="bonus" template="SmallWhite">
+			<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="bonus_label"/>
+		</Label>
+		<Label name="multiplied_bonus" template="SmallWhite">
+			<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="bonus_label" x="75"/>
+		</Label>
+		<Label name="score_label" template="SmallBlue" text="Score:     ">
+			<Anchor anchorFrom="TOP" anchorTo="TOP" anchor="wave" x="-3" y="70"/>
+		</Label>
+		<Label name="score" template="SmallWhite">
+			<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="score_label"/>
+		</Label>
+		<Sprite name="multiplier2" id="2000">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="score_label" x="34" y="-30"/>
+		</Sprite>
+		<Sprite name="multiplier3" id="2002">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="multiplier2"/>
+		</Sprite>
+		<Sprite name="multiplier4" id="2004">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="multiplier2"/>
+		</Sprite>
+		<Sprite name="multiplier5" id="2006">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="multiplier2"/>
+		</Sprite>
+
+		<Label name="next" template="SmallYellow">
+			<Anchor anchorFrom="TOP" anchorTo="TOP" anchor="wave" y="109"/>
+		</Label>
+	</Elements>
+</Panel>

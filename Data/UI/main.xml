@@ -1,0 +1,49 @@
+<Panel template="FramedPanel" delegate="MainPanel">
+	<Elements>
+		<!-- Catch-all button to bonk when a key is pressed -->
+		<Button template="HotkeyOnly" hotkey="any" clickSound="108"/>
+
+		<Image image="start_screen-bg-stars"/>
+		<Image name="spinner" image="start_screen-spinner">
+			<Anchor anchorFrom="TOP" anchorTo="CENTER" y="-190"/>
+		</Image>
+		<Button name="PlayButton" hotkey="P" action="play" clickSound="114" normal_image="start_screen-button-dim-play" pressed_image="start_screen-button-lit-play">
+			<Anchor anchorFrom="TOPRIGHT" anchorTo="CENTER" y="-50"/>
+		</Button>
+		<Button name="MultiplayerButton" hotkey="M" action="multiplayer" clickSound="114" normal_image="start_screen-button-dim-multiplayer" pressed_image="start_screen-button-lit-multiplayer">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="CENTER" y="-50"/>
+		</Button>
+		<Button name="AboutButton" hotkey="A" action="show_about_story" clickSound="122" normal_image="start_screen-button-dim-about" pressed_image="start_screen-button-lit-about">
+			<Anchor anchorFrom="TOPRIGHT" anchorTo="CENTER" y="38"/>
+		</Button>
+		<Button name="ControlsButton" hotkey="C" action="show_controls" clickSound="119" normal_image="start_screen-button-dim-settings" pressed_image="start_screen-button-lit-settings">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="CENTER" y="38"/>
+		</Button>
+		<Button name="ScoresButton" hotkey="S" action="show_scores" clickSound="0" normal_image="start_screen-button-dim-gamecenter" pressed_image="start_screen-button-lit-gamecenter">
+			<Anchor anchorFrom="TOP" anchorTo="CENTER" y="122"/>
+		</Button>
+		<Image image="start_screen-ship">
+			<Anchor anchorFrom="TOP" anchorTo="CENTER" y="24"/>
+		</Image>
+		<Image image="start_screen-logo">
+			<Anchor anchorFrom="BOTTOM" anchorTo="CENTER" y="8"/>
+		</Image>
+
+
+		<!-- Hidden action buttons -->
+		<Button name="QuitButton" template="HotkeyOnly" hotkey="Q" action="quit" clickSound="106"/>
+		<Button name="ToggleFullscreen" template="HotkeyOnly" hotkey="ALT-Return" action="toggle_fullscreen"/>
+		<Button name="Screenshot" template="HotkeyOnly" hotkey="F3" action="screenshot"/>
+		<Button name="Cheat" template="HotkeyOnly" hotkey="L" action="cheat" clickSound="124"/>
+		<Button name="Special" template="HotkeyOnly" hotkey="X" action="show_dawn" clickSound="128"/>
+		<Button name="SetVolume0" template="HotkeyOnly" hotkey="0" action="setvolume0"/>
+		<Button name="SetVolume1" template="HotkeyOnly" hotkey="1" action="setvolume1"/>
+		<Button name="SetVolume2" template="HotkeyOnly" hotkey="2" action="setvolume2"/>
+		<Button name="SetVolume3" template="HotkeyOnly" hotkey="3" action="setvolume3"/>
+		<Button name="SetVolume4" template="HotkeyOnly" hotkey="4" action="setvolume4"/>
+		<Button name="SetVolume5" template="HotkeyOnly" hotkey="5" action="setvolume5"/>
+		<Button name="SetVolume6" template="HotkeyOnly" hotkey="6" action="setvolume6"/>
+		<Button name="SetVolume7" template="HotkeyOnly" hotkey="7" action="setvolume7"/>
+		<Button name="SetVolume8" template="HotkeyOnly" hotkey="8" action="setvolume8"/>
+	</Elements>
+</Panel>

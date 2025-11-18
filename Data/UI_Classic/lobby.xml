@@ -1,0 +1,291 @@
+<Dialog delegate="LobbyDialog">
+	<Size w="466" h="254"/>
+	<Elements>
+		<Icon name="image" id="103">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="14" y="14"/>
+		</Icon>
+		<DialogLabel name="line1" text="Multiplayer Setup">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="image" x="14"/>
+		</DialogLabel>
+
+		<DialogRadioGroup name="hostOrJoin" bindValue="Network.HostOrJoin">
+			<Elements>
+				<DialogRadioButton name="hostgame" text="Host a game" checked="true" id="1">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="70" y="34"/>
+				</DialogRadioButton>
+				<DialogRadioButton name="joingame" text="Join a game" id="2">
+					<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="hostgame" x="4"/>
+				</DialogRadioButton>
+			</Elements>
+		</DialogRadioGroup>
+
+		<DialogCheckbox name="globalGame" bindValue="Network.GlobalGame" text="Global">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="290" y="39"/>
+		</DialogCheckbox>
+
+		<Area name="gamelist">
+			<Elements>
+				<DialogLabel name="ping_label">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="398" y="57"/>
+				</DialogLabel>
+
+				<Area name="game1">
+					<Size h="30"/>
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="14" y="82"/>
+					<Elements>
+						<DialogButton name="join" closeDialog="false" text="Join" default="true">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT"/>
+						</DialogButton>
+						<DialogLabel name="name" text="This is a name">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="16"/>
+						</DialogLabel>
+						<DialogLabel name="host" text="bwg101.corp.pacbell.net">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="120"/>
+						</DialogLabel>
+						<Image name="ping1" image="ping1">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping_label" y="12"/>
+						</Image>
+						<Image name="ping2" image="ping2">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping1"/>
+						</Image>
+						<Image name="ping3" image="ping3">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping1"/>
+						</Image>
+					</Elements>
+				</Area>
+
+				<Area name="game2">
+					<Size h="30"/>
+					<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="game1"/>
+					<Elements>
+						<DialogButton name="join" closeDialog="false" text="Join">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT"/>
+						</DialogButton>
+						<DialogLabel name="name" text="This is a name">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="16"/>
+						</DialogLabel>
+						<DialogLabel name="host" text="bwg101.corp.pacbell.net">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="120"/>
+						</DialogLabel>
+						<Image name="ping1" image="ping1">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping_label" y="42"/>
+						</Image>
+						<Image name="ping2" image="ping2">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping1"/>
+						</Image>
+						<Image name="ping3" image="ping3">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping1"/>
+						</Image>
+					</Elements>
+				</Area>
+
+				<Area name="game3">
+					<Size h="30"/>
+					<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="game2"/>
+					<Elements>
+						<DialogButton name="join" closeDialog="false" text="Join">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT"/>
+						</DialogButton>
+						<DialogLabel name="name" text="This is a name">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="16"/>
+						</DialogLabel>
+						<DialogLabel name="host" text="bwg101.corp.pacbell.net">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="120"/>
+						</DialogLabel>
+						<Image name="ping1" image="ping1">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping_label" y="72"/>
+						</Image>
+						<Image name="ping2" image="ping2">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping1"/>
+						</Image>
+						<Image name="ping3" image="ping3">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping1"/>
+						</Image>
+					</Elements>
+				</Area>
+
+				<Area name="game4">
+					<Size h="30"/>
+					<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="game3"/>
+					<Elements>
+						<DialogButton name="join" closeDialog="false" text="Join">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT"/>
+						</DialogButton>
+						<DialogLabel name="name" text="This is a name">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="16"/>
+						</DialogLabel>
+						<DialogLabel name="host" text="bwg101.corp.pacbell.net">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="120"/>
+						</DialogLabel>
+						<Image name="ping1" image="ping1">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping_label" y="102"/>
+						</Image>
+						<Image name="ping2" image="ping2">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping1"/>
+						</Image>
+						<Image name="ping3" image="ping3">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping1"/>
+						</Image>
+					</Elements>
+				</Area>
+
+				<Area name="game5">
+					<Size h="30"/>
+					<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="game4"/>
+					<Elements>
+						<DialogButton name="join" closeDialog="false" text="Join">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT"/>
+						</DialogButton>
+						<DialogLabel name="name" text="This is a name">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="16"/>
+						</DialogLabel>
+						<DialogLabel name="host" text="bwg101.corp.pacbell.net">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="120"/>
+						</DialogLabel>
+						<Image name="ping1" image="ping1">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping_label" y="132"/>
+						</Image>
+						<Image name="ping2" image="ping2">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping1"/>
+						</Image>
+						<Image name="ping3" image="ping3">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping1"/>
+						</Image>
+					</Elements>
+				</Area>
+			</Elements>
+		</Area>
+		<Area name="gameinfo">
+			<Elements>
+				<DialogLabel name="ping_label">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="398" y="56"/>
+				</DialogLabel>
+
+				<Area name="player1">
+					<Size h="46"/>
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="14" y="72"/>
+					<Elements>
+						<Image name="label" image="player1">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT"/>
+						</Image>
+						<Button name="control">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="16"/>
+						</Button>
+						<DialogLabel name="name" text="This is a name">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="80" y="-10"/>
+						</DialogLabel>
+						<DialogLabel name="host" text="bwg101.corp.pacbell.net">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="name" y="2"/>
+						</DialogLabel>
+						<Image name="ping1" image="ping1">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping_label" y="12"/>
+						</Image>
+						<Image name="ping2" image="ping2">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping1"/>
+						</Image>
+						<Image name="ping3" image="ping3">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping1"/>
+						</Image>
+					</Elements>
+				</Area>
+
+				<Area name="player2">
+					<Size h="46"/>
+					<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="player1"/>
+					<Elements>
+						<Image name="label" image="player2">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT"/>
+						</Image>
+						<Button name="control">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="16"/>
+						</Button>
+						<DialogLabel name="name" text="This is a name">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="80" y="-10"/>
+						</DialogLabel>
+						<DialogLabel name="host" text="192.168.0.101">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="name" y="2"/>
+						</DialogLabel>
+						<Image name="ping1" image="ping1">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping_label" y="58"/>
+						</Image>
+						<Image name="ping2" image="ping2">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping1"/>
+						</Image>
+						<Image name="ping3" image="ping3">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping1"/>
+						</Image>
+					</Elements>
+				</Area>
+
+				<Area name="player3">
+					<Size h="46"/>
+					<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="player2"/>
+					<Elements>
+						<Image name="label" image="player3">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT"/>
+						</Image>
+						<Button name="control">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="16"/>
+						</Button>
+						<DialogLabel name="name" text="This is a name">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="80" y="-10"/>
+						</DialogLabel>
+						<DialogLabel name="host" text="192.168.0.101">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="name" y="2"/>
+						</DialogLabel>
+						<Image name="ping1" image="ping1">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping_label" y="104"/>
+						</Image>
+						<Image name="ping2" image="ping2">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping1"/>
+						</Image>
+						<Image name="ping3" image="ping3">
+							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ping1"/>
+						</Image>
+					</Elements>
+				</Area>
+
+				<DialogLabel name="deathmatch_label" text="Deathmatch:">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" x="12" y="-10"/>
+				</DialogLabel>
+				<DialogRadioGroup name="deathmatch" bindValue="Network.Deathmatch">
+					<Elements>
+						<DialogRadioButton name="deathmatch_off" text="Off" checked="true" id="0">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="deathmatch_label" x="8"/>
+						</DialogRadioButton>
+						<DialogRadioButton name="deathmatch_3" text="3" id="3">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="deathmatch_off" x="6"/>
+						</DialogRadioButton>
+						<DialogRadioButton name="deathmatch_5" text="5" id="5">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="deathmatch_3" x="6"/>
+						</DialogRadioButton>
+						<DialogRadioButton name="deathmatch_8" text="8" id="8">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="deathmatch_5" x="6"/>
+						</DialogRadioButton>
+					</Elements>
+				</DialogRadioGroup>
+			</Elements>
+		</Area>
+
+		<DialogContainer name="control_dropdown" border="true" show="false">
+			<Elements>
+				<Button name="control0" image="control0"/>
+				<Button name="control3" image="control3"/>
+				<Button name="control1" image="control1"/>
+				<Button name="control2" image="control2"/>
+				<Button name="control4" image="control4"/>
+				<Button name="control8" image="control8"/>
+				<Button name="control16" image="control16"/>
+				<Button name="control32" image="control32"/>
+			</Elements>
+		</DialogContainer>
+
+		<DialogButton name="playButton" text="Do it!" default="true" id="1">
+			<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-10" y="-11"/>
+		</DialogButton>
+		<DialogButton text="Cancel">
+			<Size w="73"/>
+			<Anchor anchorFrom="RIGHT" anchorTo="LEFT" anchor="playButton" x="-14"/>
+		</DialogButton>
+	</Elements>
+</Dialog>

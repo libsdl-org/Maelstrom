@@ -1,0 +1,41 @@
+<Dialog>
+	<Size w="338" h="128"/>
+	<Elements>
+		<Icon name="image" id="103">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="14" y="14"/>
+		</Icon>
+		<DialogLabel name="line1" text="Enter the level to start from (1-40).  This">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="image" x="14"/>
+		</DialogLabel>
+		<DialogLabel name="line2" text="disqualifies you from a high score...">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="line1" y="2"/>
+		</DialogLabel>
+
+		<DialogEditbox name="level" numeric="true" maxlen="2" bindText="Cheat.StartLevel" text="10">
+			<Size w="30" h="21"/>
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="78" y="60"/>
+		</DialogEditbox>
+		<DialogLabel text="Level:">
+			<Anchor anchorFrom="RIGHT" anchorTo="LEFT" anchor="level" x="-2"/>
+		</DialogLabel>
+		<DialogEditbox name="lives" numeric="true" maxlen="2" bindText="Cheat.StartLives" text="3">
+			<Size w="30" h="21"/>
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="78" y="86"/>
+		</DialogEditbox>
+		<DialogLabel text="Lives:">
+			<Anchor anchorFrom="RIGHT" anchorTo="LEFT" anchor="lives" x="-2"/>
+		</DialogLabel>
+
+		<DialogCheckbox name="turbofunk" bindValue="Cheat.Turbofunk" text="Turbofunk On">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="136" y="64"/>
+		</DialogCheckbox>
+
+		<DialogButton name="cancelButton" text="Cancel">
+			<Size w="73"/>
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="166" y="96"/>
+		</DialogButton>
+		<DialogButton text="Do it!" default="true" id="1">
+			<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="cancelButton" x="14"/>
+		</DialogButton>
+	</Elements>
+</Dialog>

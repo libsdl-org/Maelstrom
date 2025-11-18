@@ -1,91 +1,58 @@
 
+ACLOCAL_AMFLAGS = -I acinclude
 
-bin_PROGRAMS = Maelstrom Maelstrom-netd
+bin_PROGRAMS = Maelstrom
+noinst_PROGRAMS = MaelstromLobby
 
-Maelstrom_SOURCES =		\
-	Maelstrom.h		\
-	Maelstrom_Globals.h	\
-	buttonlist.h		\
-	checksum.cpp		\
-	checksum.h		\
-	colortable.h		\
-	controls.cpp		\
-	controls.h		\
-	dialog.cpp		\
-	dialog.h		\
-	fastrand.cpp		\
-	fastrand.h		\
-	init.cpp		\
-	load.cpp		\
-	load.h			\
-	logic.h			\
-	main.cpp		\
-	myerror.cpp		\
-	myerror.h		\
-	netscore.cpp		\
-	netscore.h		\
-	public_key.h		\
-	rect.cpp		\
-	rect.h			\
-	scores.cpp		\
-	scores.h
-
-LOGIC = netlogic
+Maelstrom_SOURCES = mainstub.cpp
 
 Maelstrom_LDADD = 			\
-	$(LOGIC)/liblogic.a		\
+	game/libgame.a		\
 	screenlib/libSDLscreen.a	\
 	maclib/libSDLmac.a		\
-	@MATHLIB@ @INETLIB@ @ICONOBJ@
+	physfs/libphysfs.a		\
+	utils/libutils.a		\
+	@EXTRA_LIBS@ @ICONOBJ@
 
-SUBDIRS = $(LOGIC) screenlib maclib
+MaelstromLobby_SOURCES = MaelstromLobby.cpp
+
+MaelstromLobby_LDADD = @EXTRA_LIBS@
+
+SUBDIRS = game screenlib maclib physfs utils
 
 EXTRA_DIST =			\
-	autogen.sh		\
-	VisualC.zip		\
-	CREDITS.txt		\
-	Changelog		\
-	README.txt		\
-	README.joystick.txt	\
-	README.network.txt	\
-	README.options.txt	\
-	COPYING.txt		\
+	Docs			\
+	COPYING			\
 	COPYING.GPL		\
-	COPYING.GPL.txt		\
-	Maelstrom_Fonts		\
-	Maelstrom_Sounds	\
-	Maelstrom_Sprites	\
+	CREDITS			\
+	Changelog		\
+	Maelstrom.spec		\
+	Maelstrom_Data.zip	\
+	README.joystick		\
+	README.network		\
+	README.options		\
+	README.simple		\
+	VisualC			\
+	Xcode			\
+	Xcode-iOS		\
+	autogen.sh		\
 	ico_o			\
-	icon.bmp icon.xpm	\
-	Maelstrom.entitlements \
-	Maelstrom.spec
+	icon.xpm
 
-DIST_SUBDIRS = $(SUBDIRS) Images Docs
+DIST_SUBDIRS = $(SUBDIRS)
 
-# Special install rule for the game
-install:
-	sh mkinstalldirs $(DESTDIR)@GAME_INSTALLDIR@
-	install -m 755 Maelstrom $(DESTDIR)@GAME_INSTALLDIR@/Maelstrom
-	make install_gamedata target=$(DESTDIR)@GAME_INSTALLDIR@
-	make install_gamedocs target=$(DESTDIR)@GAME_INSTALLDIR@
+all: data
 
-install_gamedata:
-	sh mkinstalldirs $(target)/
-	sh mkinstalldirs $(target)/Images
-	cp -v Images/*.bmp $(target)/Images
-	cp -v Images/*.cicn $(target)/Images
-	cp -v Maelstrom_Fonts	\
-	      Maelstrom_Sounds	\
-	      Maelstrom_Sprites	\
-	      icon.bmp icon.xpm	$(target)/
+data: Maelstrom_Data.zip
 
-install_gamedocs:
-	sh mkinstalldirs $(target)/
-	sh mkinstalldirs $(target)/Docs
-	cp -v Docs/*.txt $(target)/Docs
-	cp -v README* $(target)/
-	cp -v COPYING.txt $(target)/COPYING
-	cp -v COPYING.GPL $(target)/
+append-data:
+	cat Maelstrom_Data.zip >>$(if $(BINARY),$(BINARY),Maelstrom$(EXEEXT))
+
+Maelstrom_Data.zip: $(shell find Data -type f -print | fgrep -v .svn)
+	(cd Data && find . -type f | fgrep -v .svn | zip -r ../$@.new -@ && mv ../$@.new ../$@)
+
+install-exec-hook:
+	make append-data BINARY="$(DESTDIR)$(bindir)/Maelstrom$(EXEEXT)"
 
 # Rule to build tar-gzipped distribution package
 $(PACKAGE)-$(VERSION).tar.gz: dist
@@ -93,3 +60,5 @@ $(PACKAGE)-$(VERSION).tar.gz: dist
 # Rule to build RPM distribution package
 rpm: $(PACKAGE)-$(VERSION).tar.gz
 	rpm -ta $(PACKAGE)-$(VERSION).tar.gz
+
+.PHONY: append-data rpm

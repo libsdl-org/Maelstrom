@@ -1,0 +1,32 @@
+<Dialog>
+	<Size w="310" h="186"/>
+	<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="164" y="77"/>
+	<Elements>
+		<Icon name="icon" id="103">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="19" y="19"/>
+		</Icon>
+		<DialogLabel name="line1" text="No eternal reward will forgive us">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="icon" x="25"/>
+		</DialogLabel>
+		<DialogLabel name="line2" text="now">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="line1" y="2"/>
+		</DialogLabel>
+		<DialogLabel name="line3" text="for">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMRIGHT" anchor="line2" x="2" y="2"/>
+		</DialogLabel>
+		<DialogLabel name="line4" text="wasting">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMRIGHT" anchor="line3" x="2" y="2"/>
+		</DialogLabel>
+		<DialogLabel name="line5" text="the">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMRIGHT" anchor="line4" x="2" y="2"/>
+		</DialogLabel>
+		<DialogLabel name="line6" text="dawn.">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMRIGHT" anchor="line5" x="2" y="2"/>
+		</DialogLabel>
+
+		<DialogButton text="OK" default="true">
+			<Size w="90"/>
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="210" y="160"/>
+		</DialogButton>
+	</Elements>
+</Dialog>
