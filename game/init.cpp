@@ -52,7 +52,6 @@ FrameBuf *screen = NULL;
 UIManager *ui = NULL;
 StoreManager *store = NULL;
 
-Bool	gClassic;
 array<Resolution> gResolutions;
 int	gResolutionIndex;
 char   *gReplayFile;
@@ -169,52 +168,10 @@ static bool InitResolutions(int &w, int &h)
 	}
 	SDL_free(buffer);
 
-	if (prefs->GetBool(PREFERENCES_CLASSIC)) {
-		gClassic = true;
-	}
-	if (gClassic) {
-		w = GAME_WIDTH;
-		h = GAME_HEIGHT;
-		gResolutionIndex = gResolutions.length()-1;
-		return true;
-	}
-
-	// See if the user wants something specific
-	const char *desired = prefs->GetString(PREFERENCES_RESOLUTION);
-	if (desired) {
-		SDL_sscanf(desired, "%dx%d", &w, &h);
-		gResolutionIndex = FindResolution(w, h);
-		if (gResolutionIndex >= 0) {
-			return true;
-		}
-	}
-
-	// Look for the best mode in two passes, first check to see if any of
-	// our supported modes are available, and if not just grab the first mode
-	// that's bigger than any of our supported modes and stretch to that.
-	SDL_DisplayMode mode;
-	int displayIndex = 0;
-	for (int pass = 0; pass < 2; ++pass) {
-		bool exact = (pass == 0);
-		for (int i = 0; i < SDL_GetNumDisplayModes(displayIndex); ++i) {
-			if (SDL_GetDisplayMode(displayIndex, i, &mode) < 0) {
-				continue;
-			}
-			gResolutionIndex = FindResolution(mode.w, mode.h);
-			if (gResolutionIndex >= 0) {
-				// Note that we're going to request our best supported resolution here.
-				w = gResolutions[gResolutionIndex].w;
-				h = gResolutions[gResolutionIndex].h;
-				if (exact && (mode.w != w || mode.h != h)) {
-					continue;
-				}
-				return true;
-			}
-		}
-	}
-
-	error("Couldn't find any supported resolutions\n");
-	return false;
+    w = GAME_WIDTH;
+    h = GAME_HEIGHT;
+    gResolutionIndex = gResolutions.length()-1;
+	return true;
 }
 
 /* ----------------------------------------------------------------- */
@@ -884,28 +841,10 @@ int DoInitializations(Uint32 window_flags, Uint32 render_flags)
 	}
 
 	/* Set up for the resolution we actually got */
-#if 0 // We don't need this now that we're guaranteed our logical resolution
-	if (!gClassic) {
-		gResolutionIndex = FindResolution(screen->Width(), screen->Height());
-	}
-
-	const Resolution &resolution = gResolutions[gResolutionIndex];
-	gScrnRect.x = (screen->Width() - resolution.w) / 2;
-	gScrnRect.y = (screen->Height() - resolution.h) / 2;
-	gScrnRect.w = resolution.w;
-	gScrnRect.h = resolution.h;
-#else
-	if (!gClassic) {
-		int display_w, display_h;
-		screen->GetDisplaySize(display_w, display_h);
-		gResolutionIndex = FindResolution(display_w, display_h);
-	}
-
 	gScrnRect.x = 0;
 	gScrnRect.y = 0;
 	gScrnRect.w = screen->Width();
 	gScrnRect.h = screen->Height();
-#endif
 
 	SDL_Rect clipRect;
 	clipRect.x = (SPRITES_WIDTH << SPRITE_PRECISION);
@@ -1229,7 +1168,7 @@ static int LoadSprite(bool large, BlitPtr *theBlit, int baseID, int numFrames)
 
 	/* -- Load in the image data */
 	for (index = 0; index < numFrames; index++) {
-		SDL_snprintf(file, sizeof(file), "Sprites_Classic/Maelstrom_%s#%d.bmp", large ? "icl" : "ics", baseID+index);
+		SDL_snprintf(file, sizeof(file), "Sprites/Maelstrom_%s#%d.bmp", large ? "icl" : "ics", baseID+index);
 		surface = SDL_LoadBMP_RW(OpenRead(file), 1);
 
 		if ( surface == NULL ) {

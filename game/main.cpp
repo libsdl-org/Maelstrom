@@ -258,8 +258,6 @@ int MaelstromMain(int argc, char *argv[])
 			window_flags |= SDL_WINDOW_FULLSCREEN;
 		} else if ( strcmp(argv[1], "-windowed") == 0 ) {
 			window_flags &= ~SDL_WINDOW_FULLSCREEN;
-		} else if ( strcmp(argv[1], "-classic") == 0 ) {
-			gClassic = true;
 		} else if ( strcmp(argv[1], "-version") == 0 ) {
 			error("%s", Version);
 			exit(0);
@@ -581,13 +579,8 @@ MainPanelDelegate::OnActionKidModeActivated()
 void
 MainPanelDelegate::OnActionScreenshot()
 {
-	if (gClassic) {
-		// Dump just the score screen
-		screen->ScreenDump("ScoreDump", 64, 48, 298, 384);
-	} else {
-		// Get a screenshot of our lovely new main screen
-		screen->ScreenDump("ScreenShot", 0, 0, 0, 0);
-	}
+    // Dump just the score screen
+    screen->ScreenDump("ScoreDump", 64, 48, 298, 384);
 }
 
 void

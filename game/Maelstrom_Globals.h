@@ -45,7 +45,6 @@
 #include "store.h"
 
 // Preferences keys
-#define PREFERENCES_CLASSIC "Classic"
 #define PREFERENCES_RESOLUTION "Resolution"
 #define PREFERENCES_HANDLE "Handle"
 #define PREFERENCES_DEATHMATCH "Network.Deathmatch"
@@ -88,7 +87,6 @@ extern Bool	gUpdateBuffer;
 extern Bool	gRunning;
 
 // in init.cpp : 
-extern Bool	gClassic;
 struct Resolution {
 	int w, h;
 	char path_suffix[32];

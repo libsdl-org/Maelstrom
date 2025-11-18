@@ -32,7 +32,7 @@
 		</Elements>
 	</Panel>
 
-	<Label templateName="Small" font="FreeSansBold:9"/>
+	<Label templateName="Small" font="Geneva:9:BOLD"/>
 	<Label templateName="SmallWhite" template="Small">
 		<Color r="0xFF" g="0xFF" b="0xFF"/>
 	</Label>
@@ -46,7 +46,7 @@
 		<Color r="0x75" g="0x75" b="0xFF"/>
 	</Label>
 
-	<Label templateName="Medium" font="FreeSansBold:14"/>
+	<Label templateName="Medium" font="New York:14:BOLD"/>
 	<Label templateName="MediumWhite" template="Medium">
 		<Color r="0xFF" g="0xFF" b="0xFF"/>
 	</Label>
@@ -57,7 +57,7 @@
 		<Color r="0x75" g="0x75" b="0xFF"/>
 	</Label>
 
-	<Label templateName="Large" font="FreeSans:18"/>
+	<Label templateName="Large" font="New York:18"/>
 	<Label templateName="LargeWhite" template="Large">
 		<Color r="0xFF" g="0xFF" b="0xFF"/>
 	</Label>
@@ -67,12 +67,23 @@
 	<Label templateName="LargeBlue" template="Large">
 		<Color r="0x75" g="0x75" b="0xFF"/>
 	</Label>
-	<Label templateName="LargeYellowUnderline" font="FreeSans:18:UNDERLINE">
+	<Label templateName="LargeYellowUnderline" font="New York:18:UNDERLINE">
 		<Color r="0xFF" g="0xFF" b="0x00"/>
 	</Label>
 
 	<Button templateName="HotkeyOnly">
 		<Size w="0" h="0"/>
+	</Button>
+
+	<Button templateName="MenuButton" image="keyicon" font="Geneva:9:BOLD">
+		<Size w="32" h="32"/>
+		<TextArea>
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="13" y="9"/>
+		</TextArea>
+		<TextShadow offset="1,1">
+			<Color r="0xFF" g="0xFF" b="0xFF"/>
+		</TextShadow>
+		<Color r="0x00" g="0x00" b="0x00"/>
 	</Button>
 
 	<Rectangle templateName="ControlKeyBox">
