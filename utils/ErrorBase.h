@@ -19,8 +19,7 @@
 #ifndef _ErrorBase_h
 #define _ErrorBase_h
 
-#include <string.h>
-#include <stdarg.h>
+#include <SDL3/SDL.h>
 
 #define ERRORBASE_ERRSIZ	1024
 

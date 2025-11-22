@@ -72,8 +72,8 @@ UIElementEditbox::HandleEvent(const SDL_Event &event)
 		return UIElementButton::HandleEvent(event);
 	}
 
-	if (event.type == SDL_KEYUP) {
-		switch (event.key.keysym.sym) {
+	if (event.type == SDL_EVENT_KEY_UP) {
+		switch (event.key.key) {
 			// This is confusing in dialogs which are canceled by Escape.
 			//case SDLK_ESCAPE:
 			//	SetFocus(false);
@@ -100,7 +100,7 @@ UIElementEditbox::HandleEvent(const SDL_Event &event)
 		}
 	}
 
-	if (event.type == SDL_TEXTINPUT) {
+	if (event.type == SDL_EVENT_TEXT_INPUT) {
 		// Note, this doesn't support non-ASCII characters at the moment
 		// To do that we would have to separate m_textMax and the size
 		// of the text buffer and it gets complicated for in-line editing.

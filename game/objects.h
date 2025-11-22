@@ -123,7 +123,7 @@ public:
 		sound->PlaySound(gMultiplierGone, 4);
 		return(-1);
 	}
-	void Shake(int shakiness) { }
+	void Shake() { }
 
 protected:
 	int multiplier;
@@ -158,7 +158,7 @@ public:
 		}
 		return(-1);
 	}
-	void Shake(int shakiness) { }
+	void Shake() { }
 };
 
 class Bonus : public Object {
@@ -192,7 +192,7 @@ public:
 			sound->PlaySound(gMultiplierGone, 4);
 		return(-1);
 	}
-	void Shake(int shakiness) { }
+	void Shake() { }
 
 protected:
 	int bonus;
@@ -338,7 +338,7 @@ public:
 		/* Phase normally */
 		return(Object::Move(Frozen));
 	}
-	void Shake(int shakiness) { }
+	void Shake() { }
 };
 
 

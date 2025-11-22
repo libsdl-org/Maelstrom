@@ -67,13 +67,13 @@ UIDialog::HandleEvent(const SDL_Event &event)
 	}
 
 	// Dialogs grab keyboard and mouse events
-	if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP ||
-	    event.type == SDL_TEXTEDITING || event.type == SDL_TEXTINPUT ||
-	    event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP ||
-	    event.type == SDL_MOUSEMOTION || event.type == SDL_MOUSEWHEEL) {
+	if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP ||
+	    event.type == SDL_EVENT_TEXT_EDITING || event.type == SDL_EVENT_TEXT_INPUT ||
+	    event.type == SDL_EVENT_MOUSE_BUTTON_DOWN || event.type == SDL_EVENT_MOUSE_BUTTON_UP ||
+	    event.type == SDL_EVENT_MOUSE_MOTION || event.type == SDL_EVENT_MOUSE_WHEEL) {
 		// Press escape to cancel out of dialogs
-		if (event.type == SDL_KEYUP &&
-		    event.key.keysym.sym == SDLK_ESCAPE) {
+		if (event.type == SDL_EVENT_KEY_UP &&
+		    event.key.key == SDLK_ESCAPE) {
 			GetUI()->HidePanel(this);
 		}
 		return true;

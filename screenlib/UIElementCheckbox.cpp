@@ -29,7 +29,7 @@ UIElementCheckbox::UIElementCheckbox(UIBaseElement *parent, const char *name, UI
 {
 	m_checked = false;
 	m_valueBinding = NULL;
-	for (int i = 0; i < SDL_arraysize(m_images); ++i) {
+	for (unsigned int i = 0; i < SDL_arraysize(m_images); ++i) {
 		m_images[i] = NULL;
 	}
 }
@@ -39,7 +39,7 @@ UIElementCheckbox::~UIElementCheckbox()
 	if (m_valueBinding) {
 		SDL_free(m_valueBinding);
 	}
-	for (int i = 0; i < SDL_arraysize(m_images); ++i) {
+	for (unsigned int i = 0; i < SDL_arraysize(m_images); ++i) {
 		if (m_images[i]) {
 			SDL_free(m_images[i]);
 		}

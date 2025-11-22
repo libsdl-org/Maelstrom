@@ -367,20 +367,16 @@ GamePanelDelegate::OnTick()
 
 	/* Handle all the shimmy and the shake. :-) */
 	if ( gShakeTime && (gShakeTime-- > 0) ) {
-		int shakeV;
-
 		OBJ_LOOP(i, MAX_PLAYERS) {
 			if (!gPlayers[i]->IsValid()) {
 				continue;
 			}
-			shakeV = FastRandom(SHAKE_FACTOR);
 			if ( ! gPlayers[i]->Alive() )
 				continue;
-			gPlayers[i]->Shake(FastRandom(SHAKE_FACTOR));
+			gPlayers[i]->Shake();
 		}
 		OBJ_LOOP(i, gNumSprites) {
-			shakeV = FastRandom(SHAKE_FACTOR);
-			gSprites[i]->Shake(FastRandom(SHAKE_FACTOR));
+			gSprites[i]->Shake();
 		}
 	}
 

@@ -22,37 +22,28 @@
 
 /* Generic error message routines */
 
-#include <stdio.h>
-#include <errno.h>
-
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #include "myerror.h"
 
 void error(const char *fmt, ...)
 {
-    char mesg[BUFSIZ];
+    char mesg[1024];
     va_list ap;
 
     va_start(ap, fmt);
     SDL_vsnprintf(mesg, sizeof(mesg), fmt, ap);
-    if (mesg[SDL_strlen(mesg)-1] == '\n') {
-        mesg[SDL_strlen(mesg)-1] = '\0';
-    }
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", mesg);
     va_end(ap);
 }
 
 void mesg(const char *fmt, ...)
 {
-    char mesg[BUFSIZ];
+    char mesg[1024];
     va_list ap;
 
     va_start(ap, fmt);
     SDL_vsnprintf(mesg, sizeof(mesg), fmt, ap);
-    if (mesg[SDL_strlen(mesg)-1] == '\n') {
-        mesg[SDL_strlen(mesg)-1] = '\0';
-    }
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", mesg);
     va_end(ap);
 }

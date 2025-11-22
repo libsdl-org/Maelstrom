@@ -23,11 +23,7 @@
    and mixes various sounds on command.
 */
 
-#include "SDL_types.h"
-#include "SDL_mutex.h"
-#include "SDL_thread.h"
-#include "SDL_audio.h"
-
+#include <SDL3/SDL.h>
 #include "../utils/ErrorBase.h"
 
 #define MAX_VOLUME	8		/* Software volume ranges from 0 - 8 */
@@ -119,8 +115,6 @@ public:
 	static void FillAudioU8(Sound *sound, Uint8 *stream, int len);
 
 private:
-	Uint8 playing;
-
 	struct channel {
 		Uint16 ID;
 		Sint16 priority;
@@ -129,11 +123,8 @@ private:
 		void (*callback)(Uint8 channel);
 	} channels[NUM_CHANNELS];
 
-	SDL_AudioSpec spec;
 	Uint8      volume;
-
-	/* Fake audio handler, in case we can't open the real thing */
-	SDL_Thread *bogus_audio;
+	SDL_AudioStream* stream = nullptr;
 
 	/* Functions for getting and setting a hash indexed by Uint16 */
 	/* We use a sparse tiered pointer page scheme :-)

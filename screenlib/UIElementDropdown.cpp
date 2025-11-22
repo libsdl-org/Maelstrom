@@ -56,7 +56,7 @@ UIElementDropdown::HandleEvent(const SDL_Event &event)
 	}
 
 	// Hide the dropdown when we get a mouse down event anywhere else
-	if (event.type == SDL_MOUSEBUTTONDOWN) {
+	if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
 		HideElements();
 	}
 	return false;

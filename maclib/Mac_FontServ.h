@@ -37,7 +37,9 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#ifdef MAC_FONTSERV_TTF
 #include "SDL_ttf.h"
+#endif
 
 #include "../utils/ErrorBase.h"
 #include "../screenlib/SDL_FrameBuf.h"
@@ -85,8 +87,10 @@ typedef struct MFont {
 	/* The Raw Data */
 	Uint8 *nfnt;
 
+#ifdef MAC_FONTSERV_TTF
 	/* TrueType font information */
 	TTF_Font *font;
+#endif
 } MFont;
 
 class FontServ : public ErrorBase {

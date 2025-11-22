@@ -95,12 +95,14 @@ public:
 		SetControl(CONTROL_JOYSTICK2, false);
 		SetControl(CONTROL_JOYSTICK3, false);
 #else
+		int num_joysticks = 0;
+		SDL_free(SDL_GetJoysticks(&num_joysticks));
 		SetControl(CONTROL_TOUCH, false);
 		SetControl(CONTROL_KEYBOARD, true);
 		SetControl(CONTROL_KEYBOARD|CONTROL_JOYSTICK1, true);
-		SetControl(CONTROL_JOYSTICK1, SDL_NumJoysticks() > 0);
-		SetControl(CONTROL_JOYSTICK2, SDL_NumJoysticks() > 1);
-		SetControl(CONTROL_JOYSTICK3, SDL_NumJoysticks() > 2);
+		SetControl(CONTROL_JOYSTICK1, num_joysticks > 0);
+		SetControl(CONTROL_JOYSTICK2, num_joysticks > 1);
+		SetControl(CONTROL_JOYSTICK3, num_joysticks > 2);
 #endif
 		SetControl(CONTROL_NETWORK, (m_index > 0) && m_game.IsHosting());
 
@@ -383,7 +385,7 @@ LobbyDialogDelegate::UpdateUI()
 	} else if (m_state == STATE_LISTING) {
 		m_gameListArea->Show();
 		m_gameInfoArea->Hide();
-		for (int i = 0; (unsigned)i < SDL_arraysize(m_gameListElements); ++i) {
+		for (unsigned int i = 0; i < SDL_arraysize(m_gameListElements); ++i) {
 			if (i < m_gameList.length()) {
 				m_gameListElements[i]->Show();
 				m_gameList[i].BindPlayerToUI(0, m_gameListElements[i]);
@@ -487,7 +489,7 @@ LobbyDialogDelegate::CheckPings()
 	// Check for ping timeouts
 	if (m_state == STATE_LISTING) {
 		bool removed = false;
-		int i = 0;
+		unsigned int i = 0;
 		while (i < m_gameList.length()) {
 			GameInfo &game = m_gameList[i];
 			game.UpdatePingStatus(HOST_NODE);
@@ -524,7 +526,7 @@ LobbyDialogDelegate::CheckPings()
 		m_packet.StartLobbyMessage(LOBBY_PING);
 		m_packet.Write(m_game.gameID);
 		m_packet.Write(m_game.localID);
-		m_packet.Write(SDL_GetTicks());
+		m_packet.Write((Uint32)SDL_GetTicks());
 
 		for (int i = 0; i < m_game.GetNumNodes(); ++i) {
 			if (m_game.IsNetworkNode(i)) {
@@ -572,9 +574,9 @@ LobbyDialogDelegate::GetGameList()
 #ifdef LOBBY_BROADCAST
 	// Get game info for local games
 	m_packet.StartLobbyMessage(LOBBY_REQUEST_GAME_INFO);
-	m_packet.Write(SDL_GetTicks());
+	m_packet.Write((Uint32)SDL_GetTicks());
 	m_packet.address.host = INADDR_BROADCAST;
-	m_packet.address.port = SDL_SwapBE16(NETPLAY_PORT);
+	m_packet.address.port = SDL_Swap16BE(NETPLAY_PORT);
 	SDLNet_UDP_Send(gNetFD, -1, &m_packet);
 #endif
 }
@@ -583,7 +585,7 @@ void
 LobbyDialogDelegate::GetGameInfo()
 {
 	m_packet.StartLobbyMessage(LOBBY_REQUEST_GAME_INFO);
-	m_packet.Write(SDL_GetTicks());
+	m_packet.Write((Uint32)SDL_GetTicks());
 	m_packet.address = m_game.GetHost()->address;
 	SDLNet_UDP_Send(gNetFD, -1, &m_packet);
 }
@@ -660,7 +662,7 @@ LobbyDialogDelegate::PackAddresses(DynamicPacket &packet)
 	port = SDLNet_UDP_GetPeerAddress(gNetFD, -1)->port;
 
 	m_packet.Write((Uint8)m_addresses.length());
-	for (int i = 0; i < m_addresses.length(); ++i) {
+	for (unsigned int i = 0; i < m_addresses.length(); ++i) {
 		m_packet.Write(m_addresses[i].host);
 		m_packet.Write(port);
 	}
@@ -933,7 +935,7 @@ LobbyDialogDelegate::ProcessGameInfo(DynamicPacket &packet)
 
 	if (m_state == STATE_LISTING) {
 		// Add or update the game list
-		int i;
+		unsigned int i;
 		for (i = 0; i < m_gameList.length(); ++i) {
 			if (game.gameID == m_gameList[i].gameID) {
 				m_gameList[i].CopyFrom(game);
@@ -998,7 +1000,7 @@ LobbyDialogDelegate::ProcessGameServerList(DynamicPacket &packet)
 
 	// Request game information from the servers
 	m_reply.StartLobbyMessage(LOBBY_REQUEST_GAME_INFO);
-	m_reply.Write(SDL_GetTicks());
+	m_reply.Write((Uint32)SDL_GetTicks());
 
 	if (!packet.Read(serverCount)) {
 		return;

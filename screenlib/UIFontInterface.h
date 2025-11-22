@@ -22,8 +22,6 @@
 #ifndef _UIFontInterface_h
 #define _UIFontInterface_h
 
-#include "SDL_types.h"
-
 #include "UITexture.h"
 
 enum UIFontStyle {

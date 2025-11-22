@@ -16,32 +16,32 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "physfsrwops.h"
+#include "../external/physfs/extras/physfssdl3.h"
 #include "files.h"
 
 /* Provide file routines that use PHYSFS on most platforms and SDL on Android */
 
-SDL_RWops *OpenRead(const char *fname)
+SDL_IOStream *OpenRead(const char *fname)
 {
 #ifdef __ANDROID__
-	return SDL_RWFromFile(fname, "rb");
+	return SDL_IOFromFile(fname, "rb");
 #else
-	return PHYSFSRWOPS_openRead(fname);
+	return PHYSFSSDL3_openRead(fname);
 #endif
 }
 
-SDL_RWops *OpenWrite(const char *fname)
+SDL_IOStream *OpenWrite(const char *fname)
 {
 #ifdef __ANDROID__
-	return SDL_RWFromFile(fname, "wb");
+	return SDL_IOFromFile(fname, "wb");
 #else
-	return PHYSFSRWOPS_openWrite(fname);
+	return PHYSFSSDL3_openWrite(fname);
 #endif
 }
 
 char *LoadFile(const char *fname)
 {
-	SDL_RWops *fp;
+	SDL_IOStream *fp;
 	Sint64 size;
 	char *data;
 
@@ -50,14 +50,14 @@ char *LoadFile(const char *fname)
 		return NULL;
 	}
 
-	size = SDL_RWsize(fp);
+	size = SDL_GetIOSize(fp);
 	data = (char*)SDL_malloc(size+1);
-	if (SDL_RWread(fp, data, size, 1)) {
+	if (SDL_ReadIO(fp, data, size)) {
 		data[size] = '\0';
 	} else {
 		SDL_free(data);
 		data = NULL;
 	}
-	SDL_RWclose(fp);
+	SDL_CloseIO(fp);
 	return data;
 }

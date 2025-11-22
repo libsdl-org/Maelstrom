@@ -562,13 +562,13 @@ UIElement::HandleEvent(const SDL_Event &event)
 		bool checkMouseLocation = false;
 		int x, y;
 
-		if (event.type == SDL_MOUSEMOTION) {
+		if (event.type == SDL_EVENT_MOUSE_MOTION) {
 			x = event.motion.x;
 			y = event.motion.y;
 			checkMouseLocation = true;
 		}
-		if (event.type == SDL_MOUSEBUTTONDOWN ||
-		    event.type == SDL_MOUSEBUTTONUP) {
+		if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN ||
+		    event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
 			x = event.button.x;
 			y = event.button.y;
 			checkMouseLocation = true;
@@ -587,18 +587,18 @@ UIElement::HandleEvent(const SDL_Event &event)
 				}
 			}
 		}
-		if (event.type == SDL_MOUSEMOTION) {
+		if (event.type == SDL_EVENT_MOUSE_MOTION) {
 			return m_mouseInside;
 		}
 
-		if (event.type == SDL_MOUSEBUTTONDOWN &&
+		if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN &&
 		    event.button.button == SDL_BUTTON_LEFT && m_mouseInside) {
 			m_mousePressed = true;
 			OnMouseDown();
 			return true;
 		}
 
-		if (event.type == SDL_MOUSEBUTTONUP &&
+		if (event.type == SDL_EVENT_MOUSE_BUTTON_UP &&
 		    event.button.button == SDL_BUTTON_LEFT && m_mousePressed) {
 			m_mousePressed = false;
 			OnMouseUp();

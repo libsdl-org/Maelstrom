@@ -93,14 +93,12 @@ UIElementRadioGroup::GetRadioButton(int id)
 void
 UIElementRadioGroup::SetValue(int value)
 {
-	int oldValue;
 	array<UIElementRadioButton*> buttons;
 
 	if (value == m_value) {
 		return;
 	}
 
-	oldValue = m_value;
 	m_value = value;
 
 	FindElements<UIElementRadioButton>(buttons);

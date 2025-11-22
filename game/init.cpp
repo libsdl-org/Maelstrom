@@ -25,7 +25,6 @@
 #endif
 #include <signal.h>
 #include <stdlib.h>
-#include "SDL_image.h"
 
 #include "Maelstrom_Globals.h"
 #include "load.h"
@@ -37,7 +36,7 @@
 #include "MaelstromUI.h"
 #include "../screenlib/UIElement.h"
 
-#include "../physfs/physfs.h"
+#include "physfs.h"
 #include "../utils/loadxml.h"
 #include "../utils/files.h"
 
@@ -92,21 +91,6 @@ static int LoadSmallSprite(BlitPtr *theBlit, int baseID, int numFrames);
 
 /* ----------------------------------------------------------------- */
 /* -- Load the list of supported resolutions and pick the best one */
-
-static int FindResolution(int w, int h)
-{
-	for (int i = 0; i < gResolutions.length(); ++i) {
-		if (!gResolutions[i].w || !gResolutions[i].h) {
-			continue;
-		}
-		if (gResolutions[i].w <= w && gResolutions[i].h <= h) {
-			return i;
-		}
-	}
-
-	// The given resolution is smaller than any supported resolution
-	return -1;
-}
 
 static bool InitResolutions(int &w, int &h)
 {
@@ -733,6 +717,10 @@ void CleanUp(void)
 {
 	FreeScores();
 	SaveControls();
+	if ( gReplayFile ) {
+		SDL_free( gReplayFile );
+		gReplayFile = NULL;
+	}
 	if ( store ) {
 		delete store;
 		store = NULL;
@@ -765,7 +753,7 @@ void CleanUp(void)
 
 /* ----------------------------------------------------------------- */
 /* -- Perform some initializations and report failure if we choke */
-int DoInitializations(Uint32 window_flags, Uint32 render_flags)
+int DoInitializations(Uint32 window_flags)
 {
 	int w, h;
 	SDL_Surface *icon;
@@ -787,42 +775,39 @@ int DoInitializations(Uint32 window_flags, Uint32 render_flags)
 #ifdef SDL_INIT_JOYSTICK
 	init_flags |= SDL_INIT_JOYSTICK;
 #endif
-	if ( SDL_Init(init_flags) < 0 ) {
-		init_flags &= ~SDL_INIT_JOYSTICK;
-		if ( SDL_Init(init_flags) < 0 ) {
-			error("Couldn't initialize SDL: %s\n", SDL_GetError());
-			return(-1);
-		}
+	if ( !SDL_Init(init_flags) ) {
+		error("Couldn't initialize SDL: %s\n", SDL_GetError());
+		return(-1);
 	}
 
 	/* Load the Maelstrom icon */
-	icon = IMG_Load_RW(OpenRead("icon.png"), 1);
+	icon = SDL_LoadSurface_IO(OpenRead("icon.png"), true);
 	if ( icon == NULL ) {
 		error("Fatal: Couldn't load icon: %s\n", SDL_GetError());
 		return(-1);
 	}
 
 	/* We will handle drag and drop events */
-	SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
+	SDL_SetEventEnabled(SDL_EVENT_DROP_FILE, true);
 
 	/* Initialize the screen */
 	screen = new FrameBuf;
 	if (!InitResolutions(w, h)) {
 		return(-1);
 	}
-	if (screen->Init(w, h, window_flags, render_flags, icon) < 0){
+	if (screen->Init(w, h, window_flags, icon) < 0){
 		error("Fatal: %s\n", screen->Error());
 		return(-1);
 	}
 	screen->SetLogicalSize(GAME_WIDTH, GAME_HEIGHT);
 	screen->SetCaption("Maelstrom");
-	SDL_FreeSurface(icon);
+	SDL_DestroySurface(icon);
 
 	/* Get startup events, which shows the window on Mac OS X */
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
-		if (event.type == SDL_DROPFILE) {
-			gReplayFile = event.drop.file;
+		if (event.type == SDL_EVENT_DROP_FILE) {
+			gReplayFile = SDL_strdup(event.drop.data);
 		}
 	}
 
@@ -1169,19 +1154,19 @@ static int LoadSprite(bool large, BlitPtr *theBlit, int baseID, int numFrames)
 	/* -- Load in the image data */
 	for (index = 0; index < numFrames; index++) {
 		SDL_snprintf(file, sizeof(file), "Sprites/Maelstrom_%s#%d.bmp", large ? "icl" : "ics", baseID+index);
-		surface = SDL_LoadBMP_RW(OpenRead(file), 1);
+		surface = SDL_LoadSurface_IO(OpenRead(file), true);
 
 		if ( surface == NULL ) {
 			error("LoadSprite(): Couldn't load image %s\n", file);
 			return(-1);
 		}
 		if ( surface->w != size || surface->h != size ) {
-			SDL_FreeSurface(surface);
+			SDL_DestroySurface(surface);
 			error("LoadSprite(): Image not %dx%d: %s\n", size, size, file);
 			return(-1);
 		}
-		if ( surface->format->BitsPerPixel != 32 ) {
-			SDL_FreeSurface(surface);
+		if ( SDL_BITSPERPIXEL(surface->format) != 32 ) {
+			SDL_DestroySurface(surface);
 			error("LoadSprite(): Image not 32-bit: %s\n", file);
 			return(-1);
 		}
@@ -1214,7 +1199,7 @@ static int LoadSprite(bool large, BlitPtr *theBlit, int baseID, int numFrames)
 		}
 		SetRect(&aBlit->hitRect, left, top, right, bottom);
 
-		SDL_FreeSurface(surface);
+		SDL_DestroySurface(surface);
 
 		/* Load the image */
 		aBlit->sprite[index] = GetSprite(screen, baseID+index, large);

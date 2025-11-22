@@ -187,10 +187,10 @@ bool GameOverPanelDelegate::HandleEvent(const SDL_Event &event)
 	}
 
 	switch (event.type) {
-	case SDL_KEYDOWN:
+	case SDL_EVENT_KEY_DOWN:
 		return true;
-	case SDL_KEYUP:
-		switch (event.key.keysym.sym) {
+	case SDL_EVENT_KEY_UP:
+		switch (event.key.key) {
 			case SDLK_RETURN:
 				FinishEnterName();
 				return true;
@@ -207,7 +207,7 @@ bool GameOverPanelDelegate::HandleEvent(const SDL_Event &event)
 		}
 		m_handleLabel->SetText(m_handle);
 		return true;
-	case SDL_TEXTINPUT:
+	case SDL_EVENT_TEXT_INPUT:
 		/* FIXME: No true UNICODE support in font */
 		key = event.text.text[0];
 		if (key >= ' ' && key <= '~') {

@@ -215,7 +215,7 @@ MaelstromUI::MaelstromUI(FrameBuf *screen, Prefs *prefs) : UIManager(screen, pre
 
 	/* Load up our UI templates */
 	ClearLoadPath();
-	for (int i = gResolutionIndex; i < gResolutions.length(); ++i) {
+	for (unsigned int i = gResolutionIndex; i < gResolutions.length(); ++i) {
 		char path[1024];
 
 		SDL_snprintf(path, sizeof(path), "UI%s", gResolutions[i].path_suffix);
@@ -339,7 +339,7 @@ MaelstromUI::CreateBackground(const char *name)
 {
     UITexture *background;
 
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+    //FIXME SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
 
     background = CreateImage(name);
     if (background) {
@@ -347,7 +347,7 @@ MaelstromUI::CreateBackground(const char *name)
         background->SetStretchGrid(gridSize);
     }
 
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
+    //FIXME SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
 
     return background;
 }

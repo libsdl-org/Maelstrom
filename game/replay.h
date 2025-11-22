@@ -35,7 +35,7 @@
 #define REPLAY_VERSION	1
 #define REPLAY_DIRECTORY "Games"
 #define REPLAY_FILETYPE "mreplay"
-#define LAST_REPLAY	"LastGame."REPLAY_FILETYPE
+#define LAST_REPLAY	"LastGame." REPLAY_FILETYPE
 
 enum REPLAY_MODE {
 	REPLAY_IDLE,
