@@ -19,7 +19,7 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #include "SDL_FrameBuf.h"
 #include "UITexture.h"
@@ -30,7 +30,6 @@ UITexture::UITexture(SDL_Texture *texture, float scale)
 	m_texture = texture;
 	m_scale = scale;
 	m_angle = 0.0f;
-	SDL_QueryTexture(texture, NULL, NULL, &m_textureWidth, &m_textureHeight);
 	m_stretch = false;
 	m_locked = false;
 }
@@ -100,7 +99,7 @@ UITexture::SetStretchGrid(int cornerSize)
 	//	STRETCH_UPPER_RIGHT	2,0 1x1
 	//	STRETCH_LOWER_LEFT	0,2 1x1
 	//	STRETCH_LOWER_RIGHT	2,2 1x1
-	CalculateStretchAreas(m_stretchCornerSize, 0, 0, m_textureWidth, m_textureHeight, m_stretchAreas);
+	CalculateStretchAreas(m_stretchCornerSize, 0, 0, m_texture->w, m_texture->h, m_stretchAreas);
 }
 
 void

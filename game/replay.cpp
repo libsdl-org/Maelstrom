@@ -21,7 +21,7 @@
 */
 
 #include <zlib.h>
-#include "../physfs/physfs.h"
+#include "physfs.h"
 #include "../utils/files.h"
 
 #include "Maelstrom_Globals.h"
@@ -66,7 +66,7 @@ Replay::SetMode(REPLAY_MODE mode)
 	Uint8 compressed_data[]
 */
 
-static SDL_RWops *
+static SDL_IOStream *
 CopyReplayIntoSandbox(const char *file)
 {
 	FILE *rfp;
@@ -123,7 +123,7 @@ bool
 Replay::Load(const char *file, bool headerOnly)
 {
 	char path[1024];
-	SDL_RWops *fp;
+	SDL_IOStream *fp;
 	DynamicPacket data;
 	uLongf destLen;
 	Uint32 size;
@@ -145,26 +145,26 @@ Replay::Load(const char *file, bool headerOnly)
 	}
 
 	Uint8 version;
-	if (!SDL_RWread(fp, &version, 1, 1)) {
+	if (!SDL_ReadIO(fp, &version, 1)) {
 		goto read_error;
 	}
 	if (version != REPLAY_VERSION) {
 		fprintf(stderr, "Unsupported version %d, expected %d\n", version, REPLAY_VERSION);
 		goto error_return;
 	}
-	m_frameCount = SDL_ReadLE32(fp);
-	m_finalPlayer = SDL_ReadU8(fp);
-	m_finalWave = SDL_ReadU8(fp);
-	m_finalContinues = SDL_ReadU8(fp);
+	SDL_ReadU32LE(fp, &m_frameCount);
+	SDL_ReadU8(fp, &m_finalPlayer);
+	SDL_ReadU8(fp, &m_finalWave);
+	SDL_ReadU8(fp, &m_finalContinues);
 	for (int i = 0; i < MAX_PLAYERS; ++i) {
-		m_finalScore[i].Score = SDL_ReadLE32(fp);
-		m_finalScore[i].Frags = SDL_ReadU8(fp);
+		SDL_ReadU32LE(fp, &m_finalScore[i].Score);
+		SDL_ReadU8(fp, &m_finalScore[i].Frags);
 	}
 
-	size = SDL_ReadLE32(fp);
+	SDL_ReadU32LE(fp, &size);
 	data.Reset();
 	data.Grow(size);
-	if (!SDL_RWread(fp, data.data, size, 1)) {
+	if (!SDL_ReadIO(fp, data.data, size)) {
 		goto read_error;
 	}
 	data.len = size;
@@ -174,15 +174,15 @@ Replay::Load(const char *file, bool headerOnly)
 	}
 
 	if (!headerOnly) {
-		size = SDL_ReadLE32(fp);
+		SDL_ReadU32LE(fp, &size);
 		m_data.Reset();
 		m_data.Grow(size);
 
-		compressedSize = SDL_ReadLE32(fp);
+		SDL_ReadU32LE(fp, &compressedSize);
 		data.Reset();
 		data.Grow(compressedSize);
 
-		if (!SDL_RWread(fp, data.data, compressedSize, 1)) {
+		if (!SDL_ReadIO(fp, data.data, compressedSize)) {
 			goto read_error;
 		}
 		destLen = size;
@@ -194,13 +194,13 @@ Replay::Load(const char *file, bool headerOnly)
 	}
 
 	// We're done!
-	SDL_RWclose(fp);
+	SDL_CloseIO(fp);
 	return true;
 
 read_error:
 	fprintf(stderr, "Error reading from %s: %s\n", file, SDL_GetError());
 error_return:
-	SDL_RWclose(fp);
+	SDL_CloseIO(fp);
 	return false;
 }
 
@@ -208,7 +208,7 @@ bool
 Replay::Save(const char *file)
 {
 	char path[1024];
-	SDL_RWops *fp;
+	SDL_IOStream *fp;
 	DynamicPacket data;
 	uLongf destLen;
 
@@ -231,19 +231,19 @@ Replay::Save(const char *file)
 
 	Uint8 version = REPLAY_VERSION;
 	SDL_WriteU8(fp, version);
-	SDL_WriteLE32(fp, m_frameCount);
+	SDL_WriteU32LE(fp, m_frameCount);
 	SDL_WriteU8(fp, m_finalPlayer);
 	SDL_WriteU8(fp, m_finalWave);
 	SDL_WriteU8(fp, m_finalContinues);
 	for (int i = 0; i < MAX_PLAYERS; ++i) {
-		SDL_WriteLE32(fp, m_finalScore[i].Score);
+		SDL_WriteU32LE(fp, m_finalScore[i].Score);
 		SDL_WriteU8(fp, m_finalScore[i].Frags);
 	}
 
 	data.Reset();
 	m_game.WriteToPacket(data);
-	SDL_WriteLE32(fp, data.Size());
-	if (!SDL_RWwrite(fp, data.Data(), data.Size(), 1)) {
+	SDL_WriteU32LE(fp, data.Size());
+	if (!SDL_WriteIO(fp, data.Data(), data.Size())) {
 		goto write_error;
 	}
 
@@ -255,14 +255,14 @@ Replay::Save(const char *file)
 		goto error_return;
 	}
 	data.len = destLen;
-	SDL_WriteLE32(fp, m_data.Size());
-	SDL_WriteLE32(fp, data.Size());
-	if (!SDL_RWwrite(fp, data.Data(), data.Size(), 1)) {
+	SDL_WriteU32LE(fp, m_data.Size());
+	SDL_WriteU32LE(fp, data.Size());
+	if (!SDL_WriteIO(fp, data.Data(), data.Size())) {
 		goto write_error;
 	}
 
 	// We're done!
-	if (SDL_RWclose(fp) < 0) {
+	if (!SDL_CloseIO(fp)) {
 		goto write_error;
 	}
 	return true;
@@ -270,7 +270,7 @@ Replay::Save(const char *file)
 write_error:
 	fprintf(stderr, "Error writing to %s: %s\n", file, SDL_GetError());
 error_return:
-	SDL_RWclose(fp);
+	SDL_CloseIO(fp);
 	PHYSFS_delete(path);
 	return false;
 }

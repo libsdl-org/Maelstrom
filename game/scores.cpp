@@ -26,7 +26,7 @@
 
 #include <stdlib.h>	// for qsort()
 
-#include "../physfs/physfs.h"
+#include "physfs.h"
 
 #include "Maelstrom_Globals.h"
 #include "scores.h"
@@ -55,7 +55,7 @@ void LoadScores(void)
 	Replay replay;
 	Scores score;
 	array<Scores> scores;
-	int i;
+	unsigned int i;
 
 	FreeScores();
 

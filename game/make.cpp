@@ -240,7 +240,7 @@ void MakeDamagedShip(void)
 
 void MakeGravity(void)
 {
-	int	newsprite, i, rx;
+	int	newsprite, i;
 	int	x, y, min_bad_distance;
 	int	index, cap;
 
@@ -250,8 +250,6 @@ void MakeGravity(void)
 		cap = 1;
 	
 	for (index = 0; index < cap; index++) {
-		rx = (VEL_FACTOR + (gWave / 6)) * (SCALE_FACTOR);
-	
 		min_bad_distance = MIN_BAD_DISTANCE;
 	tryAgain:
 		if ( min_bad_distance )

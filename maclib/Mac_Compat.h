@@ -22,8 +22,6 @@
 #ifndef _Mac_Compat_h
 #define _Mac_Compat_h
 
-#include "SDL_timer.h"
-
 /* Some simple inline Macintosh compatibility routines */
 
 /* Delay(x) -- sleep for x number of 1/60 second slices */

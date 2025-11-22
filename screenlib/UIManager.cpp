@@ -416,8 +416,7 @@ UIManager::HandleEvent(const SDL_Event &event)
 {
 	unsigned int i;
 
-	if (event.type == SDL_WINDOWEVENT &&
-	    event.window.event == SDL_WINDOWEVENT_RESIZED &&
+	if (event.type == SDL_EVENT_WINDOW_RESIZED &&
 	    m_screen->Resizable()) {
 		SDL_Rect clip;
 

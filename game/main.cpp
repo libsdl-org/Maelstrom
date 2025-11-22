@@ -41,7 +41,7 @@
 #include "netplay.h"
 #include "main.h"
 
-#include "../physfs/physfs.h"
+#include "physfs.h"
 
 #include "../screenlib/UIDialog.h"
 #include "../screenlib/UIElement.h"
@@ -164,7 +164,7 @@ InitFilesystem(const char *argv0)
 
 	// Set up the write directory for this platform
 #ifdef __ANDROID__
-	prefspath = SDL_AndroidGetInternalStoragePath();
+	prefspath = SDL_GetAndroidInternalStoragePath();
 #else
 	prefspath = PHYSFS_getPrefDir(MAELSTROM_ORGANIZATION, MAELSTROM_NAME);
 #endif
@@ -240,7 +240,6 @@ int MaelstromMain(int argc, char *argv[])
 {
 	/* Command line flags */
 	Uint32 window_flags = 0;
-	Uint32 render_flags = SDL_RENDERER_PRESENTVSYNC;
 
 	if ( !InitFilesystem(argv[0]) ) {
 		exit(1);
@@ -267,7 +266,7 @@ int MaelstromMain(int argc, char *argv[])
 	}
 
 	/* Initialize everything. :) */
-	if ( DoInitializations(window_flags, render_flags) < 0 ) {
+	if ( DoInitializations(window_flags) < 0 ) {
 		/* An error message was already printed */
 		CleanUp();
 		exit(1);
@@ -292,7 +291,7 @@ int MaelstromMain(int argc, char *argv[])
 
 	// Set up the game to run in the window animation callback on iOS
 	// so that Game Center and so forth works correctly.
-	SDL_iPhoneSetAnimationCallback(screen->GetWindow(), 2, ShowFrame, 0);
+	SDL_SetiOSAnimationCallback(screen->GetWindow(), 2, ShowFrame, 0);
 #else
 	while ( gRunning ) {
 		ShowFrame(0);
@@ -422,13 +421,13 @@ MainPanelDelegate::HandleEvent(const SDL_Event &event)
 	}
 
 	/* -- Handle file drop requests */
-	if ( event.type == SDL_DROPFILE ) {
-		gReplayFile = event.drop.file;
+	if ( event.type == SDL_EVENT_DROP_FILE ) {
+		gReplayFile = SDL_strdup( event.drop.data );
 		return true;
 	}
 
 	/* -- Handle window close requests */
-	if ( event.type == SDL_QUIT ) {
+	if ( event.type == SDL_EVENT_QUIT ) {
 		OnActionQuitGame();
 		return true;
 	}

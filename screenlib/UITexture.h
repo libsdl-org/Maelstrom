@@ -40,10 +40,10 @@ public:
 		return m_texture;
 	}
 	int Width() const {
-		return (int)(m_textureWidth / m_scale);
+		return (int)(m_texture->w / m_scale);
 	}
 	int Height() const {
-		return (int)(m_textureHeight / m_scale);
+		return (int)(m_texture->h / m_scale);
 	}
 	float Scale() const {
 		return m_scale;
@@ -88,8 +88,6 @@ protected:
 
 protected:
 	SDL_Texture *m_texture;
-	int m_textureWidth;
-	int m_textureHeight;
 	float m_scale;
 	float m_angle;
 

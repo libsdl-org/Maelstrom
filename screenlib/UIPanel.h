@@ -22,7 +22,7 @@
 #ifndef _UIPanel_h
 #define _UIPanel_h
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #include "../utils/rapidxml.h"
 

@@ -20,8 +20,6 @@
     slouken@libsdl.org
 */
 
-#include "SDL_image.h"
-
 #include "Maelstrom_Globals.h"
 #include "load.h"
 
@@ -37,14 +35,14 @@ UITexture *Load_Texture(FrameBuf *screen, const char *folder, const char *name)
 	char file[256];
 
 	// Use the game display area for determining which art set to use
-	for (int i = gResolutionIndex; i < gResolutions.length(); ++i) {
-		for (int j = 0; j < SDL_arraysize(extensions); ++j) {
+	for (unsigned int i = gResolutionIndex; i < gResolutions.length(); ++i) {
+		for (unsigned int j = 0; j < SDL_arraysize(extensions); ++j) {
 			SDL_snprintf(file, sizeof(file), "%s%s/%s%s.%s",
 					folder, gResolutions[i].path_suffix, name, gResolutions[i].file_suffix, extensions[j]);
-			SDL_Surface *surface = IMG_Load_RW(OpenRead(file), 1);
+			SDL_Surface *surface = SDL_LoadSurface_IO(OpenRead(file), true);
 			if (surface) {
 				SDL_Texture *texture = screen->LoadImage(surface);
-				SDL_FreeSurface(surface);
+				SDL_DestroySurface(surface);
 				return new UITexture(texture, gResolutions[i].scale);
 			}
 		}

@@ -32,6 +32,7 @@ public:
 
 	void SetString(const char *key, const char *value, bool dirty = true);
 	void SetNumber(const char *key, int value);
+	void SetUnsigned(const char *key, unsigned int value);
 	void SetBool(const char *key, bool value);
 	void Set(const char *key, const char *value) {
 		SetString(key, value);
@@ -39,18 +40,25 @@ public:
 	void Set(const char *key, int value) {
 		SetNumber(key, value);
 	}
+	void Set(const char *key, unsigned int value) {
+		SetUnsigned(key, value);
+	}
 	void Set(const char *key, bool value) {
 		SetBool(key, value);
 	}
 
 	const char *GetString(const char *key, const char *defaultValue = 0);
 	int GetNumber(const char *key, int defaultValue = 0);
+	unsigned int GetUnsigned(const char *key, unsigned int defaultValue = 0);
 	bool GetBool(const char *key, bool defaultValue = false);
 	void Get(const char *key, const char *&value, const char *defaultValue) {
 		value = GetString(key, defaultValue);
 	}
 	void Get(const char *key, int &value, int defaultValue) {
 		value = GetNumber(key, defaultValue);
+	}
+	void Get(const char *key, unsigned int &value, unsigned int defaultValue) {
+		value = GetUnsigned(key, defaultValue);
 	}
 	void Get(const char *key, bool &value, bool defaultValue) {
 		value = GetBool(key, defaultValue);

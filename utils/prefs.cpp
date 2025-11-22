@@ -17,7 +17,7 @@
 */
 
 #include <stdio.h>
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include "files.h"
 #include "array.h"
 #include "hashtable.h"
@@ -92,16 +92,16 @@ Prefs::Load()
 }
 
 static __inline__ bool
-writeString(SDL_RWops *fp, const char *string)
+writeString(SDL_IOStream *fp, const char *string)
 {
 	size_t len = SDL_strlen(string);
-	return (SDL_RWwrite(fp, string, 1, len) == len);
+	return (SDL_WriteIO(fp, string, len) == len);
 }
 
 bool
 Prefs::Save()
 {
-	SDL_RWops *fp;
+	SDL_IOStream *fp;
 	const char *key, *value;
 	void *iter;
 
@@ -132,11 +132,11 @@ Prefs::Save()
 		    !writeString(fp, "\r\n")) {
 			fprintf(stderr, "Warning: Couldn't write to %s: %s\n",
 						m_file, SDL_GetError());
-			SDL_RWclose(fp);
+			SDL_CloseIO(fp);
 			return false;
 		}
 	}
-	SDL_RWclose(fp);
+	SDL_CloseIO(fp);
 
 	m_dirty = false;
 
@@ -174,6 +174,15 @@ Prefs::SetNumber(const char *key, int value)
 }
 
 void
+Prefs::SetUnsigned(const char *key, unsigned int value)
+{
+	char buf[32];
+
+	SDL_snprintf(buf, sizeof(buf), "%u", value);
+	SetString(key, buf);
+}
+
+void
 Prefs::SetBool(const char *key, bool value)
 {
 	if (value) {
@@ -201,6 +210,17 @@ Prefs::GetNumber(const char *key, int defaultValue)
 
 	if (hash_find(m_values, key, (const void **)&value)) {
 		return SDL_atoi(value);
+	}
+	return defaultValue;
+}
+
+unsigned int
+Prefs::GetUnsigned(const char *key, unsigned int defaultValue)
+{
+	const char *value;
+
+	if (hash_find(m_values, key, (const void **)&value)) {
+		return (unsigned int)SDL_atoi(value);
 	}
 	return defaultValue;
 }

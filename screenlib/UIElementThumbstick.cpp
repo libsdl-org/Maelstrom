@@ -23,7 +23,7 @@
 
 #include "UIElementThumbstick.h"
 
-#define DEGREES_TO_RADS(X)	(float)(((X) * 2*M_PI) / 360)
+#define DEGREES_TO_RADS(X)	(((X) * 2*SDL_PI_F) / 360)
 
 UIElementType UIElementThumbstick::s_elementType;
 
@@ -72,11 +72,11 @@ UIElementThumbstick::Load(rapidxml::xml_node<> *node, const UITemplates *templat
 		LoadNumber(child, "arc", arc);
 		action.arc_begin = DEGREES_TO_RADS(angle - arc/2);
 		if (action.arc_begin < 0) {
-			action.arc_begin += (float)(2 * M_PI);
+			action.arc_begin += (2 * SDL_PI_F);
 		}
 		action.arc_end = DEGREES_TO_RADS(angle + arc/2);
-		if (action.arc_end > (2 * M_PI)) {
-			action.arc_end -= (float)(2 * M_PI);
+		if (action.arc_end > (2 * SDL_PI_F)) {
+			action.arc_end -= (2 * SDL_PI_F);
 		}
 
 		LoadNumber(child, "active_radius", action.active_radius);
@@ -96,7 +96,7 @@ UIElementThumbstick::HandleEvent(const SDL_Event &event)
 	float angle, distance;
 
 	switch (event.type) {
-	case SDL_FINGERDOWN:
+	case SDL_EVENT_FINGER_DOWN:
 		if (!m_finger) {
 			m_startX = CenterX();
 			m_startY = CenterY();
@@ -116,7 +116,7 @@ UIElementThumbstick::HandleEvent(const SDL_Event &event)
 			}
 
 			// We're going to accept this event now
-			m_finger = event.tfinger.fingerId;
+			m_finger = event.tfinger.fingerID;
 
 			if (m_followTouch) {
 				MoveCenter(x, y);
@@ -129,8 +129,8 @@ UIElementThumbstick::HandleEvent(const SDL_Event &event)
 			return true;
 		}
 		break;
-	case SDL_FINGERMOTION:
-		if (event.tfinger.fingerId == m_finger) {
+	case SDL_EVENT_FINGER_MOTION:
+		if (event.tfinger.fingerID == m_finger) {
 			if (!GetTouchPosition(event, x, y) ||
 			    !GetTouchAngleAndDistance(x, y, angle, distance)) {
 				return false;
@@ -142,8 +142,8 @@ UIElementThumbstick::HandleEvent(const SDL_Event &event)
 			return true;
 		}
 		break;
-	case SDL_FINGERUP:
-		if (event.tfinger.fingerId == m_finger) {
+	case SDL_EVENT_FINGER_UP:
+		if (event.tfinger.fingerID == m_finger) {
 			if (m_followTouch &&
 			    GetTouchPosition(event, x, y)) {
 				MoveCenter(x, y);
@@ -186,8 +186,8 @@ UIElementThumbstick::GetTouchAngleAndDistance(int x, int y, float &angle, float 
 	float b = (float)(y - m_startY);
 
 	// The angle is in the 0 - 2PI range with 0 being the +Y axis
-	angle = (float)(M_PI - SDL_atan2(a, b));
-	distance = (float)SDL_sqrt((a*a) + (b*b));
+	angle = (SDL_PI_F - SDL_atan2(a, b));
+	distance = SDL_sqrtf((a*a) + (b*b));
 	return true;
 }
 

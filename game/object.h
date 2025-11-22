@@ -216,9 +216,11 @@ public:
 		HitRect.top = myblit->hitRect.top+(y>>SPRITE_PRECISION);
 		HitRect.bottom = myblit->hitRect.bottom+(y>>SPRITE_PRECISION);
 	}
-	virtual void Shake(int shakiness) {
-		int Xvec = ((xvec < 0) ? shakiness : -shakiness);
-		int Yvec = ((yvec < 0) ? shakiness : -shakiness);
+	virtual void Shake() {
+		int shakeX = FastRandom(SHAKE_FACTOR);
+		int shakeY = FastRandom(SHAKE_FACTOR);
+		int Xvec = ((xvec < 0) ? shakeX : -shakeX);
+		int Yvec = ((yvec < 0) ? shakeY : -shakeY);
 		Accelerate(Xvec, Yvec);
 	}
 	void Accelerate(int Xvec, int Yvec) {

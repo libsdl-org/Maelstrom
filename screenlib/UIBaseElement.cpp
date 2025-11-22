@@ -21,7 +21,7 @@
 
 #include <stdio.h>
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include "UIBaseElement.h"
 #include "UIManager.h"
 #include "UIElement.h"

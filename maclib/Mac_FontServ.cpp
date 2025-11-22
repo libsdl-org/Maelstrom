@@ -26,7 +26,6 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "SDL_types.h"
 #include "bitesex.h"
 #include "../utils/files.h"
 #include "Mac_FontServ.h"
@@ -70,10 +69,11 @@ struct FOND {
 };
 
 
+#ifdef MAC_FONTSERV_TTF
 static TTF_Font *GetTrueTypeFont(const char *name, int ptsize)
 {
 	char file[128];
-	SDL_RWops *src;
+	SDL_IOStream *src;
 
 	SDL_snprintf(file, sizeof(file), "Fonts/%s.ttf", name);
 	src = OpenRead(file);
@@ -82,6 +82,7 @@ static TTF_Font *GetTrueTypeFont(const char *name, int ptsize)
 	}
 	return NULL;
 }
+#endif
 
 static Uint8 *GetFontData(const char *type, int ID)
 {
@@ -93,12 +94,16 @@ static Uint8 *GetFontData(const char *type, int ID)
 FontServ::FontServ(FrameBuf *_screen, const char *fontfile) : ErrorBase()
 {
 	screen = _screen;
+#ifdef MAC_FONTSERV_TTF
 	TTF_Init();
+#endif
 }
 
 FontServ::~FontServ()
 {
+#ifdef MAC_FONTSERV_TTF
 	TTF_Quit();
+#endif
 }
 
 
@@ -125,12 +130,14 @@ FontServ::NewFont(const char *fontname, int ptsize)
 	font = new MFont;
 	SDL_zerop(font);
 
+#ifdef MAC_FONTSERV_TTF
 	/* See if this is a TrueType font */
 	font->font = GetTrueTypeFont(fontname, ptsize);
 	if ( font->font ) {
 		/* That was easy :) */
 		return font;
 	}
+#endif
 
 	/* Get the font family */
 	fond = NULL;
@@ -245,9 +252,11 @@ FontServ::NewFont(const char *fontname, int ptsize)
 void
 FontServ::FreeFont(MFont *font)
 {
+#ifdef MAC_FONTSERV_TTF
 	if ( font->font ) {
 		TTF_CloseFont(font->font);
 	}
+#endif
 	if ( font->name ) {
 		delete[] font->name;
 	}
@@ -272,12 +281,14 @@ FontServ::TextWidth(const char *text, MFont *font, Uint8 style)
 	int extra_width;	/* Stylistic width */
 	Uint16 Width;
 
+#ifdef MAC_FONTSERV_TTF
 	if ( font->font ) {
 		int w = 0, h = 0;
 
 		TTF_SizeText(font->font, text, &w, &h);
 		return w;
 	}
+#endif
 
 	switch (style) {
 		case STYLE_NORM:	extra_width = 0;
@@ -308,9 +319,11 @@ FontServ::TextWidth(const char *text, MFont *font, Uint8 style)
 Uint16
 FontServ::TextHeight(MFont *font)
 {
+#ifdef MAC_FONTSERV_TTF
 	if ( font->font ) {
 		return TTF_FontHeight(font->font);
 	}
+#endif
 	return((font->header)->fRectHeight);
 }
 
@@ -324,7 +337,6 @@ FontServ::TextImage(const char *text, MFont *font, Uint8 style, SDL_Color fg)
 	int width, height;
 	SDL_Texture *image;
 	Uint32 *bitmap;
-	Uint32 color;
 	int nchars;
 	int bit_offset;		/* The current bit offset into a scanline */
 	int space_width;	/* The width of the whole character */
@@ -335,6 +347,7 @@ FontServ::TextImage(const char *text, MFont *font, Uint8 style, SDL_Color fg)
 	int ascii, i, y;
 	int bit;
 
+#ifdef MAC_FONTSERV_TTF
 	if ( font->font ) {
 		SDL_Color white = { 0xff, 0xff, 0xff, 0xff };
 		SDL_Surface *surface;
@@ -369,6 +382,7 @@ FontServ::TextImage(const char *text, MFont *font, Uint8 style, SDL_Color fg)
 		SDL_SetTextureColorMod(image, fg.r, fg.g, fg.b);
 		return image;
 	}
+#endif
 
 	switch (style) {
 		case STYLE_NORM:	bold_offset = 0;
@@ -427,7 +441,6 @@ FontServ::TextImage(const char *text, MFont *font, Uint8 style, SDL_Color fg)
 	/* Allocate the text pixels */
 	bitmap = new Uint32[width*height];
 	memset(bitmap, 0, width*height*sizeof(Uint32));
-	color = screen->MapRGB(fg.r, fg.g, fg.b);
 
 	/* Print the individual characters */
 	/* Note: this could probably be optimized.. eh, who cares. :) */

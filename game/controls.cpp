@@ -141,12 +141,12 @@ ControlsDialogDelegate::OnTick()
 bool
 ControlsDialogDelegate::HandleEvent(const SDL_Event &event)
 {
-	if (event.type == SDL_KEYDOWN) {
+	if (event.type == SDL_EVENT_KEY_DOWN) {
 		return true;
 	}
-	if (event.type == SDL_KEYUP) {
+	if (event.type == SDL_EVENT_KEY_UP) {
 		int index;
-		SDL_Keycode key = event.key.keysym.sym;
+		SDL_Keycode key = event.key.key;
 
 		index = m_radioGroup->GetValue() - 1;
 
@@ -257,7 +257,7 @@ static void HandleEvent(SDL_Event *event)
 	switch (event->type) {
 #ifdef SDL_INIT_JOYSTICK
 		/* -- Handle joystick axis motion */
-		case SDL_JOYAXISMOTION:
+		case SDL_EVENT_JOYSTICK_AXIS_MOTION:
 			player = GetJoystickPlayer(event->jaxis.which);
 			if (!player) {
 				break;
@@ -287,7 +287,7 @@ static void HandleEvent(SDL_Event *event)
 			break;
 
 		/* -- Handle joystick axis motion */
-		case SDL_JOYHATMOTION:
+		case SDL_EVENT_JOYSTICK_HAT_MOTION:
 			player = GetJoystickPlayer(event->jhat.which);
 			if (!player) {
 				break;
@@ -310,13 +310,13 @@ static void HandleEvent(SDL_Event *event)
 			break;
 
 		/* -- Handle joystick button presses/releases */
-		case SDL_JOYBUTTONDOWN:
-		case SDL_JOYBUTTONUP:
+		case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
+		case SDL_EVENT_JOYSTICK_BUTTON_UP:
 			player = GetJoystickPlayer(event->jbutton.which);
 			if (!player) {
 				break;
 			}
-			if ( event->jbutton.state == SDL_PRESSED ) {
+			if ( event->jbutton.down ) {
 				if ( event->jbutton.button == 0 ) {
 					player->SetControl(FIRE_KEY, 1);
 				} else
@@ -335,8 +335,8 @@ static void HandleEvent(SDL_Event *event)
 #endif
 
 		/* -- Handle key presses/releases */
-		case SDL_KEYDOWN:
-			key = event->key.keysym.sym;
+		case SDL_EVENT_KEY_DOWN:
+			key = event->key.key;
 
 			player = GetKeyboardPlayer();
 			if (!player) {
@@ -356,8 +356,8 @@ static void HandleEvent(SDL_Event *event)
 				player->SetControl(THRUST_KEY, 1);
 			break;
 
-		case SDL_KEYUP:
-			key = event->key.keysym.sym;
+		case SDL_EVENT_KEY_UP:
+			key = event->key.key;
 
 			/* -- Handle special control keys */
 			if ( key == SDLK_F1 ) {
@@ -374,7 +374,7 @@ static void HandleEvent(SDL_Event *event)
 							0, 0, 0, 0);
 				break;
 			} else if ( key == SDLK_RETURN &&
-				    (event->key.keysym.mod & KMOD_ALT) ) {
+				    (event->key.mod & SDL_KMOD_ALT) ) {
 				/* Special key --
 					Toggle fullscreen mode
 				 */
@@ -406,15 +406,15 @@ static void HandleEvent(SDL_Event *event)
 				player->SetControl(THRUST_KEY, 0);
 			break;
 
-		case SDL_WINDOWEVENT:
-			if (event->window.event == SDL_WINDOWEVENT_MINIMIZED) {
-				gGameInfo.SetLocalState(STATE_MINIMIZE, true);
-			} if (event->window.event == SDL_WINDOWEVENT_RESTORED) {
-				gGameInfo.SetLocalState(STATE_MINIMIZE, false);
-			}
+		case SDL_EVENT_WINDOW_MINIMIZED:
+			gGameInfo.SetLocalState(STATE_MINIMIZE, true);
 			break;
 
-		case SDL_QUIT:
+		case SDL_EVENT_WINDOW_RESTORED:
+			gGameInfo.SetLocalState(STATE_MINIMIZE, false);
+			break;
+
+		case SDL_EVENT_QUIT:
 			gGameInfo.SetLocalState(STATE_ABORT, true);
 			break;
 	}
@@ -432,23 +432,25 @@ static SDL_Joystick *joysticks[MAX_JOYSTICKS];
 void InitPlayerControls(void)
 {
 	Uint8 controlMask = 0;
-	unsigned i;
+	int i, count;
 
-	if (SDL_NumJoysticks() > 0) {
+	SDL_JoystickID *ids = SDL_GetJoysticks(&count);
+	if (ids) {
 		for (i = 0; i < MAX_PLAYERS; ++i) {
 			controlMask |= gPlayers[i]->GetControlType();
 		}
 
-		for (i = 0; i < MAX_JOYSTICKS && i < SDL_NumJoysticks(); ++i) {
+		for (i = 0; i < MAX_JOYSTICKS && i < count; ++i) {
 			if (!(controlMask & joystickMasks[i])) {
 				continue;
 			}
-			joysticks[i] = SDL_JoystickOpen(i);
+			joysticks[i] = SDL_OpenJoystick(ids[i]);
 			if (joysticks[i] == NULL) {
 				error("Warning: Couldn't open joystick '%s' : %s\n",
-					SDL_JoystickNameForIndex(i), SDL_GetError());
+					SDL_GetJoystickNameForID(ids[i]), SDL_GetError());
 			}
 		}
+		SDL_free(ids);
 	}
 }
 
@@ -456,7 +458,7 @@ void QuitPlayerControls(void)
 {
 	for (int i = 0; i < MAX_JOYSTICKS; ++i) {
 		if (joysticks[i]) {
-			SDL_JoystickClose(joysticks[i]);
+			SDL_CloseJoystick(joysticks[i]);
 			joysticks[i] = NULL;
 		}
 	}
@@ -486,7 +488,7 @@ int DropEvents(void)
 	int keys = 0;
 
 	while ( screen->PollEvent(&event) ) {
-		if ( event.type == SDL_KEYDOWN ) {
+		if ( event.type == SDL_EVENT_KEY_DOWN ) {
 			++keys;
 		}
 	}

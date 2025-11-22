@@ -22,7 +22,6 @@
 #ifndef _UIArea_h
 #define _UIArea_h
 
-#include "SDL_rect.h"
 #include "../utils/ErrorBase.h"
 #include "../utils/array.h"
 #include "../utils/rapidxml.h"

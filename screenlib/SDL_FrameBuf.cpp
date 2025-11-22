@@ -43,8 +43,7 @@ FrameBuf::FrameBuf() : ErrorBase()
 }
 
 int
-FrameBuf::Init(int width, int height, Uint32 window_flags, Uint32 render_flags,
-		SDL_Surface *icon)
+FrameBuf::Init(int width, int height, Uint32 window_flags, SDL_Surface *icon)
 {
 	if (window_flags & SDL_WINDOW_RESIZABLE) {
 		resizable = true;
@@ -52,20 +51,18 @@ FrameBuf::Init(int width, int height, Uint32 window_flags, Uint32 render_flags,
 		resizable = false;
 	}
 
-	window = SDL_CreateWindow(NULL, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, window_flags);
+	window = SDL_CreateWindow("Maelstrom", width, height, window_flags);
 	if (!window) {
 		SetError("Couldn't create %dx%d window: %s", 
 					width, height, SDL_GetError());
 		return(-1);
 	}
 
-	renderer = SDL_CreateRenderer(window, -1, render_flags);
+	renderer = SDL_CreateRenderer(window, NULL);
 	if (!renderer) {
 		SetError("Couldn't create renderer: %s", SDL_GetError());
 		return(-1);
 	}
-
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
 
 	/* Set the icon, if any */
 	if ( icon ) {
@@ -98,8 +95,8 @@ void
 FrameBuf::ProcessEvent(SDL_Event *event)
 {
 	switch (event->type) {
-	case SDL_WINDOWEVENT:
-		if (event->window.event == SDL_WINDOWEVENT_RESIZED) {
+	case SDL_EVENT_WINDOW_RESIZED:
+		{
 			int w, h;
 			SDL_Window *window = SDL_GetWindowFromID(event->window.windowID);
 
@@ -108,7 +105,7 @@ FrameBuf::ProcessEvent(SDL_Event *event)
 			if (Resizable()) {
 				// We'll accept this window size change
 				SDL_GetWindowSize(window, &w, &h);
-				SDL_RenderSetViewport(renderer, NULL);
+				SDL_SetRenderViewport(renderer, NULL);
 			}
 			if (logicalScale > 0.0f) {
 				w = (int)(w/logicalScale);
@@ -130,7 +127,7 @@ FrameBuf::ConvertTouchCoordinates(const SDL_TouchFingerEvent &finger, int *x, in
 	float scale_x, scale_y;
 
 	SDL_GetWindowSize(window, &window_w, &window_h);
-	SDL_RenderGetScale(renderer, &scale_x, &scale_y);
+	SDL_GetRenderScale(renderer, &scale_x, &scale_y);
 	*x = (int)(finger.x*window_w/scale_x) - output.x;
 	*y = (int)(finger.y*window_h/scale_y) - output.y;
 	*x = (*x * rect.w) / output.w;
@@ -148,13 +145,14 @@ extern "C" {
 void
 FrameBuf::GetCursorPosition(int *x, int *y)
 {
+	float mouse_x, mouse_y;
 	float scale_x, scale_y;
 
-	SDL_GetMouseState(x, y);
-	SDL_RenderGetScale(renderer, &scale_x, &scale_y);
+	SDL_GetMouseState(&mouse_x, &mouse_y);
+	SDL_GetRenderScale(renderer, &scale_x, &scale_y);
 
-	*x = (int)(*x/scale_x) - output.x;
-	*y = (int)(*y/scale_y) - output.y;
+	*x = (int)(mouse_x/scale_x) - output.x;
+	*y = (int)(mouse_y/scale_y) - output.y;
 	*x = (*x * rect.w) / output.w;
 	*y = (*y * rect.h) / output.h;
 }
@@ -162,26 +160,25 @@ FrameBuf::GetCursorPosition(int *x, int *y)
 void
 FrameBuf::EnableTextInput()
 {
-	SDL_StartTextInput();
+	SDL_StartTextInput(window);
 }
 
 void
 FrameBuf::DisableTextInput()
 {
-	SDL_StopTextInput();
+	SDL_StopTextInput(window);
 }
 
 void
 FrameBuf::GetDesktopSize(int &w, int &h) const
 {
-	SDL_DisplayMode mode;
-
-	if (SDL_GetDesktopDisplayMode(0, &mode) < 0) {
+	const SDL_DisplayMode *mode = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
+	if (!mode) {
 		w = 0;
 		h = 0;
 	} else {
-		w = mode.w;
-		h = mode.h;
+		w = mode->w;
+		h = mode->h;
 	}
 }
 
@@ -194,7 +191,7 @@ FrameBuf::GetDisplaySize(int &w, int &h) const
 void
 FrameBuf::GetLogicalSize(int &w, int &h) const
 {
-	SDL_RenderGetLogicalSize(renderer, &w, &h);
+	SDL_GetRenderLogicalPresentation(renderer, &w, &h, NULL);
 	if (!w || !h) {
 		w = Width();
 		h = Height();
@@ -204,7 +201,7 @@ FrameBuf::GetLogicalSize(int &w, int &h) const
 void
 FrameBuf::SetLogicalSize(int w, int h)
 {
-	SDL_RenderSetLogicalSize(renderer, w, h);
+	SDL_SetRenderLogicalPresentation(renderer, w, h, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 	UpdateWindowSize(w, h);
 }
 
@@ -217,12 +214,13 @@ FrameBuf::SetLogicalScale(float scale)
 	target = SDL_GetRenderTarget(renderer);
 	if (target) {
 		// This is a temporary scale change
-		SDL_QueryTexture(target, NULL, NULL, &w, &h);
+		w = target->w;
+		h = target->h;
 		if (scale > 0.0f) {
 			w = (int)(w/scale);
 			h = (int)(h/scale);
 		}
-		SDL_RenderSetLogicalSize(renderer, w, h);
+		SDL_SetRenderLogicalPresentation(renderer, w, h, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 	} else {
 		logicalScale = scale;
 
@@ -248,8 +246,8 @@ FrameBuf::QueueBlit(SDL_Texture *src,
 			int dstx, int dsty, int dstw, int dsth, clipval do_clip,
 			float angle)
 {
-	SDL_Rect srcrect;
-	SDL_Rect dstrect;
+	SDL_FRect srcrect;
+	SDL_FRect dstrect;
 
 	srcrect.x = srcx;
 	srcrect.y = srcy;
@@ -263,7 +261,7 @@ FrameBuf::QueueBlit(SDL_Texture *src,
 		float scaleX = (float)srcrect.w / dstrect.w;
 		float scaleY = (float)srcrect.h / dstrect.h;
 
-		if (!SDL_IntersectRect(&clip, &dstrect, &dstrect)) {
+		if (!SDL_GetRectIntersectionFloat(&clip, &dstrect, &dstrect)) {
 			return;
 		}
 
@@ -274,16 +272,29 @@ FrameBuf::QueueBlit(SDL_Texture *src,
 		srcrect.h = (int)(dstrect.h * scaleY);
 	}
 	if (angle) {
-		SDL_RenderCopyEx(renderer, src, &srcrect, &dstrect, angle, NULL, SDL_FLIP_NONE);
+		SDL_RenderTextureRotated(renderer, src, &srcrect, &dstrect, angle, NULL, SDL_FLIP_NONE);
 	} else {
-		SDL_RenderCopy(renderer, src, &srcrect, &dstrect);
+		SDL_RenderTexture(renderer, src, &srcrect, &dstrect);
 	}
 }
 
 void
-FrameBuf::StretchBlit(const SDL_Rect *dstrect, SDL_Texture *src, const SDL_Rect *srcrect)
+FrameBuf::StretchBlit(const SDL_Rect *_dstrect, SDL_Texture *src, const SDL_Rect *_srcrect)
 {
-	SDL_RenderCopy(renderer, src, srcrect, dstrect);
+	SDL_FRect *srcrect = NULL, cvtsrcrect;
+	SDL_FRect *dstrect = NULL, cvtdstrect;
+
+	if (_srcrect) {
+		SDL_RectToFRect(_srcrect, &cvtsrcrect);
+		srcrect = &cvtsrcrect;
+	}
+
+	if (_dstrect) {
+		SDL_RectToFRect(_dstrect, &cvtdstrect);
+		dstrect = &cvtdstrect;
+	}
+
+	SDL_RenderTexture(renderer, src, srcrect, dstrect);
 }
 
 void
@@ -306,7 +317,7 @@ FrameBuf::Fade(void)
 		for ( int i = 0; i < 256; i++ ) {
 			ramp[i] = (i * v / max) << 8;
 		}
-		SDL_SetWindowGammaRamp(window, ramp, ramp, ramp);
+		// FIXME SDL_SetWindowGammaRamp(window, ramp, ramp, ramp);
 		SDL_Delay(10);
 	}
 	faded = !faded;
@@ -315,7 +326,7 @@ FrameBuf::Fade(void)
 		for ( int i = 0; i < 256; i++ ) {
 			ramp[i] = 0;
 		}
-		SDL_SetWindowGammaRamp(window, ramp, ramp, ramp);
+		// FIXME SDL_SetWindowGammaRamp(window, ramp, ramp, ramp);
 	}
 #endif
 } 
@@ -338,7 +349,7 @@ FrameBuf::ScreenDump(const char *prefix, int x, int y, int w, int h)
 	}
 
 	// Convert to real output coordinates
-	SDL_RenderGetScale(renderer, &scale_x, &scale_y);
+	SDL_GetRenderScale(renderer, &scale_x, &scale_y);
 
 	x = (x * output.w) / this->rect.w;
 	y = (y * output.h) / this->rect.h;
@@ -350,24 +361,12 @@ FrameBuf::ScreenDump(const char *prefix, int x, int y, int w, int h)
 	w = (int)(w * scale_x);
 	h = (int)(h * scale_y);
 
-	/* Create a BMP format surface */
-	dump = SDL_CreateRGBSurface(0, w, h, 24, 
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                   0x00FF0000, 0x0000FF00, 0x000000FF, 0);
-#else
-                   0x000000FF, 0x0000FF00, 0x00FF0000, 0);
-#endif
-	if (!dump) {
-		SetError("%s", SDL_GetError());
-		return -1;
-	}
-
-	/* Read the screen into it */
 	rect.x = x;
 	rect.y = y;
 	rect.w = w;
 	rect.h = h;
-	if (SDL_RenderReadPixels(renderer, &rect, SDL_PIXELFORMAT_BGR24, dump->pixels, dump->pitch) < 0) {
+	dump = SDL_RenderReadPixels(renderer, &rect);
+	if (!dump) {
 		SetError("%s", SDL_GetError());
 		return -1;
 	}
@@ -375,20 +374,20 @@ FrameBuf::ScreenDump(const char *prefix, int x, int y, int w, int h)
 	/* Get a suitable new filename */
 	found = 0;
 	for ( which=0; !found; ++which ) {
-		SDL_RWops *fp;
+		SDL_IOStream *fp;
 		SDL_snprintf(file, sizeof(file), "%s%d.bmp", prefix, which);
 		fp = OpenRead(file);
 		if (fp) {
-			SDL_RWclose(fp);
+			SDL_CloseIO(fp);
 		} else {
 			found = 1;
 		}
 	}
-	retval = SDL_SaveBMP_RW(dump, OpenWrite(file), 1);
+	retval = SDL_SaveBMP_IO(dump, OpenWrite(file), 1);
 	if ( retval < 0 ) {
 		SetError("%s", SDL_GetError());
 	}
-	SDL_FreeSurface(dump);
+	SDL_DestroySurface(dump);
 
 	return(retval);
 }
@@ -400,10 +399,10 @@ FrameBuf::LoadImage(const char *file)
 	SDL_Texture *texture;
 	
 	texture = NULL;
-	surface = SDL_LoadBMP_RW(OpenRead(file), 1);
+	surface = SDL_LoadBMP_IO(OpenRead(file), 1);
 	if (surface) {
 		texture = LoadImage(surface);
-		SDL_FreeSurface(surface);
+		SDL_DestroySurface(surface);
 	}
 	return texture;
 }
@@ -425,7 +424,7 @@ FrameBuf::LoadImage(int w, int h, Uint32 *pixels)
 		return NULL;
 	}
 
-	if (SDL_UpdateTexture(texture, NULL, pixels, w*sizeof(Uint32)) < 0) {
+	if (!SDL_UpdateTexture(texture, NULL, pixels, w*sizeof(Uint32))) {
 		SetError("%s", SDL_GetError());
 		SDL_DestroyTexture(texture);
 		return NULL;
@@ -444,7 +443,8 @@ FrameBuf::CreateRenderTarget(int w, int h)
 {
 	SDL_Texture *texture;
 
-	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, w, h);
+	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XRGB8888,
+				    SDL_TEXTUREACCESS_TARGET, w, h);
 	if (!texture) {
 		SetError("Couldn't create target texture: %s", SDL_GetError());
 		return NULL;
@@ -455,7 +455,7 @@ FrameBuf::CreateRenderTarget(int w, int h)
 int
 FrameBuf::SetRenderTarget(SDL_Texture *texture)
 {
-	if (SDL_SetRenderTarget(renderer, texture) < 0) {
+	if (!SDL_SetRenderTarget(renderer, texture)) {
 		SetError("Couldn't set render target: %s", SDL_GetError());
 		return(-1);
 	}

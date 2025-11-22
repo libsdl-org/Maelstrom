@@ -33,7 +33,7 @@
 
 #include <stdio.h>
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include "../utils/ErrorBase.h"
 
 typedef enum {
@@ -45,8 +45,7 @@ class FrameBuf : public ErrorBase {
 
 public:
 	FrameBuf();
-	int Init(int width, int height, Uint32 window_flags, Uint32 render_flags,
-			SDL_Surface *icon = NULL);
+	int Init(int width, int height, Uint32 window_flags, SDL_Surface *icon = NULL);
 	virtual ~FrameBuf();
 
 	/* Setup routines */
@@ -61,7 +60,10 @@ public:
 	}
 	/* Set the blit clipping rectangle */
 	void   ClipBlit(SDL_Rect *cliprect) {
-		clip = *cliprect;
+		clip.x = cliprect->x;
+		clip.y = cliprect->y;
+		clip.w = cliprect->w;
+		clip.h = cliprect->h;
 	}
 
 	/* Event Routines */
@@ -88,9 +90,9 @@ public:
 
 	void ToggleFullScreen(void) {
 		if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN) {
-			SDL_SetWindowFullscreen(window, SDL_FALSE);
+			SDL_SetWindowFullscreen(window, false);
 		} else {
-			SDL_SetWindowFullscreen(window, SDL_TRUE);
+			SDL_SetWindowFullscreen(window, true);
 		}
 	}
 
@@ -121,14 +123,10 @@ public:
 			int srcx, int srcy, int srcw, int srch,
 			int dstx, int dsty, int dstw, int dsth, clipval do_clip, float angle = 0.0f);
 	void QueueBlit(SDL_Texture *src, int x, int y, int w, int h, clipval do_clip, float angle = 0.0f) {
-		int srcw, srch;
-		SDL_QueryTexture(src, NULL, NULL, &srcw, &srch);
-		QueueBlit(src, 0, 0, srcw, srch, x, y, w, h, do_clip, angle);
+		QueueBlit(src, 0, 0, src->w, src->h, x, y, w, h, do_clip, angle);
 	}
 	void QueueBlit(SDL_Texture *src, int x, int y, clipval do_clip, float angle = 0.0f) {
-		int w, h;
-		SDL_QueryTexture(src, NULL, NULL, &w, &h);
-		QueueBlit(src, 0, 0, w, h, x, y, w, h, do_clip, angle);
+		QueueBlit(src, 0, 0, src->w, src->h, x, y, src->w, src->h, do_clip, angle);
 	}
 	void StretchBlit(const SDL_Rect *dstrect, SDL_Texture *src, const SDL_Rect *srcrect);
 
@@ -155,26 +153,26 @@ public:
 	}
 	void DrawPoint(int x, int y, Uint32 color) {
 		UpdateDrawColor(color);
-		SDL_RenderDrawPoint(renderer, x, y);
+		SDL_RenderPoint(renderer, x, y);
 	}
 	void DrawLine(int x1, int y1, int x2, int y2, Uint32 color) {
 		UpdateDrawColor(color);
-		SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+		SDL_RenderLine(renderer, x1, y1, x2, y2);
 	}
 	void DrawRect(int x1, int y1, int w, int h, Uint32 color) {
 		UpdateDrawColor(color);
 
-		SDL_Rect rect;
+		SDL_FRect rect;
 		rect.x = x1;
 		rect.y = y1;
 		rect.w = w;
 		rect.h = h;
-		SDL_RenderDrawRect(renderer, &rect);
+		SDL_RenderRect(renderer, &rect);
 	}
 	void FillRect(int x1, int y1, int w, int h, Uint32 color) {
 		UpdateDrawColor(color);
 
-		SDL_Rect rect;
+		SDL_FRect rect;
 		rect.x = x1;
 		rect.y = y1;
 		rect.w = w;
@@ -187,14 +185,10 @@ public:
 	SDL_Texture *LoadImage(SDL_Surface *surface);
 	SDL_Texture *LoadImage(int w, int h, Uint32 *pixels);
 	int GetImageWidth(SDL_Texture *image) {
-		int w, h;
-		SDL_QueryTexture(image, NULL, NULL, &w, &h);
-		return w;
+		return image->w;
 	}
 	int GetImageHeight(SDL_Texture *image) {
-		int w, h;
-		SDL_QueryTexture(image, NULL, NULL, &w, &h);
-		return h;
+		return image->h;
 	}
 	void FreeImage(SDL_Texture *image);
 
@@ -209,10 +203,10 @@ public:
 
 	/* Cursor handling routines */
 	void ShowCursor(void) {
-		SDL_ShowCursor(1);
+		SDL_ShowCursor();
 	}
 	void HideCursor(void) {
-		SDL_ShowCursor(0);
+		SDL_HideCursor();
 	}
 	void GetCursorPosition(int *x, int *y);
 	void SetCaption(const char *caption, const char *icon = NULL) {
@@ -225,7 +219,7 @@ private:
 	SDL_Renderer *renderer;
 	int faded;
 	SDL_Rect rect;
-	SDL_Rect clip;
+	SDL_FRect clip;
 	SDL_Rect output;
 	bool resizable;
 	float logicalScale;
@@ -236,7 +230,7 @@ private:
 		clip.w = rect.w = width;
 		clip.h = rect.h = height;
 
-		SDL_RenderGetViewport(renderer, &output);
+		SDL_GetRenderViewport(renderer, &output);
 	}
 	void UpdateDrawColor(Uint32 color) {
 		Uint8 r, g, b;

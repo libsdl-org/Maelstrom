@@ -21,14 +21,14 @@
 
 /* Provide file routines that use PHYSFS on most platforms and SDL on Android */
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-SDL_RWops *OpenRead(const char *fname);
-SDL_RWops *OpenWrite(const char *fname);
+SDL_IOStream *OpenRead(const char *fname);
+SDL_IOStream *OpenWrite(const char *fname);
 
 /* Returns the contents of the file, or NULL on error.
    You should call SDL_free() on the returned data when you are done with it.

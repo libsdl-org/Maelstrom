@@ -23,7 +23,7 @@
 #ifndef _init_h
 #define _init_h
 
-extern int DoInitializations(Uint32 window_flags, Uint32 render_flags);
+extern int DoInitializations(Uint32 window_flags);
 extern void CleanUp(void);
 
 #endif /* _init_h */

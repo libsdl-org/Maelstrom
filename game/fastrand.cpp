@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "SDL_types.h"
+#include <SDL3/SDL.h>
 
 #include "fastrand.h"
 
@@ -56,10 +56,10 @@ Uint32 GetRandSeed(void)
 Uint16 FastRandom(Uint16 range)
 {
 	Uint16 result;
-	register Uint32 calc;
-	register Uint32 regD0;
-	register Uint32 regD1;
-	register Uint32 regD2;
+	Uint32 calc;
+	Uint32 regD0;
+	Uint32 regD1;
+	Uint32 regD2;
 
 #ifdef SERIOUS_DEBUG
   fprintf(stderr, "FastRandom(%hd)  Seed in: %8.8x ", range, randomSeed);
@@ -89,7 +89,7 @@ Uint16 FastRandom(Uint16 range)
 	regD2 += regD1;
 	regD0 += regD2;
 	
-	/* An unsigned value < 0 is always 0 */
+	/* An unsigned value is never < 0 */
 	/*************************************
 	 Not compiled:
 	if (regD0 < 0)

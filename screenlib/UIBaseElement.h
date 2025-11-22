@@ -26,7 +26,7 @@
 #include "../utils/rapidxml.h"
 #include "../utils/prefs.h"
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include "UIArea.h"
 
 class FrameBuf;

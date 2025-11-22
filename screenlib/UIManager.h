@@ -22,7 +22,7 @@
 #ifndef _UIManager_h
 #define _UIManager_h
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include "../utils/array.h"
 #include "UIArea.h"
 #include "UIPanel.h"

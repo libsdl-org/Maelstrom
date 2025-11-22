@@ -20,7 +20,7 @@
 */
 
 #include <stdio.h>
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include "../utils/files.h"
 #include "../utils/loadxml.h"
 
@@ -117,7 +117,7 @@ unsigned
 UITemplates::HashTable_Hash(const void *_key, void *data)
 {
 	const char *key = static_cast<const char *>(_key);
-	register unsigned hash = 5381;
+	unsigned hash = 5381;
 
 	while (*key) {
 		hash = ((hash << 5) + hash) ^ SDL_toupper(*key);

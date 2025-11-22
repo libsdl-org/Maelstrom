@@ -7,8 +7,6 @@
 
 // This file defines the interface to custom platform services
 
-#include "SDL_events.h"
-
 #include "Localization.h"
 
 class ServiceManager
