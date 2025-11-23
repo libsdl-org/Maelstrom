@@ -797,7 +797,6 @@ int DoInitializations(Uint32 window_flags)
 		error("Fatal: %s\n", screen->Error());
 		return(-1);
 	}
-	screen->SetLogicalSize(GAME_WIDTH, GAME_HEIGHT);
 	screen->SetCaption("Maelstrom");
 	SDL_DestroySurface(icon);
 

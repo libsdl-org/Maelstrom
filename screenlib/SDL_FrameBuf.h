@@ -106,17 +106,6 @@ public:
 	int Height() const {
 		return rect.h;
 	}
-	bool Resizable() const {
-		return resizable;
-	}
-	void GetDesktopSize(int &w, int &h) const;
-	void GetDisplaySize(int &w, int &h) const;
-	void GetLogicalSize(int &w, int &h) const;
-	void SetLogicalSize(int w, int h);
-	float GetLogicalScale() const {
-		return logicalScale ? logicalScale : 1.0f;
-	}
-	void SetLogicalScale(float scale);
 
 	/* Blit and update routines */
 	void QueueBlit(SDL_Texture *src,
@@ -221,8 +210,6 @@ private:
 	SDL_Rect rect;
 	SDL_FRect clip;
 	SDL_Rect output;
-	bool resizable;
-	float logicalScale;
 
 	void UpdateWindowSize(int width, int height) {
 		clip.x = rect.x = 0;

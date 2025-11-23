@@ -38,20 +38,12 @@ FrameBuf::FrameBuf() : ErrorBase()
 	window = NULL;
 	renderer = NULL;
 	faded = 0;
-	resizable = false;
-	logicalScale = 0.0f;
 }
 
 int
 FrameBuf::Init(int width, int height, Uint32 window_flags, SDL_Surface *icon)
 {
-	if (window_flags & SDL_WINDOW_RESIZABLE) {
-		resizable = true;
-	} else {
-		resizable = false;
-	}
-
-	window = SDL_CreateWindow("Maelstrom", width, height, window_flags);
+	window = SDL_CreateWindow(NULL, width, height, window_flags);
 	if (!window) {
 		SetError("Couldn't create %dx%d window: %s", 
 					width, height, SDL_GetError());
@@ -70,13 +62,8 @@ FrameBuf::Init(int width, int height, Uint32 window_flags, SDL_Surface *icon)
 	}
 
 	/* Set the output area */
-	if (Resizable()) {
-		int w, h;
-		SDL_GetWindowSize(window, &w, &h);
-		UpdateWindowSize(w, h);
-	} else {
-		SetLogicalSize(width, height);
-	}
+	SDL_SetRenderLogicalPresentation(renderer, width, height, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+	UpdateWindowSize(width, height);
 
 	return(0);
 }
@@ -94,44 +81,17 @@ FrameBuf::~FrameBuf()
 void
 FrameBuf::ProcessEvent(SDL_Event *event)
 {
-	switch (event->type) {
-	case SDL_EVENT_WINDOW_RESIZED:
-		{
-			int w, h;
-			SDL_Window *window = SDL_GetWindowFromID(event->window.windowID);
-
-			w = Width();
-			h = Height();
-			if (Resizable()) {
-				// We'll accept this window size change
-				SDL_GetWindowSize(window, &w, &h);
-				SDL_SetRenderViewport(renderer, NULL);
-			}
-			if (logicalScale > 0.0f) {
-				w = (int)(w/logicalScale);
-				h = (int)(h/logicalScale);
-				SetLogicalSize(w, h);
-			} else {
-				UpdateWindowSize(w, h);
-			}
-		}
-		break;
-	}
+	SDL_ConvertEventToRenderCoordinates(renderer, event);
 }
 
-// This routine or something like it should probably go in SDL
 bool
 FrameBuf::ConvertTouchCoordinates(const SDL_TouchFingerEvent &finger, int *x, int *y)
 {
-	int window_w, window_h;
-	float scale_x, scale_y;
+	int w, h;
 
-	SDL_GetWindowSize(window, &window_w, &window_h);
-	SDL_GetRenderScale(renderer, &scale_x, &scale_y);
-	*x = (int)(finger.x*window_w/scale_x) - output.x;
-	*y = (int)(finger.y*window_h/scale_y) - output.y;
-	*x = (*x * rect.w) / output.w;
-	*y = (*y * rect.h) / output.h;
+	SDL_GetRenderOutputSize(renderer, &w, &h);
+	*x = (int)(finger.x * w);
+	*y = (int)(finger.y * h);
 	return true;
 }
 
@@ -146,15 +106,12 @@ void
 FrameBuf::GetCursorPosition(int *x, int *y)
 {
 	float mouse_x, mouse_y;
-	float scale_x, scale_y;
 
 	SDL_GetMouseState(&mouse_x, &mouse_y);
-	SDL_GetRenderScale(renderer, &scale_x, &scale_y);
+	SDL_RenderCoordinatesFromWindow(renderer, mouse_x, mouse_y, &mouse_x, &mouse_y);
 
-	*x = (int)(mouse_x/scale_x) - output.x;
-	*y = (int)(mouse_y/scale_y) - output.y;
-	*x = (*x * rect.w) / output.w;
-	*y = (*y * rect.h) / output.h;
+	*x = (int)mouse_x;
+	*y = (int)mouse_y;
 }
 
 void
@@ -167,77 +124,6 @@ void
 FrameBuf::DisableTextInput()
 {
 	SDL_StopTextInput(window);
-}
-
-void
-FrameBuf::GetDesktopSize(int &w, int &h) const
-{
-	const SDL_DisplayMode *mode = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
-	if (!mode) {
-		w = 0;
-		h = 0;
-	} else {
-		w = mode->w;
-		h = mode->h;
-	}
-}
-
-void
-FrameBuf::GetDisplaySize(int &w, int &h) const
-{
-	SDL_GetWindowSize(window, &w, &h);
-}
-
-void
-FrameBuf::GetLogicalSize(int &w, int &h) const
-{
-	SDL_GetRenderLogicalPresentation(renderer, &w, &h, NULL);
-	if (!w || !h) {
-		w = Width();
-		h = Height();
-	}
-}
-
-void
-FrameBuf::SetLogicalSize(int w, int h)
-{
-	SDL_SetRenderLogicalPresentation(renderer, w, h, SDL_LOGICAL_PRESENTATION_LETTERBOX);
-	UpdateWindowSize(w, h);
-}
-
-void
-FrameBuf::SetLogicalScale(float scale)
-{
-	int w, h;
-	SDL_Texture *target;
-
-	target = SDL_GetRenderTarget(renderer);
-	if (target) {
-		// This is a temporary scale change
-		w = target->w;
-		h = target->h;
-		if (scale > 0.0f) {
-			w = (int)(w/scale);
-			h = (int)(h/scale);
-		}
-		SDL_SetRenderLogicalPresentation(renderer, w, h, SDL_LOGICAL_PRESENTATION_LETTERBOX);
-	} else {
-		logicalScale = scale;
-
-		if (Resizable()) {
-			SDL_GetWindowSize(window, &w, &h);
-		} else {
-			w = Width();
-			h = Height();
-		}
-		if (logicalScale > 0.0f) {
-			w = (int)(w/logicalScale);
-			h = (int)(h/logicalScale);
-			SetLogicalSize(w, h);
-		} else {
-			UpdateWindowSize(w, h);
-		}
-	}
 }
 
 void
@@ -334,7 +220,6 @@ FrameBuf::Fade(void)
 int
 FrameBuf::ScreenDump(const char *prefix, int x, int y, int w, int h)
 {
-	float scale_x, scale_y;
 	SDL_Rect rect;
 	SDL_Surface *dump;
 	char file[1024];
@@ -346,19 +231,6 @@ FrameBuf::ScreenDump(const char *prefix, int x, int y, int w, int h)
 	if (!h) {
 		h = Height();
 	}
-
-	// Convert to real output coordinates
-	SDL_GetRenderScale(renderer, &scale_x, &scale_y);
-
-	x = (x * output.w) / this->rect.w;
-	y = (y * output.h) / this->rect.h;
-	x = (int)((x + output.x) * scale_x);
-	y = (int)((y + output.y) * scale_y);
-
-	w = (w * output.w) / this->rect.w;
-	h = (h * output.h) / this->rect.h;
-	w = (int)(w * scale_x);
-	h = (int)(h * scale_y);
 
 	rect.x = x;
 	rect.y = y;

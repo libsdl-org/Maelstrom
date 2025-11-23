@@ -138,13 +138,11 @@ static void CheatDialogDone(void*, UIDialog *dialog, int status)
 static char *progname;
 void PrintUsage(void)
 {
-	error("Usage: %s <options>\n\n", progname);
-	error("Where <options> can be any of:\n\n"
-"	-fullscreen		# Run Maelstrom in full-screen mode\n"
-"	-windowed		# Run Maelstrom in windowed mode\n"
-"	-classic		# Run Maelstrom in 640x480 classic mode\n"
+	SDL_Log("Usage: %s <options>", progname);
+	SDL_Log("Where <options> can be any of:\n"
+"	--fullscreen		# Run Maelstrom in full-screen mode\n"
+"	--windowed		# Run Maelstrom in windowed mode\n"
 	);
-	error("\n");
 	exit(1);
 }
 
@@ -177,7 +175,7 @@ void ShowFrame(void*)
 int MaelstromMain(int argc, char *argv[])
 {
 	/* Command line flags */
-	Uint32 window_flags = 0;
+	Uint32 window_flags = SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE;
 
 	if ( !InitFilesystem(MAELSTROM_ORGANIZATION, MAELSTROM_NAME) ) {
 		exit(1);
@@ -191,14 +189,14 @@ int MaelstromMain(int argc, char *argv[])
 	window_flags |= SDL_WINDOW_FULLSCREEN;
 #endif
 	for ( progname=argv[0]; --argc; ++argv ) {
-		if ( strcmp(argv[1], "-fullscreen") == 0 ) {
+		if ( strcmp(argv[1], "--fullscreen") == 0 ) {
 			window_flags |= SDL_WINDOW_FULLSCREEN;
-		} else if ( strcmp(argv[1], "-windowed") == 0 ) {
+		} else if ( strcmp(argv[1], "--windowed") == 0 ) {
 			window_flags &= ~SDL_WINDOW_FULLSCREEN;
-		} else if ( strcmp(argv[1], "-version") == 0 ) {
+		} else if ( strcmp(argv[1], "--version") == 0 ) {
 			error("%s", Version);
 			exit(0);
-		} else if ( strcmp(argv[1], "-help") == 0 ) {
+		} else {
 			PrintUsage();
 		}
 	}
