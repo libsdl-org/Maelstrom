@@ -32,6 +32,8 @@
 /* 								 */
 /* ------------------------------------------------------------- */
 
+#include <SDL3/SDL_main.h>
+
 #include "Maelstrom_Globals.h"
 #include "load.h"
 #include "init.h"
@@ -172,7 +174,7 @@ void ShowFrame(void*)
 
 /* ----------------------------------------------------------------- */
 /* -- Blitter main program */
-int MaelstromMain(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	/* Command line flags */
 	Uint32 window_flags = SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE;

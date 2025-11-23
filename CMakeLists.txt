@@ -29,8 +29,6 @@ add_subdirectory(external/SDL EXCLUDE_FROM_ALL)
 add_subdirectory(external/SDL_net EXCLUDE_FROM_ALL)
 
 set(MAELSTROM_SOURCES
-	mainstub.cpp
-
 	game/about.cpp
 	game/about.h
 	game/colortable.h
