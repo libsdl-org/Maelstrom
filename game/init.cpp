@@ -60,6 +60,7 @@ MPoint	gThrustOrigins[SHIP_FRAMES];
 MPoint	gVelocityTable[SHIP_FRAMES];
 StarPtr	gTheStars[MAX_STARS];
 Uint32	gStarColors[20];
+Uint32	gSpriteCRC = 0;
 
 /* -- The blit'ers we use */
 BlitPtr	gRock1R, gRock2R, gRock3R, gDamagedShip;
@@ -1195,8 +1196,6 @@ static int LoadSprite(bool large, BlitPtr *theBlit, int baseID, int numFrames)
 		}
 		SetRect(&aBlit->hitRect, left, top, right, bottom);
 
-		SDL_DestroySurface(surface);
-
 		/* Load the image */
 		aBlit->sprite[index] = GetSprite(screen, baseID+index, large);
 		if ( aBlit->sprite[index] == NULL ) {
@@ -1210,6 +1209,9 @@ static int LoadSprite(bool large, BlitPtr *theBlit, int baseID, int numFrames)
 		for ( offset=0; offset<length; ++offset ) {
 			aBlit->mask[index][offset] = mask[offset*4]; 
 		}
+		gSpriteCRC = SDL_crc32(gSpriteCRC, aBlit->mask[index], length);
+
+		SDL_DestroySurface(surface);
 	}
 	(*theBlit) = aBlit;
 	return(0);

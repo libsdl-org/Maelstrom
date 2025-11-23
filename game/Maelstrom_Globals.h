@@ -100,6 +100,7 @@ extern MPoint	gThrustOrigins[SHIP_FRAMES];
 extern MPoint	gVelocityTable[SHIP_FRAMES];
 extern StarPtr	gTheStars[MAX_STARS];
 extern Uint32	gStarColors[];
+extern Uint32	gSpriteCRC;
 
 // in game.cpp :
 extern int	gDisplayed;
