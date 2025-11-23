@@ -22,10 +22,6 @@
 
 /* -- Return a random value between 0 and range - 1 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-
 #include <SDL3/SDL.h>
 
 #include "fastrand.h"
@@ -41,8 +37,7 @@ void SeedRandom(Uint32 Seed)
   fprintf(stderr, "SeedRandom(%8.8x)\n", Seed);
 #endif
 	if ( ! Seed ) {
-		srand(time(NULL));
-		Seed = (((rand()%0xFFFF)<<16)|(rand()%0xFFFF));
+		Seed = SDL_rand_bits();
 	}
 	randomSeed = Seed;
 }
