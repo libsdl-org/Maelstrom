@@ -8,13 +8,15 @@ if(WIN32)
 else()
     set(GAME_INSTALLDIR "${CMAKE_INSTALL_PREFIX}/games/${PROJECT_NAME}")
 endif()
-add_compile_definitions("-DLIBDIR=\"${GAME_INSTALLDIR}\"")
 
 if(MSVC)
     add_compile_options(-W3)
 else()
     add_compile_options(-Wall)
     add_compile_options(-Wextra)
+    add_compile_options(-Wno-cast-function-type)
+    add_compile_options(-Wno-sign-compare)
+    add_compile_options(-Wno-unused-function)
     add_compile_options(-Wno-unused-parameter)
 endif()
 
@@ -25,7 +27,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 
 add_subdirectory(external/SDL EXCLUDE_FROM_ALL)
 add_subdirectory(external/SDL_net EXCLUDE_FROM_ALL)
-add_subdirectory(external/physfs EXCLUDE_FROM_ALL)
 
 set(MAELSTROM_SOURCES
 	mainstub.cpp
@@ -146,20 +147,17 @@ set(MAELSTROM_SOURCES
 	utils/rapidxml.h
 	utils/rapidxml.hpp
 
-	external/physfs/extras/physfssdl3.c
+	miniz/miniz.c
 
 	Maelstrom.rc
 )
 
 add_executable(Maelstrom WIN32 ${MAELSTROM_SOURCES})
-target_include_directories(Maelstrom PRIVATE external/physfs/src)
 target_link_libraries(Maelstrom PRIVATE SDL3::SDL3)
 target_link_libraries(Maelstrom PRIVATE SDL2_net::SDL2_net-static)
-target_link_libraries(Maelstrom PRIVATE physfs-static)
-target_link_libraries(Maelstrom PRIVATE -lz)
 
 install(TARGETS Maelstrom DESTINATION "${GAME_INSTALLDIR}")
-install(FILES Maelstrom_Data.zip DESTINATION "${GAME_INSTALLDIR}")
+install(DIRECTORY Data DESTINATION "${GAME_INSTALLDIR}")
 
 file(GLOB docs "Docs/*.txt" "README*")
 install(FILES ${docs} "COPYING" "COPYING.GPL" DESTINATION "${GAME_INSTALLDIR}/Docs")

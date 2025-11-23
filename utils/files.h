@@ -27,13 +27,19 @@
 extern "C" {
 #endif
 
-SDL_IOStream *OpenRead(const char *fname);
-SDL_IOStream *OpenWrite(const char *fname);
+bool InitFilesystem(const char *org, const char *app);
+
+SDL_IOStream *OpenRead(const char *file);
 
 /* Returns the contents of the file, or NULL on error.
    You should call SDL_free() on the returned data when you are done with it.
 */
-char *LoadFile(const char *fname);
+char *LoadFile(const char *file);
+
+SDL_Storage *OpenUserStorage(void);
+SDL_IOStream *OpenUserFile(const char *file);
+char *LoadUserFile(const char *file);
+bool SaveUserFile(const char *file, SDL_IOStream *src);
 
 #ifdef __cplusplus
 }

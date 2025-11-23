@@ -26,11 +26,10 @@
 
 #include <stdlib.h>	// for qsort()
 
-#include "physfs.h"
-
 #include "Maelstrom_Globals.h"
 #include "scores.h"
 #include "../utils/array.h"
+#include "../utils/files.h"
 
 
 Scores hScores[NUM_SCORES];
@@ -49,33 +48,43 @@ static int SortScores(const void *_a, const void *_b)
 	return b->score - a->score;
 }
 
+static SDL_EnumerationResult SDLCALL LoadScoresCallback(void *userdata, const char *dirname, const char *fname)
+{
+	array<Scores> *scores = reinterpret_cast<array<Scores> *>(userdata);
+	Replay replay;
+	Scores score;
+
+	if (SDL_strcmp(fname, LAST_REPLAY) == 0) {
+		return SDL_ENUM_CONTINUE;
+	}
+	if (!replay.Load(fname, true)) {
+		return SDL_ENUM_CONTINUE;
+	}
+
+	SDL_strlcpy(score.name, replay.GetDisplayName(), sizeof(score.name));
+	score.wave = replay.GetFinalWave();
+	score.score = replay.GetFinalScore();
+	score.file = SDL_strdup(fname);
+	scores->add(score);
+
+	return SDL_ENUM_CONTINUE;
+}
+
 void LoadScores(void)
 {
 	char path[1024];
-	Replay replay;
-	Scores score;
 	array<Scores> scores;
 	unsigned int i;
 
 	FreeScores();
 
 	// Load all the games
-	char **rc = PHYSFS_enumerateFiles(REPLAY_DIRECTORY);
-	char **f;
-	for (f = rc; *f; ++f) {
-		if (SDL_strcmp(*f, LAST_REPLAY) == 0) {
-			continue;
-		}
-		if (!replay.Load(*f, true)) {
-			continue;
-		}
-
-		SDL_strlcpy(score.name, replay.GetDisplayName(), sizeof(score.name));
-		score.wave = replay.GetFinalWave();
-		score.score = replay.GetFinalScore();
-		score.file = *f;
-		scores.add(score);
+	SDL_Storage *storage = OpenUserStorage();
+	if (!storage) {
+		return;
 	}
+	SDL_EnumerateStorageDirectory(storage, REPLAY_DIRECTORY, LoadScoresCallback, &scores);
+	SDL_CloseStorage(storage);
 
 	// Take the top 10
 	if (scores.length() > 0) {
@@ -83,16 +92,14 @@ void LoadScores(void)
 	}
 	for (i = 0; i < scores.length() && i < NUM_SCORES; ++i) {
 		hScores[i] = scores[i];
-		hScores[i].file = SDL_strdup(scores[i].file);
 	}
 
 	// Trim the rest
 	for ( ; i < scores.length(); ++i) {
 		SDL_snprintf(path, sizeof(path), "%s/%s", REPLAY_DIRECTORY, scores[i].file);
-		PHYSFS_delete(path);
+		SDL_RemovePath(path);
+		SDL_free(scores[i].file);
 	}
-
-	PHYSFS_freeList(rc);
 }
 
 void FreeScores(void)
@@ -105,21 +112,27 @@ void FreeScores(void)
 		}
 	}
 	SDL_zero(hScores);
+}
 
+static SDL_EnumerationResult SDLCALL DeleteScoresCallback(void *userdata, const char *dirname, const char *fname)
+{
+	SDL_Storage *storage = (SDL_Storage *)userdata;
+
+	char path[256];
+	SDL_snprintf(path, sizeof(path), "%s/%s", dirname, fname);
+	SDL_RemoveStoragePath(storage, path);
+	return SDL_ENUM_CONTINUE;
 }
 
 void ZapHighScores()
 {
-	char path[1024];
-
 	// Delete all the games
-	char **rc = PHYSFS_enumerateFiles(REPLAY_DIRECTORY);
-	char **f;
-	for (f = rc; *f; ++f) {
-		SDL_snprintf(path, sizeof(path), "%s/%s", REPLAY_DIRECTORY, *f);
-		PHYSFS_delete(path);
+	SDL_Storage *storage = OpenUserStorage();
+	if (!storage) {
+		return;
 	}
-	PHYSFS_freeList(rc);
+	SDL_EnumerateStorageDirectory(storage, REPLAY_DIRECTORY, DeleteScoresCallback, storage);
+	SDL_CloseStorage(storage);
 
 	FreeScores();
 	gLastHigh = -1;
