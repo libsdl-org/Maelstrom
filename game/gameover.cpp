@@ -70,9 +70,9 @@ void GameOverPanelDelegate::OnShow()
 		final[i].Frags = gPlayers[i]->GetFrags();
 	}
 	if ( gGameInfo.IsDeathmatch() )
-		qsort(final,MAX_PLAYERS,sizeof(struct FinalScore),cmp_byfrags);
+		SDL_qsort(final,MAX_PLAYERS,sizeof(struct FinalScore),cmp_byfrags);
 	else
-		qsort(final,MAX_PLAYERS,sizeof(struct FinalScore),cmp_byscore);
+		SDL_qsort(final,MAX_PLAYERS,sizeof(struct FinalScore),cmp_byscore);
 
 	m_panel->HideAll();
 

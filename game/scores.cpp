@@ -24,8 +24,6 @@
    This file handles the cheat dialogs and the high score file
 */
 
-#include <stdlib.h>	// for qsort()
-
 #include "Maelstrom_Globals.h"
 #include "scores.h"
 #include "../utils/array.h"
@@ -88,7 +86,7 @@ void LoadScores(void)
 
 	// Take the top 10
 	if (scores.length() > 0) {
-		qsort(&scores[0], scores.length(), sizeof(scores[0]), SortScores);
+		SDL_qsort(&scores[0], scores.length(), sizeof(scores[0]), SortScores);
 	}
 	for (i = 0; i < scores.length() && i < NUM_SCORES; ++i) {
 		hScores[i] = scores[i];

@@ -23,8 +23,6 @@
 #ifdef COMPUTE_VELTABLE
 #include <math.h>
 #endif
-#include <signal.h>
-#include <stdlib.h>
 
 #include "Maelstrom_Globals.h"
 #include "load.h"
