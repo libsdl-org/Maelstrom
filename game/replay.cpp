@@ -20,14 +20,13 @@
     slouken@libsdl.org
 */
 
-#include <zlib.h>
-#include "physfs.h"
-#include "../utils/files.h"
-
 #include "Maelstrom_Globals.h"
 #include "netplay.h"
 #include "player.h"
 #include "replay.h"
+
+#include "../miniz/miniz.h"
+#include "../utils/files.h"
 
 // Define this to get extremely verbose debug printing
 //#define DEBUG_REPLAY
@@ -66,91 +65,37 @@ Replay::SetMode(REPLAY_MODE mode)
 	Uint8 compressed_data[]
 */
 
-static SDL_IOStream *
-CopyReplayIntoSandbox(const char *file)
-{
-	FILE *rfp;
-	PHYSFS_File *wfp;
-	const char *base;
-	char path[1024];
-	char data[1024];
-	size_t size;
-
-	base = SDL_max(SDL_strrchr(file, '/'), SDL_strrchr(file, '\\'));
-	if (base) {
-		base = base+1;
-	} else {
-		base = file;
-	}
-
-	PHYSFS_mkdir("tmp");
-	SDL_snprintf(path, sizeof(path), "tmp/%s", base);
-
-	rfp = fopen(file, "rb");
-	if (!rfp) {
-		fprintf(stderr, "Couldn't open %s\n", file);
-		return NULL;
-	}
-
-	wfp = PHYSFS_openWrite(path);
-	if (!wfp) {
-		fprintf(stderr, "Couldn't write to %s: %s\n", path, PHYSFS_getLastError());
-		fclose(rfp);
-		return NULL;
-	}
-
-	while ((size = fread(data, 1, sizeof(data), rfp)) > 0) {
-		if (!PHYSFS_writeBytes(wfp, data, size)) {
-			goto write_error;
-		}
-	}
-	if (!PHYSFS_close(wfp)) {
-		goto write_error;
-	}
-	fclose(rfp);
-
-	return OpenRead(path);
-
-write_error:
-	fprintf(stderr, "Error writing to %s: %s\n", path, PHYSFS_getLastError());
-	fclose(rfp);
-	PHYSFS_close(wfp);
-	PHYSFS_delete(path);
-	return NULL;
-}
-
 bool
 Replay::Load(const char *file, bool headerOnly)
 {
 	char path[1024];
-	SDL_IOStream *fp;
+	SDL_IOStream *fp = nullptr;
 	DynamicPacket data;
 	uLongf destLen;
 	Uint32 size;
 	Uint32 compressedSize;
+	bool result = false;
 
 	// Open the file
 	if (SDL_strchr(file, '/') == NULL) {
 		SDL_snprintf(path, sizeof(path), "%s/%s", REPLAY_DIRECTORY, file);
-		file = path;
-	}
-	fp = OpenRead(file);
-	if (!fp) {
-		// If the file is outside our sandbox, try to copy it in
-		fp = CopyReplayIntoSandbox(file);
+		fp = OpenUserFile(path);
+	} else {
+		fp = SDL_IOFromFile(file, "rb");
 	}
 	if (!fp) {
-		fprintf(stderr, "Couldn't read %s: %s\n", file, SDL_GetError());
-		return false;
+		SDL_Log("Couldn't open %s: %s", file, SDL_GetError());
+		goto done;
 	}
 
 	Uint8 version;
 	if (!SDL_ReadIO(fp, &version, 1)) {
-		goto read_error;
+		SDL_Log("Couldn't read data: %s", SDL_GetError());
+		goto done;
 	}
 	if (version != REPLAY_VERSION) {
-		fprintf(stderr, "Unsupported version %d, expected %d\n", version, REPLAY_VERSION);
-		goto error_return;
+		SDL_Log("Unsupported version %d, expected %d", version, REPLAY_VERSION);
+		goto done;
 	}
 	SDL_ReadU32LE(fp, &m_frameCount);
 	SDL_ReadU8(fp, &m_finalPlayer);
@@ -165,12 +110,13 @@ Replay::Load(const char *file, bool headerOnly)
 	data.Reset();
 	data.Grow(size);
 	if (!SDL_ReadIO(fp, data.data, size)) {
-		goto read_error;
+		SDL_Log("Couldn't read data: %s", SDL_GetError());
+		goto done;
 	}
 	data.len = size;
 	if (!m_game.ReadFromPacket(data)) {
-		fprintf(stderr, "Couldn't read game information from %s\n", file);
-		goto error_return;
+		SDL_Log("Couldn't read game information: %s", SDL_GetError());
+		goto done;
 	}
 
 	if (!headerOnly) {
@@ -183,53 +129,41 @@ Replay::Load(const char *file, bool headerOnly)
 		data.Grow(compressedSize);
 
 		if (!SDL_ReadIO(fp, data.data, compressedSize)) {
-			goto read_error;
+			SDL_Log("Couldn't read data: %s", SDL_GetError());
+			goto done;
 		}
 		destLen = size;
 		if (uncompress(m_data.Data(), &destLen, data.Data(), compressedSize) != Z_OK) {
-			fprintf(stderr, "Error uncompressing replay data\n");
-			goto error_return;
+			SDL_Log("Error uncompressing replay data");
+			goto done;
 		}
 		m_data.len = size;
 	}
 
-	// We're done!
-	SDL_CloseIO(fp);
-	return true;
+	result = true;
 
-read_error:
-	fprintf(stderr, "Error reading from %s: %s\n", file, SDL_GetError());
-error_return:
+done:
 	SDL_CloseIO(fp);
-	return false;
+	return result;
 }
 
 bool
 Replay::Save(const char *file)
 {
 	char path[1024];
-	SDL_IOStream *fp;
+	SDL_IOStream *fp = nullptr;
+	Uint8 version;
 	DynamicPacket data;
 	uLongf destLen;
+	bool result = false;
 
-	// Create the directory if needed
-	PHYSFS_mkdir(REPLAY_DIRECTORY);
-
-	// If we aren't given a file, construct one from the game data
-	if (!file) {
-		SDL_snprintf(path, sizeof(path), "%s/%s_%d_%d_%8.8x.%s", REPLAY_DIRECTORY, GetDisplayName(), GetFinalScore(), GetFinalWave(), m_seed, REPLAY_FILETYPE);
-		file = path;
-	} else if (SDL_strchr(file, '/') == NULL) {
-		SDL_snprintf(path, sizeof(path), "%s/%s", REPLAY_DIRECTORY, file);
-		file = path;
-	}
-	fp = OpenWrite(file);
+	fp = SDL_IOFromDynamicMem();
 	if (!fp) {
-		fprintf(stderr, "Couldn't write to %s: %s\n", file, PHYSFS_getLastError());
-		return false;
+		SDL_Log("Couldn't create dynamic memory: %s", SDL_GetError());
+		goto done;
 	}
 
-	Uint8 version = REPLAY_VERSION;
+	version = REPLAY_VERSION;
 	SDL_WriteU8(fp, version);
 	SDL_WriteU32LE(fp, m_frameCount);
 	SDL_WriteU8(fp, m_finalPlayer);
@@ -244,35 +178,49 @@ Replay::Save(const char *file)
 	m_game.WriteToPacket(data);
 	SDL_WriteU32LE(fp, data.Size());
 	if (!SDL_WriteIO(fp, data.Data(), data.Size())) {
-		goto write_error;
+		SDL_Log("Error writing to %s: %s", file, SDL_GetError());
+		goto done;
 	}
 
 	destLen = compressBound(m_data.Size());
 	data.Reset();
 	data.Grow(destLen);
 	if (compress(data.Data(), &destLen, m_data.Data(), m_data.Size()) != Z_OK) {
-		fprintf(stderr, "Error compressing replay data\n");
-		goto error_return;
+		SDL_Log("Error compressing replay data");
+		goto done;
 	}
 	data.len = destLen;
 	SDL_WriteU32LE(fp, m_data.Size());
 	SDL_WriteU32LE(fp, data.Size());
 	if (!SDL_WriteIO(fp, data.Data(), data.Size())) {
-		goto write_error;
+		SDL_Log("Error writing to %s: %s", file, SDL_GetError());
+		goto done;
 	}
 
-	// We're done!
-	if (!SDL_CloseIO(fp)) {
-		goto write_error;
-	}
-	return true;
+	// Create the file
+	if (!file) {
+		// If we aren't given a file, construct one from the game data
+		SDL_snprintf(path, sizeof(path), "%s/%s_%d_%d_%8.8x.%s", REPLAY_DIRECTORY, GetDisplayName(), GetFinalScore(), GetFinalWave(), m_seed, REPLAY_FILETYPE);
+		result = SaveUserFile(path, fp);
+	} else if (SDL_strchr(file, '/') == NULL) {
+		SDL_snprintf(path, sizeof(path), "%s/%s", REPLAY_DIRECTORY, file);
+		result = SaveUserFile(path, fp);
+	} else {
+		void *file_data = SDL_GetPointerProperty(SDL_GetIOProperties(fp), SDL_PROP_IOSTREAM_DYNAMIC_MEMORY_POINTER, NULL);
+		Uint64 file_length = SDL_GetIOSize(fp);
 
-write_error:
-	fprintf(stderr, "Error writing to %s: %s\n", file, SDL_GetError());
-error_return:
+		result = SDL_SaveFile(file, file_data, (size_t)file_length);
+		if (!result) {
+			SDL_Log("Couldn't save data: %s", SDL_GetError());
+		}
+		SDL_CloseIO(fp);
+	}
+	// The stream was closed above
+	fp = NULL;
+
+done:
 	SDL_CloseIO(fp);
-	PHYSFS_delete(path);
-	return false;
+	return result;
 }
 
 void

@@ -337,9 +337,8 @@ FrameBuf::ScreenDump(const char *prefix, int x, int y, int w, int h)
 	float scale_x, scale_y;
 	SDL_Rect rect;
 	SDL_Surface *dump;
-	int which, found;
 	char file[1024];
-	int retval;
+	int retval = -1;
 
 	if (!w) {
 		w = Width();
@@ -372,19 +371,28 @@ FrameBuf::ScreenDump(const char *prefix, int x, int y, int w, int h)
 	}
 
 	/* Get a suitable new filename */
-	found = 0;
-	for ( which=0; !found; ++which ) {
-		SDL_IOStream *fp;
-		SDL_snprintf(file, sizeof(file), "%s%d.bmp", prefix, which);
-		fp = OpenRead(file);
-		if (fp) {
-			SDL_CloseIO(fp);
-		} else {
-			found = 1;
+	SDL_Storage *storage = OpenUserStorage();
+	if (storage) {
+		bool available = false;
+		for ( int which = 0; !available; ++which ) {
+			SDL_snprintf(file, sizeof(file), "%s%d.png", prefix, which);
+			if (!SDL_GetStorageFileSize(storage, file, NULL)) {
+				available = true;
+			}
 		}
+		SDL_CloseStorage(storage);
 	}
-	retval = SDL_SaveBMP_IO(dump, OpenWrite(file), 1);
-	if ( retval < 0 ) {
+
+	SDL_IOStream *fp = SDL_IOFromDynamicMem();
+	if (SDL_SavePNG_IO(dump, fp, false)) {
+		if (SaveUserFile(file, fp)) {
+			retval = 0;
+		}
+	} else {
+		/* Couldn't save the screenshot */
+		SDL_CloseIO(fp);
+	}
+	if (retval < 0) {
 		SetError("%s", SDL_GetError());
 	}
 	SDL_DestroySurface(dump);

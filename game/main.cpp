@@ -41,8 +41,7 @@
 #include "netplay.h"
 #include "main.h"
 
-#include "physfs.h"
-
+#include "../utils/files.h"
 #include "../screenlib/UIDialog.h"
 #include "../screenlib/UIElement.h"
 #include "../screenlib/UIElementCheckbox.h"
@@ -54,7 +53,6 @@
 
 #define MAELSTROM_ORGANIZATION	"AmbrosiaSW"
 #define MAELSTROM_NAME		"Maelstrom"
-#define MAELSTROM_DATA	"Maelstrom_Data.zip"
 
 static const char *Version =
 "Maelstrom v1.4.3 (GPL version 4.0.0) -- 10/08/2011 by Sam Lantinga\n";
@@ -151,66 +149,6 @@ void PrintUsage(void)
 }
 
 /* ----------------------------------------------------------------- */
-/* -- Initialize PHYSFS and mount the data archive */
-static bool
-InitFilesystem(const char *argv0)
-{
-	const char *prefspath;
-
-	if (!PHYSFS_init(argv0)) {
-		error("Couldn't initialize PHYSFS: %s\n", PHYSFS_getLastError());
-		return false;
-	}
-
-	// Set up the write directory for this platform
-#ifdef __ANDROID__
-	prefspath = SDL_GetAndroidInternalStoragePath();
-#else
-	prefspath = PHYSFS_getPrefDir(MAELSTROM_ORGANIZATION, MAELSTROM_NAME);
-#endif
-	if (!prefspath) {
-		error("Couldn't get preferences path for this platform\n");
-		return false;
-	}
-	if (!PHYSFS_setWriteDir(prefspath)) {
-		error("Couldn't set write directory to %s: %s\n", prefspath, PHYSFS_getLastError());
-		return false;
-	}
-
-	/* Put the write directory first in the search path */
-	PHYSFS_mount(prefspath, NULL, 0);
-
-#ifdef __ANDROID__
-	// We'll use SDL's asset manager code path for Android
-	return true;
-
-#else
-	/* Then add the base directory to the search path */
-	PHYSFS_mount(PHYSFS_getBaseDir(), NULL, 0);
-
-	/* Then add the data file, which could be appended to the executable */
-	if (PHYSFS_mount(argv0, "/", 1)) {
-		return true;
-	}
-
-	/* ... or not */
-	char path[4096];
-	SDL_snprintf(path, SDL_arraysize(path), "%s%s", PHYSFS_getBaseDir(), MAELSTROM_DATA);
-	if (PHYSFS_mount(path, "/", 1)) {
-		return true;
-	}
-
-	SDL_snprintf(path, SDL_arraysize(path), "%sContents/Resources/%s", PHYSFS_getBaseDir(), MAELSTROM_DATA);
-	if (PHYSFS_mount(path, "/", 1)) {
-		return true;
-	}
-
-	error("Couldn't find %s", MAELSTROM_DATA);
-	return false;
-#endif // __ANDROID__
-}
-
-/* ----------------------------------------------------------------- */
 extern "C" void ShowFrame(void*);
 extern "C"
 void ShowFrame(void*)
@@ -241,7 +179,7 @@ int MaelstromMain(int argc, char *argv[])
 	/* Command line flags */
 	Uint32 window_flags = 0;
 
-	if ( !InitFilesystem(argv[0]) ) {
+	if ( !InitFilesystem(MAELSTROM_ORGANIZATION, MAELSTROM_NAME) ) {
 		exit(1);
 	}
 

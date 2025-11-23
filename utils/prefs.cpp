@@ -57,7 +57,7 @@ Prefs::Load()
 	char *data;
 	char *key, *value, *next;
 
-	data = LoadFile(m_file);
+	data = LoadUserFile(m_file);
 	if (!data) {
 		/* This is fine, we just haven't written them yet */
 		return false;
@@ -110,10 +110,9 @@ Prefs::Save()
 		return true;
 	}
 
-	fp = OpenWrite(m_file);
+	fp = SDL_IOFromDynamicMem();
 	if (!fp) {
-		fprintf(stderr, "Warning: Couldn't open %s: %s\n",
-					m_file, SDL_GetError());
+		SDL_Log("Couldn't create dynamic memory: %s", SDL_GetError());
 		return false;
 	}
 
@@ -130,13 +129,16 @@ Prefs::Save()
 		    !writeString(fp, "=") ||
 		    !writeString(fp, value) ||
 		    !writeString(fp, "\r\n")) {
-			fprintf(stderr, "Warning: Couldn't write to %s: %s\n",
-						m_file, SDL_GetError());
+			SDL_Log("Couldn't write preferences: %s\n", SDL_GetError());
 			SDL_CloseIO(fp);
 			return false;
 		}
 	}
-	SDL_CloseIO(fp);
+
+	if (!SaveUserFile(m_file, fp)) {
+		SDL_Log("Couldn't save preferences to %s: %s", m_file, SDL_GetError());
+		return false;
+	}
 
 	m_dirty = false;
 

@@ -36,7 +36,6 @@
 #include "MaelstromUI.h"
 #include "../screenlib/UIElement.h"
 
-#include "physfs.h"
 #include "../utils/loadxml.h"
 #include "../utils/files.h"
 
@@ -747,7 +746,6 @@ void CleanUp(void)
 		delete prefs;
 		prefs = NULL;
 	}
-	PHYSFS_deinit();
 	SDL_Quit();
 }
 
