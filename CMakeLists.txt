@@ -79,11 +79,7 @@ set(MAELSTROM_SOURCES
 	game/replay.h
 	game/scores.cpp
 	game/scores.h
-	game/ServiceManager.cpp
-	game/ServiceManager.h
 	game/shinobi.h
-	game/store.cpp
-	game/store.h
 
 	maclib/bitesex.h
 	maclib/Mac_Compat.h
