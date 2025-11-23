@@ -833,8 +833,13 @@ int DoInitializations(Uint32 window_flags)
 	/* Create the UI manager */
 	ui = new MaelstromUI(screen, prefs);
 
+#ifdef FAST_ITERATION
+	/* Fast transition between panels */
+	ui->SetPanelTransition(PANEL_TRANSITION_NONE);
+#else
 	/* Fade transition between panels */
 	ui->SetPanelTransition(PANEL_TRANSITION_FADE);
+#endif
 
 	/* -- Throw up our intro screen */
 	if (ui->GetPanelTransition() == PANEL_TRANSITION_FADE) {

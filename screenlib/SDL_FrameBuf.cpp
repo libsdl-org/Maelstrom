@@ -218,9 +218,6 @@ FrameBuf::Update(void)
 void
 FrameBuf::Fade(void)
 {
-#ifdef FAST_ITERATION
-	return;
-#else
 	const int max = 32;
 	Uint8 value;
 
@@ -232,7 +229,6 @@ FrameBuf::Fade(void)
 		SDL_Delay(10);
 	}
 	faded = !faded;
-#endif
 } 
 
 int
