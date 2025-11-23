@@ -1140,7 +1140,7 @@ static int LoadSprite(bool large, BlitPtr *theBlit, int baseID, int numFrames)
 
 	/* -- Load in the image data */
 	for (index = 0; index < numFrames; index++) {
-		SDL_snprintf(file, sizeof(file), "Sprites/Maelstrom_%s#%d.png", large ? "icl" : "ics", baseID+index);
+		SDL_snprintf(file, sizeof(file), "Sprites/%s#%d.png", large ? "icl8" : "ics8", baseID+index);
 		surface = SDL_LoadSurface_IO(OpenRead(file), true);
 
 		if ( surface == NULL ) {

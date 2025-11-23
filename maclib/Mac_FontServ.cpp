@@ -87,7 +87,7 @@ static TTF_Font *GetTrueTypeFont(const char *name, int ptsize)
 static Uint8 *GetFontData(const char *type, int ID)
 {
 	char file[128];
-	SDL_snprintf(file, sizeof(file), "Fonts/Maelstrom_%s#%d", type, ID);
+	SDL_snprintf(file, sizeof(file), "Fonts/%s#%d", type, ID);
 	return (Uint8 *)LoadFile(file);
 }
 

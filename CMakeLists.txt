@@ -25,6 +25,7 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 
+add_subdirectory(maclib)
 add_subdirectory(external/SDL EXCLUDE_FROM_ALL)
 add_subdirectory(external/SDL_net EXCLUDE_FROM_ALL)
 
@@ -80,13 +81,6 @@ set(MAELSTROM_SOURCES
 	game/scores.cpp
 	game/scores.h
 	game/shinobi.h
-
-	maclib/bitesex.h
-	maclib/Mac_Compat.h
-	maclib/Mac_FontServ.cpp
-	maclib/Mac_FontServ.h
-	maclib/Mac_Sound.cpp
-	maclib/Mac_Sound.h
 
 	screenlib/SDL_FrameBuf.cpp
 	screenlib/SDL_FrameBuf.h
@@ -147,6 +141,7 @@ set(MAELSTROM_SOURCES
 )
 
 add_executable(Maelstrom WIN32 ${MAELSTROM_SOURCES})
+target_link_libraries(Maelstrom PRIVATE SDLmac)
 target_link_libraries(Maelstrom PRIVATE SDL3::SDL3)
 target_link_libraries(Maelstrom PRIVATE SDL2_net::SDL2_net-static)
 
