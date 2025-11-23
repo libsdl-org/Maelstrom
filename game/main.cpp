@@ -53,7 +53,7 @@
 #include "../Xcode-iOS/Maelstrom_GameKit.h"
 #endif
 
-#define MAELSTROM_ORGANIZATION	"AmbrosiaSW"
+#define MAELSTROM_ORGANIZATION	"Ambrosia Software"
 #define MAELSTROM_NAME		"Maelstrom"
 
 static const char *Version =

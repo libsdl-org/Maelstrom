@@ -29,8 +29,6 @@
 #include "../screenlib/UIElement.h"
 #include "../screenlib/UIElementRadio.h"
 
-#define MAELSTROM_DATA	".Maelstrom-data"
-
 /* Savable and configurable controls/data */
 
 Controls::Controls() :
