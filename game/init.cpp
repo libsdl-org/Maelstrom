@@ -1156,11 +1156,7 @@ static int LoadSprite(bool large, BlitPtr *theBlit, int baseID, int numFrames)
 			error("LoadSprite(): Couldn't load image %s\n", file);
 			return(-1);
 		}
-		if ( surface->w != size || surface->h != size ) {
-			SDL_DestroySurface(surface);
-			error("LoadSprite(): Image not %dx%d: %s\n", size, size, file);
-			return(-1);
-		}
+
 		if ( surface->format != SDL_PIXELFORMAT_RGBA32 ) {
 			SDL_Surface *convert = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_RGBA32);
 			SDL_DestroySurface(surface);
@@ -1170,7 +1166,17 @@ static int LoadSprite(bool large, BlitPtr *theBlit, int baseID, int numFrames)
 			}
 			surface = convert;
 		}
-		/* FIXME: Handle different surface formats/endianness */
+
+		if ( surface->w != size || surface->h != size ) {
+			SDL_Surface *scaled = SDL_ScaleSurface(surface, size, size, SDL_SCALEMODE_NEAREST);
+			SDL_DestroySurface(surface);
+			if ( !scaled ) {
+				error("LoadSprite(): Couldn't scale image: %s\n", SDL_GetError());
+				return(-1);
+			}
+			surface = scaled;
+		}
+
 		mask = (Uint8*)surface->pixels + 3;
 
 		/* -- Figure out the hit rectangle */
