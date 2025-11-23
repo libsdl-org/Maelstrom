@@ -161,3 +161,11 @@ install(DIRECTORY Data DESTINATION "${GAME_INSTALLDIR}")
 
 file(GLOB docs "Docs/*.txt" "README*")
 install(FILES ${docs} "COPYING" "COPYING.GPL" DESTINATION "${GAME_INSTALLDIR}/Docs")
+
+if(NOT TARGET uninstall)
+  configure_file(cmake/cmake_uninstall.cmake.in cmake_uninstall.cmake IMMEDIATE @ONLY)
+
+  add_custom_target(uninstall
+      COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+endif()
+
