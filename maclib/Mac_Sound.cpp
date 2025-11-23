@@ -79,7 +79,7 @@ Sound:: LoadSound(Uint16 sndID)
 	Wave *wave;
 	SDL_AudioSpec spec;
 
-	SDL_snprintf(file, sizeof(file), "Sounds/snd_%d.wav", sndID);
+	SDL_snprintf(file, sizeof(file), "Sounds/snd#%d.wav", sndID);
 	fp = OpenRead(file);
 	if (!fp) {
 		fprintf(stderr, "Couldn't open %s\n", file);

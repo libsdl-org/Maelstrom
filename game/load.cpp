@@ -72,6 +72,6 @@ UITexture *GetCIcon(FrameBuf *screen, short id)
 UITexture *GetSprite(FrameBuf *screen, short id, bool large)
 {
 	char name[256];
-	SDL_snprintf(name, sizeof(name), "Maelstrom_%s#%d", large ? "icl" : "ics", id);
+	SDL_snprintf(name, sizeof(name), "%s#%d", large ? "icl8" : "ics8", id);
 	return Load_Texture(screen, "Sprites", name);
 }
