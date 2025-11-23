@@ -84,7 +84,9 @@ Replay::Load(const char *file, bool headerOnly)
 		fp = SDL_IOFromFile(file, "rb");
 	}
 	if (!fp) {
-		SDL_Log("Couldn't open %s: %s", file, SDL_GetError());
+		if (SDL_strcmp(file, LAST_REPLAY) != 0) {
+			SDL_Log("Couldn't open %s: %s", file, SDL_GetError());
+		}
 		goto done;
 	}
 
