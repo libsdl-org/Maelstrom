@@ -528,7 +528,7 @@ GameInfo::UpdateUI(GameInfoPlayer *player)
 	}
 	if (player->UI.control) {
 		char name[128];
-		SDL_snprintf(name, sizeof(name), "Images/control%d.bmp", player->controlMask);
+		SDL_snprintf(name, sizeof(name), "Images/control%d.png", player->controlMask);
 		player->UI.control->SetImage(name);
 	}
 	for (int i = 0; i < NUM_PING_STATES; ++i) {

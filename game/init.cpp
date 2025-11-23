@@ -1151,7 +1151,7 @@ static int LoadSprite(bool large, BlitPtr *theBlit, int baseID, int numFrames)
 
 	/* -- Load in the image data */
 	for (index = 0; index < numFrames; index++) {
-		SDL_snprintf(file, sizeof(file), "Sprites/Maelstrom_%s#%d.bmp", large ? "icl" : "ics", baseID+index);
+		SDL_snprintf(file, sizeof(file), "Sprites/Maelstrom_%s#%d.png", large ? "icl" : "ics", baseID+index);
 		surface = SDL_LoadSurface_IO(OpenRead(file), true);
 
 		if ( surface == NULL ) {
@@ -1163,10 +1163,14 @@ static int LoadSprite(bool large, BlitPtr *theBlit, int baseID, int numFrames)
 			error("LoadSprite(): Image not %dx%d: %s\n", size, size, file);
 			return(-1);
 		}
-		if ( SDL_BITSPERPIXEL(surface->format) != 32 ) {
+		if ( surface->format != SDL_PIXELFORMAT_RGBA32 ) {
+			SDL_Surface *convert = SDL_ConvertSurface(surface, SDL_PIXELFORMAT_RGBA32);
 			SDL_DestroySurface(surface);
-			error("LoadSprite(): Image not 32-bit: %s\n", file);
-			return(-1);
+			if ( !convert ) {
+				error("LoadSprite(): Couldn't convert image: %s\n", SDL_GetError());
+				return(-1);
+			}
+			surface = convert;
 		}
 		/* FIXME: Handle different surface formats/endianness */
 		mask = (Uint8*)surface->pixels + 3;
