@@ -34,25 +34,16 @@
 /* Constructors cannot fail. :-/ */
 FrameBuf::FrameBuf() : ErrorBase()
 {
-	/* Initialize various variables to null state */
-	window = NULL;
-	renderer = NULL;
-	faded = 0;
 }
 
 int
 FrameBuf::Init(int width, int height, Uint32 window_flags, SDL_Surface *icon)
 {
+	/* Create the window */
 	window = SDL_CreateWindow(NULL, width, height, window_flags);
 	if (!window) {
 		SetError("Couldn't create %dx%d window: %s", 
 					width, height, SDL_GetError());
-		return(-1);
-	}
-
-	renderer = SDL_CreateRenderer(window, NULL);
-	if (!renderer) {
-		SetError("Couldn't create renderer: %s", SDL_GetError());
 		return(-1);
 	}
 
@@ -61,15 +52,35 @@ FrameBuf::Init(int width, int height, Uint32 window_flags, SDL_Surface *icon)
 		SDL_SetWindowIcon(window, icon);
 	}
 
+	/* Create the renderer */
+	renderer = SDL_CreateRenderer(window, NULL);
+	if (!renderer) {
+		SetError("Couldn't create renderer: %s", SDL_GetError());
+		return(-1);
+	}
+
 	/* Set the output area */
 	SDL_SetRenderLogicalPresentation(renderer, width, height, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 	UpdateWindowSize(width, height);
+
+	/* Create the render target */
+	target = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_TARGET, width, height);
+	if (!target) {
+		SetError("Couldn't create target: %s", SDL_GetError());
+		return(-1);
+	}
+	//SDL_SetTextureScaleMode(target, SDL_SCALEMODE_PIXELART);
+
+	SDL_SetRenderTarget(renderer, target);
 
 	return(0);
 }
 
 FrameBuf::~FrameBuf()
 {
+	if (target) {
+		SDL_DestroyTexture(target);
+	}
 	if (renderer) {
 		SDL_DestroyRenderer(renderer);
 	}
@@ -186,7 +197,18 @@ FrameBuf::StretchBlit(const SDL_Rect *_dstrect, SDL_Texture *src, const SDL_Rect
 void
 FrameBuf::Update(void)
 {
+	/* Make sure resize events are seen before drawing to the screen */
+	SDL_PumpEvents();
+
+	SDL_SetRenderTarget(renderer, NULL);
+
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+	SDL_RenderClear(renderer);
+
+	SDL_RenderTexture(renderer, target, NULL, NULL);
 	SDL_RenderPresent(renderer);
+
+	SDL_SetRenderTarget(renderer, target);
 }
 
 void
@@ -196,24 +218,16 @@ FrameBuf::Fade(void)
 	return;
 #else
 	const int max = 32;
-	Uint16 ramp[256];   
+	Uint8 value;
 
-	for ( int j = 1; j <= max; j++ ) {
-		int v = faded ? j : max - j + 1;
-		for ( int i = 0; i < 256; i++ ) {
-			ramp[i] = (i * v / max) << 8;
-		}
-		// FIXME SDL_SetWindowGammaRamp(window, ramp, ramp, ramp);
+	for ( int i = 1; i <= max; ++i ) {
+		int v = faded ? i : max - i;
+		value = (Uint8)(255 * v / max);
+		SDL_SetTextureColorMod(target, value, value, value);
+		Update();
 		SDL_Delay(10);
 	}
 	faded = !faded;
-
-	if ( faded ) {
-		for ( int i = 0; i < 256; i++ ) {
-			ramp[i] = 0;
-		}
-		// FIXME SDL_SetWindowGammaRamp(window, ramp, ramp, ramp);
-	}
 #endif
 } 
 
@@ -318,32 +332,3 @@ FrameBuf::FreeImage(SDL_Texture *image)
 	SDL_DestroyTexture(image);
 }
 
-SDL_Texture *
-FrameBuf::CreateRenderTarget(int w, int h)
-{
-	SDL_Texture *texture;
-
-	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XRGB8888,
-				    SDL_TEXTUREACCESS_TARGET, w, h);
-	if (!texture) {
-		SetError("Couldn't create target texture: %s", SDL_GetError());
-		return NULL;
-	}
-	return texture;
-}
-
-int
-FrameBuf::SetRenderTarget(SDL_Texture *texture)
-{
-	if (!SDL_SetRenderTarget(renderer, texture)) {
-		SetError("Couldn't set render target: %s", SDL_GetError());
-		return(-1);
-	}
-	return 0;
-}
-
-void
-FrameBuf::FreeRenderTarget(SDL_Texture *texture)
-{
-	SDL_DestroyTexture(texture);
-}
