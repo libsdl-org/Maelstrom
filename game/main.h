@@ -41,14 +41,12 @@ public:
 protected:
 	void OnActionPlay();
 	void OnActionMultiplayer();
-	void OnActionMultiplayerActivated();
 	void OnActionQuitGame();
 	void OnActionVolumeDown();
 	void OnActionVolumeUp();
 	void OnActionSetVolume(int volume);
 	void OnActionToggleFullscreen();
 	void OnActionToggleKidMode(UIBaseElement *sender);
-	void OnActionKidModeActivated();
 	void OnActionScreenshot();
 	void OnActionCheat();
 	void OnActionRunLastReplay();

@@ -43,7 +43,6 @@
 #include "scores.h"
 #include "controls.h"
 #include "gameinfo.h"
-#include "store.h"
 
 // Preferences keys
 #define PREFERENCES_RESOLUTION "Resolution"
@@ -66,9 +65,6 @@ extern FrameBuf *screen;
 
 // The UI system
 extern UIManager *ui;
-
-// The Store
-extern StoreManager *store;
 
 /* Boolean type */
 typedef Uint8 Bool;

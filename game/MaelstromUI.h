@@ -21,6 +21,7 @@
 */
 
 #include "Maelstrom_Globals.h"
+#include "Localization.h"
 
 #include "../screenlib/UIManager.h"
 #include "../screenlib/UIDrawEngine.h"

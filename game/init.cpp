@@ -48,7 +48,6 @@ Sound    *sound = NULL;
 FontServ *fontserv = NULL;
 FrameBuf *screen = NULL;
 UIManager *ui = NULL;
-StoreManager *store = NULL;
 
 array<Resolution> gResolutions;
 int	gResolutionIndex;
@@ -720,10 +719,6 @@ void CleanUp(void)
 		SDL_free( gReplayFile );
 		gReplayFile = NULL;
 	}
-	if ( store ) {
-		delete store;
-		store = NULL;
-	}
 	if ( ui ) {
 		delete ui;
 		ui = NULL;
@@ -848,9 +843,6 @@ int DoInitializations(Uint32 window_flags)
 	}
 	ui->ShowPanel(PANEL_LOADING);
 	ui->Draw();
-
-	/* -- Create the store manager */
-	store = StoreManager::Create();
 
 	/* -- Load in the prize CICN's */
 	if ( LoadCICNS() < 0 )
