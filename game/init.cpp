@@ -839,9 +839,8 @@ int DoInitializations(Uint32 window_flags)
 	/* Create the UI manager */
 	ui = new MaelstromUI(screen, prefs);
 
-	if (window_flags & SDL_WINDOW_FULLSCREEN) {
-		ui->SetPanelTransition(PANEL_TRANSITION_FADE);
-	}
+	/* Fade transition between panels */
+	ui->SetPanelTransition(PANEL_TRANSITION_FADE);
 
 	/* -- Throw up our intro screen */
 	if (ui->GetPanelTransition() == PANEL_TRANSITION_FADE) {

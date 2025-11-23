@@ -181,12 +181,6 @@ public:
 	}
 	void FreeImage(SDL_Texture *image);
 
-	/* Create a render target */
-	SDL_Texture *CreateRenderTarget(int w, int h);
-	int SetRenderTarget(SDL_Texture *texture);
-	void FreeRenderTarget(SDL_Texture *texture);
-	
-
 	/* Screen dump routines */
 	int ScreenDump(const char *prefix, int x, int y, int w, int h);
 
@@ -204,9 +198,10 @@ public:
 
 private:
 	/* The current display */
-	SDL_Window *window;
-	SDL_Renderer *renderer;
-	int faded;
+	SDL_Window *window = nullptr;
+	SDL_Renderer *renderer = nullptr;
+	SDL_Texture *target = nullptr;
+	bool faded = false;
 	SDL_Rect rect;
 	SDL_FRect clip;
 	SDL_Rect output;
