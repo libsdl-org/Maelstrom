@@ -121,7 +121,7 @@ Prefs::Save()
 	while (hash_iter(m_values, (const void **)&key, (const void **)&value, &iter)) {
 		keys.add(key);
 	}
-	qsort(&keys[0], keys.length(), sizeof(key), sort_keys);
+	SDL_qsort(&keys[0], keys.length(), sizeof(key), sort_keys);
 	
 	for (unsigned int i = 0; i < keys.length(); ++i) {
 		hash_find(m_values, keys[i], (const void **)&value);

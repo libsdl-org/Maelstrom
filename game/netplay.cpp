@@ -22,8 +22,6 @@
 
 /* This contains the network play functions and data */
 
-#include <stdlib.h>
-
 #include "Maelstrom_Globals.h"
 #include "netplay.h"
 #include "protocol.h"

@@ -23,9 +23,6 @@
 /* This file handles the controls configuration and updating the keystrokes 
 */
 
-#include <string.h>
-#include <ctype.h>
-
 #include "Maelstrom_Globals.h"
 #include "player.h"
 #include "../screenlib/UIDialog.h"

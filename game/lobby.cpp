@@ -20,9 +20,6 @@
     slouken@libsdl.org
 */
 
-#include <stdlib.h>
-#include <time.h>
-
 #include "SDL_net.h"
 #include "Maelstrom_Globals.h"
 #include "../screenlib/UIElement.h"
@@ -245,9 +242,6 @@ LobbyDialogDelegate::GetElement(const char *name, UIElement *&element)
 void
 LobbyDialogDelegate::OnShow()
 {
-	// Seed the random number generator for our unique ID
-	srand(time(NULL)+SDL_GetTicks());
-
 	// Start up networking
 	SetHostOrJoin(0, m_hostOrJoin->GetValue());
 }
@@ -321,9 +315,9 @@ LobbyDialogDelegate::SetHostOrJoin(void*, int value)
 			return;
 		}
 
-		Uint32 localID = rand();
+		Uint32 localID = SDL_rand_bits();
 		while (localID <= 1) {
-			localID = rand();
+			localID = SDL_rand_bits();
 		}
 		m_game.SetLocalID(localID);
 
