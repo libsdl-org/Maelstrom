@@ -416,21 +416,6 @@ UIManager::HandleEvent(const SDL_Event &event)
 {
 	unsigned int i;
 
-	if (event.type == SDL_EVENT_WINDOW_RESIZED &&
-	    m_screen->Resizable()) {
-		SDL_Rect clip;
-
-		// Reset the clip rectangle
-		clip.x = 0;
-		clip.y = 0;
-		clip.w = m_screen->Width();
-		clip.h = m_screen->Height();
-		m_screen->ClipBlit(&clip);
-
-		// Resize to match window size
-		SetSize(m_screen->Width(), m_screen->Height());
-	}
-
 	// In case it's not called any other time...
 	Poll();
 
