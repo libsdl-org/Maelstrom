@@ -197,18 +197,22 @@ FrameBuf::StretchBlit(const SDL_Rect *_dstrect, SDL_Texture *src, const SDL_Rect
 void
 FrameBuf::Update(void)
 {
-	/* Make sure resize events are seen before drawing to the screen */
-	SDL_PumpEvents();
+	if (target) {
+		/* Make sure resize events are seen before drawing to the screen */
+		SDL_PumpEvents();
 
-	SDL_SetRenderTarget(renderer, NULL);
+		SDL_SetRenderTarget(renderer, NULL);
 
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-	SDL_RenderClear(renderer);
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+		SDL_RenderClear(renderer);
 
-	SDL_RenderTexture(renderer, target, NULL, NULL);
-	SDL_RenderPresent(renderer);
+		SDL_RenderTexture(renderer, target, NULL, NULL);
+		SDL_RenderPresent(renderer);
 
-	SDL_SetRenderTarget(renderer, target);
+		SDL_SetRenderTarget(renderer, target);
+	} else {
+		SDL_RenderPresent(renderer);
+	}
 }
 
 void
