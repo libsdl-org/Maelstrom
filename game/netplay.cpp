@@ -237,7 +237,7 @@ static SYNC_RESULT AwaitSync()
 	Uint32 frame;
 
 	// Send the packet to anyone waiting
-	Uint32 now = SDL_GetTicks();
+	Uint32 now = (Uint32)SDL_GetTicks();
 	for (i = 0; i < gGameInfo.GetNumNodes(); ++i) {
 		if (WaitingAcks[i]) {
 #if DEBUG_NETWORK >= 2
@@ -262,7 +262,7 @@ error("Sending packet for current frame (%ld)\r\n", NextFrame);
 
 	/* Wait for Ack's */
 	while (WaitingForAck()) {
-		now = SDL_GetTicks();
+		now = (Uint32)SDL_GetTicks();
 		for (i = 0; i < gGameInfo.GetNumNodes(); ++i) {
 			if (HasTimedOut(i, now)) {
 #if DEBUG_NETWORK >= 1
@@ -426,7 +426,7 @@ SYNC_RESULT SyncNetwork(void)
 	FrameInput.Write(QueuedInput);
 
 	// See if we need to do network synchronization
-	Uint32 now = SDL_GetTicks();
+	Uint32 now = (Uint32)SDL_GetTicks();
 	for (i = 0; i < gGameInfo.GetNumNodes(); ++i) {
 		if (gGameInfo.IsNetworkNode(i)) {
 			WaitingAcks[i] = NodeTimeout(now);
@@ -481,7 +481,7 @@ int Send_NewGame()
 	SDLNet_UDP_Send(gNetFD, 0, &newgame);
 
 	/* Get ready for responses */
-	Uint32 now = SDL_GetTicks();
+	Uint32 now = (Uint32)SDL_GetTicks();
 	for (i = 0; i < gGameInfo.GetNumNodes(); ++i) {
 		if (gGameInfo.IsNetworkNode(i)) {
 			WaitingAcks[i] = NodeTimeout(now);
@@ -505,7 +505,7 @@ int Send_NewGame()
 		}
 		//Message(message);
 
-		now = SDL_GetTicks();
+		now = (Uint32)SDL_GetTicks();
 		for (i = 0; i < gGameInfo.GetNumNodes(); ++i) {
 			if (HasTimedOut(i, now)) {
 				SDLNet_UDP_Send(gNetFD, i+1, &newgame);

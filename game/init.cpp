@@ -51,7 +51,7 @@ array<Resolution> gResolutions;
 int	gResolutionIndex;
 char   *gReplayFile;
 Sint32	gLastHigh;
-Uint32	gLastDrawn;
+Uint64	gLastDrawn;
 int     gNumSprites;
 SDL_Rect gScrnRect;
 int	gStatusLine;

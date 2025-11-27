@@ -37,7 +37,7 @@ public:
 
 protected:
 	UIElement *m_timeoutLabel;
-	Uint32 m_showTime;
+	Uint64 m_showTime;
 };
 
 #endif // _continue_h

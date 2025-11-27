@@ -59,11 +59,11 @@ public:
 		*B = (Uint8)((color >>  0) & 0xFF);
 	}
 	/* Set the blit clipping rectangle */
-	void   ClipBlit(SDL_Rect *cliprect) {
-		clip.x = cliprect->x;
-		clip.y = cliprect->y;
-		clip.w = cliprect->w;
-		clip.h = cliprect->h;
+	void ClipBlit(SDL_Rect *cliprect) {
+		m_clip.x = (float)cliprect->x;
+		m_clip.y = (float)cliprect->y;
+		m_clip.w = (float)cliprect->w;
+		m_clip.h = (float)cliprect->h;
 	}
 
 	/* Event Routines */
@@ -89,22 +89,22 @@ public:
 	void DisableTextInput();
 
 	void ToggleFullScreen(void) {
-		if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN) {
-			SDL_SetWindowFullscreen(window, false);
+		if (SDL_GetWindowFlags(m_window) & SDL_WINDOW_FULLSCREEN) {
+			SDL_SetWindowFullscreen(m_window, false);
 		} else {
-			SDL_SetWindowFullscreen(window, true);
+			SDL_SetWindowFullscreen(m_window, true);
 		}
 	}
 
 	/* Information routines */
 	SDL_Window *GetWindow() const {
-		return window;
+		return m_window;
 	}
 	int Width() const {
-		return rect.w;
+		return m_width;
 	}
 	int Height() const {
-		return rect.h;
+		return m_height;
 	}
 
 	/* Blit and update routines */
@@ -121,12 +121,12 @@ public:
 
 	void Update(void);
 	void FadeOut(void) {
-		if (!faded) {
+		if (!m_faded) {
 			Fade();
 		}
 	}
 	void FadeIn(void) {
-		if (faded) {
+		if (m_faded) {
 			Fade();
 		}
 	}
@@ -138,35 +138,35 @@ public:
 	}
 	void Clear(Uint32 color = 0) {
 		UpdateDrawColor(color);
-		SDL_RenderClear(renderer);
+		SDL_RenderClear(m_renderer);
 	}
 	void DrawPoint(int x, int y, Uint32 color) {
 		UpdateDrawColor(color);
-		SDL_RenderPoint(renderer, x, y);
+		SDL_RenderPoint(m_renderer, (float)x, (float)y);
 	}
 	void DrawLine(int x1, int y1, int x2, int y2, Uint32 color) {
 		UpdateDrawColor(color);
-		SDL_RenderLine(renderer, x1, y1, x2, y2);
+		SDL_RenderLine(m_renderer, (float)x1, (float)y1, (float)x2, (float)y2);
 	}
 	void DrawRect(int x1, int y1, int w, int h, Uint32 color) {
 		UpdateDrawColor(color);
 
 		SDL_FRect rect;
-		rect.x = x1;
-		rect.y = y1;
-		rect.w = w;
-		rect.h = h;
-		SDL_RenderRect(renderer, &rect);
+		rect.x = (float)x1;
+		rect.y = (float)y1;
+		rect.w = (float)w;
+		rect.h = (float)h;
+		SDL_RenderRect(m_renderer, &rect);
 	}
 	void FillRect(int x1, int y1, int w, int h, Uint32 color) {
 		UpdateDrawColor(color);
 
 		SDL_FRect rect;
-		rect.x = x1;
-		rect.y = y1;
-		rect.w = w;
-		rect.h = h;
-		SDL_RenderFillRect(renderer, &rect);
+		rect.x = (float)x1;
+		rect.y = (float)y1;
+		rect.w = (float)w;
+		rect.h = (float)h;
+		SDL_RenderFillRect(m_renderer, &rect);
 	}
 
 	/* Load a texture image */
@@ -193,33 +193,25 @@ public:
 	}
 	void GetCursorPosition(int *x, int *y);
 	void SetCaption(const char *caption, const char *icon = NULL) {
-		SDL_SetWindowTitle(window, caption);
+		SDL_SetWindowTitle(m_window, caption);
 	}
 
 private:
 	/* The current display */
-	SDL_Window *window = nullptr;
-	SDL_Renderer *renderer = nullptr;
-	SDL_Texture *target = nullptr;
-	bool faded = false;
-	SDL_Rect rect;
-	SDL_FRect clip;
-	SDL_Rect output;
+	SDL_Window *m_window = nullptr;
+	SDL_Renderer *m_renderer = nullptr;
+	SDL_Texture *m_target = nullptr;
+	bool m_faded = false;
+	SDL_FRect m_clip;
+	int m_width;
+	int m_height;
 
-	void UpdateWindowSize(int width, int height) {
-		clip.x = rect.x = 0;
-		clip.y = rect.y = 0;
-		clip.w = rect.w = width;
-		clip.h = rect.h = height;
-
-		SDL_GetRenderViewport(renderer, &output);
-	}
 	void UpdateDrawColor(Uint32 color) {
 		Uint8 r, g, b;
 		r = (color >> 16) & 0xFF;
 		g = (color >>  8) & 0xFF;
 		b = (color >>  0) & 0xFF;
-		SDL_SetRenderDrawColor(renderer, r, g, b, 0xFF);
+		SDL_SetRenderDrawColor(m_renderer, r, g, b, 0xFF);
 	}
 };
 

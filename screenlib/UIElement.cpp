@@ -563,14 +563,14 @@ UIElement::HandleEvent(const SDL_Event &event)
 		int x, y;
 
 		if (event.type == SDL_EVENT_MOUSE_MOTION) {
-			x = event.motion.x;
-			y = event.motion.y;
+			x = (int)event.motion.x;
+			y = (int)event.motion.y;
 			checkMouseLocation = true;
 		}
 		if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN ||
 		    event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
-			x = event.button.x;
-			y = event.button.y;
+			x = (int)event.button.x;
+			y = (int)event.button.y;
 			checkMouseLocation = true;
 		}
 

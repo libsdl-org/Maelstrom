@@ -141,7 +141,7 @@ extern Scores	hScores[NUM_SCORES];
 // in game.cpp : 
 extern GameInfo gGameInfo;
 // in init.cpp : 
-extern Uint32	gLastDrawn;
+extern Uint64	gLastDrawn;
 extern int	gNumSprites;
 
 // UI panel definitions...

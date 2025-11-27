@@ -526,7 +526,7 @@ MainPanelDelegate::OnActionRunReplay(int index)
 
 void DelayFrame(void)
 {
-	Uint32 ticks;
+	Uint64 ticks;
 
 	while ( ((ticks=SDL_GetTicks())-gLastDrawn) < FRAME_DELAY_MS ) {
 		ui->Poll();

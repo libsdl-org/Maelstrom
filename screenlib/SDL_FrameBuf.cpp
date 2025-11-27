@@ -54,8 +54,8 @@ FrameBuf::Init(int width, int height, Uint32 window_flags, SDL_Surface *icon)
 	}
 
 	/* Create the window */
-	window = SDL_CreateWindow(NULL, window_width, window_height, window_flags);
-	if (!window) {
+	m_window = SDL_CreateWindow(NULL, window_width, window_height, window_flags);
+	if (!m_window) {
 		SetError("Couldn't create %dx%d window: %s", 
 					width, height, SDL_GetError());
 		return(-1);
@@ -63,50 +63,56 @@ FrameBuf::Init(int width, int height, Uint32 window_flags, SDL_Surface *icon)
 
 	/* Set the icon, if any */
 	if ( icon ) {
-		SDL_SetWindowIcon(window, icon);
+		SDL_SetWindowIcon(m_window, icon);
 	}
 
 	/* Create the renderer */
-	renderer = SDL_CreateRenderer(window, NULL);
-	if (!renderer) {
+	m_renderer = SDL_CreateRenderer(m_window, NULL);
+	if (!m_renderer) {
 		SetError("Couldn't create renderer: %s", SDL_GetError());
 		return(-1);
 	}
 
 	/* Set the output area */
-	SDL_SetRenderLogicalPresentation(renderer, width, height, SDL_LOGICAL_PRESENTATION_LETTERBOX);
-	UpdateWindowSize(width, height);
+	SDL_SetRenderLogicalPresentation(m_renderer, width, height, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+
+	m_width = width;
+	m_height = height;
+	m_clip.x = 0.0f;
+	m_clip.y = 0.0f;
+	m_clip.w = (float)width;
+	m_clip.h = (float)height;
 
 	/* Create the render target */
-	target = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_TARGET, width, height);
-	if (!target) {
+	m_target = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_TARGET, width, height);
+	if (!m_target) {
 		SetError("Couldn't create target: %s", SDL_GetError());
 		return(-1);
 	}
-	//SDL_SetTextureScaleMode(target, SDL_SCALEMODE_PIXELART);
+	//SDL_SetTextureScaleMode(m_target, SDL_SCALEMODE_PIXELART);
 
-	SDL_SetRenderTarget(renderer, target);
+	SDL_SetRenderTarget(m_renderer, m_target);
 
 	return(0);
 }
 
 FrameBuf::~FrameBuf()
 {
-	if (target) {
-		SDL_DestroyTexture(target);
+	if (m_target) {
+		SDL_DestroyTexture(m_target);
 	}
-	if (renderer) {
-		SDL_DestroyRenderer(renderer);
+	if (m_renderer) {
+		SDL_DestroyRenderer(m_renderer);
 	}
-	if (window) {
-		SDL_DestroyWindow(window);
+	if (m_window) {
+		SDL_DestroyWindow(m_window);
 	}
 }
 
 void
 FrameBuf::ProcessEvent(SDL_Event *event)
 {
-	SDL_ConvertEventToRenderCoordinates(renderer, event);
+	SDL_ConvertEventToRenderCoordinates(m_renderer, event);
 }
 
 bool
@@ -114,7 +120,7 @@ FrameBuf::ConvertTouchCoordinates(const SDL_TouchFingerEvent &finger, int *x, in
 {
 	int w, h;
 
-	SDL_GetRenderOutputSize(renderer, &w, &h);
+	SDL_GetRenderOutputSize(m_renderer, &w, &h);
 	*x = (int)(finger.x * w);
 	*y = (int)(finger.y * h);
 	return true;
@@ -133,7 +139,7 @@ FrameBuf::GetCursorPosition(int *x, int *y)
 	float mouse_x, mouse_y;
 
 	SDL_GetMouseState(&mouse_x, &mouse_y);
-	SDL_RenderCoordinatesFromWindow(renderer, mouse_x, mouse_y, &mouse_x, &mouse_y);
+	SDL_RenderCoordinatesFromWindow(m_renderer, mouse_x, mouse_y, &mouse_x, &mouse_y);
 
 	*x = (int)mouse_x;
 	*y = (int)mouse_y;
@@ -142,13 +148,13 @@ FrameBuf::GetCursorPosition(int *x, int *y)
 void
 FrameBuf::EnableTextInput()
 {
-	SDL_StartTextInput(window);
+	SDL_StartTextInput(m_window);
 }
 
 void
 FrameBuf::DisableTextInput()
 {
-	SDL_StopTextInput(window);
+	SDL_StopTextInput(m_window);
 }
 
 void
@@ -160,32 +166,32 @@ FrameBuf::QueueBlit(SDL_Texture *src,
 	SDL_FRect srcrect;
 	SDL_FRect dstrect;
 
-	srcrect.x = srcx;
-	srcrect.y = srcy;
-	srcrect.w = srcw;
-	srcrect.h = srch;
-	dstrect.x = dstx;
-	dstrect.y = dsty;
-	dstrect.w = dstw;
-	dstrect.h = dsth;
+	srcrect.x = (float)srcx;
+	srcrect.y = (float)srcy;
+	srcrect.w = (float)srcw;
+	srcrect.h = (float)srch;
+	dstrect.x = (float)dstx;
+	dstrect.y = (float)dsty;
+	dstrect.w = (float)dstw;
+	dstrect.h = (float)dsth;
 	if (do_clip == DOCLIP) {
-		float scaleX = (float)srcrect.w / dstrect.w;
-		float scaleY = (float)srcrect.h / dstrect.h;
+		float scaleX = srcrect.w / dstrect.w;
+		float scaleY = srcrect.h / dstrect.h;
 
-		if (!SDL_GetRectIntersectionFloat(&clip, &dstrect, &dstrect)) {
+		if (!SDL_GetRectIntersectionFloat(&m_clip, &dstrect, &dstrect)) {
 			return;
 		}
 
 		/* Adjust the source rectangle to match */
-		srcrect.x += (int)((dstrect.x - dstx) * scaleX);
-		srcrect.y += (int)((dstrect.y - dsty) * scaleY);
-		srcrect.w = (int)(dstrect.w * scaleX);
-		srcrect.h = (int)(dstrect.h * scaleY);
+		srcrect.x += ((dstrect.x - dstx) * scaleX);
+		srcrect.y += ((dstrect.y - dsty) * scaleY);
+		srcrect.w = (dstrect.w * scaleX);
+		srcrect.h = (dstrect.h * scaleY);
 	}
 	if (angle) {
-		SDL_RenderTextureRotated(renderer, src, &srcrect, &dstrect, angle, NULL, SDL_FLIP_NONE);
+		SDL_RenderTextureRotated(m_renderer, src, &srcrect, &dstrect, angle, NULL, SDL_FLIP_NONE);
 	} else {
-		SDL_RenderTexture(renderer, src, &srcrect, &dstrect);
+		SDL_RenderTexture(m_renderer, src, &srcrect, &dstrect);
 	}
 }
 
@@ -205,27 +211,27 @@ FrameBuf::StretchBlit(const SDL_Rect *_dstrect, SDL_Texture *src, const SDL_Rect
 		dstrect = &cvtdstrect;
 	}
 
-	SDL_RenderTexture(renderer, src, srcrect, dstrect);
+	SDL_RenderTexture(m_renderer, src, srcrect, dstrect);
 }
 
 void
 FrameBuf::Update(void)
 {
-	if (target) {
+	if (m_target) {
 		/* Make sure resize events are seen before drawing to the screen */
 		SDL_PumpEvents();
 
-		SDL_SetRenderTarget(renderer, NULL);
+		SDL_SetRenderTarget(m_renderer, NULL);
 
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-		SDL_RenderClear(renderer);
+		SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+		SDL_RenderClear(m_renderer);
 
-		SDL_RenderTexture(renderer, target, NULL, NULL);
-		SDL_RenderPresent(renderer);
+		SDL_RenderTexture(m_renderer, m_target, NULL, NULL);
+		SDL_RenderPresent(m_renderer);
 
-		SDL_SetRenderTarget(renderer, target);
+		SDL_SetRenderTarget(m_renderer, m_target);
 	} else {
-		SDL_RenderPresent(renderer);
+		SDL_RenderPresent(m_renderer);
 	}
 }
 
@@ -236,13 +242,13 @@ FrameBuf::Fade(void)
 	Uint8 value;
 
 	for ( int i = 1; i <= max; ++i ) {
-		int v = faded ? i : max - i;
+		int v = m_faded ? i : max - i;
 		value = (Uint8)(255 * v / max);
-		SDL_SetTextureColorMod(target, value, value, value);
+		SDL_SetTextureColorMod(m_target, value, value, value);
 		Update();
 		SDL_Delay(10);
 	}
-	faded = !faded;
+	m_faded = !m_faded;
 } 
 
 int
@@ -264,7 +270,7 @@ FrameBuf::ScreenDump(const char *prefix, int x, int y, int w, int h)
 	rect.y = y;
 	rect.w = w;
 	rect.h = h;
-	dump = SDL_RenderReadPixels(renderer, &rect);
+	dump = SDL_RenderReadPixels(m_renderer, &rect);
 	if (!dump) {
 		SetError("%s", SDL_GetError());
 		return -1;
@@ -318,7 +324,7 @@ FrameBuf::LoadImage(const char *file)
 SDL_Texture *
 FrameBuf::LoadImage(SDL_Surface *surface)
 {
-	return SDL_CreateTextureFromSurface(renderer, surface);
+	return SDL_CreateTextureFromSurface(m_renderer, surface);
 }
 
 SDL_Texture *
@@ -326,7 +332,7 @@ FrameBuf::LoadImage(int w, int h, Uint32 *pixels)
 {
 	SDL_Texture *texture;
 
-	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, w, h);
+	texture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, w, h);
 	if (!texture) {
 		SetError("%s", SDL_GetError());
 		return NULL;
