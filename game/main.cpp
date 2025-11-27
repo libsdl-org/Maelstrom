@@ -137,15 +137,13 @@ static void CheatDialogDone(void*, UIDialog *dialog, int status)
 /* -- Print a Usage message and quit.
       In several places we depend on this function exiting.
  */
-static char *progname;
-void PrintUsage(void)
+void PrintUsage(const char *progname)
 {
 	SDL_Log("Usage: %s <options>", progname);
 	SDL_Log("Where <options> can be any of:\n"
-"	--fullscreen		# Run Maelstrom in full-screen mode\n"
-"	--windowed		# Run Maelstrom in windowed mode\n"
+"    --fullscreen      # Run Maelstrom in full-screen mode\n"
+"    --windowed        # Run Maelstrom in windowed mode\n"
 	);
-	exit(1);
 }
 
 /* ----------------------------------------------------------------- */
@@ -190,16 +188,17 @@ int main(int argc, char *argv[])
 #if /*!defined(FAST_ITERATION) ||*/ defined(__IPHONEOS__)
 	window_flags |= SDL_WINDOW_FULLSCREEN;
 #endif
-	for ( progname=argv[0]; --argc; ++argv ) {
-		if ( strcmp(argv[1], "--fullscreen") == 0 ) {
+	for ( int i = 1; i < argc; ++i ) {
+		if ( strcmp(argv[i], "--fullscreen") == 0 ) {
 			window_flags |= SDL_WINDOW_FULLSCREEN;
-		} else if ( strcmp(argv[1], "--windowed") == 0 ) {
+		} else if ( strcmp(argv[i], "--windowed") == 0 ) {
 			window_flags &= ~SDL_WINDOW_FULLSCREEN;
-		} else if ( strcmp(argv[1], "--version") == 0 ) {
+		} else if ( strcmp(argv[i], "--version") == 0 ) {
 			error("%s", Version);
 			exit(0);
 		} else {
-			PrintUsage();
+			PrintUsage(argv[0]);
+			exit(1);
 		}
 	}
 
