@@ -233,9 +233,7 @@ int main(int argc, char *argv[])
 	while ( gRunning ) {
 		ShowFrame(0);
 
-		if (!gGameOn || !gGameInfo.turbo) {
-			DelayFrame();
-		}
+		DelayFrame();
 	}
 	CleanUp();
 #endif
@@ -525,9 +523,14 @@ MainPanelDelegate::OnActionRunReplay(int index)
 
 void DelayFrame(void)
 {
-	Uint64 ticks;
+	Uint64 ticks, delay = FRAME_DELAY_MS;
 
-	while ( ((ticks=SDL_GetTicks())-gLastDrawn) < FRAME_DELAY_MS ) {
+	if (gGameInfo.turbo) {
+		// Turbo is 2x as fast
+		delay /= 2;
+	}
+
+	while ( ((ticks=SDL_GetTicks())-gLastDrawn) < delay ) {
 		ui->Poll();
 		SDL_Delay(1);
 	}
