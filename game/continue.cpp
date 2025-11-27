@@ -69,5 +69,8 @@ void ContinuePanelDelegate::OnTick()
 
 bool ContinuePanelDelegate::HandleEvent(const SDL_Event &event)
 {
-    return false;
+	if (event.type == SDL_EVENT_QUIT) {
+		ui->HidePanel(m_panel);
+	}
+	return false;
 }
