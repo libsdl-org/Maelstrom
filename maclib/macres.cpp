@@ -26,6 +26,10 @@
 #include "Mac_Resource.h"
 #include "Mac_Wave.h"
 
+#ifndef PATH_MAX
+#define PATH_MAX    256
+#endif
+
 static SDL_Color colors[256] = {
 	/* Gamma level 3 */
 	{ 0xff, 0xff, 0xff, 0xFF },  /* Pixel 0 */

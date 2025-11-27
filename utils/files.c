@@ -20,6 +20,10 @@
 
 #include "files.h"
 
+#ifndef PATH_MAX
+#define PATH_MAX    256
+#endif
+
 static const char *storage_org;
 static const char *storage_app;
 static char datapath[PATH_MAX];
