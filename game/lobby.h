@@ -98,8 +98,8 @@ protected:
 		STATE_PLAYING
 	} m_state;
 
-	Uint32 m_lastPing;
-	Uint32 m_lastRefresh;
+	Uint64 m_lastPing;
+	Uint64 m_lastRefresh;
 	Uint32 m_requestSequence;
 
 	GameInfo &m_game;

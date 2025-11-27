@@ -329,7 +329,7 @@ Player::Explode(void)
 		yVel += SCALE_FACTOR;
 	else
 		yVel -= SCALE_FACTOR;
-	
+
 	newsprite = gNumSprites;
 	gSprites[newsprite]=new Shrapnel(x, y, xVel, yVel, gShrapnel2[Index]);
 

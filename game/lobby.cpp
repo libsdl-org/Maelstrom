@@ -269,7 +269,7 @@ LobbyDialogDelegate::OnPoll()
 		return;
 	}
 
-	Uint32 now = SDL_GetTicks();
+	Uint64 now = SDL_GetTicks();
 	if (!m_lastRefresh ||
 	    (now - m_lastRefresh) > PING_INTERVAL) {
 		if (m_state == STATE_HOSTING) {

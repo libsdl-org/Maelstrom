@@ -33,9 +33,6 @@ void ContinuePanelDelegate::OnShow()
 {
 	m_timeoutLabel = m_panel->GetElement<UIElement>("timeout");
 	m_showTime = SDL_GetTicks();
-	if (!m_showTime) {
-		m_showTime = 1;
-	}
 	screen->ShowCursor();
 	gGameInfo.SetLocalState(STATE_DIALOG, true);
 }
@@ -57,7 +54,7 @@ void ContinuePanelDelegate::OnTick()
 		return;
 	}
 
-	int remaining = CONTINUE_TIME - (SDL_GetTicks() - m_showTime) / 1000;
+	int remaining = CONTINUE_TIME - (int)((SDL_GetTicks() - m_showTime) / 1000);
 	if (remaining <= 0) {
 		ui->HidePanel(m_panel);
 		return;

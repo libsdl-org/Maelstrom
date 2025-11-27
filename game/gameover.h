@@ -43,7 +43,7 @@ protected:
 	UIElement *m_handleLabel;
 	int m_handleSize;
 	char m_handle[MAX_NAMELEN+1];
-	Uint32 m_showTime;
+	Uint64 m_showTime;
 };
 
 #endif // _gameover_h

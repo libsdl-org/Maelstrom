@@ -200,7 +200,7 @@ void
 UIElementEditbox::SetText(const char *text)
 {
 	SDL_strlcpy(m_text, text, m_textMax+1);
-	m_textLen = SDL_strlen(m_text);
+	m_textLen = (int)SDL_strlen(m_text);
 	OnTextChanged();
 }
 

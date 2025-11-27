@@ -108,7 +108,7 @@ protected:
 	Controls m_controls;
 	UIElement *m_controlKeys[NUM_CTLS];
 	UIElementRadioGroup *m_radioGroup;
-	Uint32 m_keyinuseTimers[NUM_CTLS];
+	Uint64 m_keyinuseTimers[NUM_CTLS];
 };
 
 #endif /* _controls_h */

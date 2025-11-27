@@ -248,7 +248,7 @@ void GameOverPanelDelegate::BeginEnterName()
 	} else {
 		*m_handle = '\0';
 	}
-	m_handleSize = SDL_strlen(m_handle);
+	m_handleSize = (int)SDL_strlen(m_handle);
 
 	// Flush events before enabling text input
 	HandleEvents(0);

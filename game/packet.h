@@ -105,12 +105,12 @@ public:
 	void Write(DynamicPacket &packet) {
 		size_t amount = packet.len - packet.pos;
 		Write(&packet.data[packet.pos], amount);
-		packet.pos += amount;
+		packet.pos += (int)amount;
 	}
 	void Write(const void *value, size_t size) {
 		Grow(size);
 		SDL_memcpy(&data[pos], value, size);
-		pos += size;
+		pos += (int)size;
 	}
 
 	bool Read(Uint8 &value) {
@@ -157,7 +157,7 @@ public:
 			}
 			data = (Uint8*)SDL_realloc(data, maxlen);
 		}
-		len += additionalSize;
+		len += (int)additionalSize;
 	}
 
 protected:

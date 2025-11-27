@@ -558,7 +558,7 @@ GameInfo::InitializePing(int index)
 	GameInfoNode *node = &nodes[index];
 
 	if (node->nodeID != localID) {
-		node->ping.lastPing = SDL_GetTicks();
+		node->ping.lastPing = (Uint32)SDL_GetTicks();
 		node->ping.roundTripTime = 0;
 		node->ping.status = PING_GOOD;
 	}
@@ -571,7 +571,7 @@ GameInfo::UpdatePingTime(int index, Uint32 timestamp)
 	Uint32 elapsed;
 	GameInfoNode *node;
 
-	now = SDL_GetTicks();
+	now = (Uint32)SDL_GetTicks();
 	elapsed = (now - timestamp);
 
 	node = &nodes[index];
