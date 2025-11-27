@@ -39,8 +39,22 @@ FrameBuf::FrameBuf() : ErrorBase()
 int
 FrameBuf::Init(int width, int height, Uint32 window_flags, SDL_Surface *icon)
 {
+	int window_width = width;
+	int window_height = height;
+
+	// Enlarge the window so it's easy to see
+	if (!(window_flags & SDL_WINDOW_FULLSCREEN)) {
+		const SDL_DisplayMode *mode = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
+		if (mode) {
+			while ((window_width * 3) < mode->w && (window_height * 3) < mode->h) {
+				window_width *= 2;
+				window_height *= 2;
+			}
+		}
+	}
+
 	/* Create the window */
-	window = SDL_CreateWindow(NULL, width, height, window_flags);
+	window = SDL_CreateWindow(NULL, window_width, window_height, window_flags);
 	if (!window) {
 		SetError("Couldn't create %dx%d window: %s", 
 					width, height, SDL_GetError());
