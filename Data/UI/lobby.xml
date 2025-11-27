@@ -19,10 +19,6 @@
 			</Elements>
 		</DialogRadioGroup>
 
-		<DialogCheckbox name="globalGame" bindValue="Network.GlobalGame" text="Global">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="290" y="39"/>
-		</DialogCheckbox>
-
 		<Area name="gamelist">
 			<Elements>
 				<DialogLabel name="ping_label">

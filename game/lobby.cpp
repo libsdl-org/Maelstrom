@@ -30,13 +30,6 @@
 #include "netplay.h"
 #include "game.h"
 
-// Update the game list every 3 seconds
-#define GLOBAL_SERVER_HOST	"obelix.dreamhost.com"
-//#define GLOBAL_SERVER_HOST	"localhost"
-
-// Define this if you want local broadcast in addition to the global server
-#define LOBBY_BROADCAST
-
 
 class SelectControlCallback : public UIClickCallback
 {
@@ -151,11 +144,6 @@ LobbyDialogDelegate::OnLoad()
 	IPaddress addresses[32];
 	char name[32];
 
-	// Get the address of the global server
-	if (SDLNet_ResolveHost(&m_globalServer, GLOBAL_SERVER_HOST, LOBBY_PORT) < 0) {
-		fprintf(stderr, "Warning: Couldn't resolve global server host %s\n", GLOBAL_SERVER_HOST);
-	}
-
 	// Get the addresses for this machine
 	count = SDLNet_GetLocalAddresses(addresses, SDL_arraysize(addresses));
 	m_addresses.clear();
@@ -169,17 +157,6 @@ LobbyDialogDelegate::OnLoad()
 		return false;
 	}
 	m_hostOrJoin->SetValueCallback(this, &LobbyDialogDelegate::SetHostOrJoin);
-
-	m_globalGame = m_dialog->GetElement<UIElementCheckbox>("globalGame");
-	if (!m_globalGame) {
-		fprintf(stderr, "Warning: Couldn't find checkbox 'globalGame'\n");
-		return false;
-	}
-	if (m_globalServer.host == INADDR_NONE) {
-		m_globalGame->SetChecked(false);
-		m_globalGame->SetDisabled(true);
-	}
-	m_globalGame->SetClickCallback(this, &LobbyDialogDelegate::GlobalGameChanged);
 
 	m_deathmatch = m_dialog->GetElement<UIElementRadioGroup>("deathmatch");
 	if (!m_deathmatch) {
@@ -273,7 +250,7 @@ LobbyDialogDelegate::OnPoll()
 	if (!m_lastRefresh ||
 	    (now - m_lastRefresh) > PING_INTERVAL) {
 		if (m_state == STATE_HOSTING) {
-			AdvertiseGame();
+			// Nothing to do
 		} else if (m_state == STATE_LISTING) {
 			GetGameList();
 		} else if (m_state == STATE_JOINING) {
@@ -302,7 +279,7 @@ void
 LobbyDialogDelegate::SetHostOrJoin(void*, int value)
 {
 	// Remove the game before shutting down the network
-	if (m_state == STATE_HOSTING && m_globalGame->IsChecked()) {
+	if (m_state == STATE_HOSTING) {
 		RemoveGame();
 	}
 
@@ -328,20 +305,6 @@ LobbyDialogDelegate::SetHostOrJoin(void*, int value)
 		}
 	} else {
 		SetState(STATE_NONE);
-	}
-}
-
-void
-LobbyDialogDelegate::GlobalGameChanged(void*)
-{
-	m_lastRefresh = 0;
-
-	if (!m_globalGame->IsChecked()) {
-		if (m_state == STATE_HOSTING) {
-			RemoveGame();
-		} else {
-			ClearGameList();
-		}
 	}
 }
 
@@ -408,7 +371,7 @@ LobbyDialogDelegate::SetState(LOBBY_STATE state)
 	int i;
 
 	// Handle any state transitions here
-	if (m_state == STATE_HOSTING && m_globalGame->IsChecked()) {
+	if (m_state == STATE_HOSTING) {
 		RemoveGame();
 	}
 	if (m_state == STATE_HOSTING) {
@@ -533,46 +496,19 @@ LobbyDialogDelegate::CheckPings()
 }
 
 void
-LobbyDialogDelegate::AdvertiseGame()
-{
-	if (m_globalGame->IsChecked()) {
-		m_packet.StartLobbyMessage(LOBBY_ANNOUNCE_GAME);
-		PackAddresses(m_packet);
-		m_packet.address = m_globalServer;
-
-		SDLNet_UDP_Send(gNetFD, -1, &m_packet);
-	}
-}
-
-void
 LobbyDialogDelegate::RemoveGame()
 {
-	m_packet.StartLobbyMessage(LOBBY_REMOVE_GAME);
-	PackAddresses(m_packet);
-	m_packet.address = m_globalServer;
-
-	SDLNet_UDP_Send(gNetFD, -1, &m_packet);
 }
 
 void
 LobbyDialogDelegate::GetGameList()
 {
-	if (m_globalGame->IsChecked()) {
-		m_packet.StartLobbyMessage(LOBBY_REQUEST_GAME_SERVERS);
-		PackAddresses(m_packet);
-		m_packet.address = m_globalServer;
-
-		SDLNet_UDP_Send(gNetFD, -1, &m_packet);
-	}
-
-#ifdef LOBBY_BROADCAST
 	// Get game info for local games
 	m_packet.StartLobbyMessage(LOBBY_REQUEST_GAME_INFO);
 	m_packet.Write((Uint32)SDL_GetTicks());
 	m_packet.address.host = INADDR_BROADCAST;
 	m_packet.address.port = SDL_Swap16BE(NETPLAY_PORT);
 	SDLNet_UDP_Send(gNetFD, -1, &m_packet);
-#endif
 }
 
 void
@@ -681,17 +617,6 @@ LobbyDialogDelegate::ProcessPacket(DynamicPacket &packet)
 	}
 
 	if (m_state == STATE_HOSTING) {
-		if (cmd == LOBBY_ANNOUNCE_PLAYER) {
-			if (m_globalGame->IsChecked()) {
-				ProcessAnnouncePlayer(packet);
-			}
-			return;
-		}
-
-		if (m_game.IsFull() && !m_game.HasNode(packet.address)) {
-			return;
-		}
-
 		if (cmd == LOBBY_PING) {
 			ProcessPing(packet);
 		} else if (cmd == LOBBY_PONG) {
@@ -705,15 +630,6 @@ LobbyDialogDelegate::ProcessPacket(DynamicPacket &packet)
 		}
 		return;
 
-	}
-
-	if (m_state == STATE_LISTING) {
-		if (cmd == LOBBY_GAME_SERVERS) {
-			if (m_globalGame->IsChecked()) {
-				ProcessGameServerList(packet);
-			}
-			return;
-		}
 	}
 
 	// These packets we handle in all the join states
@@ -815,29 +731,6 @@ LobbyDialogDelegate::ProcessNewGame(DynamicPacket &packet)
 
 	if (m_game.HasNode(packet.address)) {
 		m_playButton->OnClick();
-	}
-}
-
-void
-LobbyDialogDelegate::ProcessAnnouncePlayer(DynamicPacket &packet)
-{
-	Uint8 count;
-	IPaddress address;
-
-	// Open the firewall so this player can contact us.
-	m_reply.StartLobbyMessage(LOBBY_OPEN_FIREWALL);
-
-	if (!packet.Read(count)) {
-		return;
-	}
-	for (Uint8 i = 0; i < count; ++i) {
-		if (!packet.Read(address.host) ||
-		    !packet.Read(address.port)) {
-			return;
-		}
-		m_reply.address = address;
-		
-		SDLNet_UDP_Send(gNetFD, -1, &m_reply);
 	}
 }
 
@@ -984,33 +877,4 @@ LobbyDialogDelegate::ProcessKick(DynamicPacket &packet)
 	}
 
 	SetState(STATE_LISTING);
-}
-
-void
-LobbyDialogDelegate::ProcessGameServerList(DynamicPacket &packet)
-{
-	Uint8 serverCount, count;
-	IPaddress address;
-
-	// Request game information from the servers
-	m_reply.StartLobbyMessage(LOBBY_REQUEST_GAME_INFO);
-	m_reply.Write((Uint32)SDL_GetTicks());
-
-	if (!packet.Read(serverCount)) {
-		return;
-	}
-	for (Uint8 i = 0; i < serverCount; ++i) {
-		if (!packet.Read(count)) {
-			return;
-		}
-		for (Uint8 j = 0; j < count; ++j) {
-			if (!packet.Read(address.host) ||
-			    !packet.Read(address.port)) {
-				return;
-			}
-			m_reply.address = address;
-			
-			SDLNet_UDP_Send(gNetFD, -1, &m_reply);
-		}
-	}
 }

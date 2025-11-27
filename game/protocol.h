@@ -38,67 +38,6 @@ enum LobbyProtocol {
 	LOBBY_NONE,
 
 	/**********/
-	/* Messages between the hosting game and the lobby server */
-
-	LOBBY_ANNOUNCE_GAME = 1,
-	/* Sent by the hosting game to the lobby server
-	   This is sent periodically to keep the entry refreshed, since
-	   the server will automatically age out entries after 30 seconds.
-
-		Uint8 numaddresses
-		{
-			Uint32 host;
-			Uint16 port;
-		} addresses[]
-	 */
-
-	LOBBY_REMOVE_GAME,
-	/* Sent by the hosting game to the lobby server
-	   This is sent when the game is no longer available to join.
-
-		Uint8 numaddresses
-		{
-			Uint32 host;
-			Uint16 port;
-		} addresses[]
-	 */
-
-	LOBBY_ANNOUNCE_PLAYER,
-	/* Sent by the lobby server when a player requests the game list.
-	   This allows the hosting game to send a packet to the player
-	   requesting to join, opening the firewall for them.
-
-		Uint8 numaddresses
-		{
-			Uint32 host;
-			Uint16 port;
-		} addresses[]
-	*/
-
-	/**********/
-	/* Messages between the joining game and the lobby server */
-
-	LOBBY_REQUEST_GAME_SERVERS = 10,
-	/* Sent by the joining game, containing a list of it's addresses
-
-		Uint8 numaddresses
-		{
-			Uint32 host;
-			Uint16 port;
-		} addresses[]
-	 */
-
-	LOBBY_GAME_SERVERS,
-	/* Sent by the lobby server containing all the current game addresses
-
-		Uint8 numaddresses
-		{
-			Uint32 host;
-			Uint16 port;
-		} addresses[]
-	*/
-
-	/**********/
 	/* Messages between the joining game and the hosting game */
 
 	LOBBY_OPEN_FIREWALL = 20,

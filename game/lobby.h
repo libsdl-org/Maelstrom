@@ -61,7 +61,6 @@ protected:
 	void UpdateUI();
 
 	void CheckPings();
-	void AdvertiseGame();
 	void RemoveGame();
 	void GetGameList();
 	void GetGameInfo();
@@ -77,11 +76,9 @@ protected:
 	void ProcessPing(DynamicPacket &packet);
 	void ProcessPong(DynamicPacket &packet);
 	void ProcessNewGame(DynamicPacket &packet);
-	void ProcessAnnouncePlayer(DynamicPacket &packet);
 	void ProcessRequestGameInfo(DynamicPacket &packet);
 	void ProcessRequestJoin(DynamicPacket &packet);
 	void ProcessRequestLeave(DynamicPacket &packet);
-	void ProcessGameServerList(DynamicPacket &packet);
 	void ProcessGameInfo(DynamicPacket &packet);
 	void ProcessKick(DynamicPacket &packet);
 
@@ -108,7 +105,6 @@ protected:
 	DynamicPacket m_packet, m_reply;
 
 	UIElementRadioGroup *m_hostOrJoin;
-	UIElementCheckbox *m_globalGame;
 	UIElementRadioGroup *m_deathmatch;
 	UIElement *m_gameListArea;
 	UIElement *m_gameListElements[5];
