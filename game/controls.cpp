@@ -241,14 +241,14 @@ static Uint8 joystickMasks[MAX_JOYSTICKS] = {
 	CONTROL_JOYSTICK2,
 	CONTROL_JOYSTICK3
 };
-static SDL_Joystick *joysticks[MAX_JOYSTICKS];
+static SDL_Gamepad *joysticks[MAX_JOYSTICKS];
 static SDL_JoystickID joystickIDs[MAX_JOYSTICKS];
 
 static void OpenJoystick(SDL_JoystickID id)
 {
 	for (int i = 0; i < MAX_JOYSTICKS; ++i) {
 		if (joysticks[i] == NULL) {
-			joysticks[i] = SDL_OpenJoystick(id);
+			joysticks[i] = SDL_OpenGamepad(id);
 			if (joysticks[i]) {
 				joystickIDs[i] = id;
 			}
@@ -261,7 +261,7 @@ static void CloseJoystick(SDL_JoystickID id)
 {
 	for (int i = 0; i < MAX_JOYSTICKS; ++i) {
 		if (joystickIDs[i] == id) {
-			SDL_CloseJoystick(joysticks[i]);
+			SDL_CloseGamepad(joysticks[i]);
 			joysticks[i] = NULL;
 			joystickIDs[i] = 0;
 			break;
@@ -279,6 +279,77 @@ static Player *GetJoystickPlayer(SDL_JoystickID id)
 	return NULL;
 }
 
+static void UpdateControl(Player *player)
+{
+	bool keys[FIRE_KEY+1];
+
+	SDL_zeroa(keys);
+	for (int i = 0; i < MAX_JOYSTICKS; ++i) {
+		SDL_Gamepad *gamepad = joysticks[i];
+		if (!gamepad) {
+			continue;
+		}
+
+		if (!(player->GetControlType() & joystickMasks[i])) {
+			continue;
+		}
+
+		if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_SOUTH) ||
+			SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) >= 8000) {
+			keys[FIRE_KEY] = true;
+		}
+
+		if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_EAST) ||
+			SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFT_TRIGGER) >= 8000) {
+			keys[SHIELD_KEY] = true;
+		}
+
+		if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT) ||
+			SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTX) <= -16000 ||
+			SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX) <= -16000) {
+			keys[LEFT_KEY] = true;
+		}
+
+		if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT) ||
+			SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTX) >= 16000 ||
+			SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX) >= 16000) {
+			keys[RIGHT_KEY] = true;
+		}
+
+		if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP) ||
+			SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTY) <= -16000 ||
+			SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTY) <= -16000) {
+			keys[THRUST_KEY] = true;
+		}
+	}
+
+	if (player->GetControlType() & CONTROL_KEYBOARD) {
+		const bool *keystate = SDL_GetKeyboardState(nullptr);
+
+		if (keystate[SDL_GetScancodeFromKey(controls.gFireControl, SDL_KMOD_NONE)]) {
+			keys[FIRE_KEY] = true;
+		}
+		if (keystate[SDL_GetScancodeFromKey(controls.gTurnRControl, SDL_KMOD_NONE)]) {
+			keys[RIGHT_KEY] = true;
+		}
+		if (keystate[SDL_GetScancodeFromKey(controls.gTurnLControl, SDL_KMOD_NONE)]) {
+			keys[LEFT_KEY] = true;
+		}
+		if (keystate[SDL_GetScancodeFromKey(controls.gShieldControl, SDL_KMOD_NONE)]) {
+			keys[SHIELD_KEY] = true;
+		}
+		if (keystate[SDL_GetScancodeFromKey(controls.gThrustControl, SDL_KMOD_NONE)]) {
+			keys[THRUST_KEY] = true;
+		}
+	}
+
+	player->SetControl(FIRE_KEY, keys[FIRE_KEY]);
+	player->SetControl(SHIELD_KEY, keys[SHIELD_KEY]);
+	player->SetControl(LEFT_KEY, keys[LEFT_KEY]);
+	player->SetControl(RIGHT_KEY, keys[RIGHT_KEY]);
+	player->SetControl(THRUST_KEY, keys[THRUST_KEY]);
+}
+
 static void HandleEvent(SDL_Event *event)
 {
 	Player *player;
@@ -290,89 +361,45 @@ static void HandleEvent(SDL_Event *event)
 
 	switch (event->type) {
 		/* -- Handle joystick added */
-		case SDL_EVENT_JOYSTICK_ADDED:
-			OpenJoystick(event->jdevice.which);
+		case SDL_EVENT_GAMEPAD_ADDED:
+			OpenJoystick(event->gdevice.which);
 			break;
 
 		/* -- Handle joystick removed */
-		case SDL_EVENT_JOYSTICK_REMOVED:
-			CloseJoystick(event->jdevice.which);
+		case SDL_EVENT_GAMEPAD_REMOVED:
+			CloseJoystick(event->gdevice.which);
 			break;
 
 		/* -- Handle joystick axis motion */
-		case SDL_EVENT_JOYSTICK_AXIS_MOTION:
-			player = GetJoystickPlayer(event->jaxis.which);
+		case SDL_EVENT_GAMEPAD_AXIS_MOTION:
+			player = GetJoystickPlayer(event->gaxis.which);
 			if (!player) {
 				break;
 			}
-			/* X-Axis - rotate right/left */
-			if ( event->jaxis.axis == 0 ) {
-				if ( event->jaxis.value < -16000 ) {
-					player->SetControl(LEFT_KEY, 1);
-					player->SetControl(RIGHT_KEY, 0);
-				} else
-				if ( event->jaxis.value > 16000 ) {
-					player->SetControl(RIGHT_KEY, 1);
-					player->SetControl(LEFT_KEY, 0);
-				} else {
-					player->SetControl(LEFT_KEY, 0);
-					player->SetControl(RIGHT_KEY, 0);
-				}
-			} else
-			/* Y-Axis - accelerate */
-			if ( event->jaxis.axis == 1 ) {
-				if ( event->jaxis.value < -20000 ) {
-					player->SetControl(THRUST_KEY, 1);
-				} else {
-					player->SetControl(THRUST_KEY, 0);
-				}
-			}
-			break;
-
-		/* -- Handle joystick axis motion */
-		case SDL_EVENT_JOYSTICK_HAT_MOTION:
-			player = GetJoystickPlayer(event->jhat.which);
-			if (!player) {
-				break;
-			}
-			if ( event->jhat.value & SDL_HAT_LEFT ) {
-				player->SetControl(LEFT_KEY, 1);
-			} else {
-				player->SetControl(LEFT_KEY, 0);
-			}
-			if ( event->jhat.value & SDL_HAT_RIGHT ) {
-				player->SetControl(RIGHT_KEY, 1);
-			} else {
-				player->SetControl(RIGHT_KEY, 0);
-			}
-			if ( event->jhat.value & SDL_HAT_UP ) {
-				player->SetControl(THRUST_KEY, 1);
-			} else {
-				player->SetControl(THRUST_KEY, 0);
-			}
+			UpdateControl(player);
 			break;
 
 		/* -- Handle joystick button presses/releases */
-		case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
-		case SDL_EVENT_JOYSTICK_BUTTON_UP:
-			player = GetJoystickPlayer(event->jbutton.which);
+		case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+		case SDL_EVENT_GAMEPAD_BUTTON_UP:
+			player = GetJoystickPlayer(event->gbutton.which);
 			if (!player) {
 				break;
 			}
-			if ( event->jbutton.down ) {
-				if ( event->jbutton.button == 0 ) {
-					player->SetControl(FIRE_KEY, 1);
-				} else
-				if ( event->jbutton.button == 1 ) {
-					player->SetControl(SHIELD_KEY, 1);
+			switch (event->gbutton.button) {
+			case SDL_GAMEPAD_BUTTON_START:
+				if (!event->gbutton.down) {
+					gGameInfo.ToggleLocalState(STATE_PAUSE);
 				}
-			} else {
-				if ( event->jbutton.button == 0 ) {
-					player->SetControl(FIRE_KEY, 0);
-				} else
-				if ( event->jbutton.button == 1 ) {
-					player->SetControl(SHIELD_KEY, 0);
+				break;
+			case SDL_GAMEPAD_BUTTON_BACK:
+				if (!event->gbutton.down) {
+					gGameInfo.SetLocalState(STATE_ABORT, true);
 				}
+				break;
+			default:
+				UpdateControl(player);
+				break;
 			}
 			break;
 
@@ -385,17 +412,8 @@ static void HandleEvent(SDL_Event *event)
 				break;
 			}
 
-			/* Check for various control keys */
-			if ( key == controls.gFireControl )
-				player->SetControl(FIRE_KEY, 1);
-			else if ( key == controls.gTurnRControl )
-				player->SetControl(RIGHT_KEY, 1);
-			else if ( key == controls.gTurnLControl )
-				player->SetControl(LEFT_KEY, 1);
-			else if ( key == controls.gShieldControl )
-				player->SetControl(SHIELD_KEY, 1);
-			else if ( key == controls.gThrustControl )
-				player->SetControl(THRUST_KEY, 1);
+			/* Update control key status */
+			UpdateControl(player);
 			break;
 
 		case SDL_EVENT_KEY_UP:
@@ -436,16 +454,7 @@ static void HandleEvent(SDL_Event *event)
 			}
 
 			/* Update control key status */
-			if ( key == controls.gFireControl )
-				player->SetControl(FIRE_KEY, 0);
-			else if ( key == controls.gTurnRControl )
-				player->SetControl(RIGHT_KEY, 0);
-			else if ( key == controls.gTurnLControl )
-				player->SetControl(LEFT_KEY, 0);
-			else if ( key == controls.gShieldControl )
-				player->SetControl(SHIELD_KEY, 0);
-			else if ( key == controls.gThrustControl )
-				player->SetControl(THRUST_KEY, 0);
+			UpdateControl(player);
 			break;
 
 		case SDL_EVENT_WINDOW_MINIMIZED:
@@ -477,7 +486,7 @@ void QuitPlayerControls(void)
 {
 	for (int i = 0; i < MAX_JOYSTICKS; ++i) {
 		if (joysticks[i]) {
-			SDL_CloseJoystick(joysticks[i]);
+			SDL_CloseGamepad(joysticks[i]);
 			joysticks[i] = NULL;
 		}
 	}
