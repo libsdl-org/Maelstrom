@@ -203,13 +203,10 @@ MaelstromUI::MaelstromUI(FrameBuf *screen, Prefs *prefs) : UIManager(screen, pre
 	m_strings = hash_create(screen, hash_hash_string, hash_keymatch_string, hash_nuke_string_text);
 
 	/* Set up some conditions useful for UI loading */
-#ifdef USE_TOUCHCONTROL
-	SetCondition("TOUCH");
-#endif
-#if __IPHONEOS__ || __ANDROID__
+#if defined(SDL_PLATFORM_IOS) || defined(SDL_PLATFORM_ANDROID)
 	SetCondition("MOBILE");
 #endif
-#if __IPHONEOS__
+#if defined(SDL_PLATFORM_IOS)
 	SetCondition("IOS");
 #endif
 

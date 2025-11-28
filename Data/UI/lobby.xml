@@ -167,10 +167,13 @@
 						<Button name="control">
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="16"/>
 						</Button>
-						<DialogLabel name="name" text="This is a name">
+						<DialogLabel name="desc">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="80"/>
+						</DialogLabel>
+						<DialogLabel name="name">
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="80" y="-10"/>
 						</DialogLabel>
-						<DialogLabel name="host" text="bwg101.corp.pacbell.net">
+						<DialogLabel name="host">
 							<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="name" y="2"/>
 						</DialogLabel>
 						<Image name="ping1" image="ping1">
@@ -195,6 +198,9 @@
 						<Button name="control">
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="16"/>
 						</Button>
+						<DialogLabel name="desc">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="80"/>
+						</DialogLabel>
 						<DialogLabel name="name" text="This is a name">
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="80" y="-10"/>
 						</DialogLabel>
@@ -223,6 +229,9 @@
 						<Button name="control">
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="16"/>
 						</Button>
+						<DialogLabel name="desc">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="80"/>
+						</DialogLabel>
 						<DialogLabel name="name" text="This is a name">
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="80" y="-10"/>
 						</DialogLabel>
@@ -254,12 +263,11 @@
 		<DialogContainer name="control_dropdown" border="true" show="false">
 			<Elements>
 				<Button name="control0" image="control0"/>
-				<Button name="control3" image="control3"/>
+				<Button name="control31" image="control31"/>
 				<Button name="control1" image="control1"/>
 				<Button name="control2" image="control2"/>
 				<Button name="control4" image="control4"/>
 				<Button name="control8" image="control8"/>
-				<Button name="control16" image="control16"/>
 				<Button name="control32" image="control32"/>
 			</Elements>
 		</DialogContainer>

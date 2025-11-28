@@ -95,7 +95,7 @@ void GameOverPanelDelegate::OnShow()
 			SDL_snprintf(name, sizeof(name), "rank%d", nextLabel);
 			image = m_panel->GetElement<UIElement>(name);
 			if (image) {
-				SDL_snprintf(name, sizeof(name), "Images/player%d.png", final[i].Player);
+				SDL_snprintf(name, sizeof(name), "player%d", final[i].Player);
 				image->SetImage(name);
 				image->Show();
 			}

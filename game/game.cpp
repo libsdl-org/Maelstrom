@@ -78,7 +78,24 @@ static bool SetupPlayers(void)
 					gDisplayed = i;
 				}
 			}
-			gPlayers[i]->SetControlType(gGameInfo.GetPlayer(i)->controlMask);
+
+			Uint8 controlMask = gGameInfo.GetPlayer(i)->controlMask;
+			if (controlMask == CONTROL_LOCAL) {
+				// Remove the controls that are used by other players
+				for (int j = 0; j < MAX_PLAYERS; ++j) {
+					if (!gGameInfo.IsValidPlayer(j)) {
+						continue;
+					}
+					if (i == j) {
+						continue;
+					}
+					Uint8 otherMask = gGameInfo.GetPlayer(j)->controlMask;
+					if (otherMask != CONTROL_LOCAL) {
+						controlMask &= ~otherMask;
+					}
+				}
+			}
+			gPlayers[i]->SetControlType(controlMask);
 		} else {
 			gPlayers[i]->SetControlType(CONTROL_NONE);
 		}
@@ -511,8 +528,7 @@ GamePanelDelegate::DrawStatus(Bool first)
 	}
 
 	if ( gGameInfo.IsMultiplayer() ) {
-#ifndef USE_TOUCHCONTROL
-		if (gReplay.IsPlaying()) {
+		if (gReplay.IsPlaying() && SDL_HasKeyboard()) {
 			char caption[BUFSIZ];
 
 			SDL_snprintf(caption, sizeof(caption), "Displaying player %d - press F1 to change", gDisplayed+1);
@@ -520,7 +536,6 @@ GamePanelDelegate::DrawStatus(Bool first)
 				m_multiplayerCaption->SetText(caption);
 			}
 		}
-#endif // USE_TOUCHCONTROL
 
 		/* Fill in the color by the frag count */
 		if (m_multiplayerColor) {
@@ -537,7 +552,7 @@ GamePanelDelegate::DrawStatus(Bool first)
 	if (m_shield) {
 		m_shield->SetWidth(fact);
 	}
-	
+
 	MultFactor = TheShip->GetBonusMult();
 	for (i = 0; (unsigned)i < SDL_arraysize(m_multiplier); ++i) {
 		if (!m_multiplier[i]) {
@@ -672,11 +687,11 @@ GamePanelDelegate::DoHousekeeping()
 	/* -- Maybe throw a multiplier up on the screen */
 	if (gMultiplierShown && (--gMultiplierShown == 0) )
 		MakeMultiplier();
-	
+
 	/* -- Maybe throw a prize(!) up on the screen */
 	if (gPrizeShown && (--gPrizeShown == 0) )
 		MakePrize();
-	
+
 	/* -- Maybe throw a bonus up on the screen */
 	if (gBonusShown && (--gBonusShown == 0) )
 		MakeBonus();
@@ -688,15 +703,15 @@ GamePanelDelegate::DoHousekeeping()
 	/* -- Maybe create a transcenfugal vortex */
 	if (gWhenGrav && (--gWhenGrav == 0) )
 		MakeGravity();
-	
+
 	/* -- Maybe create a recified space vehicle */
 	if (gWhenDamaged && (--gWhenDamaged == 0) )
 		MakeDamagedShip();
-	
+
 	/* -- Maybe create a autonominous tracking device */
 	if (gWhenHoming && (--gWhenHoming == 0) )
 		MakeHoming();
-	
+
 	/* -- Maybe make a supercranial destruction thang */
 	if (gWhenNova && (--gWhenNova == 0) )
 		MakeNova();
@@ -706,7 +721,7 @@ GamePanelDelegate::DoHousekeeping()
 		gLastStar = STAR_DELAY;
 		SetStar(FastRandom(MAX_STARS));
 	}
-	
+
 	/* -- Time for the next wave? */
 	if (gNumRocks == 0) {
 		if ( gWhenDone == 0 )
@@ -781,7 +796,7 @@ GamePanelDelegate::DoBonus()
 	if (label) {
 		label->Show();
 	}
-		
+
 	gGameInfo.SetLocalState(STATE_BONUS, true);
 
 	/* Fade out */
@@ -883,7 +898,7 @@ GamePanelDelegate::DoBonus()
 				TheShip->IncrScore(TheShip->GetBonus());
 				TheShip->IncrBonus(-TheShip->GetBonus());
 			}
-	
+
 			if (bonus) {
 				SDL_snprintf(numbuf, sizeof(numbuf), "%-5.1d", TheShip->GetBonus());
 				bonus->SetText(numbuf);
@@ -1019,10 +1034,10 @@ GamePanelDelegate::NextWave()
 	/* -- Create some asteroids */
 	for (i = 0; i < NewRoids; i++) {
 		int	randval;
-	
+
 		x = FastRandom(GAME_WIDTH) * SCALE_FACTOR;
 		y = 0;
-	
+
 		randval = FastRandom(10);
 
 		/* -- See what kind of asteroid to make */
