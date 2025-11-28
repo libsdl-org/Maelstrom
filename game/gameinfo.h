@@ -44,8 +44,7 @@ enum PLAYER_CONTROL {
 };
 
 enum GAME_MODE {
-	GAME_MODE_DEATHMATCH = 0x01,
-	GAME_MODE_KIDS       = 0x02,
+	GAME_MODE_KIDS       = 0x01,
 };
 
 #define IS_LOCAL_CONTROL(X)	(X & CONTROL_LOCAL)
@@ -189,7 +188,7 @@ public:
 	bool IsFull() const;
 
 	bool IsDeathmatch() const {
-		return (gameMode & GAME_MODE_DEATHMATCH) != 0;
+		return deathMatch != 0;
 	}
 	bool IsKidMode() const {
 		return (gameMode & GAME_MODE_KIDS) != 0;

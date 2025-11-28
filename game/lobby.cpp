@@ -23,7 +23,6 @@
 #include "SDL_net.h"
 #include "Maelstrom_Globals.h"
 #include "../screenlib/UIElement.h"
-#include "../screenlib/UIElementCheckbox.h"
 #include "../screenlib/UIElementRadio.h"
 #include "lobby.h"
 #include "protocol.h"
@@ -153,17 +152,18 @@ LobbyDialogDelegate::OnLoad()
 
 	m_hostOrJoin = m_dialog->GetElement<UIElementRadioGroup>("hostOrJoin");
 	if (!m_hostOrJoin) {
-		fprintf(stderr, "Warning: Couldn't find radio group 'hostOrJoin'\n");
+		SDL_Log("Warning: Couldn't find radio group 'hostOrJoin'");
 		return false;
 	}
 	m_hostOrJoin->SetValueCallback(this, &LobbyDialogDelegate::SetHostOrJoin);
 
-	m_deathmatch = m_dialog->GetElement<UIElementRadioGroup>("deathmatch");
+	m_deathmatch = m_dialog->GetElement<UIElement>("deathmatch");
 	if (!m_deathmatch) {
-		fprintf(stderr, "Warning: Couldn't find radio group 'deathmatch'\n");
+		SDL_Log("Warning: Couldn't find editbox 'deathmatch'");
 		return false;
 	}
-	m_deathmatch->SetValueCallback(this, &LobbyDialogDelegate::SetDeathmatch);
+	m_deathmatch->SetTextCallback(this, &LobbyDialogDelegate::DeathmatchChanged, nullptr);
+
 	if (!GetElement("gamelist", m_gameListArea)) {
 		return false;
 	}
@@ -210,7 +210,7 @@ LobbyDialogDelegate::GetElement(const char *name, UIElement *&element)
 {
 	element = m_dialog->GetElement<UIElement>(name);
 	if (!element) {
-		fprintf(stderr, "Warning: Couldn't find element '%s'\n", name);
+		SDL_Log("Warning: Couldn't find element '%s'", name);
 		return false;
 	}
 	return true;
@@ -309,18 +309,6 @@ LobbyDialogDelegate::SetHostOrJoin(void*, int value)
 }
 
 void
-LobbyDialogDelegate::SetDeathmatch(void*, int value)
-{
-	if (value) {
-		m_game.gameMode |= GAME_MODE_DEATHMATCH;
-		m_game.deathMatch = (Uint8)value;
-	} else {
-		m_game.gameMode &= ~GAME_MODE_DEATHMATCH;
-		m_game.deathMatch = 0;
-	}
-}
-
-void
 LobbyDialogDelegate::JoinGameClicked(void *_element)
 {
 	UIElement *element = (UIElement *)_element;
@@ -331,6 +319,12 @@ LobbyDialogDelegate::JoinGameClicked(void *_element)
 			break;
 		}
 	}
+}
+
+void
+LobbyDialogDelegate::DeathmatchChanged(void *, const char *text)
+{
+	m_game.deathMatch = SDL_atoi(text);
 }
 
 void
@@ -356,7 +350,9 @@ LobbyDialogDelegate::UpdateUI()
 		for (int i = 0; i < MAX_PLAYERS; ++i) {
 			m_game.BindPlayerToUI(i, m_gameInfoPlayers[i]);
 		}
-		m_deathmatch->SetValue(m_game.deathMatch);
+
+		char deathmatch[10];
+		m_deathmatch->SetText(SDL_itoa(m_game.deathMatch, deathmatch, 10));
 	}
 	if (m_state == STATE_HOSTING) {
 		m_playButton->SetDisabled(false);
@@ -451,7 +447,7 @@ LobbyDialogDelegate::CheckPings()
 			GameInfo &game = m_gameList[i];
 			game.UpdatePingStatus(HOST_NODE);
 			if (game.GetPingStatus(HOST_NODE) == PING_TIMEDOUT) {
-//printf("Game timed out, removing from list\n");
+//SDL_Log("Game timed out, removing from list");
 				m_gameList.remove(game);
 				removed = true;
 			} else {
@@ -465,14 +461,14 @@ LobbyDialogDelegate::CheckPings()
 		m_game.UpdatePingStatus();
 		for (int i = 0; i < m_game.GetNumNodes(); ++i) {
 			if (m_game.GetPingStatus(i) == PING_TIMEDOUT) {
-//printf("Player timed out, removing from lobby\n");
+//SDL_Log("Player timed out, removing from lobby");
 				SendKick(i);
 			}
 		}
 	} else if (m_state == STATE_JOINED) {
 		m_game.UpdatePingStatus();
 		if (m_game.GetPingStatus(HOST_NODE) == PING_TIMEDOUT) {
-//printf("Game timed out, leaving lobbyn");
+//SDL_Log("Game timed out, leaving lobby");
 			SetState(STATE_LISTING);
 		}
 	}

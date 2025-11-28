@@ -241,25 +241,13 @@
 					</Elements>
 				</Area>
 
-				<DialogLabel name="deathmatch_label" text="Deathmatch:">
-					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" x="12" y="-10"/>
+				<DialogLabel name="deathmatch_label" text="Deathmatch Frags:">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" x="12" y="-13"/>
 				</DialogLabel>
-				<DialogRadioGroup name="deathmatch" bindValue="Network.Deathmatch">
-					<Elements>
-						<DialogRadioButton name="deathmatch_off" text="Off" checked="true" id="0">
-							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="deathmatch_label" x="8"/>
-						</DialogRadioButton>
-						<DialogRadioButton name="deathmatch_3" text="3" id="3">
-							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="deathmatch_off" x="6"/>
-						</DialogRadioButton>
-						<DialogRadioButton name="deathmatch_5" text="5" id="5">
-							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="deathmatch_3" x="6"/>
-						</DialogRadioButton>
-						<DialogRadioButton name="deathmatch_8" text="8" id="8">
-							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="deathmatch_5" x="6"/>
-						</DialogRadioButton>
-					</Elements>
-				</DialogRadioGroup>
+				<DialogEditbox name="deathmatch" numeric="true" maxlen="2" bindText="Network.Deathmatch" text="0">
+					<Size w="30" h="21"/>
+					<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="deathmatch_label" x="8"/>
+				</DialogEditbox>
 			</Elements>
 		</Area>
 
