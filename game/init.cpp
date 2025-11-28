@@ -763,11 +763,7 @@ int DoInitializations(Uint32 window_flags)
 	// -- Load our controls
 	LoadControls();
 
-	Uint32 init_flags = (SDL_INIT_VIDEO|SDL_INIT_AUDIO);
-#ifdef SDL_INIT_JOYSTICK
-	init_flags |= SDL_INIT_JOYSTICK;
-#endif
-	if ( !SDL_Init(init_flags) ) {
+	if ( !SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_GAMEPAD) ) {
 		error("Couldn't initialize SDL: %s\n", SDL_GetError());
 		return(-1);
 	}
