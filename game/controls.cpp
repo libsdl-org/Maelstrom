@@ -234,10 +234,49 @@ static Player *GetKeyboardPlayer()
 	return GetControlPlayer(CONTROL_KEYBOARD);
 }
 
-static Player *GetJoystickPlayer(Uint8 which)
+#define MAX_JOYSTICKS	MAX_PLAYERS
+
+static Uint8 joystickMasks[MAX_JOYSTICKS] = {
+	CONTROL_JOYSTICK1,
+	CONTROL_JOYSTICK2,
+	CONTROL_JOYSTICK3
+};
+static SDL_Joystick *joysticks[MAX_JOYSTICKS];
+static SDL_JoystickID joystickIDs[MAX_JOYSTICKS];
+
+static void OpenJoystick(SDL_JoystickID id)
 {
-	Uint8 joystickControl = (CONTROL_JOYSTICK1 << which);
-	return GetControlPlayer(joystickControl);
+	for (int i = 0; i < MAX_JOYSTICKS; ++i) {
+		if (joysticks[i] == NULL) {
+			joysticks[i] = SDL_OpenJoystick(id);
+			if (joysticks[i]) {
+				joystickIDs[i] = id;
+			}
+			break;
+		}
+	}
+}
+
+static void CloseJoystick(SDL_JoystickID id)
+{
+	for (int i = 0; i < MAX_JOYSTICKS; ++i) {
+		if (joystickIDs[i] == id) {
+			SDL_CloseJoystick(joysticks[i]);
+			joysticks[i] = NULL;
+			joystickIDs[i] = 0;
+			break;
+		}
+	}
+}
+
+static Player *GetJoystickPlayer(SDL_JoystickID id)
+{
+	for (int i = 0; i < MAX_JOYSTICKS; ++i) {
+		if (id == joystickIDs[i]) {
+			return GetControlPlayer(joystickMasks[i]);
+		}
+	}
+	return NULL;
 }
 
 static void HandleEvent(SDL_Event *event)
@@ -250,7 +289,16 @@ static void HandleEvent(SDL_Event *event)
 	}
 
 	switch (event->type) {
-#ifdef SDL_INIT_JOYSTICK
+		/* -- Handle joystick added */
+		case SDL_EVENT_JOYSTICK_ADDED:
+			OpenJoystick(event->jdevice.which);
+			break;
+
+		/* -- Handle joystick removed */
+		case SDL_EVENT_JOYSTICK_REMOVED:
+			CloseJoystick(event->jdevice.which);
+			break;
+
 		/* -- Handle joystick axis motion */
 		case SDL_EVENT_JOYSTICK_AXIS_MOTION:
 			player = GetJoystickPlayer(event->jaxis.which);
@@ -327,7 +375,6 @@ static void HandleEvent(SDL_Event *event)
 				}
 			}
 			break;
-#endif
 
 		/* -- Handle key presses/releases */
 		case SDL_EVENT_KEY_DOWN:
@@ -415,35 +462,12 @@ static void HandleEvent(SDL_Event *event)
 	}
 }
 
-#define MAX_JOYSTICKS	MAX_PLAYERS
-
-static Uint8 joystickMasks[MAX_JOYSTICKS] = {
-	CONTROL_JOYSTICK1,
-	CONTROL_JOYSTICK2,
-	CONTROL_JOYSTICK3
-};
-static SDL_Joystick *joysticks[MAX_JOYSTICKS];
-	
 void InitPlayerControls(void)
 {
-	Uint8 controlMask = 0;
-	int i, count;
-
-	SDL_JoystickID *ids = SDL_GetJoysticks(&count);
+	SDL_JoystickID *ids = SDL_GetJoysticks(nullptr);
 	if (ids) {
-		for (i = 0; i < MAX_PLAYERS; ++i) {
-			controlMask |= gPlayers[i]->GetControlType();
-		}
-
-		for (i = 0; i < MAX_JOYSTICKS && i < count; ++i) {
-			if (!(controlMask & joystickMasks[i])) {
-				continue;
-			}
-			joysticks[i] = SDL_OpenJoystick(ids[i]);
-			if (joysticks[i] == NULL) {
-				error("Warning: Couldn't open joystick '%s' : %s\n",
-					SDL_GetJoystickNameForID(ids[i]), SDL_GetError());
-			}
+		for (int i = 0; ids[i]; ++i) {
+			OpenJoystick(ids[i]);
 		}
 		SDL_free(ids);
 	}

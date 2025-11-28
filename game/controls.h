@@ -25,10 +25,6 @@
 
 #include "../screenlib/UIDialog.h"
 
-#if defined(__IPHONEOS__) || defined(__ANDROID__)
-#define USE_TOUCHCONTROL
-#endif
-
 // Functions from controls.cc
 #ifdef USE_JOYSTICK
 extern void	CalibrateJoystick(char *joystick);
