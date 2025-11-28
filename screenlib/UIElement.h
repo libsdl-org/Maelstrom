@@ -73,6 +73,51 @@ protected:
 	void *m_param;
 };
 
+class UITextCallback
+{
+public:
+	virtual ~UITextCallback() { }
+
+	virtual void operator()(const char *text) = 0;
+};
+
+template <class C>
+class UIObjectTextCallback : public UITextCallback
+{
+public:
+	UIObjectTextCallback(C *obj, void (C::*callback)(void*, const char*), void *param) : UITextCallback() {
+		m_obj = obj;
+		m_callback = callback;
+		m_param = param;
+	}
+
+	virtual void operator()(const char *text) {
+		(m_obj->*m_callback)(m_param, text);
+	}
+
+protected:
+	C *m_obj;
+	void (C::*m_callback)(void*, const char*);
+	void *m_param;
+};
+
+class UIFunctionTextCallback : public UITextCallback
+{
+public:
+	UIFunctionTextCallback(void (*callback)(void*, const char*), void *param) : UITextCallback() {
+		m_callback = callback;
+		m_param = param;
+	}
+
+	virtual void operator()(const char *text) {
+		(*m_callback)(m_param, text);
+	}
+
+protected:
+	void (*m_callback)(void*, const char*);
+	void *m_param;
+};
+
 // This is the basic thing you see on the screen.
 // It consists of an area, a parent, children, text, an image, and a
 // drawing engine which is notified of state changes.
@@ -199,6 +244,17 @@ public:
 		SetClickCallback(new UIFunctionClickCallback(callback, param));
 	}
 	void SetClickCallback(UIClickCallback *callback);
+
+	// Once set, the element owns the text callback and will free it.
+	template <class C>
+	void SetTextCallback(C *obj, void (C::*callback)(void*, const char*), void *param = 0) {
+		SetTextCallback(new UIObjectTextCallback<C>(obj, callback, param));
+	}
+	void SetTextCallback(void (*callback)(void*, const char*), void *param = 0) {
+		SetTextCallback(new UIFunctionTextCallback(callback, param));
+	}
+	void SetTextCallback(UITextCallback *callback);
+
 	void SetAction(const char *action);
 
 	// These can be overridden by inheriting classes
@@ -231,6 +287,7 @@ protected:
 	bool m_mouseInside;
 	bool m_mousePressed;
 	UIClickCallback *m_clickCallback;
+	UITextCallback *m_textCallback;
 	char *m_action;
 	char *m_actionPressed;
 	char *m_actionReleased;
