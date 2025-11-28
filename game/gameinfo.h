@@ -96,6 +96,7 @@ struct GameInfoPlayer
 
 	struct {
 		UIElement *element;
+		UIElement *desc;
 		UIElement *name;
 		UIElement *host;
 		UIElement *control;
@@ -183,6 +184,7 @@ public:
 	bool IsValidPlayer(int index) const;
 	bool IsLocalPlayer(int index) const;
 	bool IsNetworkPlayer(int index) const;
+	bool OtherPlayerHasControl(int index, Uint8 controlMask);
 	int GetNumPlayers() const;
 
 	bool IsFull() const;

@@ -75,24 +75,14 @@ public:
 		}
 
 		// Show the control dialog
+		int num_gamepads = 0;
+		SDL_free(SDL_GetGamepads(&num_gamepads));
 		SetControl(CONTROL_NONE, (m_index > 0) && m_game.IsHosting());
-#ifdef USE_TOUCHCONTROL
-		SetControl(CONTROL_TOUCH, true);
-		SetControl(CONTROL_KEYBOARD, false);
-		SetControl(CONTROL_KEYBOARD|CONTROL_JOYSTICK1, false);
-		SetControl(CONTROL_JOYSTICK1, false);
-		SetControl(CONTROL_JOYSTICK2, false);
-		SetControl(CONTROL_JOYSTICK3, false);
-#else
-		int num_joysticks = 0;
-		SDL_free(SDL_GetJoysticks(&num_joysticks));
-		SetControl(CONTROL_TOUCH, false);
-		SetControl(CONTROL_KEYBOARD, true);
-		SetControl(CONTROL_KEYBOARD|CONTROL_JOYSTICK1, true);
-		SetControl(CONTROL_JOYSTICK1, num_joysticks > 0);
-		SetControl(CONTROL_JOYSTICK2, num_joysticks > 1);
-		SetControl(CONTROL_JOYSTICK3, num_joysticks > 2);
-#endif
+		SetControl(CONTROL_LOCAL, !m_game.OtherPlayerHasControl(m_index, CONTROL_LOCAL));
+		SetControl(CONTROL_KEYBOARD, SDL_HasKeyboard() && !m_game.OtherPlayerHasControl(m_index, CONTROL_KEYBOARD));
+		SetControl(CONTROL_JOYSTICK1, num_gamepads > 0 && !m_game.OtherPlayerHasControl(m_index, CONTROL_JOYSTICK1));
+		SetControl(CONTROL_JOYSTICK2, num_gamepads > 1 && !m_game.OtherPlayerHasControl(m_index, CONTROL_JOYSTICK2));
+		SetControl(CONTROL_JOYSTICK3, num_gamepads > 2 && !m_game.OtherPlayerHasControl(m_index, CONTROL_JOYSTICK3));
 		SetControl(CONTROL_NETWORK, (m_index > 0) && m_game.IsHosting());
 
 		m_dialog->SetAnchor(LEFT, RIGHT, m_button, -4, 0);

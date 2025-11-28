@@ -408,6 +408,23 @@ GameInfo::IsNetworkPlayer(int index) const
 	return (players[index].nodeID != localID);
 }
 
+bool
+GameInfo::OtherPlayerHasControl(int index, Uint8 controlMask)
+{
+	for (int i = 0; i < MAX_PLAYERS; ++i) {
+		if (!IsValidPlayer(i)) {
+			continue;
+		}
+		if (i == index) {
+			continue;
+		}
+		if (players[i].controlMask == controlMask) {
+			return true;
+		}
+	}
+	return false;
+}
+
 int
 GameInfo::GetNumPlayers() const
 {
@@ -475,6 +492,7 @@ GameInfo::BindPlayerToUI(int index, UIElement *element)
 	}
 
 	player->UI.element = element;
+	player->UI.desc = element->GetElement<UIElement>("desc");
 	player->UI.name = element->GetElement<UIElement>("name");
 	player->UI.host = element->GetElement<UIElement>("host");
 	player->UI.control = element->GetElement<UIElement>("control");
@@ -495,6 +513,20 @@ GameInfo::UpdateUI()
 	}
 }
 
+static const char *GetGamepadName(int index)
+{
+	const char *name = nullptr;
+	int count = 0;
+	SDL_JoystickID *gamepads = SDL_GetGamepads(&count);
+	if (gamepads) {
+		if (index < count) {
+			name = SDL_GetGamepadNameForID(gamepads[index]);
+		}
+		SDL_free(gamepads);
+	}
+	return name;
+}
+
 void
 GameInfo::UpdateUI(GameInfoPlayer *player)
 {
@@ -502,32 +534,36 @@ GameInfo::UpdateUI(GameInfoPlayer *player)
 		return;
 	}
 
-	if (player->UI.name) {
-		if (player->name[0]) {
+	if (player->UI.name && player->UI.host) {
+		const GameInfoNode *node = GetNodeByID(player->nodeID);
+		if (!node || node->nodeID == localID) {
+			player->UI.name->Hide();
+			player->UI.host->Hide();
+		} else {
 			player->UI.name->Show();
 			player->UI.name->SetText(player->name);
-		} else {
-			player->UI.name->Hide();
-		}
-	}
-	if (player->UI.host) {
-		const GameInfoNode *node = GetNodeByID(player->nodeID);
-		if (!node) {
-			player->UI.host->Hide();
-		} else if (node->nodeID == localID) {
-			//player->UI.host->Show();
-			//player->UI.host->SetText("localhost");
-			player->UI.host->Hide();
-		} else {
 			player->UI.host->Show();
 			player->UI.host->SetText(SDLNet_ResolveIP(&node->address));
 		}
 	}
-	if (player->UI.control) {
-		char name[128];
-		SDL_snprintf(name, sizeof(name), "Images/control%d.png", player->controlMask);
-		player->UI.control->SetImage(name);
+
+	char name[128];
+	SDL_snprintf(name, sizeof(name), "control%d", player->controlMask);
+	player->UI.control->SetImage(name);
+
+	if (player->UI.desc) {
+		const char *desc = NULL;
+
+		if (player->controlMask == CONTROL_JOYSTICK1) {
+			desc = GetGamepadName(0);
+		} else if (player->controlMask == CONTROL_JOYSTICK2) {
+			desc = GetGamepadName(1);
+		} else if (player->controlMask == CONTROL_JOYSTICK3) {
+			desc = GetGamepadName(2);
+		}
+		player->UI.desc->SetText(desc);
 	}
+
 	for (int i = 0; i < NUM_PING_STATES; ++i) {
 		UIElement *element = player->UI.ping_states[i];
 		if (element) {
