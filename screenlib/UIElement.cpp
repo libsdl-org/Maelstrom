@@ -53,6 +53,7 @@ UIElement::UIElement(UIBaseElement *parent, const char *name, UIDrawEngine *draw
 	m_mouseInside = false;
 	m_mousePressed = false;
 	m_clickCallback = NULL;
+	m_textCallback = NULL;
 	m_action = NULL;
 	m_actionPressed = NULL;
 	m_actionReleased = NULL;
@@ -458,6 +459,10 @@ UIElement::SetText(const char *text)
 	if (m_drawEngine) {
 		m_drawEngine->OnTextChanged();
 	}
+
+	if (m_textCallback) {
+		(*m_textCallback)(m_text);
+	}
 }
 
 void
@@ -624,6 +629,16 @@ UIElement::SetClickCallback(UIClickCallback *callback)
 	if (m_clickCallback) {
 		m_mouseEnabled = true;
 	}
+}
+
+void
+UIElement::SetTextCallback(UITextCallback *callback)
+{
+	if (m_textCallback) {
+		delete m_textCallback;
+	}
+
+	m_textCallback = callback;
 }
 
 void
