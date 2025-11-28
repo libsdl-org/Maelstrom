@@ -54,9 +54,8 @@ public:
 protected:
 	bool GetElement(const char *name, UIElement *&element);
 	void SetHostOrJoin(void*, int value);
-	void GlobalGameChanged(void*);
-	void SetDeathmatch(void*, int value);
 	void JoinGameClicked(void *element);
+	void DeathmatchChanged(void *, const char *text);
 
 	void UpdateUI();
 
@@ -105,7 +104,7 @@ protected:
 	DynamicPacket m_packet, m_reply;
 
 	UIElementRadioGroup *m_hostOrJoin;
-	UIElementRadioGroup *m_deathmatch;
+	UIElement *m_deathmatch;
 	UIElement *m_gameListArea;
 	UIElement *m_gameListElements[5];
 	UIElement *m_gameInfoArea;
