@@ -247,6 +247,11 @@
 		<Button name="SetVolume7" template="HotkeyOnly" hotkey="7" action="setvolume7"/>
 		<Button name="SetVolume8" template="HotkeyOnly" hotkey="8" action="setvolume8"/>
 
+		<!-- Version -->
+		<Label name="version" font="Geneva:9">
+			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" anchor="image" x="18" y="4"/>
+		</Label>
+
 		<!-- Credits -->
 		<Label template="SmallYellow" text="Port to SDL by Sam Lantinga">
 			<Anchor anchorFrom="CENTER" anchorTo="CENTER" anchor="image" y="52"/>
