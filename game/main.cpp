@@ -67,11 +67,7 @@ Bool	gRunning;
 // Main Menu actions:
 static void RunSinglePlayerGame()
 {
-	if (InitNetData(false) < 0) {
-		return;
-	}
 	NewGame();
-	HaltNetData();
 }
 
 static void RunReplayGame(const char *file)

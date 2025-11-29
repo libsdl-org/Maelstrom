@@ -20,7 +20,6 @@
     slouken@libsdl.org
 */
 
-#include "SDL_net.h"
 #include "Maelstrom_Globals.h"
 #include "../screenlib/UIElement.h"
 #include "../screenlib/UIElementRadio.h"
@@ -28,6 +27,18 @@
 #include "protocol.h"
 #include "netplay.h"
 #include "game.h"
+
+#ifdef SDL_PLATFORM_WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <winsock.h>
+#include <iphlpapi.h>
+#endif
+
+#ifdef HAVE_GETIFADDRS
+#include <ifaddrs.h>
+#include <netinet/in.h>
+#endif
 
 
 class SelectControlCallback : public UIClickCallback
@@ -130,15 +141,7 @@ bool
 LobbyDialogDelegate::OnLoad()
 {
 	int i, count;
-	IPaddress addresses[32];
 	char name[32];
-
-	// Get the addresses for this machine
-	count = SDLNet_GetLocalAddresses(addresses, SDL_arraysize(addresses));
-	m_addresses.clear();
-	for (i = 0; i < count; ++i) {
-		m_addresses.add(addresses[i]);
-	}
 
 	m_hostOrJoin = m_dialog->GetElement<UIElementRadioGroup>("hostOrJoin");
 	if (!m_hostOrJoin) {
@@ -222,10 +225,8 @@ LobbyDialogDelegate::OnHide()
 		NewGame();
 	} else {
 		SetState(STATE_NONE);
+		CloseSocket();
 	}
-
-	// Shut down networking
-	HaltNetData();
 }
 
 void
@@ -252,11 +253,17 @@ LobbyDialogDelegate::OnPoll()
 	}
 
 	// See if there are any packets on the network
-	m_packet.Reset();
-	while (SDLNet_UDP_Recv(gNetFD, &m_packet)) {
-		ProcessPacket(m_packet);
-		m_packet.Reset();
+	NET_Datagram *datagram;
+	DynamicPacket packet;
+	while (NET_ReceiveDatagram(gSocket, &datagram) && datagram) {
+		packet.data = datagram->buf;
+		packet.len = datagram->buflen;
+		packet.address.host = datagram->addr;
+		packet.address.port = datagram->port;
+		ProcessPacket(packet);
+		packet.Reset();
 	}
+	packet.address.host = nullptr;
 
 	// Do this after processing packets in case a pong was pending
 	if (!m_lastPing || (now - m_lastPing) > PING_INTERVAL) {
@@ -268,16 +275,12 @@ LobbyDialogDelegate::OnPoll()
 void
 LobbyDialogDelegate::SetHostOrJoin(void*, int value)
 {
-	// Remove the game before shutting down the network
-	if (m_state == STATE_HOSTING) {
-		RemoveGame();
-	}
-
 	// This is called when the lobby switches from hosting to joining
-	HaltNetData();
+	CloseSocket();
 
 	if (value > 0) {
-		if (InitNetData(value == HOST_GAME) < 0) {
+		bool hosting = (value == HOST_GAME);
+		if (CreateSocket(hosting) < 0) {
 			m_hostOrJoin->SetValue(2);
 			return;
 		}
@@ -346,8 +349,10 @@ LobbyDialogDelegate::UpdateUI()
 	}
 	if (m_state == STATE_HOSTING) {
 		m_playButton->SetDisabled(false);
+		m_deathmatch->SetDisabled(false);
 	} else {
 		m_playButton->SetDisabled(true);
+		m_deathmatch->SetDisabled(true);
 	}
 }
 
@@ -357,9 +362,6 @@ LobbyDialogDelegate::SetState(LOBBY_STATE state)
 	int i;
 
 	// Handle any state transitions here
-	if (m_state == STATE_HOSTING) {
-		RemoveGame();
-	}
 	if (m_state == STATE_HOSTING) {
 		if (m_controlDropdown) {
 			m_controlDropdown->Hide();
@@ -473,17 +475,198 @@ LobbyDialogDelegate::CheckPings()
 
 		for (int i = 0; i < m_game.GetNumNodes(); ++i) {
 			if (m_game.IsNetworkNode(i)) {
-				m_packet.address = m_game.GetNode(i)->address;
-				
-				SDLNet_UDP_Send(gNetFD, -1, &m_packet);
+				IPaddress address = m_game.GetNode(i)->address;
+				NET_SendDatagram(gSocket, address.host, address.port, m_packet.data, m_packet.len);
 			}
 		}
 	}
 }
 
-void
-LobbyDialogDelegate::RemoveGame()
+#ifdef HAVE_GETIFADDRS
+static Uint32 SockAddrToUint32(struct sockaddr* a)
 {
+	return ((a) && (a->sa_family == AF_INET)) ? SDL_Swap32BE(((struct sockaddr_in*)a)->sin_addr.s_addr) : 0;
+}
+#endif
+
+#if defined(SDL_PLATFORM_WIN32) || defined(HAVE_GETIFADDRS)
+// convert a numeric IP address into its string representation
+static void Inet_NtoA(Uint32 addr, char *ipbuf, size_t maxlen)
+{
+	SDL_snprintf(ipbuf, maxlen, "%u.%u.%u.%u", (addr >> 24) & 0xFF, (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, (addr >> 0) & 0xFF);
+}
+
+// convert a string representation of an IP address into its numeric equivalent
+static Uint32 Inet_AtoN(const char* buf)
+{
+	// net_server inexplicably doesn't have this function; so I'll just fake it
+	Uint32 ret = 0;
+	int shift = 24;  // fill out the MSB first
+	bool startQuad = true;
+	while ((shift >= 0) && (*buf))
+	{
+		if (startQuad)
+		{
+			unsigned char quad = (unsigned char)atoi(buf);
+			ret |= (((Uint32)quad) << shift);
+			shift -= 8;
+		}
+		startQuad = (*buf == '.');
+		buf++;
+	}
+	return ret;
+}
+#endif // SDL_PLATFORM_WIN32 || HAVE_GETIFADDRS
+
+static bool NET_SendDatagramBroadcast(NET_DatagramSocket *sock, Uint16 port, const void* buf, int buflen)
+{
+#ifdef SDL_PLATFORM_WIN32
+	// Windows XP style implementation
+	HMODULE hiphlpapi = LoadLibraryA("Iphlpapi.dll");
+	typedef DWORD (WINAPI *GetIpAddrTable_t)(PMIB_IPADDRTABLE pIpAddrTable, PULONG pdwSize, BOOL bOrder);
+	GetIpAddrTable_t GetIpAddrTableFunc = (GetIpAddrTable_t)GetProcAddress(hiphlpapi, "GetIpAddrTable");
+	typedef ULONG (WINAPI *GetAdaptersInfo_t)(PIP_ADAPTER_INFO AdapterInfo, PULONG SizePointer);
+	GetAdaptersInfo_t GetAdaptersInfoFunc = (GetAdaptersInfo_t)GetProcAddress(hiphlpapi, "GetAdaptersInfo");
+
+	// Adapted from example code at http://msdn2.microsoft.com/en-us/library/aa365917.aspx
+	// Now get Windows' IPv4 addresses table.  Once again, we gotta call GetIpAddrTable()
+	// multiple times in order to deal with potential race conditions properly.
+	MIB_IPADDRTABLE* ipTable = NULL;
+	{
+		ULONG iptablelen = 0;
+		for (int i = 0; i < 5; i++)
+		{
+			DWORD ipRet = GetIpAddrTableFunc(ipTable, &iptablelen, false);
+			if (ipRet == ERROR_INSUFFICIENT_BUFFER)
+			{
+				free(ipTable);  // in case we had previously allocated it
+				ipTable = (MIB_IPADDRTABLE*)malloc(iptablelen);
+			}
+			else if (ipRet == NO_ERROR) break;
+			else
+			{
+				free(ipTable);
+				ipTable = NULL;
+				break;
+			}
+		}
+	}
+
+	if (ipTable)
+	{
+		// Try to get the Adapters-info table, so we can given useful names to the IP
+		// addresses we are returning.  Gotta call GetAdaptersInfo() up to 5 times to handle
+		// the potential race condition between the size-query call and the get-data call.
+		// I love a well-designed API :^P
+		IP_ADAPTER_INFO* pAdapterInfo = NULL;
+		{
+			ULONG bufLen = 0;
+			for (int i = 0; i < 5; i++)
+			{
+				DWORD apRet = GetAdaptersInfoFunc(pAdapterInfo, &bufLen);
+				if (apRet == ERROR_BUFFER_OVERFLOW)
+				{
+					free(pAdapterInfo);  // in case we had previously allocated it
+					pAdapterInfo = (IP_ADAPTER_INFO*)malloc(bufLen);
+				}
+				else if (apRet == ERROR_SUCCESS) break;
+				else
+				{
+					free(pAdapterInfo);
+					pAdapterInfo = NULL;
+					break;
+				}
+			}
+		}
+
+		for (DWORD i = 0; i < ipTable->dwNumEntries; i++)
+		{
+			const MIB_IPADDRROW& row = ipTable->table[i];
+
+			// Now lookup the appropriate adaptor-name in the pAdaptorInfos, if we can find it
+			const char* name = NULL;
+			const char* desc = NULL;
+			if (pAdapterInfo)
+			{
+				IP_ADAPTER_INFO* next = pAdapterInfo;
+				while ((next) && (name == NULL))
+				{
+					IP_ADDR_STRING* ipAddr = &next->IpAddressList;
+					while (ipAddr)
+					{
+						if (Inet_AtoN(ipAddr->IpAddress.String) == SDL_Swap32BE(row.dwAddr))
+						{
+							name = next->AdapterName;
+							desc = next->Description;
+							break;
+						}
+						ipAddr = ipAddr->Next;
+					}
+					next = next->Next;
+				}
+			}
+			char namebuf[128];
+			if (name == NULL)
+			{
+				SDL_snprintf(namebuf, sizeof(namebuf), "unnamed-%i", i);
+				name = namebuf;
+			}
+
+			Uint32 ipAddr = SDL_Swap32BE(row.dwAddr);
+			Uint32 netmask = SDL_Swap32BE(row.dwMask);
+			Uint32 baddr = ipAddr & netmask;
+			if (row.dwBCastAddr) baddr |= ~netmask;
+
+			char ifaAddrStr[32];  Inet_NtoA(ipAddr, ifaAddrStr, sizeof(ifaAddrStr));
+			char maskAddrStr[32]; Inet_NtoA(netmask, maskAddrStr, sizeof(maskAddrStr));
+			char dstAddrStr[32];  Inet_NtoA(baddr, dstAddrStr, sizeof(dstAddrStr));
+			//SDL_Log("  Found interface:  name=[%s] desc=[%s] address=[%s] netmask=[%s] broadcastAddr=[%s]\n", name, desc ? desc : "unavailable", ifaAddrStr, maskAddrStr, dstAddrStr);
+
+			NET_Address *address = NET_ResolveHostname(dstAddrStr);
+			NET_WaitUntilResolved(address, -1);
+			NET_SendDatagram(sock, address, port, buf, buflen);
+			NET_UnrefAddress(address);
+		}
+
+		free(pAdapterInfo);
+		free(ipTable);
+	}
+	return true;
+#elif defined(HAVE_GETIFADDRS)
+	// BSD-style implementation
+	struct ifaddrs* ifap;
+	if (getifaddrs(&ifap) == 0)
+	{
+		struct ifaddrs* p = ifap;
+		while (p)
+		{
+			Uint32 ifaAddr = SockAddrToUint32(p->ifa_addr);
+			Uint32 maskAddr = SockAddrToUint32(p->ifa_netmask);
+			Uint32 dstAddr = SockAddrToUint32(p->ifa_dstaddr);
+			if (ifaAddr > 0)
+			{
+				char ifaAddrStr[32];  Inet_NtoA(ifaAddr, ifaAddrStr, sizeof(ifaAddrStr));
+				char maskAddrStr[32]; Inet_NtoA(maskAddr, maskAddrStr, sizeof(maskAddrStr));
+				char dstAddrStr[32];  Inet_NtoA(dstAddr, dstAddrStr, sizeof(dstAddrStr));
+				//SDL_Log("  Found interface:  name=[%s] desc=[%s] address=[%s] netmask=[%s] broadcastAddr=[%s]\n", p->ifa_name, "unavailable", ifaAddrStr, maskAddrStr, dstAddrStr);
+
+				NET_Address* address = NET_ResolveHostname(dstAddrStr);
+				NET_WaitUntilResolved(address, -1);
+				NET_SendDatagram(sock, address, port, buf, buflen);
+				NET_UnrefAddress(address);
+			}
+			p = p->ifa_next;
+		}
+		freeifaddrs(ifap);
+	}
+	return true;
+#else
+	NET_Address *address = NET_ResolveHostname("255.255.255.255");
+	NET_WaitUntilResolved(address, -1);
+	bool result = NET_SendDatagram(sock, address, port, buf, buflen);
+	NET_UnrefAddress(address);
+	return result;
+#endif
 }
 
 void
@@ -492,9 +675,8 @@ LobbyDialogDelegate::GetGameList()
 	// Get game info for local games
 	m_packet.StartLobbyMessage(LOBBY_REQUEST_GAME_INFO);
 	m_packet.Write((Uint32)SDL_GetTicks());
-	m_packet.address.host = INADDR_BROADCAST;
-	m_packet.address.port = SDL_Swap16BE(NETPLAY_PORT);
-	SDLNet_UDP_Send(gNetFD, -1, &m_packet);
+
+	NET_SendDatagramBroadcast(gSocket, NETPLAY_PORT, m_packet.data, m_packet.len);
 }
 
 void
@@ -502,8 +684,9 @@ LobbyDialogDelegate::GetGameInfo()
 {
 	m_packet.StartLobbyMessage(LOBBY_REQUEST_GAME_INFO);
 	m_packet.Write((Uint32)SDL_GetTicks());
-	m_packet.address = m_game.GetHost()->address;
-	SDLNet_UDP_Send(gNetFD, -1, &m_packet);
+
+	IPaddress address = m_game.GetHost()->address;
+	NET_SendDatagram(gSocket, address.host, address.port, m_packet.data, m_packet.len);
 }
 
 void
@@ -521,9 +704,9 @@ LobbyDialogDelegate::SendJoinRequest()
 	m_packet.Write(m_game.gameID);
 	m_packet.Write(m_game.localID);
 	m_packet.Write(prefs->GetString(PREFERENCES_HANDLE));
-	m_packet.address = m_game.GetHost()->address;
 
-	SDLNet_UDP_Send(gNetFD, -1, &m_packet);
+	IPaddress address = m_game.GetHost()->address;
+	NET_SendDatagram(gSocket, address.host, address.port, m_packet.data, m_packet.len);
 }
 
 void
@@ -532,9 +715,9 @@ LobbyDialogDelegate::SendLeaveRequest()
 	m_packet.StartLobbyMessage(LOBBY_REQUEST_LEAVE);
 	m_packet.Write(m_game.gameID);
 	m_packet.Write(m_game.localID);
-	m_packet.address = m_game.GetHost()->address;
 
-	SDLNet_UDP_Send(gNetFD, -1, &m_packet);
+	IPaddress address = m_game.GetHost()->address;
+	NET_SendDatagram(gSocket, address.host, address.port, m_packet.data, m_packet.len);
 }
 
 void
@@ -550,9 +733,8 @@ LobbyDialogDelegate::SendKick(int index)
 	m_packet.StartLobbyMessage(LOBBY_KICK);
 	m_packet.Write(m_game.gameID);
 	m_packet.Write(node->nodeID);
-	m_packet.address = node->address;
 
-	SDLNet_UDP_Send(gNetFD, -1, &m_packet);
+	NET_SendDatagram(gSocket, node->address.host, node->address.port, m_packet.data, m_packet.len);
 
 	// Now remove them from the game list
 	m_game.RemoveNode(node->nodeID);
@@ -571,25 +753,11 @@ LobbyDialogDelegate::ClearGameList()
 }
 
 void
-LobbyDialogDelegate::PackAddresses(DynamicPacket &packet)
-{
-	Uint16 port;
-
-	port = SDLNet_UDP_GetPeerAddress(gNetFD, -1)->port;
-
-	m_packet.Write((Uint8)m_addresses.length());
-	for (unsigned int i = 0; i < m_addresses.length(); ++i) {
-		m_packet.Write(m_addresses[i].host);
-		m_packet.Write(port);
-	}
-}
-
-void
 LobbyDialogDelegate::ProcessPacket(DynamicPacket &packet)
 {
 	Uint8 cmd;
 
-	if (!m_packet.Read(cmd)) {
+	if (!packet.Read(cmd)) {
 		return;
 	}
 	if (cmd != LOBBY_MSG) {
@@ -598,7 +766,7 @@ LobbyDialogDelegate::ProcessPacket(DynamicPacket &packet)
 		}
 		return;
 	}
-	if (!m_packet.Read(cmd)) {
+	if (!packet.Read(cmd)) {
 		return;
 	}
 
@@ -654,9 +822,8 @@ LobbyDialogDelegate::ProcessPing(DynamicPacket &packet)
 	m_reply.Write(gameID);
 	m_reply.Write(nodeID);
 	m_reply.Write(timestamp);
-	m_reply.address = packet.address;
 
-	SDLNet_UDP_Send(gNetFD, -1, &m_reply);
+	NET_SendDatagram(gSocket, packet.address.host, packet.address.port, m_reply.data, m_reply.len);
 }
 
 void
@@ -711,9 +878,8 @@ LobbyDialogDelegate::ProcessNewGame(DynamicPacket &packet)
 	m_reply.Write((Uint8)NEW_GAME_ACK);
 	m_reply.Write(m_game.gameID);
 	m_reply.Write(m_game.localID);
-	m_reply.address = packet.address;
 
-	SDLNet_UDP_Send(gNetFD, -1, &m_reply);
+	NET_SendDatagram(gSocket, packet.address.host, packet.address.port, m_reply.data, m_reply.len);
 
 	if (m_game.HasNode(packet.address)) {
 		m_playButton->OnClick();
@@ -732,9 +898,8 @@ LobbyDialogDelegate::ProcessRequestGameInfo(DynamicPacket &packet)
 	m_reply.StartLobbyMessage(LOBBY_GAME_INFO);
 	m_reply.Write(timestamp);
 	m_game.WriteToPacket(m_reply);
-	m_reply.address = packet.address;
 
-	SDLNet_UDP_Send(gNetFD, -1, &m_reply);
+	NET_SendDatagram(gSocket, packet.address.host, packet.address.port, m_reply.data, m_reply.len);
 }
 
 void
@@ -766,8 +931,8 @@ LobbyDialogDelegate::ProcessRequestJoin(DynamicPacket &packet)
 	m_game.WriteToPacket(m_reply);
 	for (int i = 0; i < m_game.GetNumNodes(); ++i) {
 		if (m_game.IsNetworkNode(i)) {
-			m_reply.address = m_game.GetNode(i)->address;
-			SDLNet_UDP_Send(gNetFD, -1, &m_reply);
+			IPaddress address = m_game.GetNode(i)->address;
+			NET_SendDatagram(gSocket, address.host, address.port, m_reply.data, m_reply.len);
 		}
 	}
 }
@@ -831,6 +996,8 @@ LobbyDialogDelegate::ProcessGameInfo(DynamicPacket &packet)
 		}
 
 		m_game.CopyFrom(game);
+
+		UpdateUI();
 
 		if (m_state == STATE_JOINING) {
 			if (m_game.HasNode(m_game.localID)) {

@@ -36,9 +36,8 @@
 #define NETWORK_TIMEOUT	2*FRAME_DELAY_MS
 
 
-UDPsocket gNetFD;
+NET_DatagramSocket *gSocket = nullptr;
 
-static SDLNet_SocketSet SocketSet;
 static Uint32 NextFrame;
 static bool AdvancedFrame;
 
@@ -52,7 +51,6 @@ static int           CurrOut;
 static Uint32 WaitingAcks[MAX_NODES];
 
 /* We cache one packet if the other player is ahead of us */
-static DynamicPacket Packet;
 static struct {
 	Uint32 frame;
 	DynamicPacket packet;
@@ -63,38 +61,40 @@ static DynamicPacket QueuedInput;
 static DynamicPacket FrameInput;
 
 
-int InitNetData(bool hosting)
+int CreateSocket(bool hosting)
 {
-	int i;
 	int port;
 
-	/* Initialize the networking subsystem */
-	if ( SDLNet_Init() < 0 ) {
-		error("Couldn't initialize networking: %s\n", SDLNet_GetError());
-		return(-1);
-	}
-
-	/* Oh heck, create the UDP socket here... */
+	/* Create the UDP socket */
 	if (hosting) {
 		port = NETPLAY_PORT;
 	} else {
 		port = 0;
 	}
-	gNetFD = SDLNet_UDP_Open(port);
-	if ( gNetFD == NULL ) {
-		error("Couldn't create socket bound to port %d: %s\n", port, SDLNet_GetError());
+	gSocket = NET_CreateDatagramSocket(NULL, port);
+	if ( gSocket == NULL ) {
+		error("Couldn't create socket bound to port %d: %s\n", port, SDL_GetError());
 		return(-1);
 	}
-	SocketSet = SDLNet_AllocSocketSet(1);
-	if ( SocketSet == NULL ) {
-		error("Couldn't create socket watch set\n");
-		return(-1);
-	}
-	SDLNet_UDP_AddSocket(SocketSet, gNetFD);
 
 #ifdef DEBUG_PACKETLOSS
-	SDLNet_UDP_SetPacketLoss(gNetFD, DEBUG_PACKETLOSS);
+	SDLNet_UDP_SetPacketLoss(gSocket, DEBUG_PACKETLOSS);
 #endif
+
+	return(0);
+}
+
+void CloseSocket(void)
+{
+	if (gSocket) {
+		NET_DestroyDatagramSocket(gSocket);
+		gSocket = NULL;
+	}
+}
+
+void InitNetData(void)
+{
+	int i;
 
 	/* Initialize network game variables */
 	NextFrame = 1;
@@ -104,28 +104,11 @@ int InitNetData(bool hosting)
 	CurrOut = 0;
 	SDL_zero(WaitingAcks);
 	for (i = 0; i < MAX_NODES; ++i) {
-		CachedPacket[i].frame = 0;
+		CachedPacket[i].frame = ~0u;
 		CachedPacket[i].packet.Reset();
 	}
 	QueuedInput.Reset();
 	FrameInput.Reset();
-
-	return(0);
-}
-
-void HaltNetData(void)
-{
-	if (SocketSet) {
-		SDLNet_FreeSocketSet(SocketSet);
-		SocketSet = NULL;
-	}
-
-	if (gNetFD) {
-		SDLNet_UDP_Close(gNetFD);
-		gNetFD = NULL;
-	}
-
-	SDLNet_Quit();
 }
 
 int CheckPlayers(void)
@@ -147,15 +130,6 @@ int CheckPlayers(void)
 	if (!foundLocalPlayer) {
 		error("Which player are you?\r\n");
 		return(-1);
-	}
-
-	/* Bind all of our network nodes to the broadcast channel */
-	for (i = 0; i < gGameInfo.GetNumNodes(); ++i) {
-		if (gGameInfo.IsNetworkNode(i)) {
-			const GameInfoNode *node = gGameInfo.GetNode(i);
-			SDLNet_UDP_Bind(gNetFD, 0, &node->address);
-			SDLNet_UDP_Bind(gNetFD, 1+i, &node->address);
-		}
 	}
 
 	return(0);
@@ -243,7 +217,8 @@ static SYNC_RESULT AwaitSync()
 #if DEBUG_NETWORK >= 2
 error("Sending packet for current frame (%ld)\r\n", NextFrame);
 #endif
-			SDLNet_UDP_Send(gNetFD, i+1, &CurrPacket);
+			const GameInfoNode *node = gGameInfo.GetNode(i);
+			NET_SendDatagram(gSocket, node->address.host, node->address.port, CurrPacket.data, CurrPacket.len);
 			WaitingAcks[i] = NodeTimeout(now);
 		}
 	}
@@ -272,7 +247,7 @@ error("Timed out waiting for frame %ld\r\n", NextFrame);
 			}
 		}
 
-		int ready = SDLNet_CheckSockets(SocketSet, NextTimeout(now));
+		int ready = NET_WaitUntilInputAvailable((void**)&gSocket, 1, NextTimeout(now));
 		if (ready < 0) {
 			error("Network error: SDLNet_CheckSockets()\r\n");
 			return SYNC_NETERROR;
@@ -282,15 +257,18 @@ error("Timed out waiting for frame %ld\r\n", NextFrame);
 		}
 
 		/* We are guaranteed that there is data here */
-		Packet.Reset();
-		if ( SDLNet_UDP_Recv(gNetFD, &Packet) <= 0 ) {
-			error("Network error: SDLNet_UDP_Recv()\r\n");
+		NET_Datagram *datagram;
+		DynamicPacket packet;
+		if (!NET_ReceiveDatagram(gSocket, &datagram) || !datagram) {
+			error("Network error: NET_ReceiveDatagram()\r\n");
 			return SYNC_NETERROR;
 		}
 
 		/* We have a packet! */
+		packet.data = datagram->buf;
+		packet.len = datagram->buflen;
 		Uint8 cmd;
-		if (!Packet.Read(cmd)) {
+		if (!packet.Read(cmd)) {
 			error("Received short packet\r\n");
 			continue;
 		}
@@ -304,11 +282,11 @@ error("LOBBY_MSG packet\r\n");
 #if DEBUG_NETWORK >= 2
 error("NEW_GAME packet\r\n");
 #endif
-			Packet.Reset();
-			Packet.Write((Uint8)NEW_GAME_ACK);
-			Packet.Write(gGameInfo.gameID);
-			Packet.Write(gGameInfo.localID);
-			SDLNet_UDP_Send(gNetFD, -1, &Packet);
+			DynamicPacket reply;
+			reply.Write((Uint8)NEW_GAME_ACK);
+			reply.Write(gGameInfo.gameID);
+			reply.Write(gGameInfo.localID);
+			NET_SendDatagram(gSocket, datagram->addr, datagram->port, reply.data, reply.len);
 			continue;
 		}
 		if (cmd == NEW_GAME_ACK) {
@@ -324,7 +302,7 @@ error("NEW_GAME_ACK packet\r\n");
 
 		Uint32 gameID;
 		Uint32 nodeID;
-		if (!Packet.Read(gameID) || !Packet.Read(nodeID)) {
+		if (!packet.Read(gameID) || !packet.Read(nodeID)) {
 			error("Received short packet\r\n");
 			continue;
 		}
@@ -339,7 +317,7 @@ error("NEW_GAME_ACK packet\r\n");
 		}
 
 		/* Check the frame number */
-		if (!Packet.Read(frame)) {
+		if (!packet.Read(frame)) {
 			error("Received short packet\r\n");
 			continue;
 		}
@@ -356,7 +334,7 @@ error("Ignoring duplicate packet for frame %lu from node %d\r\n", frame, index);
 			}
 
 			/* Do a consistency check!! */
-			if (!ProcessSync(index, Packet)) {
+			if (!ProcessSync(index, packet)) {
 				return SYNC_CORRUPT;
 			}
 			WaitingAcks[index] = 0;
@@ -365,8 +343,7 @@ error("Ignoring duplicate packet for frame %lu from node %d\r\n", frame, index);
 #if DEBUG_NETWORK >= 1
 error("Transmitting packet for old frame (%lu)\r\n", frame);
 #endif
-			LastPacket.address = Packet.address;
-			SDLNet_UDP_Send(gNetFD, -1, &LastPacket);
+			NET_SendDatagram(gSocket, datagram->addr, datagram->port, LastPacket.data, LastPacket.len);
 		} else if (frame == (NextFrame+1)) {
 #if DEBUG_NETWORK >= 1
 error("Received packet for next frame! (%lu, current = %lu)\r\n",
@@ -375,12 +352,11 @@ error("Received packet for next frame! (%lu, current = %lu)\r\n",
 			/* Cache this frame for next round */
 			CachedPacket[index].frame = frame;
 			CachedPacket[index].packet.Reset();
-			CachedPacket[index].packet.Write(Packet);
+			CachedPacket[index].packet.Write(packet);
 			CachedPacket[index].packet.Seek(0);
 
 			/* Let the node know we're still waiting */
-			CurrPacket.address = Packet.address;
-			SDLNet_UDP_Send(gNetFD, -1, &CurrPacket);
+			NET_SendDatagram(gSocket, datagram->addr, datagram->port, CurrPacket.data, CurrPacket.len);
 		}
 #if DEBUG_NETWORK >= 1
 else
@@ -478,7 +454,12 @@ int Send_NewGame()
 	/* Send all the packets */
 	newgame.Write((Uint8)NEW_GAME);
 	gGameInfo.WriteToPacket(newgame);
-	SDLNet_UDP_Send(gNetFD, 0, &newgame);
+	for (i = 0; i < gGameInfo.GetNumNodes(); ++i) {
+		if (gGameInfo.IsNetworkNode(i)) {
+			const GameInfoNode *node = gGameInfo.GetNode(i);
+			NET_SendDatagram(gSocket, node->address.host, node->address.port, newgame.data, newgame.len);
+		}
+	}
 
 	/* Get ready for responses */
 	Uint32 now = (Uint32)SDL_GetTicks();
@@ -508,13 +489,14 @@ int Send_NewGame()
 		now = (Uint32)SDL_GetTicks();
 		for (i = 0; i < gGameInfo.GetNumNodes(); ++i) {
 			if (HasTimedOut(i, now)) {
-				SDLNet_UDP_Send(gNetFD, i+1, &newgame);
+				const GameInfoNode *node = gGameInfo.GetNode(i);
+				NET_SendDatagram(gSocket, node->address.host, node->address.port, newgame.data, newgame.len);
 				WaitingAcks[i] = NodeTimeout(now);
 			}
 		}
-		int ready = SDLNet_CheckSockets(SocketSet, NextTimeout(now));
+		int ready = NET_WaitUntilInputAvailable((void**)&gSocket, 1, NextTimeout(now));
 		if (ready < 0) {
-			error("Network error: SDLNet_CheckSockets()\r\n");
+			error("Network error: NET_WaitUntilInputAvailable()\r\n");
 			return(-1);
 		}
 		if (ready == 0) {
@@ -522,21 +504,24 @@ int Send_NewGame()
 		}
 
 		/* We are guaranteed that there is data here */
-		Packet.Reset();
-		if ( SDLNet_UDP_Recv(gNetFD, &Packet) <= 0 ) {
+		NET_Datagram* datagram;
+		DynamicPacket packet;
+		if (!NET_ReceiveDatagram(gSocket, &datagram)) {
 			error("Network error: SDLNet_UDP_Recv()\r\n");
 			return(-1);
 		}
 
 		/* We have a packet! */
+		packet.data = datagram->buf;
+		packet.len = datagram->buflen;
 		Uint8 cmd;
 		Uint32 gameID;
 		Uint32 nodeID;
-		if (!Packet.Read(cmd) || cmd != NEW_GAME_ACK) {
+		if (!packet.Read(cmd) || cmd != NEW_GAME_ACK) {
 			/* Continue waiting */
 			continue;
 		}
-		if (!Packet.Read(gameID) || !Packet.Read(nodeID)) {
+		if (!packet.Read(gameID) || !packet.Read(nodeID)) {
 			continue;
 		}
 		if (gameID != gGameInfo.gameID) {

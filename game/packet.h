@@ -23,8 +23,27 @@
 #ifndef _packet_h
 #define _packet_h
 
-#include "SDL_net.h"
 #include "protocol.h"
+
+struct IPaddress {
+	IPaddress() { }
+	IPaddress(const IPaddress &rhs) {
+		*this = rhs;
+	}
+	~IPaddress() {
+		NET_UnrefAddress(host);
+	}
+
+	IPaddress &operator=(const IPaddress &rhs) {
+		host = NET_RefAddress(rhs.host);
+		port = rhs.port;
+		return *this;
+	}
+
+    NET_Address *host = nullptr;
+	Uint16 port = 0;
+};
+
 
 // Utility functions to compare IP addresses 
 
@@ -37,16 +56,15 @@ extern inline bool operator!=(const IPaddress &lhs, const IPaddress &rhs) {
 
 // A dynamic packet class that takes care of allocating memory and packing data
 
-class DynamicPacket : public UDPpacket
+class DynamicPacket
 {
 public:
-	DynamicPacket(int minSize = 1024) {
-		SDL_zero(*this);
-		maxlen = minSize;
-		data = (Uint8*)SDL_malloc(minSize);
+	DynamicPacket() {
 	}
 	~DynamicPacket() {
-		SDL_free(data);
+		if (maxlen > 0) {
+			SDL_free(data);
+		}
 	}
 
 	void StartLobbyMessage(int msg) {
@@ -82,12 +100,12 @@ public:
 	}
 	void Write(Uint16 value) {
 		Grow(sizeof(value));
-		SDLNet_Write16(value, &data[pos]);
+		SDL_memcpy(&data[pos], &value, sizeof(value));
 		pos += sizeof(value);
 	}
 	void Write(Uint32 value) {
 		Grow(sizeof(value));
-		SDLNet_Write32(value, &data[pos]);
+		SDL_memcpy(&data[pos], &value, sizeof(value));
 		pos += sizeof(value);
 	}
 	void Write(const char *value) {
@@ -101,6 +119,9 @@ public:
 		}
 		Write((Uint8)amount);
 		Write(value, amount);
+	}
+	void Write(NET_Address *address) {
+		Write(NET_GetAddressString(address));
 	}
 	void Write(DynamicPacket &packet) {
 		size_t amount = packet.len - packet.pos;
@@ -124,7 +145,7 @@ public:
 		if (pos+sizeof(value) > (size_t)len) {
 			return false;
 		}
-		value = SDLNet_Read16(&data[pos]);
+		SDL_memcpy(&value, &data[pos], sizeof(value));
 		pos += sizeof(value);
 		return true;
 	}
@@ -132,8 +153,26 @@ public:
 		if (pos+sizeof(value) > (size_t)len) {
 			return false;
 		}
-		value = SDLNet_Read32(&data[pos]);
+		SDL_memcpy(&value, &data[pos], sizeof(value));
 		pos += sizeof(value);
+		return true;
+	}
+	bool Read(NET_Address *&address) {
+		char hostname[MAX_HOSTNAME_LEN];
+		if (!Read(hostname, sizeof(hostname))) {
+			return false;
+		}
+		if (hostname[0]) {
+			address = NET_ResolveHostname(hostname);
+			if (!address) {
+				return false;
+			}
+			if (NET_WaitUntilResolved(address, -1) != NET_SUCCESS) {
+				NET_UnrefAddress(address);
+				address = nullptr;
+				return false;
+			}
+		}
 		return true;
 	}
 	bool Read(char *value, size_t maxlen) {
@@ -152,6 +191,9 @@ public:
 
 	void Grow(size_t additionalSize) {
 		if (len+additionalSize > (size_t)maxlen) {
+			if (maxlen == 0) {
+				maxlen = 1024;
+			}
 			while (len+additionalSize > (size_t)maxlen) {
 				maxlen *= 2;
 			}
@@ -160,8 +202,14 @@ public:
 		len += (int)additionalSize;
 	}
 
+public:
+	Uint8 *data = nullptr;
+	int len = 0;
+	int maxlen = 0;
+	IPaddress address;
+
 protected:
-	int pos;
+	int pos = 0;
 };
 
 #endif // _packet_h

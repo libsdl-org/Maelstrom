@@ -23,7 +23,6 @@
 #ifndef _lobby_h
 #define _lobby_h
 
-#include "SDL_net.h"
 #include "protocol.h"
 #include "packet.h"
 #include "gameinfo.h"
@@ -60,7 +59,6 @@ protected:
 	void UpdateUI();
 
 	void CheckPings();
-	void RemoveGame();
 	void GetGameList();
 	void GetGameInfo();
 	void JoinGame(GameInfo &game);
@@ -68,8 +66,6 @@ protected:
 	void SendLeaveRequest();
 	void ClearGameInfo();
 	void ClearGameList();
-
-	void PackAddresses(DynamicPacket &packet);
 
 	void ProcessPacket(DynamicPacket &packet);
 	void ProcessPing(DynamicPacket &packet);
@@ -82,9 +78,6 @@ protected:
 	void ProcessKick(DynamicPacket &packet);
 
 protected:
-	IPaddress m_globalServer;
-	array<IPaddress> m_addresses;
-
 	enum LOBBY_STATE {
 		STATE_NONE,
 		STATE_HOSTING,
