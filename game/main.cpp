@@ -189,6 +189,9 @@ int main(int argc, char *argv[])
 			window_flags |= SDL_WINDOW_FULLSCREEN;
 		} else if ( strcmp(argv[i], "--windowed") == 0 ) {
 			window_flags &= ~SDL_WINDOW_FULLSCREEN;
+		} else if ( strcmp(argv[i], "-NSDocumentRevisionsDebugMode") == 0 && argv[i+1] ) {
+			// Ignore Xcode debug option
+			++i;
 		} else if ( strcmp(argv[i], "--version") == 0 ) {
 			error("%s", Version);
 			exit(0);
