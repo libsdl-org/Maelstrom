@@ -32,10 +32,10 @@
 						<DialogButton name="join" closeDialog="false" text="Join" default="true">
 							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT"/>
 						</DialogButton>
-						<DialogLabel name="name" text="This is a name">
+						<DialogLabel name="name">
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="16"/>
 						</DialogLabel>
-						<DialogLabel name="host" text="bwg101.corp.pacbell.net">
+						<DialogLabel name="host">
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="120"/>
 						</DialogLabel>
 						<Image name="ping1" image="ping1">
@@ -57,10 +57,10 @@
 						<DialogButton name="join" closeDialog="false" text="Join">
 							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT"/>
 						</DialogButton>
-						<DialogLabel name="name" text="This is a name">
+						<DialogLabel name="name">
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="16"/>
 						</DialogLabel>
-						<DialogLabel name="host" text="bwg101.corp.pacbell.net">
+						<DialogLabel name="host">
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="120"/>
 						</DialogLabel>
 						<Image name="ping1" image="ping1">
@@ -82,10 +82,10 @@
 						<DialogButton name="join" closeDialog="false" text="Join">
 							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT"/>
 						</DialogButton>
-						<DialogLabel name="name" text="This is a name">
+						<DialogLabel name="name">
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="16"/>
 						</DialogLabel>
-						<DialogLabel name="host" text="bwg101.corp.pacbell.net">
+						<DialogLabel name="host">
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="120"/>
 						</DialogLabel>
 						<Image name="ping1" image="ping1">
@@ -107,10 +107,10 @@
 						<DialogButton name="join" closeDialog="false" text="Join">
 							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT"/>
 						</DialogButton>
-						<DialogLabel name="name" text="This is a name">
+						<DialogLabel name="name">
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="16"/>
 						</DialogLabel>
-						<DialogLabel name="host" text="bwg101.corp.pacbell.net">
+						<DialogLabel name="host">
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="120"/>
 						</DialogLabel>
 						<Image name="ping1" image="ping1">
@@ -132,10 +132,10 @@
 						<DialogButton name="join" closeDialog="false" text="Join">
 							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT"/>
 						</DialogButton>
-						<DialogLabel name="name" text="This is a name">
+						<DialogLabel name="name">
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="16"/>
 						</DialogLabel>
-						<DialogLabel name="host" text="bwg101.corp.pacbell.net">
+						<DialogLabel name="host">
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="join" x="120"/>
 						</DialogLabel>
 						<Image name="ping1" image="ping1">

@@ -23,7 +23,7 @@
 #ifndef _netplay_h
 #define _netplay_h
 
-#include "SDL_net.h"
+#include <SDL3_net/SDL_net.h>
 
 enum SYNC_RESULT {
 	SYNC_COMPLETE,
@@ -33,8 +33,9 @@ enum SYNC_RESULT {
 };
 
 /* Functions in netplay.cpp */
-extern int   InitNetData(bool hosting);
-extern void  HaltNetData(void);
+extern int   CreateSocket(bool hosting);
+extern void  CloseSocket(void);
+extern void  InitNetData(void);
 extern int   CheckPlayers(void);
 extern void  QueueInput(Uint8 value);
 extern SYNC_RESULT SyncNetwork(void);
@@ -42,6 +43,6 @@ extern int   GetSyncBuf(Uint8 **bufptr);
 extern int   Send_NewGame();
 
 /* Variables from netplay.cpp */
-extern UDPsocket gNetFD;
+extern NET_DatagramSocket *gSocket;
 
 #endif // _netplay_h

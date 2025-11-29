@@ -9,17 +9,6 @@ else()
     set(GAME_INSTALLDIR "${CMAKE_INSTALL_PREFIX}/games/${PROJECT_NAME}")
 endif()
 
-if(MSVC)
-    add_compile_options(-W3)
-else()
-    add_compile_options(-Wall)
-    add_compile_options(-Wextra)
-    add_compile_options(-Wno-cast-function-type)
-    add_compile_options(-Wno-sign-compare)
-    add_compile_options(-Wno-unused-function)
-    add_compile_options(-Wno-unused-parameter)
-endif()
-
 # set the output directory for built objects.
 # This makes sure that the dynamic library goes into the build directory automatically.
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
@@ -141,9 +130,35 @@ set(MAELSTROM_SOURCES
 )
 
 add_executable(Maelstrom WIN32 ${MAELSTROM_SOURCES})
+
+if(MSVC)
+    target_compile_options(Maelstrom PRIVATE -W3)
+else()
+    target_compile_options(Maelstrom PRIVATE -Wall)
+    target_compile_options(Maelstrom PRIVATE -Wextra)
+    target_compile_options(Maelstrom PRIVATE -Wno-cast-function-type)
+    target_compile_options(Maelstrom PRIVATE -Wno-sign-compare)
+    target_compile_options(Maelstrom PRIVATE -Wno-unused-function)
+    target_compile_options(Maelstrom PRIVATE -Wno-unused-parameter)
+endif()
+
+if(NOT WIN32)
+  check_c_source_compiles("
+      #include <ifaddrs.h>
+      int main() {
+        struct ifaddrs* ifap;
+        getifaddrs(&ifap);
+        return 0;
+      }
+    " HAVE_GETIFADDRS)
+  if(HAVE_GETIFADDRS)
+    target_compile_definitions(Maelstrom PRIVATE HAVE_GETIFADDRS)
+  endif()
+endif()
+
 target_link_libraries(Maelstrom PRIVATE SDLmac)
 target_link_libraries(Maelstrom PRIVATE SDL3::SDL3)
-target_link_libraries(Maelstrom PRIVATE SDL2_net::SDL2_net-static)
+target_link_libraries(Maelstrom PRIVATE SDL3_net::SDL3_net)
 
 install(TARGETS Maelstrom DESTINATION "${GAME_INSTALLDIR}")
 install(DIRECTORY Data DESTINATION "${GAME_INSTALLDIR}")

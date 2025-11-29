@@ -24,7 +24,6 @@
 #define _Maelstrom_Globals_h
 
 #include <SDL3/SDL.h>
-#include <SDL_net.h>
 
 #include "../screenlib/SDL_FrameBuf.h"
 #include "../screenlib/UIManager.h"

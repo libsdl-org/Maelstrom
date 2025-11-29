@@ -324,9 +324,9 @@ GameInfo::RemoveNode(Uint32 nodeID)
 	i = 0;
 	while (i < GetNumNodes()) {
 		if (nodeID == nodes[i].nodeID) {
-			SDL_memcpy(&nodes[i], &nodes[i+1],
-					(MAX_NODES-i-1)*sizeof(nodes[i]));
-			SDL_zero(nodes[MAX_NODES-1]);
+			for (int j = i; j < (GetNumNodes() - 1); ++j) {
+				nodes[j] = nodes[j + 1];
+			}
 			--numNodes;
 		} else {
 			++i;
@@ -543,13 +543,15 @@ GameInfo::UpdateUI(GameInfoPlayer *player)
 			player->UI.name->Show();
 			player->UI.name->SetText(player->name);
 			player->UI.host->Show();
-			player->UI.host->SetText(SDLNet_ResolveIP(&node->address));
+			player->UI.host->SetText(NET_GetAddressString(node->address.host));
 		}
 	}
 
-	char name[128];
-	SDL_snprintf(name, sizeof(name), "control%d", player->controlMask);
-	player->UI.control->SetImage(name);
+	if (player->UI.control) {
+		char name[128];
+		SDL_snprintf(name, sizeof(name), "control%d", player->controlMask);
+		player->UI.control->SetImage(name);
+	}
 
 	if (player->UI.desc) {
 		const char *desc = NULL;

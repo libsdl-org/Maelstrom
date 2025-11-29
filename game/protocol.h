@@ -23,6 +23,8 @@
 #ifndef _protocol_h
 #define _protocol_h
 
+#include <SDL3_net/SDL_net.h>
+
 /* Architecture
  *
  * The lobby server simply acts as an address broker, keeping a list
@@ -146,5 +148,8 @@ enum LobbyProtocol {
 
 /* The maximum characters in a player's handle */
 #define MAX_NAMELEN	15
+
+/* The maximum characters in a hostname */
+#define MAX_HOSTNAME_LEN 128
 
 #endif /* _protocol_h */

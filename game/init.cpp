@@ -740,6 +740,7 @@ void CleanUp(void)
 		delete prefs;
 		prefs = NULL;
 	}
+	NET_Quit();
 	SDL_Quit();
 }
 
@@ -748,7 +749,16 @@ void CleanUp(void)
 int DoInitializations(Uint32 window_flags)
 {
 	int w, h;
-	SDL_Surface *icon;
+	SDL_Surface* icon;
+
+	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD)) {
+		error("Couldn't initialize SDL: %s\n", SDL_GetError());
+		return(-1);
+	}
+	if (!NET_Init()) {
+		error("Couldn't initialize SDL_net: %s\n", SDL_GetError());
+		return(-1);
+	}
 
 	// -- Initialize some variables
 	gLastHigh = -1;
@@ -762,11 +772,6 @@ int DoInitializations(Uint32 window_flags)
 
 	// -- Load our controls
 	LoadControls();
-
-	if ( !SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_GAMEPAD) ) {
-		error("Couldn't initialize SDL: %s\n", SDL_GetError());
-		return(-1);
-	}
 
 	/* Load the Maelstrom icon */
 	icon = SDL_LoadSurface_IO(OpenRead("icon.png"), true);

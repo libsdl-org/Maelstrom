@@ -108,6 +108,8 @@ static bool SetupPlayers(void)
 
 void NewGame(void)
 {
+	InitNetData();
+
 	/* Start the replay */
 	gReplay.HandleNewGame();
 
@@ -1055,9 +1057,11 @@ GamePanelDelegate::NextWave()
 void
 GamePanelDelegate::GameOver()
 {
-	ui->ShowPanel(PANEL_GAMEOVER);
+	CloseSocket();
 
 	QuitPlayerControls();
+
+	ui->ShowPanel(PANEL_GAMEOVER);
 }
 
 /* ----------------------------------------------------------------- */
