@@ -1,0 +1,774 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AA9285A22EDB9A5D0005200A /* SDL3_net.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA9285A12EDB9A5D0005200A /* SDL3_net.framework */; };
+		AA9285A32EDB9A5D0005200A /* SDL3_net.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AA9285A12EDB9A5D0005200A /* SDL3_net.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AA9285A42EDB9A6A0005200A /* SDL3.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA9285772EDB8EA00005200A /* SDL3.framework */; };
+		AA9285A52EDB9A6A0005200A /* SDL3.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AA9285772EDB8EA00005200A /* SDL3.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AA928DE52EDB9CA60005200A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DCF2EDB9CA60005200A /* main.cpp */; };
+		AA928DE62EDB9CA60005200A /* about.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DB32EDB9CA60005200A /* about.cpp */; };
+		AA928DE72EDB9CA60005200A /* MaelstromUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DCD2EDB9CA60005200A /* MaelstromUI.cpp */; };
+		AA928DE82EDB9CA60005200A /* rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DDF2EDB9CA60005200A /* rect.cpp */; };
+		AA928DE92EDB9CA60005200A /* netplay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DD52EDB9CA60005200A /* netplay.cpp */; };
+		AA928DEA2EDB9CA60005200A /* objects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DD92EDB9CA60005200A /* objects.cpp */; };
+		AA928DEB2EDB9CA60005200A /* game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DBC2EDB9CA60005200A /* game.cpp */; };
+		AA928DEC2EDB9CA60005200A /* lobby.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DC62EDB9CA60005200A /* lobby.cpp */; };
+		AA928DED2EDB9CA60005200A /* MacDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DC92EDB9CA60005200A /* MacDialog.cpp */; };
+		AA928DEE2EDB9CA60005200A /* continue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DB62EDB9CA60005200A /* continue.cpp */; };
+		AA928DEF2EDB9CA60005200A /* player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DDC2EDB9CA60005200A /* player.cpp */; };
+		AA928DF02EDB9CA60005200A /* load.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DC42EDB9CA60005200A /* load.cpp */; };
+		AA928DF12EDB9CA60005200A /* gameover.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DC02EDB9CA60005200A /* gameover.cpp */; };
+		AA928DF22EDB9CA60005200A /* object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DD72EDB9CA60005200A /* object.cpp */; };
+		AA928DF32EDB9CA60005200A /* myerror.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DD32EDB9CA60005200A /* myerror.cpp */; };
+		AA928DF42EDB9CA60005200A /* fastrand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DBA2EDB9CA60005200A /* fastrand.cpp */; };
+		AA928DF52EDB9CA60005200A /* replay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DE12EDB9CA60005200A /* replay.cpp */; };
+		AA928DF62EDB9CA60005200A /* gameinfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DBE2EDB9CA60005200A /* gameinfo.cpp */; };
+		AA928DF72EDB9CA60005200A /* make.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DD12EDB9CA60005200A /* make.cpp */; };
+		AA928DF82EDB9CA60005200A /* scores.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DE32EDB9CA60005200A /* scores.cpp */; };
+		AA928DF92EDB9CA60005200A /* init.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DC22EDB9CA60005200A /* init.cpp */; };
+		AA928DFA2EDB9CA60005200A /* controls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928DB82EDB9CA60005200A /* controls.cpp */; };
+		AA928E082EDB9CEA0005200A /* files.c in Sources */ = {isa = PBXBuildFile; fileRef = AA928DFF2EDB9CEA0005200A /* files.c */; };
+		AA928E092EDB9CEA0005200A /* hashtable.c in Sources */ = {isa = PBXBuildFile; fileRef = AA928E012EDB9CEA0005200A /* hashtable.c */; };
+		AA928E0A2EDB9CEA0005200A /* loadxml.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E032EDB9CEA0005200A /* loadxml.cpp */; };
+		AA928E0B2EDB9CEA0005200A /* prefs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E052EDB9CEA0005200A /* prefs.cpp */; };
+		AA928E342EDB9D1B0005200A /* UIPanel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E2E2EDB9D1B0005200A /* UIPanel.cpp */; };
+		AA928E352EDB9D1B0005200A /* UIElementThumbstick.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E282EDB9D1B0005200A /* UIElementThumbstick.cpp */; };
+		AA928E362EDB9D1B0005200A /* UIBaseElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E122EDB9D1B0005200A /* UIBaseElement.cpp */; };
+		AA928E372EDB9D1B0005200A /* UIContainer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E142EDB9D1B0005200A /* UIContainer.cpp */; };
+		AA928E382EDB9D1B0005200A /* UIArea.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E102EDB9D1B0005200A /* UIArea.cpp */; };
+		AA928E392EDB9D1B0005200A /* UIDrawEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E1A2EDB9D1B0005200A /* UIDrawEngine.cpp */; };
+		AA928E3A2EDB9D1B0005200A /* UIDialogButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E182EDB9D1B0005200A /* UIDialogButton.cpp */; };
+		AA928E3B2EDB9D1B0005200A /* UIElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E1C2EDB9D1B0005200A /* UIElement.cpp */; };
+		AA928E3C2EDB9D1B0005200A /* UITexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E332EDB9D1B0005200A /* UITexture.cpp */; };
+		AA928E3D2EDB9D1B0005200A /* UIElementCheckbox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E202EDB9D1B0005200A /* UIElementCheckbox.cpp */; };
+		AA928E3E2EDB9D1B0005200A /* SDL_FrameBuf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E0E2EDB9D1B0005200A /* SDL_FrameBuf.cpp */; };
+		AA928E3F2EDB9D1B0005200A /* UIElementDropdown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E222EDB9D1B0005200A /* UIElementDropdown.cpp */; };
+		AA928E402EDB9D1B0005200A /* UIDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E162EDB9D1B0005200A /* UIDialog.cpp */; };
+		AA928E412EDB9D1B0005200A /* UITemplates.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E312EDB9D1B0005200A /* UITemplates.cpp */; };
+		AA928E422EDB9D1B0005200A /* UIElementRadio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E262EDB9D1B0005200A /* UIElementRadio.cpp */; };
+		AA928E432EDB9D1B0005200A /* UIElementButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E1E2EDB9D1B0005200A /* UIElementButton.cpp */; };
+		AA928E442EDB9D1B0005200A /* UIManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E2C2EDB9D1B0005200A /* UIManager.cpp */; };
+		AA928E452EDB9D1B0005200A /* UIElementEditbox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E242EDB9D1B0005200A /* UIElementEditbox.cpp */; };
+		AA928E492EDB9D440005200A /* miniz.c in Sources */ = {isa = PBXBuildFile; fileRef = AA928E482EDB9D440005200A /* miniz.c */; };
+		AA928E502EDB9D830005200A /* Mac_FontServ.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E4D2EDB9D830005200A /* Mac_FontServ.cpp */; };
+		AA928E512EDB9D830005200A /* Mac_Sound.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E4F2EDB9D830005200A /* Mac_Sound.cpp */; };
+		AA929E852EDBA1900005200A /* Docs in Resources */ = {isa = PBXBuildFile; fileRef = AA929E842EDBA1900005200A /* Docs */; };
+		AA929E872EDBA3B80005200A /* Data in Resources */ = {isa = PBXBuildFile; fileRef = AA929E862EDBA3B80005200A /* Data */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		AA92857A2EDB8EA00005200A /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				AA9285A52EDB9A6A0005200A /* SDL3.framework in Embed Frameworks */,
+				AA9285A32EDB9A5D0005200A /* SDL3_net.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		AA9284B32EDB8BB30005200A /* Maelstrom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Maelstrom.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA9284C12EDB8BE00005200A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AA9284C72EDB8CEE0005200A /* SDL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL.xcodeproj; path = ../external/SDL/Xcode/SDL/SDL.xcodeproj; sourceTree = SOURCE_ROOT; };
+		AA9285752EDB8E8A0005200A /* SDL3.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDL3.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA9285772EDB8EA00005200A /* SDL3.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDL3.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA9285942EDB9A3D0005200A /* SDL_net.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL_net.xcodeproj; path = ../external/SDL_net/Xcode/SDL_net.xcodeproj; sourceTree = SOURCE_ROOT; };
+		AA9285A12EDB9A5D0005200A /* SDL3_net.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDL3_net.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA928DB22EDB9CA60005200A /* about.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = about.h; sourceTree = "<group>"; };
+		AA928DB32EDB9CA60005200A /* about.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = about.cpp; sourceTree = "<group>"; };
+		AA928DB42EDB9CA60005200A /* colortable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = colortable.h; sourceTree = "<group>"; };
+		AA928DB52EDB9CA60005200A /* continue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = continue.h; sourceTree = "<group>"; };
+		AA928DB62EDB9CA60005200A /* continue.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = continue.cpp; sourceTree = "<group>"; };
+		AA928DB72EDB9CA60005200A /* controls.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = controls.h; sourceTree = "<group>"; };
+		AA928DB82EDB9CA60005200A /* controls.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = controls.cpp; sourceTree = "<group>"; };
+		AA928DB92EDB9CA60005200A /* fastrand.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fastrand.h; sourceTree = "<group>"; };
+		AA928DBA2EDB9CA60005200A /* fastrand.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fastrand.cpp; sourceTree = "<group>"; };
+		AA928DBB2EDB9CA60005200A /* game.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = game.h; sourceTree = "<group>"; };
+		AA928DBC2EDB9CA60005200A /* game.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = game.cpp; sourceTree = "<group>"; };
+		AA928DBD2EDB9CA60005200A /* gameinfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gameinfo.h; sourceTree = "<group>"; };
+		AA928DBE2EDB9CA60005200A /* gameinfo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = gameinfo.cpp; sourceTree = "<group>"; };
+		AA928DBF2EDB9CA60005200A /* gameover.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gameover.h; sourceTree = "<group>"; };
+		AA928DC02EDB9CA60005200A /* gameover.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = gameover.cpp; sourceTree = "<group>"; };
+		AA928DC12EDB9CA60005200A /* init.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = init.h; sourceTree = "<group>"; };
+		AA928DC22EDB9CA60005200A /* init.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = init.cpp; sourceTree = "<group>"; };
+		AA928DC32EDB9CA60005200A /* load.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = load.h; sourceTree = "<group>"; };
+		AA928DC42EDB9CA60005200A /* load.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = load.cpp; sourceTree = "<group>"; };
+		AA928DC52EDB9CA60005200A /* lobby.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = lobby.h; sourceTree = "<group>"; };
+		AA928DC62EDB9CA60005200A /* lobby.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lobby.cpp; sourceTree = "<group>"; };
+		AA928DC72EDB9CA60005200A /* Localization.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Localization.h; sourceTree = "<group>"; };
+		AA928DC82EDB9CA60005200A /* MacDialog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MacDialog.h; sourceTree = "<group>"; };
+		AA928DC92EDB9CA60005200A /* MacDialog.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MacDialog.cpp; sourceTree = "<group>"; };
+		AA928DCA2EDB9CA60005200A /* Maelstrom.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Maelstrom.h; sourceTree = "<group>"; };
+		AA928DCB2EDB9CA60005200A /* Maelstrom_Globals.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Maelstrom_Globals.h; sourceTree = "<group>"; };
+		AA928DCC2EDB9CA60005200A /* MaelstromUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaelstromUI.h; sourceTree = "<group>"; };
+		AA928DCD2EDB9CA60005200A /* MaelstromUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MaelstromUI.cpp; sourceTree = "<group>"; };
+		AA928DCE2EDB9CA60005200A /* main.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = main.h; sourceTree = "<group>"; };
+		AA928DCF2EDB9CA60005200A /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		AA928DD02EDB9CA60005200A /* make.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = make.h; sourceTree = "<group>"; };
+		AA928DD12EDB9CA60005200A /* make.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = make.cpp; sourceTree = "<group>"; };
+		AA928DD22EDB9CA60005200A /* myerror.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = myerror.h; sourceTree = "<group>"; };
+		AA928DD32EDB9CA60005200A /* myerror.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = myerror.cpp; sourceTree = "<group>"; };
+		AA928DD42EDB9CA60005200A /* netplay.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = netplay.h; sourceTree = "<group>"; };
+		AA928DD52EDB9CA60005200A /* netplay.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = netplay.cpp; sourceTree = "<group>"; };
+		AA928DD62EDB9CA60005200A /* object.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = object.h; sourceTree = "<group>"; };
+		AA928DD72EDB9CA60005200A /* object.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = object.cpp; sourceTree = "<group>"; };
+		AA928DD82EDB9CA60005200A /* objects.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = objects.h; sourceTree = "<group>"; };
+		AA928DD92EDB9CA60005200A /* objects.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = objects.cpp; sourceTree = "<group>"; };
+		AA928DDA2EDB9CA60005200A /* packet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = packet.h; sourceTree = "<group>"; };
+		AA928DDB2EDB9CA60005200A /* player.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = player.h; sourceTree = "<group>"; };
+		AA928DDC2EDB9CA60005200A /* player.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = player.cpp; sourceTree = "<group>"; };
+		AA928DDD2EDB9CA60005200A /* protocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = protocol.h; sourceTree = "<group>"; };
+		AA928DDE2EDB9CA60005200A /* rect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = rect.h; sourceTree = "<group>"; };
+		AA928DDF2EDB9CA60005200A /* rect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = rect.cpp; sourceTree = "<group>"; };
+		AA928DE02EDB9CA60005200A /* replay.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = replay.h; sourceTree = "<group>"; };
+		AA928DE12EDB9CA60005200A /* replay.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = replay.cpp; sourceTree = "<group>"; };
+		AA928DE22EDB9CA60005200A /* scores.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = scores.h; sourceTree = "<group>"; };
+		AA928DE32EDB9CA60005200A /* scores.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = scores.cpp; sourceTree = "<group>"; };
+		AA928DE42EDB9CA60005200A /* shinobi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = shinobi.h; sourceTree = "<group>"; };
+		AA928DFC2EDB9CEA0005200A /* array.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = array.h; sourceTree = "<group>"; };
+		AA928DFD2EDB9CEA0005200A /* ErrorBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ErrorBase.h; sourceTree = "<group>"; };
+		AA928DFE2EDB9CEA0005200A /* files.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = files.h; sourceTree = "<group>"; };
+		AA928DFF2EDB9CEA0005200A /* files.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = files.c; sourceTree = "<group>"; };
+		AA928E002EDB9CEA0005200A /* hashtable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hashtable.h; sourceTree = "<group>"; };
+		AA928E012EDB9CEA0005200A /* hashtable.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hashtable.c; sourceTree = "<group>"; };
+		AA928E022EDB9CEA0005200A /* loadxml.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = loadxml.h; sourceTree = "<group>"; };
+		AA928E032EDB9CEA0005200A /* loadxml.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = loadxml.cpp; sourceTree = "<group>"; };
+		AA928E042EDB9CEA0005200A /* prefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = prefs.h; sourceTree = "<group>"; };
+		AA928E052EDB9CEA0005200A /* prefs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = prefs.cpp; sourceTree = "<group>"; };
+		AA928E062EDB9CEA0005200A /* rapidxml.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = rapidxml.h; sourceTree = "<group>"; };
+		AA928E072EDB9CEA0005200A /* rapidxml.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = rapidxml.hpp; sourceTree = "<group>"; };
+		AA928E0D2EDB9D1B0005200A /* SDL_FrameBuf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDL_FrameBuf.h; sourceTree = "<group>"; };
+		AA928E0E2EDB9D1B0005200A /* SDL_FrameBuf.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SDL_FrameBuf.cpp; sourceTree = "<group>"; };
+		AA928E0F2EDB9D1B0005200A /* UIArea.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIArea.h; sourceTree = "<group>"; };
+		AA928E102EDB9D1B0005200A /* UIArea.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UIArea.cpp; sourceTree = "<group>"; };
+		AA928E112EDB9D1B0005200A /* UIBaseElement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIBaseElement.h; sourceTree = "<group>"; };
+		AA928E122EDB9D1B0005200A /* UIBaseElement.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UIBaseElement.cpp; sourceTree = "<group>"; };
+		AA928E132EDB9D1B0005200A /* UIContainer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIContainer.h; sourceTree = "<group>"; };
+		AA928E142EDB9D1B0005200A /* UIContainer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UIContainer.cpp; sourceTree = "<group>"; };
+		AA928E152EDB9D1B0005200A /* UIDialog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIDialog.h; sourceTree = "<group>"; };
+		AA928E162EDB9D1B0005200A /* UIDialog.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UIDialog.cpp; sourceTree = "<group>"; };
+		AA928E172EDB9D1B0005200A /* UIDialogButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIDialogButton.h; sourceTree = "<group>"; };
+		AA928E182EDB9D1B0005200A /* UIDialogButton.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UIDialogButton.cpp; sourceTree = "<group>"; };
+		AA928E192EDB9D1B0005200A /* UIDrawEngine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIDrawEngine.h; sourceTree = "<group>"; };
+		AA928E1A2EDB9D1B0005200A /* UIDrawEngine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UIDrawEngine.cpp; sourceTree = "<group>"; };
+		AA928E1B2EDB9D1B0005200A /* UIElement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIElement.h; sourceTree = "<group>"; };
+		AA928E1C2EDB9D1B0005200A /* UIElement.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UIElement.cpp; sourceTree = "<group>"; };
+		AA928E1D2EDB9D1B0005200A /* UIElementButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIElementButton.h; sourceTree = "<group>"; };
+		AA928E1E2EDB9D1B0005200A /* UIElementButton.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UIElementButton.cpp; sourceTree = "<group>"; };
+		AA928E1F2EDB9D1B0005200A /* UIElementCheckbox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIElementCheckbox.h; sourceTree = "<group>"; };
+		AA928E202EDB9D1B0005200A /* UIElementCheckbox.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UIElementCheckbox.cpp; sourceTree = "<group>"; };
+		AA928E212EDB9D1B0005200A /* UIElementDropdown.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIElementDropdown.h; sourceTree = "<group>"; };
+		AA928E222EDB9D1B0005200A /* UIElementDropdown.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UIElementDropdown.cpp; sourceTree = "<group>"; };
+		AA928E232EDB9D1B0005200A /* UIElementEditbox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIElementEditbox.h; sourceTree = "<group>"; };
+		AA928E242EDB9D1B0005200A /* UIElementEditbox.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UIElementEditbox.cpp; sourceTree = "<group>"; };
+		AA928E252EDB9D1B0005200A /* UIElementRadio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIElementRadio.h; sourceTree = "<group>"; };
+		AA928E262EDB9D1B0005200A /* UIElementRadio.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UIElementRadio.cpp; sourceTree = "<group>"; };
+		AA928E272EDB9D1B0005200A /* UIElementThumbstick.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIElementThumbstick.h; sourceTree = "<group>"; };
+		AA928E282EDB9D1B0005200A /* UIElementThumbstick.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UIElementThumbstick.cpp; sourceTree = "<group>"; };
+		AA928E292EDB9D1B0005200A /* UIFontInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIFontInterface.h; sourceTree = "<group>"; };
+		AA928E2A2EDB9D1B0005200A /* UIImageInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIImageInterface.h; sourceTree = "<group>"; };
+		AA928E2B2EDB9D1B0005200A /* UIManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIManager.h; sourceTree = "<group>"; };
+		AA928E2C2EDB9D1B0005200A /* UIManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UIManager.cpp; sourceTree = "<group>"; };
+		AA928E2D2EDB9D1B0005200A /* UIPanel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIPanel.h; sourceTree = "<group>"; };
+		AA928E2E2EDB9D1B0005200A /* UIPanel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UIPanel.cpp; sourceTree = "<group>"; };
+		AA928E2F2EDB9D1B0005200A /* UISoundInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UISoundInterface.h; sourceTree = "<group>"; };
+		AA928E302EDB9D1B0005200A /* UITemplates.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UITemplates.h; sourceTree = "<group>"; };
+		AA928E312EDB9D1B0005200A /* UITemplates.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UITemplates.cpp; sourceTree = "<group>"; };
+		AA928E322EDB9D1B0005200A /* UITexture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UITexture.h; sourceTree = "<group>"; };
+		AA928E332EDB9D1B0005200A /* UITexture.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UITexture.cpp; sourceTree = "<group>"; };
+		AA928E472EDB9D440005200A /* miniz.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = miniz.h; sourceTree = "<group>"; };
+		AA928E482EDB9D440005200A /* miniz.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = miniz.c; sourceTree = "<group>"; };
+		AA928E4B2EDB9D830005200A /* Mac_Compat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Mac_Compat.h; sourceTree = "<group>"; };
+		AA928E4C2EDB9D830005200A /* Mac_FontServ.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Mac_FontServ.h; sourceTree = "<group>"; };
+		AA928E4D2EDB9D830005200A /* Mac_FontServ.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Mac_FontServ.cpp; sourceTree = "<group>"; };
+		AA928E4E2EDB9D830005200A /* Mac_Sound.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Mac_Sound.h; sourceTree = "<group>"; };
+		AA928E4F2EDB9D830005200A /* Mac_Sound.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Mac_Sound.cpp; sourceTree = "<group>"; };
+		AA929E842EDBA1900005200A /* Docs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Docs; path = ../Docs; sourceTree = "<group>"; };
+		AA929E862EDBA3B80005200A /* Data */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Data; path = ../Data; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AA9284B02EDB8BB30005200A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA9285A42EDB9A6A0005200A /* SDL3.framework in Frameworks */,
+				AA9285A22EDB9A5D0005200A /* SDL3_net.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AA9284AA2EDB8BB30005200A = {
+			isa = PBXGroup;
+			children = (
+				AA9284C72EDB8CEE0005200A /* SDL.xcodeproj */,
+				AA9285942EDB9A3D0005200A /* SDL_net.xcodeproj */,
+				AA929E862EDBA3B80005200A /* Data */,
+				AA929E842EDBA1900005200A /* Docs */,
+				AA928DB12EDB9C5F0005200A /* game */,
+				AA928E4A2EDB9D540005200A /* maclib */,
+				AA928E462EDB9D260005200A /* miniz */,
+				AA928E0C2EDB9CF90005200A /* screenlib */,
+				AA928DFB2EDB9CB40005200A /* utils */,
+				AA9284C12EDB8BE00005200A /* Assets.xcassets */,
+				AA9285742EDB8E8A0005200A /* Frameworks */,
+				AA9284B42EDB8BB30005200A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AA9284B42EDB8BB30005200A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AA9284B32EDB8BB30005200A /* Maelstrom.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AA9285742EDB8E8A0005200A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				AA9285A12EDB9A5D0005200A /* SDL3_net.framework */,
+				AA9285772EDB8EA00005200A /* SDL3.framework */,
+				AA9285752EDB8E8A0005200A /* SDL3.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		AA928DB12EDB9C5F0005200A /* game */ = {
+			isa = PBXGroup;
+			children = (
+				AA928DB22EDB9CA60005200A /* about.h */,
+				AA928DB32EDB9CA60005200A /* about.cpp */,
+				AA928DB42EDB9CA60005200A /* colortable.h */,
+				AA928DB52EDB9CA60005200A /* continue.h */,
+				AA928DB62EDB9CA60005200A /* continue.cpp */,
+				AA928DB72EDB9CA60005200A /* controls.h */,
+				AA928DB82EDB9CA60005200A /* controls.cpp */,
+				AA928DB92EDB9CA60005200A /* fastrand.h */,
+				AA928DBA2EDB9CA60005200A /* fastrand.cpp */,
+				AA928DBB2EDB9CA60005200A /* game.h */,
+				AA928DBC2EDB9CA60005200A /* game.cpp */,
+				AA928DBD2EDB9CA60005200A /* gameinfo.h */,
+				AA928DBE2EDB9CA60005200A /* gameinfo.cpp */,
+				AA928DBF2EDB9CA60005200A /* gameover.h */,
+				AA928DC02EDB9CA60005200A /* gameover.cpp */,
+				AA928DC12EDB9CA60005200A /* init.h */,
+				AA928DC22EDB9CA60005200A /* init.cpp */,
+				AA928DC32EDB9CA60005200A /* load.h */,
+				AA928DC42EDB9CA60005200A /* load.cpp */,
+				AA928DC52EDB9CA60005200A /* lobby.h */,
+				AA928DC62EDB9CA60005200A /* lobby.cpp */,
+				AA928DC72EDB9CA60005200A /* Localization.h */,
+				AA928DC82EDB9CA60005200A /* MacDialog.h */,
+				AA928DC92EDB9CA60005200A /* MacDialog.cpp */,
+				AA928DCA2EDB9CA60005200A /* Maelstrom.h */,
+				AA928DCB2EDB9CA60005200A /* Maelstrom_Globals.h */,
+				AA928DCC2EDB9CA60005200A /* MaelstromUI.h */,
+				AA928DCD2EDB9CA60005200A /* MaelstromUI.cpp */,
+				AA928DCE2EDB9CA60005200A /* main.h */,
+				AA928DCF2EDB9CA60005200A /* main.cpp */,
+				AA928DD02EDB9CA60005200A /* make.h */,
+				AA928DD12EDB9CA60005200A /* make.cpp */,
+				AA928DD22EDB9CA60005200A /* myerror.h */,
+				AA928DD32EDB9CA60005200A /* myerror.cpp */,
+				AA928DD42EDB9CA60005200A /* netplay.h */,
+				AA928DD52EDB9CA60005200A /* netplay.cpp */,
+				AA928DD62EDB9CA60005200A /* object.h */,
+				AA928DD72EDB9CA60005200A /* object.cpp */,
+				AA928DD82EDB9CA60005200A /* objects.h */,
+				AA928DD92EDB9CA60005200A /* objects.cpp */,
+				AA928DDA2EDB9CA60005200A /* packet.h */,
+				AA928DDB2EDB9CA60005200A /* player.h */,
+				AA928DDC2EDB9CA60005200A /* player.cpp */,
+				AA928DDD2EDB9CA60005200A /* protocol.h */,
+				AA928DDE2EDB9CA60005200A /* rect.h */,
+				AA928DDF2EDB9CA60005200A /* rect.cpp */,
+				AA928DE02EDB9CA60005200A /* replay.h */,
+				AA928DE12EDB9CA60005200A /* replay.cpp */,
+				AA928DE22EDB9CA60005200A /* scores.h */,
+				AA928DE32EDB9CA60005200A /* scores.cpp */,
+				AA928DE42EDB9CA60005200A /* shinobi.h */,
+			);
+			name = game;
+			path = ../game;
+			sourceTree = "<group>";
+		};
+		AA928DFB2EDB9CB40005200A /* utils */ = {
+			isa = PBXGroup;
+			children = (
+				AA928DFC2EDB9CEA0005200A /* array.h */,
+				AA928DFD2EDB9CEA0005200A /* ErrorBase.h */,
+				AA928DFE2EDB9CEA0005200A /* files.h */,
+				AA928DFF2EDB9CEA0005200A /* files.c */,
+				AA928E002EDB9CEA0005200A /* hashtable.h */,
+				AA928E012EDB9CEA0005200A /* hashtable.c */,
+				AA928E022EDB9CEA0005200A /* loadxml.h */,
+				AA928E032EDB9CEA0005200A /* loadxml.cpp */,
+				AA928E042EDB9CEA0005200A /* prefs.h */,
+				AA928E052EDB9CEA0005200A /* prefs.cpp */,
+				AA928E062EDB9CEA0005200A /* rapidxml.h */,
+				AA928E072EDB9CEA0005200A /* rapidxml.hpp */,
+			);
+			name = utils;
+			path = ../utils;
+			sourceTree = "<group>";
+		};
+		AA928E0C2EDB9CF90005200A /* screenlib */ = {
+			isa = PBXGroup;
+			children = (
+				AA928E0D2EDB9D1B0005200A /* SDL_FrameBuf.h */,
+				AA928E0E2EDB9D1B0005200A /* SDL_FrameBuf.cpp */,
+				AA928E0F2EDB9D1B0005200A /* UIArea.h */,
+				AA928E102EDB9D1B0005200A /* UIArea.cpp */,
+				AA928E112EDB9D1B0005200A /* UIBaseElement.h */,
+				AA928E122EDB9D1B0005200A /* UIBaseElement.cpp */,
+				AA928E132EDB9D1B0005200A /* UIContainer.h */,
+				AA928E142EDB9D1B0005200A /* UIContainer.cpp */,
+				AA928E152EDB9D1B0005200A /* UIDialog.h */,
+				AA928E162EDB9D1B0005200A /* UIDialog.cpp */,
+				AA928E172EDB9D1B0005200A /* UIDialogButton.h */,
+				AA928E182EDB9D1B0005200A /* UIDialogButton.cpp */,
+				AA928E192EDB9D1B0005200A /* UIDrawEngine.h */,
+				AA928E1A2EDB9D1B0005200A /* UIDrawEngine.cpp */,
+				AA928E1B2EDB9D1B0005200A /* UIElement.h */,
+				AA928E1C2EDB9D1B0005200A /* UIElement.cpp */,
+				AA928E1D2EDB9D1B0005200A /* UIElementButton.h */,
+				AA928E1E2EDB9D1B0005200A /* UIElementButton.cpp */,
+				AA928E1F2EDB9D1B0005200A /* UIElementCheckbox.h */,
+				AA928E202EDB9D1B0005200A /* UIElementCheckbox.cpp */,
+				AA928E212EDB9D1B0005200A /* UIElementDropdown.h */,
+				AA928E222EDB9D1B0005200A /* UIElementDropdown.cpp */,
+				AA928E232EDB9D1B0005200A /* UIElementEditbox.h */,
+				AA928E242EDB9D1B0005200A /* UIElementEditbox.cpp */,
+				AA928E252EDB9D1B0005200A /* UIElementRadio.h */,
+				AA928E262EDB9D1B0005200A /* UIElementRadio.cpp */,
+				AA928E272EDB9D1B0005200A /* UIElementThumbstick.h */,
+				AA928E282EDB9D1B0005200A /* UIElementThumbstick.cpp */,
+				AA928E292EDB9D1B0005200A /* UIFontInterface.h */,
+				AA928E2A2EDB9D1B0005200A /* UIImageInterface.h */,
+				AA928E2B2EDB9D1B0005200A /* UIManager.h */,
+				AA928E2C2EDB9D1B0005200A /* UIManager.cpp */,
+				AA928E2D2EDB9D1B0005200A /* UIPanel.h */,
+				AA928E2E2EDB9D1B0005200A /* UIPanel.cpp */,
+				AA928E2F2EDB9D1B0005200A /* UISoundInterface.h */,
+				AA928E302EDB9D1B0005200A /* UITemplates.h */,
+				AA928E312EDB9D1B0005200A /* UITemplates.cpp */,
+				AA928E322EDB9D1B0005200A /* UITexture.h */,
+				AA928E332EDB9D1B0005200A /* UITexture.cpp */,
+			);
+			name = screenlib;
+			path = ../screenlib;
+			sourceTree = "<group>";
+		};
+		AA928E462EDB9D260005200A /* miniz */ = {
+			isa = PBXGroup;
+			children = (
+				AA928E472EDB9D440005200A /* miniz.h */,
+				AA928E482EDB9D440005200A /* miniz.c */,
+			);
+			name = miniz;
+			path = ../miniz;
+			sourceTree = "<group>";
+		};
+		AA928E4A2EDB9D540005200A /* maclib */ = {
+			isa = PBXGroup;
+			children = (
+				AA928E4B2EDB9D830005200A /* Mac_Compat.h */,
+				AA928E4C2EDB9D830005200A /* Mac_FontServ.h */,
+				AA928E4D2EDB9D830005200A /* Mac_FontServ.cpp */,
+				AA928E4E2EDB9D830005200A /* Mac_Sound.h */,
+				AA928E4F2EDB9D830005200A /* Mac_Sound.cpp */,
+			);
+			name = maclib;
+			path = ../maclib;
+			sourceTree = "<group>";
+		};
+		AA929E882EDBA5B70005200A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AA929E8F2EDBA5B70005200A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AA9284B22EDB8BB30005200A /* Maelstrom */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA9284BE2EDB8BB40005200A /* Build configuration list for PBXNativeTarget "Maelstrom" */;
+			buildPhases = (
+				AA9284AF2EDB8BB30005200A /* Sources */,
+				AA9284B02EDB8BB30005200A /* Frameworks */,
+				AA92857A2EDB8EA00005200A /* Embed Frameworks */,
+				AA929E702EDBA0880005200A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Maelstrom;
+			packageProductDependencies = (
+			);
+			productName = Maelstrom;
+			productReference = AA9284B32EDB8BB30005200A /* Maelstrom.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AA9284AB2EDB8BB30005200A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					AA9284B22EDB8BB30005200A = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+				};
+			};
+			buildConfigurationList = AA9284AE2EDB8BB30005200A /* Build configuration list for PBXProject "Maelstrom" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AA9284AA2EDB8BB30005200A;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = AA9284B42EDB8BB30005200A /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = AA929E882EDBA5B70005200A /* Products */;
+					ProjectRef = AA9284C72EDB8CEE0005200A /* SDL.xcodeproj */;
+				},
+				{
+					ProductGroup = AA929E8F2EDBA5B70005200A /* Products */;
+					ProjectRef = AA9285942EDB9A3D0005200A /* SDL_net.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				AA9284B22EDB8BB30005200A /* Maelstrom */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AA929E702EDBA0880005200A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA929E872EDBA3B80005200A /* Data in Resources */,
+				AA929E852EDBA1900005200A /* Docs in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AA9284AF2EDB8BB30005200A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA928DE52EDB9CA60005200A /* main.cpp in Sources */,
+				AA928DE62EDB9CA60005200A /* about.cpp in Sources */,
+				AA928DE72EDB9CA60005200A /* MaelstromUI.cpp in Sources */,
+				AA928DE82EDB9CA60005200A /* rect.cpp in Sources */,
+				AA928DE92EDB9CA60005200A /* netplay.cpp in Sources */,
+				AA928DEA2EDB9CA60005200A /* objects.cpp in Sources */,
+				AA928DEB2EDB9CA60005200A /* game.cpp in Sources */,
+				AA928DEC2EDB9CA60005200A /* lobby.cpp in Sources */,
+				AA928DED2EDB9CA60005200A /* MacDialog.cpp in Sources */,
+				AA928DEE2EDB9CA60005200A /* continue.cpp in Sources */,
+				AA928DEF2EDB9CA60005200A /* player.cpp in Sources */,
+				AA928DF02EDB9CA60005200A /* load.cpp in Sources */,
+				AA928DF12EDB9CA60005200A /* gameover.cpp in Sources */,
+				AA928DF22EDB9CA60005200A /* object.cpp in Sources */,
+				AA928DF32EDB9CA60005200A /* myerror.cpp in Sources */,
+				AA928E082EDB9CEA0005200A /* files.c in Sources */,
+				AA928E092EDB9CEA0005200A /* hashtable.c in Sources */,
+				AA928E0A2EDB9CEA0005200A /* loadxml.cpp in Sources */,
+				AA928E0B2EDB9CEA0005200A /* prefs.cpp in Sources */,
+				AA928DF42EDB9CA60005200A /* fastrand.cpp in Sources */,
+				AA928DF52EDB9CA60005200A /* replay.cpp in Sources */,
+				AA928DF62EDB9CA60005200A /* gameinfo.cpp in Sources */,
+				AA928DF72EDB9CA60005200A /* make.cpp in Sources */,
+				AA928DF82EDB9CA60005200A /* scores.cpp in Sources */,
+				AA928DF92EDB9CA60005200A /* init.cpp in Sources */,
+				AA928E342EDB9D1B0005200A /* UIPanel.cpp in Sources */,
+				AA928E352EDB9D1B0005200A /* UIElementThumbstick.cpp in Sources */,
+				AA928E362EDB9D1B0005200A /* UIBaseElement.cpp in Sources */,
+				AA928E372EDB9D1B0005200A /* UIContainer.cpp in Sources */,
+				AA928E382EDB9D1B0005200A /* UIArea.cpp in Sources */,
+				AA928E492EDB9D440005200A /* miniz.c in Sources */,
+				AA928E392EDB9D1B0005200A /* UIDrawEngine.cpp in Sources */,
+				AA928E3A2EDB9D1B0005200A /* UIDialogButton.cpp in Sources */,
+				AA928E3B2EDB9D1B0005200A /* UIElement.cpp in Sources */,
+				AA928E3C2EDB9D1B0005200A /* UITexture.cpp in Sources */,
+				AA928E3D2EDB9D1B0005200A /* UIElementCheckbox.cpp in Sources */,
+				AA928E3E2EDB9D1B0005200A /* SDL_FrameBuf.cpp in Sources */,
+				AA928E3F2EDB9D1B0005200A /* UIElementDropdown.cpp in Sources */,
+				AA928E402EDB9D1B0005200A /* UIDialog.cpp in Sources */,
+				AA928E502EDB9D830005200A /* Mac_FontServ.cpp in Sources */,
+				AA928E512EDB9D830005200A /* Mac_Sound.cpp in Sources */,
+				AA928E412EDB9D1B0005200A /* UITemplates.cpp in Sources */,
+				AA928E422EDB9D1B0005200A /* UIElementRadio.cpp in Sources */,
+				AA928E432EDB9D1B0005200A /* UIElementButton.cpp in Sources */,
+				AA928E442EDB9D1B0005200A /* UIManager.cpp in Sources */,
+				AA928E452EDB9D1B0005200A /* UIElementEditbox.cpp in Sources */,
+				AA928DFA2EDB9CA60005200A /* controls.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		AA9284BC2EDB8BB40005200A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AA9284BD2EDB8BB40005200A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		AA9284BF2EDB8BB40005200A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = ../Data/Fonts;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.libsdl.Maelstrom;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 2.6;
+			};
+			name = Debug;
+		};
+		AA9284C02EDB8BB40005200A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = ../Data/Fonts;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.libsdl.Maelstrom;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 2.6;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AA9284AE2EDB8BB30005200A /* Build configuration list for PBXProject "Maelstrom" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA9284BC2EDB8BB40005200A /* Debug */,
+				AA9284BD2EDB8BB40005200A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA9284BE2EDB8BB40005200A /* Build configuration list for PBXNativeTarget "Maelstrom" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA9284BF2EDB8BB40005200A /* Debug */,
+				AA9284C02EDB8BB40005200A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AA9284AB2EDB8BB30005200A /* Project object */;
+}
