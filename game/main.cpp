@@ -41,6 +41,7 @@
 #include "about.h"
 #include "game.h"
 #include "netplay.h"
+#include "steam.h"
 #include "main.h"
 
 #include "../utils/files.h"
@@ -201,6 +202,8 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	InitSteam();
+
 	/* Initialize everything. :) */
 	if ( DoInitializations(window_flags) < 0 ) {
 		/* An error message was already printed */
@@ -232,10 +235,15 @@ int main(int argc, char *argv[])
 	while ( gRunning ) {
 		ShowFrame(0);
 
+		UpdateSteam();
+
 		DelayFrame();
 	}
 	CleanUp();
 #endif
+
+	QuitSteam();
+
 	return 0;
 
 }	/* -- main */
