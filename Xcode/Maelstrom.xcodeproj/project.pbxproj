@@ -60,6 +60,9 @@
 		AA928E512EDB9D830005200A /* Mac_Sound.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E4F2EDB9D830005200A /* Mac_Sound.cpp */; };
 		AA929E852EDBA1900005200A /* Docs in Resources */ = {isa = PBXBuildFile; fileRef = AA929E842EDBA1900005200A /* Docs */; };
 		AA929E872EDBA3B80005200A /* Data in Resources */ = {isa = PBXBuildFile; fileRef = AA929E862EDBA3B80005200A /* Data */; };
+		F3CC41422F60E6A10033BDFA /* steam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F3CC41412F60E6A10033BDFA /* steam.cpp */; };
+		F3CC41582F610E2C0033BDFA /* libsteam_api.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F3CC41572F610E2C0033BDFA /* libsteam_api.dylib */; platformFilters = (macos, ); };
+		F3CC415B2F610F110033BDFA /* libsteam_api.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = F3CC41572F610E2C0033BDFA /* libsteam_api.dylib */; platformFilters = (macos, ); settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -73,6 +76,16 @@
 				AA9285A32EDB9A5D0005200A /* SDL3_net.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F3CC415A2F610F080033BDFA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				F3CC415B2F610F110033BDFA /* libsteam_api.dylib in CopyFiles */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -196,6 +209,9 @@
 		AA928E4F2EDB9D830005200A /* Mac_Sound.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Mac_Sound.cpp; sourceTree = "<group>"; };
 		AA929E842EDBA1900005200A /* Docs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Docs; path = ../Docs; sourceTree = "<group>"; };
 		AA929E862EDBA3B80005200A /* Data */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Data; path = ../Data; sourceTree = "<group>"; };
+		F3CC41402F60E6A10033BDFA /* steam.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = steam.h; sourceTree = "<group>"; };
+		F3CC41412F60E6A10033BDFA /* steam.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = steam.cpp; sourceTree = "<group>"; };
+		F3CC41572F610E2C0033BDFA /* libsteam_api.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsteam_api.dylib; path = ../external/SteamworksSDK/redistributable_bin/osx/libsteam_api.dylib; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -203,6 +219,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F3CC41582F610E2C0033BDFA /* libsteam_api.dylib in Frameworks */,
 				AA9285A42EDB9A6A0005200A /* SDL3.framework in Frameworks */,
 				AA9285A22EDB9A5D0005200A /* SDL3_net.framework in Frameworks */,
 			);
@@ -216,6 +233,7 @@
 			children = (
 				AA9284C72EDB8CEE0005200A /* SDL.xcodeproj */,
 				AA9285942EDB9A3D0005200A /* SDL_net.xcodeproj */,
+				F3CC41572F610E2C0033BDFA /* libsteam_api.dylib */,
 				AA929E862EDBA3B80005200A /* Data */,
 				AA929E842EDBA1900005200A /* Docs */,
 				AA928DB12EDB9C5F0005200A /* game */,
@@ -301,6 +319,8 @@
 				AA928DE22EDB9CA60005200A /* scores.h */,
 				AA928DE32EDB9CA60005200A /* scores.cpp */,
 				AA928DE42EDB9CA60005200A /* shinobi.h */,
+				F3CC41402F60E6A10033BDFA /* steam.h */,
+				F3CC41412F60E6A10033BDFA /* steam.cpp */,
 			);
 			name = game;
 			path = ../game;
@@ -421,6 +441,7 @@
 				AA9284B02EDB8BB30005200A /* Frameworks */,
 				AA92857A2EDB8EA00005200A /* Embed Frameworks */,
 				AA929E702EDBA0880005200A /* Resources */,
+				F3CC415A2F610F080033BDFA /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -498,6 +519,7 @@
 				AA928DE62EDB9CA60005200A /* about.cpp in Sources */,
 				AA928DE72EDB9CA60005200A /* MaelstromUI.cpp in Sources */,
 				AA928DE82EDB9CA60005200A /* rect.cpp in Sources */,
+				F3CC41422F60E6A10033BDFA /* steam.cpp in Sources */,
 				AA928DE92EDB9CA60005200A /* netplay.cpp in Sources */,
 				AA928DEA2EDB9CA60005200A /* objects.cpp in Sources */,
 				AA928DEB2EDB9CA60005200A /* game.cpp in Sources */,
@@ -593,12 +615,19 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				"GCC_PREPROCESSOR_DEFINITIONS[sdk=macosx*]" = (
+					"DEBUG=1",
+					"$(inherited)",
+					ENABLE_STEAM,
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = ../external/SteamworksSDK/public;
+				LIBRARY_SEARCH_PATHS = ../external/SteamworksSDK/redistributable_bin/osx;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -648,12 +677,16 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
+				"GCC_PREPROCESSOR_DEFINITIONS[sdk=macosx*]" = ENABLE_STEAM;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = ../external/SteamworksSDK/public;
+				LIBRARY_SEARCH_PATHS = ../external/SteamworksSDK/redistributable_bin/osx;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;

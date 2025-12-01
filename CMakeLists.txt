@@ -70,6 +70,8 @@ set(MAELSTROM_SOURCES
 	game/scores.cpp
 	game/scores.h
 	game/shinobi.h
+	game/steam.cpp
+	game/steam.h
 
 	screenlib/SDL_FrameBuf.cpp
 	screenlib/SDL_FrameBuf.h
@@ -154,6 +156,23 @@ if(NOT WIN32)
   if(HAVE_GETIFADDRS)
     target_compile_definitions(Maelstrom PRIVATE HAVE_GETIFADDRS)
   endif()
+endif()
+
+dep_option(STEAM "Build with Steam support" ON "WIN32 OR LINUX OR MACOS" OFF)
+
+if(STEAM)
+    target_compile_definitions(Maelstrom PRIVATE ENABLE_STEAM)
+	target_include_directories(Maelstrom PRIVATE "${CMAKE_SOURCE_DIR}/external/SteamworksSDK/public")
+	if(WIN32)
+		target_link_directories(Maelstrom PRIVATE "${CMAKE_SOURCE_DIR}/external/SteamworksSDK/redistributable_bin/win64")
+		target_link_libraries(Maelstrom PRIVATE steam_api64)
+	elseif(LINUX)
+		target_link_directories(Maelstrom PRIVATE "${CMAKE_SOURCE_DIR}/external/SteamworksSDK/redistributable_bin/linux64")
+		target_link_libraries(Maelstrom PRIVATE steam_api)
+	elseif(MACOS)
+		target_link_directories(Maelstrom PRIVATE "${CMAKE_SOURCE_DIR}/external/SteamworksSDK/redistributable_bin/osx")
+		target_link_libraries(Maelstrom PRIVATE steam_api)
+	endif()
 endif()
 
 target_link_libraries(Maelstrom PRIVATE SDLmac)
