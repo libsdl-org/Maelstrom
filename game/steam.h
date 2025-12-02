@@ -23,7 +23,18 @@
 #ifndef _steam_h
 #define _steam_h
 
+#define SDL_EVENT_REMOTE_PLAYERS_CHANGED	(SDL_EVENT_USER + 0)
+#define SDL_EVENT_REMOTE_INPUT				(SDL_EVENT_USER + 1)
+
+typedef Uint32 RemotePlaySessionID_t;
+
 extern bool InitSteam();
+extern RemotePlaySessionID_t GetRemoteSessionForGamepad(SDL_Gamepad *gamepad);
+extern Uint8 GetRemoteSessionControl(RemotePlaySessionID_t sessionID);
+extern const char *GetRemotePlayerName(Uint8 controlType);
+extern const bool *GetRemotePlayerKeyboardState(Uint8 controlType);
+extern void EnableRemoteInput();
+extern void DisableRemoteInput();
 extern void UpdateSteam();
 extern void QuitSteam();
 

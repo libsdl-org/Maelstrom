@@ -63,12 +63,18 @@ public:
 	bool remove(const T& item) {
 		for (unsigned i = 0; i < m_len; ++i) {
 			if (m_data[i] == item) {
-				for (unsigned j = i; j < (m_len - 1); ++j) {
-					m_data[j] = m_data[j+1];
-				}
-				--m_len;
-				return true;
+				return removeAt(i);
 			}
+		}
+		return false;
+	}
+	bool removeAt(unsigned i) {
+		if (i < m_len) {
+			for (unsigned j = i; j < (m_len - 1); ++j) {
+				m_data[j] = m_data[j+1];
+			}
+			--m_len;
+			return true;
 		}
 		return false;
 	}

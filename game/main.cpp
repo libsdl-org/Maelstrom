@@ -41,7 +41,6 @@
 #include "about.h"
 #include "game.h"
 #include "netplay.h"
-#include "steam.h"
 #include "main.h"
 
 #include "../utils/files.h"
@@ -174,6 +173,9 @@ int main(int argc, char *argv[])
 	/* Command line flags */
 	Uint32 window_flags = SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE;
 
+	/* Initializing Steam can set up environment variables, so do this first */
+	InitSteam();
+
 	if ( !InitFilesystem(MAELSTROM_ORGANIZATION, MAELSTROM_NAME) ) {
 		exit(1);
 	}
@@ -201,8 +203,6 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 	}
-
-	InitSteam();
 
 	/* Initialize everything. :) */
 	if ( DoInitializations(window_flags) < 0 ) {

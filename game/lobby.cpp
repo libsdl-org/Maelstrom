@@ -86,14 +86,14 @@ public:
 		}
 
 		// Show the control dialog
-		int num_gamepads = 0;
-		SDL_free(SDL_GetGamepads(&num_gamepads));
+		int num_gamepads = GetNumGamepads();
 		SetControl(CONTROL_NONE, (m_index > 0) && m_game.IsHosting());
 		SetControl(CONTROL_LOCAL, !m_game.OtherPlayerHasControl(m_index, CONTROL_LOCAL));
-		SetControl(CONTROL_KEYBOARD, SDL_HasKeyboard() && !m_game.OtherPlayerHasControl(m_index, CONTROL_KEYBOARD));
 		SetControl(CONTROL_JOYSTICK1, num_gamepads > 0 && !m_game.OtherPlayerHasControl(m_index, CONTROL_JOYSTICK1));
 		SetControl(CONTROL_JOYSTICK2, num_gamepads > 1 && !m_game.OtherPlayerHasControl(m_index, CONTROL_JOYSTICK2));
 		SetControl(CONTROL_JOYSTICK3, num_gamepads > 2 && !m_game.OtherPlayerHasControl(m_index, CONTROL_JOYSTICK3));
+		SetControl(CONTROL_REMOTE1, (m_index > 0) && m_game.IsHosting() && GetRemotePlayerName(CONTROL_REMOTE1) && !m_game.OtherPlayerHasControl(m_index, CONTROL_REMOTE1));
+		SetControl(CONTROL_REMOTE2, (m_index > 0) && m_game.IsHosting() && GetRemotePlayerName(CONTROL_REMOTE2) && !m_game.OtherPlayerHasControl(m_index, CONTROL_REMOTE2));
 		SetControl(CONTROL_NETWORK, (m_index > 0) && m_game.IsHosting());
 
 		m_dialog->SetAnchor(LEFT, RIGHT, m_button, -4, 0);
@@ -101,6 +101,24 @@ public:
 	}
 
 private:
+	int GetNumGamepads()
+	{
+		int num_gamepads = 0;
+		SDL_JoystickID* gamepads = SDL_GetGamepads(nullptr);
+		if (gamepads) {
+			for (int i = 0; gamepads[i]; ++i) {
+				SDL_Gamepad* gamepad = SDL_OpenGamepad(gamepads[i]);
+				if (gamepad) {
+					if (!GetRemoteSessionForGamepad(gamepad)) {
+						++num_gamepads;
+					}
+					SDL_CloseGamepad(gamepad);
+				}
+			}
+			SDL_free(gamepads);
+		}
+		return num_gamepads;
+	}
 	void SetControl(Uint8 control, bool enabled) {
 		char name[128];
 		UIElement *element;

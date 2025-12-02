@@ -42,6 +42,7 @@
 #include "scores.h"
 #include "controls.h"
 #include "gameinfo.h"
+#include "steam.h"
 
 // Preferences keys
 #define PREFERENCES_RESOLUTION "Resolution"

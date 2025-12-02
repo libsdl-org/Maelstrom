@@ -117,7 +117,7 @@ static SDL_EnumerationResult SDLCALL DeleteScoresCallback(void *userdata, const 
 	SDL_Storage *storage = (SDL_Storage *)userdata;
 
 	char path[256];
-	SDL_snprintf(path, sizeof(path), "%s/%s", dirname, fname);
+	SDL_snprintf(path, sizeof(path), "%s%s", dirname, fname);
 	SDL_RemoveStoragePath(storage, path);
 	return SDL_ENUM_CONTINUE;
 }
