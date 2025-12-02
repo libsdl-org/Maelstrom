@@ -78,7 +78,7 @@ GameInfo::SetPlayerSlot(int slot, const char *name, Uint8 controlMask)
 
 	SDL_strlcpy(player->name, name ? name : "", sizeof(player->name));
 
-	if (IS_LOCAL_CONTROL(controlMask)) {
+	if (IS_LOCAL_CONTROL(controlMask) || IS_REMOTE_CONTROL(controlMask)) {
 		player->nodeID = localID;
 	} else {
 		player->nodeID = 0;

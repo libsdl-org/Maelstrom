@@ -263,12 +263,14 @@
 		<DialogContainer name="control_dropdown" border="true" show="false">
 			<Elements>
 				<Button name="control0" image="control0"/>
-				<Button name="control31" image="control31"/>
+				<Button name="control15" image="control15"/>
 				<Button name="control1" image="control1"/>
 				<Button name="control2" image="control2"/>
 				<Button name="control4" image="control4"/>
 				<Button name="control8" image="control8"/>
+				<Button name="control16" image="control16"/>
 				<Button name="control32" image="control32"/>
+				<Button name="control64" image="control64"/>
 			</Elements>
 		</DialogContainer>
 

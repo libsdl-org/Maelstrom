@@ -100,6 +100,9 @@ static bool SetupPlayers(void)
 			gPlayers[i]->SetControlType(CONTROL_NONE);
 		}
 	}
+
+	EnableRemoteInput();
+
 	return true;
 }
 
@@ -498,7 +501,7 @@ GamePanelDelegate::OnAction(UIBaseElement *sender, const char *action)
 				}
 			}
 		} else {
-			Player *player = GetControlPlayer(CONTROL_TOUCH);
+			Player *player = GetControlPlayer(CONTROL_KEYBOARD);
 			if (player) {
 				player->SetControl(control, down);
 			}
@@ -1060,6 +1063,8 @@ GamePanelDelegate::GameOver()
 	CloseSocket();
 
 	QuitPlayerControls();
+
+	DisableRemoteInput();
 
 	ui->ShowPanel(PANEL_GAMEOVER);
 }

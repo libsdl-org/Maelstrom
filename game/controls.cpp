@@ -241,29 +241,34 @@ static Uint8 joystickMasks[MAX_JOYSTICKS] = {
 	CONTROL_JOYSTICK2,
 	CONTROL_JOYSTICK3
 };
-static SDL_Gamepad *joysticks[MAX_JOYSTICKS];
-static SDL_JoystickID joystickIDs[MAX_JOYSTICKS];
+struct Gamepad {
+	SDL_JoystickID id;
+	SDL_Gamepad *gamepad;
+	RemotePlaySessionID_t sessionID;
+};
+static array<Gamepad> gamepads;
 
-static void OpenJoystick(SDL_JoystickID id)
+static void OpenGamepad(SDL_JoystickID id)
 {
-	for (int i = 0; i < MAX_JOYSTICKS; ++i) {
-		if (joysticks[i] == NULL) {
-			joysticks[i] = SDL_OpenGamepad(id);
-			if (joysticks[i]) {
-				joystickIDs[i] = id;
-			}
-			break;
-		}
+	Gamepad gamepad;
+
+	gamepad.id = id;
+	gamepad.gamepad = SDL_OpenGamepad(id);
+	if (!gamepad.gamepad) {
+		return;
 	}
+	gamepad.sessionID = GetRemoteSessionForGamepad(gamepad.gamepad);
+
+	gamepads.add(gamepad);
 }
 
-static void CloseJoystick(SDL_JoystickID id)
+static void CloseGamepad(SDL_JoystickID id)
 {
-	for (int i = 0; i < MAX_JOYSTICKS; ++i) {
-		if (joystickIDs[i] == id) {
-			SDL_CloseGamepad(joysticks[i]);
-			joysticks[i] = NULL;
-			joystickIDs[i] = 0;
+	for (unsigned int i = 0; i < gamepads.length(); ++i) {
+		Gamepad *gamepad = &gamepads[i];
+		if (gamepad->id == id) {
+			SDL_CloseGamepad(gamepad->gamepad);
+			gamepads.removeAt(i);
 			break;
 		}
 	}
@@ -271,9 +276,19 @@ static void CloseJoystick(SDL_JoystickID id)
 
 static Player *GetJoystickPlayer(SDL_JoystickID id)
 {
-	for (int i = 0; i < MAX_JOYSTICKS; ++i) {
-		if (id == joystickIDs[i]) {
-			return GetControlPlayer(joystickMasks[i]);
+	int joystick_index = 0;
+	for (unsigned int i = 0; i < gamepads.length(); ++i) {
+		Gamepad *gamepad = &gamepads[i];
+		if (gamepad->id == id) {
+			if (gamepad->sessionID) {
+				return GetControlPlayer(GetRemoteSessionControl(gamepad->sessionID));
+			} else {
+				return GetControlPlayer(joystickMasks[joystick_index]);
+			}
+		}
+
+		if (!gamepad->sessionID) {
+			++joystick_index;
 		}
 	}
 	return NULL;
@@ -281,51 +296,57 @@ static Player *GetJoystickPlayer(SDL_JoystickID id)
 
 static void UpdateControl(Player *player)
 {
+	const Uint8 controlType = player->GetControlType();
 	bool keys[FIRE_KEY+1];
 
 	SDL_zeroa(keys);
-	for (int i = 0; i < MAX_JOYSTICKS; ++i) {
-		SDL_Gamepad *gamepad = joysticks[i];
-		if (!gamepad) {
-			continue;
+
+	int joystick_index = 0;
+	for (unsigned int i = 0; i < gamepads.length(); ++i) {
+		Gamepad *gamepad = &gamepads[i];
+		if ((gamepad->sessionID && (controlType & GetRemoteSessionControl(gamepad->sessionID))) ||
+			(!gamepad->sessionID && (controlType & joystickMasks[joystick_index]))) {
+			if (SDL_GetGamepadButton(gamepad->gamepad, SDL_GAMEPAD_BUTTON_SOUTH) ||
+				SDL_GetGamepadAxis(gamepad->gamepad, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) >= 8000) {
+				keys[FIRE_KEY] = true;
+			}
+
+			if (SDL_GetGamepadButton(gamepad->gamepad, SDL_GAMEPAD_BUTTON_EAST) ||
+				SDL_GetGamepadAxis(gamepad->gamepad, SDL_GAMEPAD_AXIS_LEFT_TRIGGER) >= 8000) {
+				keys[SHIELD_KEY] = true;
+			}
+
+			if (SDL_GetGamepadButton(gamepad->gamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT) ||
+				SDL_GetGamepadAxis(gamepad->gamepad, SDL_GAMEPAD_AXIS_LEFTX) <= -16000 ||
+				SDL_GetGamepadAxis(gamepad->gamepad, SDL_GAMEPAD_AXIS_RIGHTX) <= -16000) {
+				keys[LEFT_KEY] = true;
+			}
+
+			if (SDL_GetGamepadButton(gamepad->gamepad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT) ||
+				SDL_GetGamepadAxis(gamepad->gamepad, SDL_GAMEPAD_AXIS_LEFTX) >= 16000 ||
+				SDL_GetGamepadAxis(gamepad->gamepad, SDL_GAMEPAD_AXIS_RIGHTX) >= 16000) {
+				keys[RIGHT_KEY] = true;
+			}
+
+			if (SDL_GetGamepadButton(gamepad->gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP) ||
+				SDL_GetGamepadAxis(gamepad->gamepad, SDL_GAMEPAD_AXIS_LEFTY) <= -16000 ||
+				SDL_GetGamepadAxis(gamepad->gamepad, SDL_GAMEPAD_AXIS_RIGHTY) <= -16000) {
+				keys[THRUST_KEY] = true;
+			}
 		}
 
-		if (!(player->GetControlType() & joystickMasks[i])) {
-			continue;
-		}
-
-		if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_SOUTH) ||
-			SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) >= 8000) {
-			keys[FIRE_KEY] = true;
-		}
-
-		if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_EAST) ||
-			SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFT_TRIGGER) >= 8000) {
-			keys[SHIELD_KEY] = true;
-		}
-
-		if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT) ||
-			SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTX) <= -16000 ||
-			SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX) <= -16000) {
-			keys[LEFT_KEY] = true;
-		}
-
-		if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_RIGHT) ||
-			SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTX) >= 16000 ||
-			SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX) >= 16000) {
-			keys[RIGHT_KEY] = true;
-		}
-
-		if (SDL_GetGamepadButton(gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP) ||
-			SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTY) <= -16000 ||
-			SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTY) <= -16000) {
-			keys[THRUST_KEY] = true;
+		if (!gamepad->sessionID) {
+			++joystick_index;
 		}
 	}
 
-	if (player->GetControlType() & CONTROL_KEYBOARD) {
-		const bool *keystate = SDL_GetKeyboardState(nullptr);
-
+	const bool *keystate;
+	if (controlType & CONTROL_KEYBOARD) {
+		keystate = SDL_GetKeyboardState(nullptr);
+	} else {
+		keystate = GetRemotePlayerKeyboardState(controlType);
+	}
+	if (keystate) {
 		if (keystate[SDL_GetScancodeFromKey(controls.gFireControl, SDL_KMOD_NONE)]) {
 			keys[FIRE_KEY] = true;
 		}
@@ -362,12 +383,12 @@ static void HandleEvent(SDL_Event *event)
 	switch (event->type) {
 		/* -- Handle joystick added */
 		case SDL_EVENT_GAMEPAD_ADDED:
-			OpenJoystick(event->gdevice.which);
+			OpenGamepad(event->gdevice.which);
 			break;
 
 		/* -- Handle joystick removed */
 		case SDL_EVENT_GAMEPAD_REMOVED:
-			CloseJoystick(event->gdevice.which);
+			CloseGamepad(event->gdevice.which);
 			break;
 
 		/* -- Handle joystick axis motion */
@@ -457,6 +478,16 @@ static void HandleEvent(SDL_Event *event)
 			UpdateControl(player);
 			break;
 
+		case SDL_EVENT_REMOTE_INPUT:
+			player = GetControlPlayer(event->user.code);
+			if (!player) {
+				break;
+			}
+
+			/* Update control key status */
+			UpdateControl(player);
+			break;
+
 		case SDL_EVENT_WINDOW_MINIMIZED:
 			gGameInfo.SetLocalState(STATE_MINIMIZE, true);
 			break;
@@ -476,7 +507,7 @@ void InitPlayerControls(void)
 	SDL_JoystickID *ids = SDL_GetJoysticks(nullptr);
 	if (ids) {
 		for (int i = 0; ids[i]; ++i) {
-			OpenJoystick(ids[i]);
+			OpenGamepad(ids[i]);
 		}
 		SDL_free(ids);
 	}
@@ -484,12 +515,11 @@ void InitPlayerControls(void)
 
 void QuitPlayerControls(void)
 {
-	for (int i = 0; i < MAX_JOYSTICKS; ++i) {
-		if (joysticks[i]) {
-			SDL_CloseGamepad(joysticks[i]);
-			joysticks[i] = NULL;
-		}
+	for (unsigned int i = 0; i < gamepads.length(); ++i) {
+		Gamepad *gamepad = &gamepads[i];
+		SDL_CloseGamepad(gamepad->gamepad);
 	}
+	gamepads.clear();
 }
 
 /* This function gives a good way to delay a specified amount of time
