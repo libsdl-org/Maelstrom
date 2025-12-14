@@ -95,22 +95,22 @@ public:
 		return 3;
 	}
 
-	override bool Load(rapidxml::xml_node<> *node, const UITemplates *templates);
-	override bool FinishLoading();
+	virtual bool Load(rapidxml::xml_node<> *node, const UITemplates *templates) override;
+	virtual bool FinishLoading() override;
 
 	void SetPanelDelegate(UIPanelDelegate *delegate, bool autodelete = true);
 
-	override void Show();
-	override void Hide();
+	virtual void Show() override;
+	virtual void Hide() override;
 	virtual bool ShouldSaveData() { return true; }
 
 	void HideAll();
 
 	virtual void Poll();
 	virtual void Tick();
-	override void Draw(DRAWLEVEL drawLevel);
-	override bool HandleEvent(const SDL_Event &event);
-	override void Action(UIBaseElement *sender, const char *action);
+	virtual void Draw(DRAWLEVEL drawLevel) override;
+	virtual bool HandleEvent(const SDL_Event &event) override;
+	virtual void Action(UIBaseElement *sender, const char *action) override;
 
 protected:
 	bool m_fullscreen;

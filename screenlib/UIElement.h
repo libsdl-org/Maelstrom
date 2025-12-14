@@ -130,14 +130,14 @@ public:
 	UIElement(UIBaseElement *parent, const char *name, UIDrawEngine *drawEngine);
 	virtual ~UIElement();
 
-	override bool Load(rapidxml::xml_node<> *node, const UITemplates *templates);
-	override bool FinishLoading();
+	virtual bool Load(rapidxml::xml_node<> *node, const UITemplates *templates) override;
+	virtual bool FinishLoading() override;
 
 	// Bind any preferences variables to the preferences manager
-	override void LoadData(Prefs *prefs);
-	override void SaveData(Prefs *prefs);
+	virtual void LoadData(Prefs *prefs) override;
+	virtual void SaveData(Prefs *prefs) override;
 
-	override void OnRectChanged() {
+	virtual void OnRectChanged() override {
 		UIBaseElement::OnRectChanged();
 
 		m_imageArea.AutoSize(Width(), Height(), true);
@@ -230,10 +230,10 @@ public:
 	}
 
 	// Draw!
-	override void Draw(DRAWLEVEL drawLevel);
+	virtual void Draw(DRAWLEVEL drawLevel) override;
 
 	// Events
-	override bool HandleEvent(const SDL_Event &event);
+	virtual bool HandleEvent(const SDL_Event &event) override;
 
 	// Once set, the element owns the click callback and will free it.
 	template <class C>
@@ -296,7 +296,7 @@ protected:
 	bool LoadColor(rapidxml::xml_node<> *node, const char *name, Uint32 &value);
 	bool ParseFont(char *text);
 
-	override void UpdateDisabledState();
+	virtual void UpdateDisabledState() override;
 };
 
 #endif // _UIElement_h

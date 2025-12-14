@@ -32,9 +32,9 @@ public:
 	UIElementThumbstick(UIBaseElement *parent, const char *name, UIDrawEngine *drawEngine);
 	virtual ~UIElementThumbstick();
 
-	override bool Load(rapidxml::xml_node<> *node, const UITemplates *templates);
+	virtual bool Load(rapidxml::xml_node<> *node, const UITemplates *templates) override;
 
-	override bool HandleEvent(const SDL_Event &event);
+	virtual bool HandleEvent(const SDL_Event &event) override;
 
 protected:
 	void MoveCenter(int x, int y);

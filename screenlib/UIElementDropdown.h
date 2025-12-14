@@ -32,12 +32,12 @@ public:
 	UIElementDropdown(UIBaseElement *parent, const char *name, UIDrawEngine *drawEngine);
 	virtual ~UIElementDropdown();
 
-	override bool FinishLoading();
+	virtual bool FinishLoading() override;
 
-	override bool HandleEvent(const SDL_Event &event);
-	override void Action(UIBaseElement *sender, const char *action);
-	override void UpdateDisabledState();
-	override void OnClick();
+	virtual bool HandleEvent(const SDL_Event &event) override;
+	virtual void Action(UIBaseElement *sender, const char *action) override;
+	virtual void UpdateDisabledState() override;
+	virtual void OnClick() override;
 
 	void ShowElements();
 	void HideElements();

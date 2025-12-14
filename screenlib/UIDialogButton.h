@@ -30,7 +30,7 @@ DECLARE_TYPESAFE_CLASS(UIElementButton)
 public:
 	UIDialogButton(UIBaseElement *parent, const char *name, UIDrawEngine *drawEngine);
 
-	override bool Load(rapidxml::xml_node<> *node, const UITemplates *templates);
+	virtual bool Load(rapidxml::xml_node<> *node, const UITemplates *templates) override;
 	
 	void SetCloseDialog(bool close)	    { m_closeDialog = close; }
 	
@@ -38,7 +38,7 @@ public:
 		return m_default;
 	}
 
-	override void OnClick();
+	virtual void OnClick() override;
 
 protected:
 	int m_statusID;

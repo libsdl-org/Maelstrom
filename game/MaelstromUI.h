@@ -74,7 +74,7 @@ class UIDrawEngineIcon : public UIDrawEngine
 public:
 	UIDrawEngineIcon() : UIDrawEngine() { }
 
-	override bool Load(rapidxml::xml_node<> *node, const UITemplates *templates);
+	virtual bool Load(rapidxml::xml_node<> *node, const UITemplates *templates) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -83,7 +83,7 @@ class UIDrawEngineSprite : public UIDrawEngine
 public:
 	UIDrawEngineSprite() : UIDrawEngine() { }
 
-	override bool Load(rapidxml::xml_node<> *node, const UITemplates *templates);
+	virtual bool Load(rapidxml::xml_node<> *node, const UITemplates *templates) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -92,7 +92,7 @@ class UIDrawEngineTitle : public UIDrawEngine
 public:
 	UIDrawEngineTitle() : UIDrawEngine() { }
 
-	override bool Load(rapidxml::xml_node<> *node, const UITemplates *templates);
+	virtual bool Load(rapidxml::xml_node<> *node, const UITemplates *templates) override;
 };
 
 // Generic dialog function

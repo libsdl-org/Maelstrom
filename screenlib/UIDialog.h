@@ -66,9 +66,9 @@ public:
 		return m_status;
 	}
 
-	override void Show();
-	override void Hide();
-	override bool HandleEvent(const SDL_Event &event);
+	virtual void Show() override;
+	virtual void Hide() override;
+	virtual bool HandleEvent(const SDL_Event &event) override;
 
 protected:
 	int m_status;
