@@ -36,11 +36,11 @@ public:
 	UIElementEditbox(UIBaseElement *parent, const char *name, UIDrawEngine *drawEngine);
 	virtual ~UIElementEditbox();
 
-	override bool Load(rapidxml::xml_node<> *node, const UITemplates *templates);
+	virtual bool Load(rapidxml::xml_node<> *node, const UITemplates *templates) override;
 
-	override bool HandleEvent(const SDL_Event &event);
+	virtual bool HandleEvent(const SDL_Event &event) override;
 
-	override void OnClick() {
+	virtual void OnClick() override {
 		SetFocus(!HasFocus());
 	}
 
@@ -56,7 +56,7 @@ public:
 
 	void SetTextMax(int maxLen);
 
-	override void SetText(const char *text);
+	virtual void SetText(const char *text) override;
 	const char *GetText() const {
 		return m_text;
 	}

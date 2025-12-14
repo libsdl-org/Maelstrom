@@ -40,11 +40,11 @@ public:
 	UIElementButton(UIBaseElement *parent, const char *name, UIDrawEngine *drawEngine);
 	virtual ~UIElementButton();
 
-	override bool Load(rapidxml::xml_node<> *node, const UITemplates *templates);
+	virtual bool Load(rapidxml::xml_node<> *node, const UITemplates *templates) override;
 
-	override bool HandleEvent(const SDL_Event &event);
-	override void OnMouseDown();
-	override void OnMouseUp();
+	virtual bool HandleEvent(const SDL_Event &event) override;
+	virtual void OnMouseDown() override;
+	virtual void OnMouseUp() override;
 
 	UITexture *GetButtonStateImage(BUTTON_STATE state) {
 		return m_stateImages[state];
@@ -53,8 +53,8 @@ public:
 protected:
 	void SetButtonState(BUTTON_STATE state);
 
-	override void UpdateDisabledState();
-	override void OnClick();
+	virtual void UpdateDisabledState() override;
+	virtual void OnClick() override;
 
 	bool ShouldHandleKey(SDL_Keycode key);
 

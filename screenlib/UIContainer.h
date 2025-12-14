@@ -36,19 +36,19 @@ DECLARE_TYPESAFE_CLASS(UIElement)
 public:
 	UIContainer(UIBaseElement *parent, const char *name, UIDrawEngine *drawEngine);
 
-	override bool Load(rapidxml::xml_node<> *node, const UITemplates *templates);
-	override bool FinishLoading() {
+	virtual bool Load(rapidxml::xml_node<> *node, const UITemplates *templates) override;
+	virtual bool FinishLoading() override {
 		LayoutChildren();
 		return true;
 	}
 
-	override void OnChildShown(UIBaseElement *child) {
+	virtual void OnChildShown(UIBaseElement *child) override {
 		LayoutChildren();
 	}
-	override void OnChildHidden(UIBaseElement *child) {
+	virtual void OnChildHidden(UIBaseElement *child) override {
 		LayoutChildren();
 	}
-	override void OnChildRectChanged(UIBaseElement *child) {
+	virtual void OnChildRectChanged(UIBaseElement *child) override {
 		LayoutChildren();
 	}
     

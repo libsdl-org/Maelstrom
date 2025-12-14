@@ -32,12 +32,12 @@ public:
 	UIElementCheckbox(UIBaseElement *parent, const char *name, UIDrawEngine *drawEngine);
 	virtual ~UIElementCheckbox();
 
-	override bool Load(rapidxml::xml_node<> *node, const UITemplates *templates);
-	override bool FinishLoading();
+	virtual bool Load(rapidxml::xml_node<> *node, const UITemplates *templates) override;
+	virtual bool FinishLoading() override;
 
 	// Bind any preferences variables to the preferences manager
-	override void LoadData(Prefs *prefs);
-	override void SaveData(Prefs *prefs);
+	virtual void LoadData(Prefs *prefs) override;
+	virtual void SaveData(Prefs *prefs) override;
 
 	void SetChecked(bool checked) {
 		if (checked != m_checked) {
@@ -52,7 +52,7 @@ public:
 		return m_checked;
 	}
 
-	override void OnClick();
+	virtual void OnClick() override;
 
 protected:
 	// This can be overridden by inheriting classes

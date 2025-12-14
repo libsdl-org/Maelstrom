@@ -43,10 +43,10 @@ class LobbyDialogDelegate : public UIDialogDelegate
 public:
 	LobbyDialogDelegate(UIPanel *panel);
 
-	override bool OnLoad();
-	override void OnShow();
-	override void OnHide();
-	override void OnPoll();
+	virtual bool OnLoad() override;
+	virtual void OnShow() override;
+	virtual void OnHide() override;
+	virtual void OnPoll() override;
 
 	void SendKick(int index);
 

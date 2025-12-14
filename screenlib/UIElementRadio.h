@@ -87,10 +87,10 @@ public:
 	UIElementRadioGroup(UIBaseElement *parent, const char *name, UIDrawEngine *drawEngine);
 	~UIElementRadioGroup();
 
-	override bool Load(rapidxml::xml_node<> *node, const UITemplates *templates);
+	virtual bool Load(rapidxml::xml_node<> *node, const UITemplates *templates) override;
 
-	override void LoadData(Prefs *prefs);
-	override void SaveData(Prefs *prefs);
+	virtual void LoadData(Prefs *prefs) override;
+	virtual void SaveData(Prefs *prefs) override;
 
 	UIElementRadioButton *GetRadioButton(int id);
 
@@ -126,10 +126,10 @@ public:
 		return m_id;
 	}
 
-	override bool Load(rapidxml::xml_node<> *node, const UITemplates *templates);
+	virtual bool Load(rapidxml::xml_node<> *node, const UITemplates *templates) override;
 
-	override void OnClick();
-	override void OnChecked(bool checked);
+	virtual void OnClick() override;
+	virtual void OnChecked(bool checked) override;
 
 protected:
 	int m_id;

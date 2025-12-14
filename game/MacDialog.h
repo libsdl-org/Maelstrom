@@ -32,10 +32,10 @@ DECLARE_TYPESAFE_CLASS(UIDialog)
 public:
 	MacDialog(UIManager *ui, const char *name);
 
-	override bool Load(rapidxml::xml_node<> *node, const UITemplates *templates);
+	virtual bool Load(rapidxml::xml_node<> *node, const UITemplates *templates) override;
 
-	override void Show();
-	override void Draw(DRAWLEVEL drawLevel);
+	virtual void Show() override;
+	virtual void Draw(DRAWLEVEL drawLevel) override;
 
 protected:
 	enum {
@@ -56,7 +56,7 @@ protected:
 class MacDialogDrawEngine : public UIDrawEngine
 {
 public:
-	override void Init(UIElement *element);
+	virtual void Init(UIElement *element) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -66,11 +66,11 @@ class MacDialogButton : public MacDialogDrawEngine
 public:
 	MacDialogButton() : MacDialogDrawEngine() { }
 
-	override void Init(UIElement *element);
-	override void OnLoad();
-	override void OnDraw();
-	override void OnMouseDown();
-	override void OnMouseUp();
+	virtual void Init(UIElement *element) override;
+	virtual void OnLoad() override;
+	virtual void OnDraw() override;
+	virtual void OnMouseDown() override;
+	virtual void OnMouseUp() override;
 
 protected:
 	Uint32 m_colors[2];
@@ -83,8 +83,8 @@ class MacDialogCheckbox : public MacDialogDrawEngine
 public:
 	MacDialogCheckbox() : MacDialogDrawEngine() { }
 
-	override void Init(UIElement *element);
-	override void OnDraw();
+	virtual void Init(UIElement *element) override;
+	virtual void OnDraw() override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -94,8 +94,8 @@ class MacDialogRadioButton : public MacDialogDrawEngine
 public:
 	MacDialogRadioButton() : MacDialogDrawEngine() { }
 
-	override void Init(UIElement *element);
-	override void OnDraw();
+	virtual void Init(UIElement *element) override;
+	virtual void OnDraw() override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -105,9 +105,9 @@ class MacDialogEditbox : public MacDialogDrawEngine
 public:
 	MacDialogEditbox() : MacDialogDrawEngine() { }
 
-	override void Init(UIElement *element);
-	override void OnLoad();
-	override void OnDraw();
+	virtual void Init(UIElement *element) override;
+	virtual void OnLoad() override;
+	virtual void OnDraw() override;
 
 protected:
 	Uint32 m_colors[2];
