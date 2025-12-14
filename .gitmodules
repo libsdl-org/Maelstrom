@@ -4,6 +4,3 @@
 [submodule "external/SDL_net"]
 	path = external/SDL_net
 	url = https://github.com/libsdl-org/SDL_net
-[submodule "external/SteamworksSDK"]
-	path = external/SteamworksSDK
-	url = https://github.com/rlabrecque/SteamworksSDK
