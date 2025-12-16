@@ -262,6 +262,17 @@ static void OpenGamepad(SDL_JoystickID id)
 	gamepads.add(gamepad);
 }
 
+static void UpdateGamepadHandle(SDL_JoystickID id)
+{
+	for (unsigned int i = 0; i < gamepads.length(); ++i) {
+		Gamepad* gamepad = &gamepads[i];
+		if (gamepad->id == id) {
+			gamepad->sessionID = GetRemoteSessionForGamepad(gamepad->gamepad);
+			break;
+		}
+	}
+}
+
 static void CloseGamepad(SDL_JoystickID id)
 {
 	for (unsigned int i = 0; i < gamepads.length(); ++i) {
@@ -421,6 +432,21 @@ static void HandleEvent(SDL_Event *event)
 			default:
 				UpdateControl(player);
 				break;
+			}
+			break;
+
+		/* -- Handle Steam handle changing for a gamepad */
+		case SDL_EVENT_GAMEPAD_STEAM_HANDLE_UPDATED:
+			player = GetJoystickPlayer(event->gdevice.which);
+			UpdateGamepadHandle(event->gdevice.which);
+			if (player) {
+				// Update the previous player's controls
+				UpdateControl(player);
+			}
+			player = GetJoystickPlayer(event->gdevice.which);
+			if (player) {
+				// Update the new player's controls
+				UpdateControl(player);
 			}
 			break;
 
