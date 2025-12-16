@@ -221,6 +221,7 @@ public:
 
 	// Image information
 	bool SetImage(const char *name);
+	void SetImage(SDL_Surface *surface);
 	void SetImage(UITexture *image);
 	UITexture *GetImage() const {
 		return m_image;

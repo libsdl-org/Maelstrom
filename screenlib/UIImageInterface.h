@@ -28,6 +28,7 @@ class UIImageInterface
 {
 public:
 	virtual UITexture *CreateImage(const char *name) = 0;
+	virtual UITexture* CreateImage(SDL_Surface* surface) = 0;
 	virtual void FreeImage(UITexture *texture) = 0;
 
 	virtual UITexture *CreateBackground(const char *name) = 0;

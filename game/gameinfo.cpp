@@ -548,9 +548,17 @@ GameInfo::UpdateUI(GameInfoPlayer *player)
 	}
 
 	if (player->UI.control) {
-		char name[128];
-		SDL_snprintf(name, sizeof(name), "control%d", player->controlMask);
-		player->UI.control->SetImage(name);
+		SDL_Surface *surface = nullptr;
+		if (IS_REMOTE_CONTROL(player->controlMask)) {
+			surface = GetRemotePlayerAvatar(player->controlMask);
+		}
+		if (surface) {
+			player->UI.control->SetImage(surface);
+		} else {
+			char name[128];
+			SDL_snprintf(name, sizeof(name), "control%d", player->controlMask);
+			player->UI.control->SetImage(name);
+		}
 	}
 
 	if (player->UI.desc) {
@@ -673,12 +681,12 @@ printf("Game 0x%8.8x: node 0x%8.8x since last ping %d (TIMEDOUT)\n",
 #endif
 			node->ping.status = PING_TIMEDOUT;
 		}
-	}
 
-	// Update the UI for matching players
-	for (int i = 0; i < MAX_PLAYERS; ++i) {
-		if (players[i].nodeID == node->nodeID) {
-			UpdateUI(&players[i]);
+		// Update the UI for matching players
+		for (int i = 0; i < MAX_PLAYERS; ++i) {
+			if (players[i].nodeID == node->nodeID) {
+				UpdateUI(&players[i]);
+			}
 		}
 	}
 }

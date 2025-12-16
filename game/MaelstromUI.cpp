@@ -315,6 +315,14 @@ MaelstromUI::CreateImage(const char *name)
 	return Load_Image(screen, name);
 }
 
+UITexture *
+MaelstromUI::CreateImage(SDL_Surface *surface)
+{
+	SDL_Texture *texture = screen->LoadImage(surface);
+	SDL_DestroySurface(surface);
+	return new UITexture(texture, 1.0f);
+}
+
 void
 MaelstromUI::FreeImage(UITexture *texture)
 {
