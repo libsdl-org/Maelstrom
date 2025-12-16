@@ -23,6 +23,7 @@
 #include <SDL3/SDL.h>
 
 #include "steam.h"
+#include "Localization.h"
 
 #ifdef ENABLE_STEAM
 
@@ -169,18 +170,9 @@ Uint8 SteamInterface::GetControlForSession(RemotePlaySessionID_t sessionID)
 	return 0;
 }
 
-// FIXME: We need a Steamworks API for this
 bool SteamInterface::IsRemotePlayTogether(RemotePlaySessionID_t sessionID)
 {
-	RemoteSession_t *session = GetSession(sessionID);
-	if (!session) {
-		return false;
-	}
-
-	if (session->steamID == m_steamID) {
-		return false;
-	}
-	return true;
+	return SteamRemotePlay()->BSessionRemotePlayTogether(sessionID);
 }
 
 void SteamInterface::UpdatePlayers()
@@ -284,11 +276,28 @@ void SteamInterface::DisableRemoteInput()
 void SteamInterface::OnRemotePlaySessionConnected(SteamRemotePlaySessionConnected_t *pParam)
 {
 	RemotePlaySessionID_t sessionID = pParam->m_unSessionID;
+
+	if (!IsRemotePlayTogether(sessionID)) {
+		// Ignore this session, it'll control the local player
+		return;
+	}
+
 	RemoteSession_t *session = new RemoteSession_t;
 	session->id = sessionID;
 	session->steamID = SteamRemotePlay()->GetSessionSteamID(sessionID);
-	session->name = SDL_strdup("");
+
+	if (session->steamID.IsValid()) {
+		session->name = SDL_strdup(SteamFriends()->GetFriendPersonaName(session->steamID));
+	} else {
+		uint32 unGuestID = SteamRemotePlay()->GetSessionGuestID(sessionID);
+		if (unGuestID) {
+			SDL_asprintf(&session->name, TEXT("Guest %u"), unGuestID);
+		} else {
+			session->name = NULL;
+		}
+	}
 	SDL_zeroa(session->keystate);
+
 	m_sessions.add(session);
 
 	UpdatePlayers();
