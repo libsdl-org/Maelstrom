@@ -1,14 +1,14 @@
 
                           Maelstrom 3.0
 
-Maelstrom 3.0 is a GPL'd port of the original shareware game for the
+Maelstrom 3.0 is a C++ port of the original shareware game for the
 Macintosh.  It is a fast-action, high resolution (640x480) asteroids-like
 game, with detailed graphics and original sounds.
 
-The GPL version of Maelstrom is not supported by Ambrosia Software,
+This version of Maelstrom is not supported by Ambrosia Software,
 but is recommended highly! :)
 
-The latest GPL'd version of Maelstrom is available at:
+The latest version of Maelstrom is available at:
 	http://www.libsdl.org/projects/Maelstrom/
 
 The original Macintosh version of this game is available at:
