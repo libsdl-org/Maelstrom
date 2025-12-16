@@ -562,6 +562,8 @@ GameInfo::UpdateUI(GameInfoPlayer *player)
 			desc = GetGamepadName(1);
 		} else if (player->controlMask == CONTROL_JOYSTICK3) {
 			desc = GetGamepadName(2);
+		} else if (IS_REMOTE_CONTROL(player->controlMask)) {
+			desc = player->name;
 		}
 		player->UI.desc->SetText(desc);
 	}

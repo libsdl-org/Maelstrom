@@ -58,11 +58,13 @@ public:
 		}
 
 		// Select the control and hide the dialog
+		const char *name = NULL;
 		if (IS_LOCAL_CONTROL(m_controlType)) {
-			m_game.SetPlayerSlot(m_index, prefs->GetString(PREFERENCES_HANDLE), m_controlType);
-		} else {
-			m_game.SetPlayerSlot(m_index, NULL, m_controlType);
+			name = prefs->GetString(PREFERENCES_HANDLE);
+		} else if (IS_REMOTE_CONTROL(m_controlType)) {
+			name = GetRemotePlayerName(m_controlType);
 		}
+		m_game.SetPlayerSlot(m_index, name, m_controlType);
 		m_dialog->Hide();
 	}
 
@@ -420,14 +422,16 @@ LobbyDialogDelegate::SetState(LOBBY_STATE state)
 		// Set up the controls for this game
 		for (i = 0; i < MAX_PLAYERS; ++i) {
 			Uint8 controlType;
-			char name[128];
-			SDL_snprintf(name, sizeof(name), "Player%d.Controls", i+1);
-			controlType = prefs->GetNumber(name, (i == 0 ? CONTROL_LOCAL : CONTROL_NETWORK));
+			char entry[128];
+			SDL_snprintf(entry, sizeof(entry), "Player%d.Controls", i+1);
+			controlType = prefs->GetNumber(entry, (i == 0 ? CONTROL_LOCAL : CONTROL_NETWORK));
+			const char *name = NULL;
 			if (IS_LOCAL_CONTROL(controlType)) {
-				m_game.SetPlayerSlot(i, prefs->GetString(PREFERENCES_HANDLE), controlType);
-			} else {
-				m_game.SetPlayerSlot(i, NULL, controlType);
+				name = prefs->GetString(PREFERENCES_HANDLE);
+			} else if (IS_REMOTE_CONTROL(controlType)) {
+				name = GetRemotePlayerName(controlType);
 			}
+			m_game.SetPlayerSlot(i, name, controlType);
 		}
 	} else if (state == STATE_LISTING) {
 		ClearGameList();
