@@ -538,6 +538,14 @@ UIElement::SetImage(const char *name)
 }
 
 void
+UIElement::SetImage(SDL_Surface *surface)
+{
+	UITexture *image = m_ui->CreateImage(surface);
+
+	SetImage(image);
+}
+
+void
 UIElement::SetImage(UITexture *image)
 {
 	if (m_image && !m_image->IsLocked()) {

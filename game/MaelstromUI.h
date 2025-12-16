@@ -44,6 +44,7 @@ public:
 	// UIImageInterface
 	//
 	virtual UITexture *CreateImage(const char *name);
+	virtual UITexture *CreateImage(SDL_Surface *surface);
 	virtual void FreeImage(UITexture *texture);
 	virtual UITexture *CreateBackground(const char *name);
 	virtual void FreeBackground(UITexture *texture);

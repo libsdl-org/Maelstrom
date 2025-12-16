@@ -32,6 +32,7 @@ extern bool InitSteam();
 extern RemotePlaySessionID_t GetRemoteSessionForGamepad(SDL_Gamepad *gamepad);
 extern Uint8 GetRemoteSessionControl(RemotePlaySessionID_t sessionID);
 extern const char *GetRemotePlayerName(Uint8 controlType);
+extern SDL_Surface* GetRemotePlayerAvatar(Uint8 controlType);
 extern const bool *GetRemotePlayerKeyboardState(Uint8 controlType);
 extern void EnableRemoteInput();
 extern void DisableRemoteInput();

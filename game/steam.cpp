@@ -52,6 +52,7 @@ public:
 	RemotePlaySessionID_t GetRemoteSessionForGamepad(SDL_Gamepad *gamepad);
 
 	const char *GetRemotePlayerName(Uint8 controlType);
+	SDL_Surface *GetRemotePlayerAvatar(Uint8 controlType);
 	const bool *GetRemotePlayerKeyboardState(Uint8 controlType);
 
 	void EnableRemoteInput();
@@ -80,6 +81,7 @@ private:
 	RemoteSession_t *m_players[MAX_PLAYERS - 1] = { };
 
 	STEAM_CALLBACK(SteamInterface, OnRemotePlaySessionConnected, SteamRemotePlaySessionConnected_t);
+	STEAM_CALLBACK(SteamInterface, OnRemotePlaySessionAvatarLoaded, SteamRemotePlaySessionAvatarLoaded_t);
 	STEAM_CALLBACK(SteamInterface, OnRemotePlaySessionDisconnected, SteamRemotePlaySessionDisconnected_t);
 };
 static SteamInterface steam;
@@ -246,6 +248,59 @@ const char *SteamInterface::GetRemotePlayerName(Uint8 controlType)
 	return session->name;
 }
 
+SDL_Surface *SteamInterface::GetRemotePlayerAvatar(Uint8 controlType)
+{
+	RemoteSession_t *session = GetSessionForControl(controlType);
+	if (!session) {
+		return nullptr;
+	}
+
+	SDL_Surface *surface = nullptr;
+	int image = SteamRemotePlay()->GetSmallSessionAvatar(session->id);
+	if (image > 0) {
+		uint32 width, height;
+		if (!SteamUtils()->GetImageSize(image, &width, &height)) {
+			SDL_Log("Couldn't get image size");
+			return nullptr;
+		}
+
+		SDL_Surface *avatar = SDL_CreateSurface(width, height, SDL_PIXELFORMAT_RGBA32);
+		if (!avatar) {
+			return nullptr;
+		}
+		// Steam returns tightly packed images
+		SDL_assert(avatar->pitch == width * 4);
+
+		if (!SteamUtils()->GetImageRGBA(image, (uint8 *)avatar->pixels, avatar->h * avatar->pitch)) {
+			SDL_Log("Couldn't get image pixels");
+			SDL_DestroySurface(surface);
+			return nullptr;
+		}
+
+		const int AVATAR_SIZE = 36;
+		surface = SDL_CreateSurface(AVATAR_SIZE, AVATAR_SIZE, SDL_PIXELFORMAT_RGBA32);
+		if (surface) {
+			SDL_Rect rect;
+
+			// Add a black border
+			rect.w = avatar->w + 2;
+			rect.h = avatar->h + 2;
+			rect.x = (surface->w - rect.w) / 2;
+			rect.y = (surface->h - rect.h) / 2;
+			SDL_FillSurfaceRect(surface, &rect, SDL_MapSurfaceRGB(surface, 0, 0, 0));
+
+			// Center the avatar
+			rect.w = avatar->w;
+			rect.h = avatar->h;
+			rect.x = (surface->w - rect.w) / 2;
+			rect.y = (surface->h - rect.h) / 2;
+			SDL_BlitSurface(avatar, NULL, surface, &rect);
+		}
+		SDL_DestroySurface(avatar);
+	}
+	return surface;
+}
+
 const bool *SteamInterface::GetRemotePlayerKeyboardState(Uint8 controlType)
 {
 	RemoteSession_t *session = GetSessionForControl(controlType);
@@ -271,6 +326,11 @@ void SteamInterface::DisableRemoteInput()
 	}
 
 	SteamRemotePlay()->DisableRemotePlayTogetherDirectInput();
+}
+
+void SteamInterface::OnRemotePlaySessionAvatarLoaded(SteamRemotePlaySessionAvatarLoaded_t *pParam)
+{
+	UpdatePlayers();
 }
 
 void SteamInterface::OnRemotePlaySessionConnected(SteamRemotePlaySessionConnected_t *pParam)
@@ -346,6 +406,11 @@ const char *GetRemotePlayerName(Uint8 controlType)
 	return steam.GetRemotePlayerName(controlType);
 }
 
+SDL_Surface *GetRemotePlayerAvatar(Uint8 controlType)
+{
+	return steam.GetRemotePlayerAvatar(controlType);
+}
+
 const bool *GetRemotePlayerKeyboardState(Uint8 controlType)
 {
 	return steam.GetRemotePlayerKeyboardState(controlType);
@@ -389,6 +454,11 @@ Uint8 GetRemoteSessionControl(RemotePlaySessionID_t sessionID)
 }
 
 const char *GetRemotePlayerName(Uint8 controlType)
+{
+	return nullptr;
+}
+
+SDL_Surface *GetRemotePlayerAvatar(Uint8 controlType)
 {
 	return nullptr;
 }
