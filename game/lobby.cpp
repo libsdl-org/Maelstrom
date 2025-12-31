@@ -47,12 +47,27 @@ public:
 		m_lobby(lobby), m_dialog(dialog), m_game(game), m_index(index), m_controlType(controlType) { }
 
 	virtual void operator()() {
-		// Kick any player that was connected
-		if (m_controlType != CONTROL_NETWORK) {
-			const GameInfoPlayer *player = m_game.GetPlayer(m_index);
-			int nodeIndex = m_game.GetNodeIndex(player->nodeID);
-			if (nodeIndex >= 0) {
-				m_lobby->SendKick(nodeIndex);
+		if (m_game.IsHosting()) {
+			// Kick any player that was connected
+			if (m_controlType != CONTROL_NETWORK) {
+				const GameInfoPlayer* player = m_game.GetPlayer(m_index);
+				int nodeIndex = m_game.GetNodeIndex(player->nodeID);
+				if (nodeIndex >= 0) {
+					m_lobby->SendKick(nodeIndex);
+				}
+			}
+
+			if (m_controlType != CONTROL_NONE && m_controlType != CONTROL_NETWORK) {
+				for (int i = 0; i < MAX_PLAYERS; ++i) {
+					if (i == m_index) {
+						continue;
+					}
+
+					const GameInfoPlayer* player = m_game.GetPlayer(i);
+					if (player->controlMask == m_controlType) {
+						m_game.SetPlayerSlot(i, NULL, CONTROL_NETWORK);
+					}
+				}
 			}
 		}
 
@@ -89,12 +104,12 @@ public:
 		// Show the control dialog
 		int num_gamepads = GetNumGamepads();
 		SetControl(CONTROL_NONE, (m_index > 0) && m_game.IsHosting());
-		SetControl(CONTROL_LOCAL, !m_game.OtherPlayerHasControl(m_index, CONTROL_LOCAL));
-		SetControl(CONTROL_JOYSTICK1, num_gamepads > 0 && !m_game.OtherPlayerHasControl(m_index, CONTROL_JOYSTICK1));
-		SetControl(CONTROL_JOYSTICK2, num_gamepads > 1 && !m_game.OtherPlayerHasControl(m_index, CONTROL_JOYSTICK2));
-		SetControl(CONTROL_JOYSTICK3, num_gamepads > 2 && !m_game.OtherPlayerHasControl(m_index, CONTROL_JOYSTICK3));
-		SetControl(CONTROL_REMOTE1, (m_index > 0) && m_game.IsHosting() && GetRemotePlayerName(CONTROL_REMOTE1) && !m_game.OtherPlayerHasControl(m_index, CONTROL_REMOTE1));
-		SetControl(CONTROL_REMOTE2, (m_index > 0) && m_game.IsHosting() && GetRemotePlayerName(CONTROL_REMOTE2) && !m_game.OtherPlayerHasControl(m_index, CONTROL_REMOTE2));
+		SetControl(CONTROL_LOCAL, true);
+		SetControl(CONTROL_JOYSTICK1, num_gamepads >= 1);
+		SetControl(CONTROL_JOYSTICK2, num_gamepads >= 2);
+		SetControl(CONTROL_JOYSTICK3, num_gamepads >= 3);
+		SetControl(CONTROL_REMOTE1, (m_index > 0) && m_game.IsHosting() && GetRemotePlayerName(CONTROL_REMOTE1));
+		SetControl(CONTROL_REMOTE2, (m_index > 0) && m_game.IsHosting() && GetRemotePlayerName(CONTROL_REMOTE2));
 		SetControl(CONTROL_NETWORK, (m_index > 0) && m_game.IsHosting());
 
 		m_dialog->SetAnchor(LEFT, RIGHT, m_button, -4, 0);

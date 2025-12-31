@@ -407,23 +407,6 @@ GameInfo::IsNetworkPlayer(int index) const
 	return (players[index].nodeID != localID);
 }
 
-bool
-GameInfo::OtherPlayerHasControl(int index, Uint8 controlMask)
-{
-	for (int i = 0; i < MAX_PLAYERS; ++i) {
-		if (!IsValidPlayer(i)) {
-			continue;
-		}
-		if (i == index) {
-			continue;
-		}
-		if (players[i].controlMask == controlMask) {
-			return true;
-		}
-	}
-	return false;
-}
-
 int
 GameInfo::GetNumPlayers() const
 {
