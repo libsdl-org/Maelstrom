@@ -713,6 +713,7 @@ void CleanUp(void)
 {
 	FreeScores();
 	SaveControls();
+	QuitPlayerControls();
 	if ( gReplayFile ) {
 		SDL_free( gReplayFile );
 		gReplayFile = NULL;
@@ -771,6 +772,7 @@ int DoInitializations(Uint32 window_flags)
 
 	// -- Load our controls
 	LoadControls();
+	InitPlayerControls();
 
 	/* Load the Maelstrom icon */
 	icon = SDL_LoadSurface_IO(OpenRead("icon.png"), true);

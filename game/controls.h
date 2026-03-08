@@ -32,6 +32,7 @@ extern void	LoadControls(void);
 extern void	SaveControls(void);
 extern void	InitPlayerControls(void);
 extern void	QuitPlayerControls(void);
+extern unsigned int GetNumGamepads();
 extern void	HandleEvents(int timeout);
 extern int	DropEvents(void);
 

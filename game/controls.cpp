@@ -272,6 +272,11 @@ static void UpdateGamepadHandle(SDL_JoystickID id)
 	}
 }
 
+unsigned int GetNumGamepads()
+{
+	return gamepads.length();
+}
+
 static void CloseGamepad(SDL_JoystickID id)
 {
 	for (unsigned int i = 0; i < gamepads.length(); ++i) {
@@ -391,16 +396,6 @@ static void HandleEvent(SDL_Event *event)
 	}
 
 	switch (event->type) {
-		/* -- Handle joystick added */
-		case SDL_EVENT_GAMEPAD_ADDED:
-			OpenGamepad(event->gdevice.which);
-			break;
-
-		/* -- Handle joystick removed */
-		case SDL_EVENT_GAMEPAD_REMOVED:
-			CloseGamepad(event->gdevice.which);
-			break;
-
 		/* -- Handle joystick axis motion */
 		case SDL_EVENT_GAMEPAD_AXIS_MOTION:
 			player = GetJoystickPlayer(event->gaxis.which);
@@ -527,6 +522,25 @@ static void HandleEvent(SDL_Event *event)
 	}
 }
 
+static bool SDLCALL GamepadEventWatch(void *userdata, SDL_Event *event)
+{
+	switch (event->type) {
+		/* -- Handle joystick added */
+		case SDL_EVENT_GAMEPAD_ADDED:
+			OpenGamepad(event->gdevice.which);
+			break;
+
+		/* -- Handle joystick removed */
+		case SDL_EVENT_GAMEPAD_REMOVED:
+			CloseGamepad(event->gdevice.which);
+			break;
+
+		default:
+			break;
+	}
+	return true;
+}
+
 void InitPlayerControls(void)
 {
 	SDL_JoystickID *ids = SDL_GetJoysticks(nullptr);
@@ -536,10 +550,12 @@ void InitPlayerControls(void)
 		}
 		SDL_free(ids);
 	}
+	SDL_AddEventWatch(GamepadEventWatch, nullptr);
 }
 
 void QuitPlayerControls(void)
 {
+	SDL_RemoveEventWatch(GamepadEventWatch, nullptr);
 	for (unsigned int i = 0; i < gamepads.length(); ++i) {
 		Gamepad *gamepad = &gamepads[i];
 		SDL_CloseGamepad(gamepad->gamepad);
