@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 3.0...4.0)
-project(Maelstrom C CXX)
 
-include(GNUInstallDirs)
+set(MAJOR_VERSION 4)
+set(MINOR_VERSION 0)
+set(MICRO_VERSION 0)
 
-if(WIN32)
-    set(GAME_INSTALLDIR ".")
-else()
-    set(GAME_INSTALLDIR "${CMAKE_INSTALL_PREFIX}/games/${PROJECT_NAME}")
-endif()
+project(Maelstrom
+    LANGUAGES C CXX
+    VERSION "${MAJOR_VERSION}.${MINOR_VERSION}.${MICRO_VERSION}"
+)
 
 # set the output directory for built objects.
 # This makes sure that the dynamic library goes into the build directory automatically.
@@ -17,6 +17,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 add_subdirectory(maclib)
 add_subdirectory(external/SDL EXCLUDE_FROM_ALL)
 add_subdirectory(external/SDL_net EXCLUDE_FROM_ALL)
+
+SDL_DetectTargetCPUArchitectures(SDL_CPU_NAMES)
+SDL_DetectCMakePlatform()
 
 set(MAELSTROM_SOURCES
 	game/about.cpp
@@ -162,33 +165,93 @@ dep_option(STEAM "Build with Steam support" ON "WIN32 OR LINUX OR MACOS" OFF)
 
 if(STEAM)
     target_compile_definitions(Maelstrom PRIVATE ENABLE_STEAM)
-	target_include_directories(Maelstrom PRIVATE "${CMAKE_SOURCE_DIR}/external/SteamworksSDK/public")
-	if(WIN32)
-		target_link_directories(Maelstrom PRIVATE "${CMAKE_SOURCE_DIR}/external/SteamworksSDK/redistributable_bin/win64")
-		target_link_libraries(Maelstrom PRIVATE steam_api64)
-	elseif(LINUX)
-		target_link_directories(Maelstrom PRIVATE "${CMAKE_SOURCE_DIR}/external/SteamworksSDK/redistributable_bin/linux64")
-		target_link_libraries(Maelstrom PRIVATE steam_api)
-	elseif(MACOS)
-		target_link_directories(Maelstrom PRIVATE "${CMAKE_SOURCE_DIR}/external/SteamworksSDK/redistributable_bin/osx")
-		target_link_libraries(Maelstrom PRIVATE steam_api)
-	endif()
+    add_library(SteamworksSDK::steam_api SHARED IMPORTED)
+    set_property(TARGET SteamworksSDK::steam_api PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${PROJECT_SOURCE_DIR}/external/SteamworksSDK/public")
+    if(WIN32)
+        set_property(TARGET SteamworksSDK::steam_api PROPERTY IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/external/SteamworksSDK/redistributable_bin/win64/steam_api64.dll")
+        set_property(TARGET SteamworksSDK::steam_api PROPERTY IMPORTED_IMPLIB   "${PROJECT_SOURCE_DIR}/external/SteamworksSDK/redistributable_bin/win64/steam_api64.lib")
+    elseif(LINUX)
+        if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+            set_property(TARGET SteamworksSDK::steam_api PROPERTY IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/external/SteamworksSDK/redistributable_bin/linux32/libsteam_api.so")
+        else()
+            set_property(TARGET SteamworksSDK::steam_api PROPERTY IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/external/SteamworksSDK/redistributable_bin/linux64/libsteam_api.so")
+        endif()
+    elseif(MACOS)
+        set_property(TARGET SteamworksSDK::steam_api PROPERTY IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/external/SteamworksSDK/redistributable_bin/osx/libsteam_api.dylib")
+    endif()
+    target_link_libraries(Maelstrom PRIVATE SteamworksSDK::steam_api)
 endif()
 
 target_link_libraries(Maelstrom PRIVATE SDLmac)
 target_link_libraries(Maelstrom PRIVATE SDL3::SDL3)
 target_link_libraries(Maelstrom PRIVATE SDL3_net::SDL3_net)
 
-install(TARGETS Maelstrom DESTINATION "${GAME_INSTALLDIR}")
-install(DIRECTORY Data DESTINATION "${GAME_INSTALLDIR}")
+option(STANDALONE_INSTALL "Build Maelstrom installed into a single directory" TRUE)
 
-file(GLOB docs "Docs/*.txt" "README*")
-install(FILES ${docs} "COPYING" DESTINATION "${GAME_INSTALLDIR}/Docs")
+if(STANDALONE_INSTALL)
+    set(CMAKE_INSTALL_BINDIR ".")
+    set(CMAKE_INSTALL_LIBDIR ".")
+    set(CMAKE_INSTALL_DOCDIR "Docs")
+    set(GAME_INSTALL_DATADIR ".")
+    if(APPLE)
+        set_property(TARGET Maelstrom SDL3-shared SDL3_net-shared PROPERTY INSTALL_RPATH "@executable_path")
+    else()
+        set_property(TARGET Maelstrom SDL3-shared SDL3_net-shared PROPERTY INSTALL_RPATH "$ORIGIN")
+    endif()
+else()
+    include(GNUInstallDirs)
+    set(GAME_INSTALL_DATADIR "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}")
 
-if(NOT TARGET uninstall)
-  configure_file(cmake/cmake_uninstall.cmake.in cmake_uninstall.cmake IMMEDIATE @ONLY)
-
-  add_custom_target(uninstall
-      COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+    target_compile_definitions(Maelstrom PRIVATE MAELSTROM_DATA=\"${CMAKE_INSTALL_PREFIX}/${GAME_INSTALL_DATADIR}/Data/\")
 endif()
 
+install(TARGETS Maelstrom SDL3-shared SDL3_net-shared LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" NAMELINK_SKIP RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+if(STEAM)
+    install(IMPORTED_RUNTIME_ARTIFACTS SteamworksSDK::steam_api)
+endif()
+install(DIRECTORY Data DESTINATION "${GAME_INSTALL_DATADIR}")
+
+file(GLOB docs "Docs/*.txt" "README*")
+install(FILES ${docs} "COPYING" TYPE DOC)
+
+#
+# Uninstall
+#
+configure_file(cmake/cmake_uninstall.cmake.in cmake_uninstall.cmake IMMEDIATE @ONLY)
+
+add_custom_target(uninstall
+  COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+
+#
+# Source package
+#
+find_package(Git QUIET)
+
+if(GIT_FOUND)
+    add_custom_target(package_sources
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/dist
+      COMMAND ${GIT_EXECUTABLE} archive HEAD -o "${PROJECT_BINARY_DIR}/dist/${PROJECT_NAME}-${PROJECT_VERSION}.zip" --prefix "${PROJECT_NAME}-${PROJECT_VERSION}/"
+      COMMAND ${GIT_EXECUTABLE} archive HEAD -o "${PROJECT_BINARY_DIR}/dist/${PROJECT_NAME}-${PROJECT_VERSION}.tar.gz" --prefix "${PROJECT_NAME}-${PROJECT_VERSION}/"
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      COMMENT "Creating source archive..."
+      VERBATIM
+    )
+else()
+    message(WARNING "Git not found, 'package_sources' target will not be available.")
+endif()
+
+#
+# Binary package
+#
+
+if(MSVC)
+    set(CPACK_GENERATOR "ZIP")
+else()
+    set(CPACK_GENERATOR "TGZ")
+endif()
+configure_file(cmake/CPackProjectConfig.cmake.in CPackProjectConfig.cmake @ONLY)
+set(CPACK_PROJECT_CONFIG_FILE "${PROJECT_BINARY_DIR}/CPackProjectConfig.cmake")
+# CPACK_SOURCE_PACKAGE_FILE_NAME must end with "-src" (so we can block creating a source archive)
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-src")
+set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}/dist")
+include(CPack)
