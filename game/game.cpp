@@ -122,7 +122,6 @@ void NewGame(void)
 	if ( !SetupPlayers() ) {
 		return;
 	}
-	InitPlayerControls();
 
 	/* Send a "NEW_GAME" packet onto the network */
 	if ( gGameInfo.IsMultiplayer() && gGameInfo.IsHosting() ) {
@@ -1060,8 +1059,6 @@ void
 GamePanelDelegate::GameOver()
 {
 	CloseSocket();
-
-	QuitPlayerControls();
 
 	DisableRemoteInput();
 

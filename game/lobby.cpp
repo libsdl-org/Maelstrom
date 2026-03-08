@@ -102,7 +102,7 @@ public:
 		}
 
 		// Show the control dialog
-		int num_gamepads = GetNumGamepads();
+		unsigned int num_gamepads = GetNumGamepads();
 		SetControl(CONTROL_NONE, (m_index > 0) && m_game.IsHosting());
 		SetControl(CONTROL_LOCAL, true);
 		SetControl(CONTROL_JOYSTICK1, num_gamepads >= 1);
@@ -117,24 +117,6 @@ public:
 	}
 
 private:
-	int GetNumGamepads()
-	{
-		int num_gamepads = 0;
-		SDL_JoystickID* gamepads = SDL_GetGamepads(nullptr);
-		if (gamepads) {
-			for (int i = 0; gamepads[i]; ++i) {
-				SDL_Gamepad* gamepad = SDL_OpenGamepad(gamepads[i]);
-				if (gamepad) {
-					if (!GetRemoteSessionForGamepad(gamepad)) {
-						++num_gamepads;
-					}
-					SDL_CloseGamepad(gamepad);
-				}
-			}
-			SDL_free(gamepads);
-		}
-		return num_gamepads;
-	}
 	void SetControl(Uint8 control, bool enabled) {
 		char name[128];
 		UIElement *element;
