@@ -1,0 +1,69 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  Build:
+    name: ${{ matrix.platform.name }}
+    runs-on: ${{ matrix.platform.os }}
+
+    defaults:
+      run:
+        shell: ${{ matrix.platform.shell }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+        - { name: Windows (MSVC),    os: windows-latest, shell: sh,  msvc: 1, artifact: 'Maelstrom-windows',
+            cmake: '-GNinja -DCMAKE_POLICY_DEFAULT_CMP0141=NEW -DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT=ProgramDatabase -DCMAKE_EXE_LINKER_FLAGS=-DEBUG -DCMAKE_SHARED_LINKER_FLAGS=-DEBUG' }
+        - { name: Linux,             os: ubuntu-latest,  shell: sh,  linux: 1, cmake: '-GNinja', artifact: 'Maelstrom-linux' }
+        - { name: macOS,             os: macos-latest,   shell: sh,  artifact: 'Maelstrom-macos',
+            cmake: '-DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0' }
+
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        submodules: ${{ 'recursive' }}
+    - uses: ilammy/msvc-dev-cmd@v1
+      if: ${{ matrix.platform.msvc }}
+      with:
+        arch: x64
+    - name: 'Install Linux dependencies'
+      if: ${{ matrix.platform.linux }}
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install -y \
+          gnome-desktop-testing libasound2-dev libpulse-dev libaudio-dev libjack-dev libsndio-dev \
+          libusb-1.0-0-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev \
+          libxss-dev libwayland-dev libxtst-dev libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
+          libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev
+    - name: Configure (CMake)
+      run: |
+        export CMAKE_CONFIGURATION_TYPES=Release
+        cmake -B build \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=prefix_cmake \
+          -DCMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE=$PWD/build \
+          -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=$PWD/build \
+          ${{ matrix.platform.cmake }}
+    - name: Build (CMake)
+      id: build
+      run: cmake --build build/ --config Release --parallel --verbose
+    - name: Install (CMake)
+      if: ${{ always() && steps.build.outcome == 'success' }}
+      run: |
+        set -eu
+        rm -fr DESTDIR-cmake
+        cmake --install build/ --config Release
+        echo "Maelstrom=$(pwd)/prefix_cmake" >> $GITHUB_ENV
+        ( cd prefix_cmake; find . ) | LC_ALL=C sort -u
+    - name: Package (CPack)
+      if: ${{ always() && steps.build.outcome == 'success' }}
+      run: |
+        cmake --build build/ --target package
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v6
+      with:
+        name: "${{ matrix.platform.artifact }}"
+        path: '${{ github.workspace }}/build/dist/Maelstrom*'

@@ -30,7 +30,6 @@ static char datapath[PATH_MAX];
 
 bool InitFilesystem(const char *org, const char *app)
 {
-	const char *basepath;
 	const char *env = SDL_getenv("MAELSTROM_DATA");
 
 	storage_org = org;
@@ -41,7 +40,12 @@ bool InitFilesystem(const char *org, const char *app)
 		return true;
 	}
 
-	basepath = SDL_GetBasePath();
+#ifdef MAELSTROM_DATA
+	SDL_strlcpy(datapath, MAELSTROM_DATA, sizeof(datapath));
+	return true;
+
+#else
+	const char *basepath = SDL_GetBasePath();
 	if (basepath) {
 		SDL_snprintf(datapath, sizeof(datapath), "%sData/", basepath);
 		if (SDL_GetPathInfo(datapath, NULL)) {
@@ -61,6 +65,8 @@ bool InitFilesystem(const char *org, const char *app)
 
 	SDL_strlcpy(datapath, "./", sizeof(datapath));
 	return true;
+
+#endif // MAELSTROM_DATA
 }
 
 SDL_IOStream *OpenRead(const char *file)
