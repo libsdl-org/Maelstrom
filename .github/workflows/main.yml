@@ -6,6 +6,7 @@ jobs:
   Build:
     name: ${{ matrix.platform.name }}
     runs-on: ${{ matrix.platform.os }}
+    container: ${{ matrix.platform.container }}
 
     defaults:
       run:
@@ -17,7 +18,7 @@ jobs:
         platform:
         - { name: Windows (MSVC),    os: windows-latest, shell: sh,  msvc: 1, artifact: 'Maelstrom-windows',
             cmake: '-GNinja -DCMAKE_POLICY_DEFAULT_CMP0141=NEW -DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT=ProgramDatabase -DCMAKE_EXE_LINKER_FLAGS=-DEBUG -DCMAKE_SHARED_LINKER_FLAGS=-DEBUG' }
-        - { name: Linux,             os: ubuntu-latest,  shell: sh,  linux: 1, cmake: '-GNinja', artifact: 'Maelstrom-linux' }
+        - { name: Linux,             os: ubuntu-latest,  shell: sh,  linux: 1, container: 'registry.gitlab.steamos.cloud/steamrt/sniper/sdk', cmake: '-GNinja', artifact: 'Maelstrom-linux' }
         - { name: macOS,             os: macos-latest,   shell: sh,  artifact: 'Maelstrom-macos',
             cmake: '-DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0' }
 

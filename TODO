@@ -4,6 +4,5 @@
 * Improve touch control (automatically show controls on tap)
 * Add Android build to GitHub actions
 * Add assets and entitlements for Apple Store
-* Build for Linux using the steamrt container
 * Update documentation
 * Remove replay feature?
