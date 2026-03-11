@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0...4.0)
+cmake_minimum_required(VERSION 3.25...4.0)
 
 set(MAJOR_VERSION 4)
 set(MINOR_VERSION 0)
@@ -16,7 +16,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 
 add_subdirectory(maclib)
 add_subdirectory(external/SDL EXCLUDE_FROM_ALL)
-add_subdirectory(external/SDL_net EXCLUDE_FROM_ALL)
+block()
+    # SDL_net's ABI has not yet been finalized
+    set(BUILD_SHARED_LIBS OFF)
+    add_subdirectory(external/SDL_net EXCLUDE_FROM_ALL)
+endblock()
 
 SDL_DetectTargetCPUArchitectures(SDL_CPU_NAMES)
 SDL_DetectCMakePlatform()
@@ -184,7 +188,7 @@ endif()
 
 target_link_libraries(Maelstrom PRIVATE SDLmac)
 target_link_libraries(Maelstrom PRIVATE SDL3::SDL3)
-target_link_libraries(Maelstrom PRIVATE SDL3_net::SDL3_net)
+target_link_libraries(Maelstrom PRIVATE SDL3_net::SDL3_net-static)
 
 option(STANDALONE_INSTALL "Build Maelstrom installed into a single directory" TRUE)
 
@@ -194,9 +198,9 @@ if(STANDALONE_INSTALL)
     set(CMAKE_INSTALL_DOCDIR "Docs")
     set(GAME_INSTALL_DATADIR ".")
     if(APPLE)
-        set_property(TARGET Maelstrom SDL3-shared SDL3_net-shared PROPERTY INSTALL_RPATH "@executable_path")
+        set_property(TARGET Maelstrom SDL3-shared PROPERTY INSTALL_RPATH "@executable_path")
     else()
-        set_property(TARGET Maelstrom SDL3-shared SDL3_net-shared PROPERTY INSTALL_RPATH "$ORIGIN")
+        set_property(TARGET Maelstrom SDL3-shared PROPERTY INSTALL_RPATH "$ORIGIN")
     endif()
 else()
     include(GNUInstallDirs)
@@ -205,7 +209,7 @@ else()
     target_compile_definitions(Maelstrom PRIVATE MAELSTROM_DATA=\"${CMAKE_INSTALL_PREFIX}/${GAME_INSTALL_DATADIR}/Data/\")
 endif()
 
-install(TARGETS Maelstrom SDL3-shared SDL3_net-shared LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" NAMELINK_SKIP RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+install(TARGETS Maelstrom SDL3-shared LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" NAMELINK_SKIP RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
 if(STEAM)
     install(IMPORTED_RUNTIME_ARTIFACTS SteamworksSDK::steam_api)
 endif()
