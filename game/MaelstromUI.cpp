@@ -256,7 +256,7 @@ UITexture *
 MaelstromUI::CreateText(const char *text, const char *fontName, int fontSize, UIFontStyle fontStyle, Uint32 color)
 {
 	MFont *font;
-	Uint8 style;
+	Uint8 style = STYLE_NORM;
 	char *key;
 	size_t keysize;
 	SDL_Texture *texture;

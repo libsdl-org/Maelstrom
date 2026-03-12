@@ -233,8 +233,9 @@ static FILE *Open_MacRes(char **original, Uint32 *resbase)
 		}
 
 #ifdef SDL_PLATFORM_MACOS
-		newname = new char[strlen(dirname)+strlen("/../Resources/")+strlen(basename)+1];
-		sprintf(newname, "%s/../Resources/%s", dirname, basename);
+		len = strlen(dirname)+strlen("/../Resources/")+strlen(basename)+1;
+		newname = new char[len];
+		SDL_snprintf(newname, len, "%s/../Resources/%s", dirname, basename);
 		if ( (resfile=fopen(newname, "rb")) != NULL ) {
 			break;
 		}

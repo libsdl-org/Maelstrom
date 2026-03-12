@@ -250,18 +250,18 @@ public:
 };
 
 /////////////////////////////////////////////////////////////////////////
-#define DECLARE_TYPESAFE_CLASS(BASECLASS)				\
-protected:								\
-	static UIElementType s_elementType;				\
-									\
-public:									\
-	static UIElementType GetType() {				\
-		if (!s_elementType) {					\
-			s_elementType = GenerateType();			\
-		}							\
-		return s_elementType;					\
-	}								\
-	virtual bool IsA(UIElementType type) {				\
+#define DECLARE_TYPESAFE_CLASS(BASECLASS)					\
+protected:													\
+	static UIElementType s_elementType;						\
+															\
+public:														\
+	static UIElementType GetType() {						\
+		if (!s_elementType) {								\
+			s_elementType = GenerateType();					\
+		}													\
+		return s_elementType;								\
+	}														\
+	virtual bool IsA(UIElementType type) override {			\
 		return BASECLASS::IsA(type) || type == GetType();	\
 	}
 /////////////////////////////////////////////////////////////////////////

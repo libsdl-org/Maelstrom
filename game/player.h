@@ -165,9 +165,6 @@ private:
 	int Ghost;
 
 	Shot *shots[MAX_SHOTS];
-	int nextshot;
-	int shotodds;
-	int target;
 	int numshots;
 	Uint32 ship_color;
 
