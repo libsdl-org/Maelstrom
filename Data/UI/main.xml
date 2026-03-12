@@ -172,6 +172,7 @@
 		<Label name="last_score" template="LargeWhite">
 			<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="last_score_label"/>
 		</Label>
+		<!-- Disabled play last button
 		<Button name="play_last" image="play" action="play_last">
 			<Size w="326" h="22"/>
 			<ImageArea>
@@ -180,6 +181,7 @@
 			</ImageArea>
 			<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="last_score_label" x="-38"/>
 		</Button>
+		-->
 
 		<!-- Instructions -->
 		<Button name="PlayButton" template="MenuButton" hotkey="P" text="P" action="play" clickSound="114">
