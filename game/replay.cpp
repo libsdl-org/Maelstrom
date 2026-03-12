@@ -292,8 +292,9 @@ printf("Replay complete!\n");
 		return false;
 	}
 	for (int i = 0; i < size; ++i) {
-		m_data.Read(value);
-		QueueInput(value);
+		if (m_data.Read(value)) {
+			QueueInput(value);
+		}
 	}
 
 	++m_frameCount;

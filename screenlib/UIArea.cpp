@@ -361,7 +361,7 @@ UIArea::GetAnchorLocation(AnchorLocation spot, int *x, int *y) const
 void
 UIArea::CalculateAnchor(bool triggerRectChanged)
 {
-	int x, y;
+	int x = 0, y = 0;
 
 	if (!m_anchor.element) {
 		return;
