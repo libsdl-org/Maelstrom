@@ -3,4 +3,5 @@
 * Improve touch control (automatically show controls on tap)
 * Add Android build to GitHub actions
 * Add assets and entitlements for Apple Store
+* Add Emscripten build
 * Update documentation
