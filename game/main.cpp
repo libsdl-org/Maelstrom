@@ -275,6 +275,8 @@ MainPanelDelegate::OnLoad()
 void
 MainPanelDelegate::OnShow()
 {
+	SetSteamTimelineMode(STEAM_TIMELINE_MENUS);
+
 	gUpdateBuffer = true;
 }
 

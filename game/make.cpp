@@ -45,6 +45,8 @@ void MakeEnemy(void)
 		gSprites[newsprite] = new LittleShinobi(x, y);
 	else
 		gSprites[newsprite] = new BigShinobi(x, y);
+
+	SetSteamTimelineEvent(STEAM_TIMELINE_EVENT_ENEMY);
 }	/* -- MakeEnemy */
 
 
@@ -88,7 +90,6 @@ void MakePrize(void)
 		newsprite = gNumSprites;
 		gSprites[newsprite] = new Prize(x, y, xVel, yVel);
 	}
-	return;
 }	/* -- MakePrize */
 
 
@@ -107,7 +108,6 @@ void MakeMultiplier(void)
 
 	newsprite = gNumSprites;
 	gSprites[newsprite] = new Multiplier(x, y, FastRandom(4)+2);
-	return;
 }	/* -- MakeMultiplier */
 
 
@@ -153,6 +153,8 @@ tryAgain:
 
 	newsprite = gNumSprites;
 	gSprites[newsprite] = new Nova(x, y);
+
+	SetSteamTimelineEvent(STEAM_TIMELINE_EVENT_NOVA);
 }	/* -- MakeNova */
 
 
@@ -284,6 +286,7 @@ void MakeGravity(void)
 		newsprite = gNumSprites;
 		gSprites[newsprite] = new Gravity(x, y);
 	}
+	SetSteamTimelineEvent(STEAM_TIMELINE_EVENT_GRAVITY);
 }	/* -- MakeGravity */
 
 
@@ -328,6 +331,7 @@ void MakeHoming(void)
 		newsprite = gNumSprites;
 		gSprites[newsprite] = new Homing(x, y, xVel, yVel);
 	}
+	SetSteamTimelineEvent(STEAM_TIMELINE_EVENT_MINE);
 }	/* -- MakeHoming */
 
 

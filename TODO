@@ -1,5 +1,4 @@
 * Add Steam achievements
-* Add Steam game recording highlights
 * Add Steam Remote Play touch control layout
 * Improve touch control (automatically show controls on tap)
 * Add Android build to GitHub actions
