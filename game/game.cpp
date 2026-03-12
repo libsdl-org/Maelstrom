@@ -190,6 +190,8 @@ GamePanelDelegate::OnShow()
 {
 	int i;
 
+	SetSteamTimelineMode(STEAM_TIMELINE_PLAYING);
+
 	/* Initialize some game variables */
 	gGameOn = 1;
 	gPaused = 0;
@@ -1049,6 +1051,8 @@ GamePanelDelegate::NextWave()
 		else
 			MakeLargeRock(x, y);
 	}
+
+	SetSteamTimelineLevelStarted(gWave);
 
 }	/* -- NextWave */
 

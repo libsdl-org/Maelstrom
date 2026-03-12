@@ -25,6 +25,23 @@
 #define SDL_EVENT_REMOTE_PLAYERS_CHANGED	(SDL_EVENT_USER + 0)
 #define SDL_EVENT_REMOTE_INPUT				(SDL_EVENT_USER + 1)
 
+enum STEAM_TIMELINE_MODE
+{
+	STEAM_TIMELINE_NONE,
+	STEAM_TIMELINE_LOADING,
+	STEAM_TIMELINE_MENUS,
+	STEAM_TIMELINE_PLAYING
+};
+
+enum STEAM_TIMELINE_EVENT
+{
+	STEAM_TIMELINE_EVENT_DEATH,
+	STEAM_TIMELINE_EVENT_ENEMY,
+	STEAM_TIMELINE_EVENT_MINE,
+	STEAM_TIMELINE_EVENT_GRAVITY,
+	STEAM_TIMELINE_EVENT_NOVA,
+};
+
 typedef Uint32 RemotePlaySessionID_t;
 
 extern bool InitSteam();
@@ -35,6 +52,9 @@ extern SDL_Surface* GetRemotePlayerAvatar(Uint8 controlType);
 extern const bool *GetRemotePlayerKeyboardState(Uint8 controlType);
 extern void EnableRemoteInput();
 extern void DisableRemoteInput();
+extern void SetSteamTimelineMode(STEAM_TIMELINE_MODE mode);
+extern void SetSteamTimelineLevelStarted(int level);
+extern void SetSteamTimelineEvent(STEAM_TIMELINE_EVENT event);
 extern void UpdateSteam();
 extern void QuitSteam();
 

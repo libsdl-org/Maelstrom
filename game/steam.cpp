@@ -44,6 +44,10 @@ public:
 	bool Init();
 	void Quit();
 
+	void SetSteamTimelineMode(STEAM_TIMELINE_MODE mode);
+	void SetSteamTimelineLevelStarted(int level);
+	void SetSteamTimelineEvent(STEAM_TIMELINE_EVENT event);
+
 	void Update();
 
 	Uint8 GetControlForSession(RemotePlaySessionID_t sessionID);
@@ -74,6 +78,7 @@ private:
 
 private:
 	bool m_initialized = false;
+	STEAM_TIMELINE_MODE m_gameMode = STEAM_TIMELINE_NONE;
 	CSteamID m_steamID;
 
 	array<RemoteSession_t *> m_sessions;
@@ -99,6 +104,8 @@ bool SteamInterface::Init()
 	m_steamID = SteamUser()->GetSteamID();
 	SteamController()->Init();
 
+	SetSteamTimelineMode(STEAM_TIMELINE_LOADING);
+
 	return true;
 }
 
@@ -118,6 +125,82 @@ void SteamInterface::Quit()
 	SteamController()->Shutdown();
 	SteamAPI_Shutdown();
 	m_initialized = false;
+}
+
+void SteamInterface::SetSteamTimelineMode(STEAM_TIMELINE_MODE mode)
+{
+	if (!m_initialized) {
+		return;
+	}
+
+	if (mode != m_gameMode) {
+		switch (mode) {
+		case STEAM_TIMELINE_LOADING:
+			SteamTimeline()->SetTimelineGameMode(k_ETimelineGameMode_LoadingScreen);
+			break;
+		case STEAM_TIMELINE_MENUS:
+			SteamTimeline()->ClearTimelineTooltip(0.0f);
+			SteamTimeline()->SetTimelineGameMode(k_ETimelineGameMode_Menus);
+			break;
+		case STEAM_TIMELINE_PLAYING:
+			SteamTimeline()->SetTimelineGameMode(k_ETimelineGameMode_Playing);
+			break;
+		default:
+			break;
+		}
+		m_gameMode = mode;
+	}
+}
+
+void SteamInterface::SetSteamTimelineLevelStarted(int level)
+{
+	if (!m_initialized) {
+		return;
+	}
+
+	char icon[32];
+	SDL_snprintf(icon, sizeof(icon), "steam_%d", level);
+
+	char wave[32];
+	SDL_snprintf(wave, sizeof(wave), "Wave %d", level);
+
+	SteamTimeline()->AddInstantaneousTimelineEvent("Next Wave", nullptr, icon, 0, 0.0f, k_ETimelineEventClipPriority_None);
+	SteamTimeline()->SetTimelineTooltip(wave, 0.0f);
+}
+
+void SteamInterface::SetSteamTimelineEvent(STEAM_TIMELINE_EVENT event)
+{
+	if (!m_initialized) {
+		return;
+	}
+
+	const char *title = nullptr;
+	const char *icon = nullptr;
+	switch (event) {
+	case STEAM_TIMELINE_EVENT_DEATH:
+		title = "Death";
+		icon = "steam_death";
+		break;
+	case STEAM_TIMELINE_EVENT_ENEMY:
+		title = "Aliens";
+		icon = "steam_caution";
+		break;
+	case STEAM_TIMELINE_EVENT_MINE:
+		title = "Homing Mine";
+		icon = "steam_caution";
+		break;
+	case STEAM_TIMELINE_EVENT_GRAVITY:
+		title = "Gravity Well";
+		icon = "steam_caution";
+		break;
+	case STEAM_TIMELINE_EVENT_NOVA:
+		title = "Supernova";
+		icon = "steam_explosion";
+		break;
+	default:
+		break;
+	}
+	SteamTimeline()->AddInstantaneousTimelineEvent(title, nullptr, icon, 0, 0.0f, k_ETimelineEventClipPriority_Standard);
 }
 
 void SteamInterface::Update()
@@ -425,6 +508,21 @@ void DisableRemoteInput()
 	steam.DisableRemoteInput();
 }
 
+void SetSteamTimelineMode(STEAM_TIMELINE_MODE mode)
+{
+	steam.SetSteamTimelineMode(mode);
+}
+
+void SetSteamTimelineLevelStarted(int level)
+{
+	steam.SetSteamTimelineLevelStarted(level);
+}
+
+void SetSteamTimelineEvent(STEAM_TIMELINE_EVENT event)
+{
+	steam.SetSteamTimelineEvent(event);
+}
+
 void UpdateSteam()
 {
 	steam.Update();
@@ -472,6 +570,18 @@ void EnableRemoteInput()
 }
 
 void DisableRemoteInput()
+{
+}
+
+void SetSteamTimelineMode(STEAM_TIMELINE_MODE mode)
+{
+}
+
+void SetSteamTimelineLevelStarted(int level)
+{
+}
+
+void SetSteamTimelineEvent(STEAM_TIMELINE_EVENT event)
 {
 }
 
