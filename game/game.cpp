@@ -813,7 +813,7 @@ GamePanelDelegate::DoBonus()
 	/* Fade in */
 	screen->FadeIn();
 	while ( sound->Playing() )
-		Delay(SOUND_DELAY);
+		DelayAndDraw(SOUND_DELAY);
 
 	/* -- Count the score down */
 
@@ -823,6 +823,20 @@ GamePanelDelegate::DoBonus()
 		if (!gPlayers[i]->IsValid()) {
 			continue;
 		}
+
+		if (gPlayers[i]->CanGetSinglePlayerAchievement()) {
+			int bonus = gPlayers[i]->GetBonus() * gPlayers[i]->GetBonusMult();
+			if (bonus >= 8000) {
+				GrantAchievement("ACHIEVEMENT_BONUS_8");
+			} else if (bonus >= 6000) {
+				GrantAchievement("ACHIEVEMENT_BONUS_6");
+			} else if (bonus >= 4000) {
+				GrantAchievement("ACHIEVEMENT_BONUS_4");
+			} else if (bonus >= 2000) {
+				GrantAchievement("ACHIEVEMENT_BONUS_2");
+			}
+		}
+
 		if (i != gDisplayed) {
 			gPlayers[i]->MultBonus();
 			continue;
@@ -837,7 +851,7 @@ GamePanelDelegate::DoBonus()
 			bonus = panel->GetElement<UIElement>("multiplied_bonus");
 
 			TheShip->MultBonus();
-			Delay(SOUND_DELAY);
+			DelayAndDraw(SOUND_DELAY);
 			sound->PlaySound(gMultiplier, 5);
 
 			SDL_snprintf(numbuf, sizeof(numbuf), "multiplier%d", TheShip->GetBonusMult());
@@ -846,11 +860,10 @@ GamePanelDelegate::DoBonus()
 				image->Show();
 			}
 
-			ui->Draw();
-			Delay(60);
+			DelayAndDraw(60);
 		}
 	}
-	Delay(SOUND_DELAY);
+	DelayAndDraw(SOUND_DELAY);
 	sound->PlaySound(gFunk, 5);
 
 	if (bonus) {
@@ -864,19 +877,19 @@ GamePanelDelegate::DoBonus()
 		score->Show();
 	}
 	ui->Draw();
-	Delay(60);
+	DelayAndDraw(60);
 
 	/* -- Praise them or taunt them as the case may be */
 	if (TheShip->GetBonus() == 0) {
-		Delay(SOUND_DELAY);
+		DelayAndDraw(SOUND_DELAY);
 		sound->PlaySound(gNoBonus, 5);
 	}
 	if (TheShip->GetBonus() > 10000) {
-		Delay(SOUND_DELAY);
+		DelayAndDraw(SOUND_DELAY);
 		sound->PlaySound(gPrettyGood, 5);
 	}
 	while ( sound->Playing() )
-		Delay(SOUND_DELAY);
+		DelayAndDraw(SOUND_DELAY);
 
 	/* -- Count the score down */
 	OBJ_LOOP(i, MAX_PLAYERS) {
@@ -893,7 +906,7 @@ GamePanelDelegate::DoBonus()
 
 		while (TheShip->GetBonus() > 0) {
 			while ( sound->Playing() )
-				Delay(SOUND_DELAY);
+				DelayAndDraw(SOUND_DELAY);
 
 			sound->PlaySound(gBonk, 5);
 			if ( TheShip->GetBonus() >= 500 ) {
@@ -917,7 +930,7 @@ GamePanelDelegate::DoBonus()
 		}
 	}
 	while ( sound->Playing() )
-		Delay(SOUND_DELAY);
+		DelayAndDraw(SOUND_DELAY);
 	HandleEvents(10);
 
 	/* -- Draw the "next wave" message */
@@ -956,6 +969,21 @@ GamePanelDelegate::NextWave()
 	gNumRocks = 0;
 	gShakeTime = 0;
 	gFreezeTime = 0;
+
+	if (gWave > 0 && (gWave == 1 || (gWave % 5) == 0)) {
+		char achievement[32];
+
+		SDL_snprintf(achievement, sizeof(achievement), "ACHIEVEMENT_WAVE_%d", gWave);
+		OBJ_LOOP(i, MAX_PLAYERS) {
+			if (!gPlayers[i]->IsValid()) {
+				continue;
+			}
+
+			if (gPlayers[i]->CanGetSinglePlayerAchievement()) {
+				GrantAchievement(achievement);
+			}
+		}
+	}
 
 	if (gWave != (gGameInfo.wave - 1))
 		DoBonus();

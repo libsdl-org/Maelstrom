@@ -553,6 +553,7 @@ public:
     }
 
 	int Explode(void) {
+		int i;
 		int newsprite;
 
 		/* Don't do anything if we're already exploding */
@@ -573,6 +574,15 @@ public:
 
 			/* Blow up! */
 			case 1:
+				OBJ_LOOP(i, MAX_PLAYERS) {
+					if (!gPlayers[i]->IsValid()) {
+						continue;
+					}
+
+					if (gPlayers[i]->CanGetSinglePlayerAchievement()) {
+						GrantAchievement("ACHIEVEMENT_STEEL_BALLS");
+					}
+				}
 				return(Object::Explode());
 
 			/* Turn into a homing mine */

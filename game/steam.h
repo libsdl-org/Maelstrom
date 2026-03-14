@@ -55,6 +55,7 @@ extern void DisableRemoteInput();
 extern void SetSteamTimelineMode(STEAM_TIMELINE_MODE mode);
 extern void SetSteamTimelineLevelStarted(int level);
 extern void SetSteamTimelineEvent(STEAM_TIMELINE_EVENT event);
+extern void GrantAchievement(const char *achievement);
 extern void UpdateSteam();
 extern void QuitSteam();
 

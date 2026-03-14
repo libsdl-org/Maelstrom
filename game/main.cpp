@@ -553,3 +553,13 @@ void DelayFrame(void)
 	}
 	gLastDrawn = ticks;
 }
+
+void DelayAndDraw(int ticks)
+{
+	while (ticks >= 2) {
+		screen->Update();
+		Delay(2);
+		ticks -= 2;
+	}
+	Delay(ticks);
+}
