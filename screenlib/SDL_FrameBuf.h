@@ -45,7 +45,7 @@ class FrameBuf : public ErrorBase {
 
 public:
 	FrameBuf();
-	int Init(int width, int height, Uint32 window_flags, SDL_Surface *icon = NULL);
+	int Init(int width, int height, Uint32 window_flags, const char *title = nullptr, SDL_Surface *icon = nullptr);
 	virtual ~FrameBuf();
 
 	/* Setup routines */

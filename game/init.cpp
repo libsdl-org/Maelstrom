@@ -789,11 +789,10 @@ int DoInitializations(Uint32 window_flags)
 	if (!InitResolutions(w, h)) {
 		return(-1);
 	}
-	if (screen->Init(w, h, window_flags, icon) < 0){
+	if (screen->Init(w, h, window_flags, "Maelstrom", icon) < 0){
 		error("Fatal: %s\n", screen->Error());
 		return(-1);
 	}
-	screen->SetCaption("Maelstrom");
 	SDL_DestroySurface(icon);
 
 	/* Get startup events, which shows the window on Mac OS X */
