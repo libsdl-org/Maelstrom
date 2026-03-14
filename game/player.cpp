@@ -706,6 +706,18 @@ Player::SetControl(unsigned char which, bool enabled)
 	QueueInput(EncodeInput(which, enabled));
 }
 
+bool
+Player::CanGetAchievement()
+{
+	if (gReplay.IsRecording() && !gReplay.HasContinues() &&
+	    !gGameInfo.IsKidMode() &&
+	    (gGameInfo.wave == 1) && (gGameInfo.lives == 3) &&
+	    IS_LOCAL_CONTROL(controlType)) {
+		return true;
+	}
+	return false;
+}
+
 /* Private functions... */
 
 int

@@ -138,6 +138,14 @@ public:
 	}
 	void SetControl(unsigned char which, bool enabled);
 
+	bool CanGetSinglePlayerAchievement() {
+		return CanGetAchievement() && !gGameInfo.IsMultiplayer();
+	}
+	bool CanGetMultiPlayerAchievement() {
+		return CanGetAchievement() && gGameInfo.IsMultiplayer();
+	}
+	bool CanGetAchievement();
+
 private:
 	int Valid;
 	int Index;
