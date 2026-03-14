@@ -746,7 +746,7 @@ void CleanUp(void)
 
 /* ----------------------------------------------------------------- */
 /* -- Perform some initializations and report failure if we choke */
-int DoInitializations(Uint32 window_flags)
+int DoInitializations(int window_width, int window_height, Uint32 window_flags)
 {
 	int w, h;
 	SDL_Surface* icon;
@@ -789,10 +789,15 @@ int DoInitializations(Uint32 window_flags)
 	if (!InitResolutions(w, h)) {
 		return(-1);
 	}
+	window_flags |= SDL_WINDOW_HIDDEN;
 	if (screen->Init(w, h, window_flags, "Maelstrom", icon) < 0){
 		error("Fatal: %s\n", screen->Error());
 		return(-1);
 	}
+	if (window_width && window_height) {
+		SDL_SetWindowSize(screen->GetWindow(), window_width, window_height);
+	}
+	SDL_ShowWindow(screen->GetWindow());
 	SDL_DestroySurface(icon);
 
 	/* Get startup events, which shows the window on Mac OS X */

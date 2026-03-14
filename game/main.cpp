@@ -138,6 +138,7 @@ void PrintUsage(const char *progname)
 	SDL_Log("Where <options> can be any of:\n"
 "    --fullscreen      # Run Maelstrom in full-screen mode\n"
 "    --windowed        # Run Maelstrom in windowed mode\n"
+"    --geometry WxH    # Set the window size to WxH\n"
 	);
 }
 
@@ -170,6 +171,8 @@ void ShowFrame(void*)
 int main(int argc, char *argv[])
 {
 	/* Command line flags */
+	int window_width = 0;
+	int window_height = 0;
 	Uint32 window_flags = SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE;
 
 	/* Initializing Steam can set up environment variables, so do this first */
@@ -191,6 +194,12 @@ int main(int argc, char *argv[])
 			window_flags |= SDL_WINDOW_FULLSCREEN;
 		} else if ( strcmp(argv[i], "--windowed") == 0 ) {
 			window_flags &= ~SDL_WINDOW_FULLSCREEN;
+		} else if ( strcmp(argv[i], "--geometry") == 0 && argv[i+1]) {
+			++i;
+			if (SDL_sscanf(argv[i], "%dx%d", &window_width, &window_height) != 2) {
+				PrintUsage(argv[0]);
+				exit(1);
+			}
 		} else if ( strcmp(argv[i], "-NSDocumentRevisionsDebugMode") == 0 && argv[i+1] ) {
 			// Ignore Xcode debug option
 			++i;
@@ -204,7 +213,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Initialize everything. :) */
-	if ( DoInitializations(window_flags) < 0 ) {
+	if ( DoInitializations(window_width, window_height, window_flags) < 0 ) {
 		/* An error message was already printed */
 		CleanUp();
 		exit(1);
