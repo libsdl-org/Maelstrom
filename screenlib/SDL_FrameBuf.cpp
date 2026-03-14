@@ -37,7 +37,7 @@ FrameBuf::FrameBuf() : ErrorBase()
 }
 
 int
-FrameBuf::Init(int width, int height, Uint32 window_flags, SDL_Surface *icon)
+FrameBuf::Init(int width, int height, Uint32 window_flags, const char *title, SDL_Surface *icon)
 {
 	int window_width = width;
 	int window_height = height;
@@ -54,7 +54,7 @@ FrameBuf::Init(int width, int height, Uint32 window_flags, SDL_Surface *icon)
 	}
 
 	/* Create the window */
-	m_window = SDL_CreateWindow(NULL, window_width, window_height, window_flags);
+	m_window = SDL_CreateWindow(title, window_width, window_height, window_flags);
 	if (!m_window) {
 		SetError("Couldn't create %dx%d window: %s", 
 					width, height, SDL_GetError());
@@ -62,7 +62,7 @@ FrameBuf::Init(int width, int height, Uint32 window_flags, SDL_Surface *icon)
 	}
 
 	/* Set the icon, if any */
-	if ( icon ) {
+	if (icon) {
 		SDL_SetWindowIcon(m_window, icon);
 	}
 
