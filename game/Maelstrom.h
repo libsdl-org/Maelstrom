@@ -24,7 +24,7 @@
 #ifndef VERSION
 #define VERSION "4.0.0"
 #endif
-#define	VERSION_STRING		VERSION ".N"
+#define	VERSION_STRING		VERSION
 
 #define GAME_WIDTH		640
 #define GAME_HEIGHT		480
