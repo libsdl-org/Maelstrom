@@ -67,20 +67,6 @@ public:
 	}
 
 	/* Event Routines */
-	int PollEvent(SDL_Event *event) {
-		int result = SDL_PollEvent(event);
-		if (result > 0) {
-			ProcessEvent(event);
-		}
-		return result;
-	}
-	int WaitEvent(SDL_Event *event) {
-		int result = SDL_WaitEvent(event);
-		if (result > 0) {
-			ProcessEvent(event);
-		}
-		return result;
-	}
 	void ProcessEvent(SDL_Event *event);
 
 	bool ConvertTouchCoordinates(const SDL_TouchFingerEvent &finger, int *x, int *y);
@@ -120,6 +106,7 @@ public:
 	void StretchBlit(const SDL_Rect *dstrect, SDL_Texture *src, const SDL_Rect *srcrect);
 
 	void Update(void);
+	void Update(SDL_Texture *texture);
 	void FadeOut(void) {
 		if (!m_faded) {
 			Fade();
@@ -131,6 +118,10 @@ public:
 		}
 	}
 	void Fade(void);		/* Fade screen out, then in */
+	bool Fading(void) {
+		return m_fadeTexture ? true : false;
+	}
+	void FadeStep(void);
 
 	/* Drawing routines */
 	void Clear(int x, int y, int w, int h) {
@@ -201,6 +192,8 @@ private:
 	SDL_Window *m_window = nullptr;
 	SDL_Renderer *m_renderer = nullptr;
 	SDL_Texture *m_target = nullptr;
+	SDL_Texture *m_fadeTexture = nullptr;
+	int m_fadeStep = 0;
 	bool m_faded = false;
 	SDL_FRect m_clip;
 	int m_width;

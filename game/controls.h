@@ -33,8 +33,7 @@ extern void	SaveControls(void);
 extern void	InitPlayerControls(void);
 extern void	QuitPlayerControls(void);
 extern unsigned int GetNumGamepads();
-extern void	HandleEvents(int timeout);
-extern int	DropEvents(void);
+extern void	HandleEvent(SDL_Event *event);
 
 /* Generic key control definitions */
 #define THRUST_KEY	0x01

@@ -53,10 +53,7 @@ protected:
 	void OnActionZapHighScores();
 
 protected:
-	UITexture *m_spinnerImage;
+	bool m_bQuitting = false;
 };
-
-// The real main function in main.cpp
-extern int MaelstromMain(int argc, char *argv[]);
 
 #endif // _main_h

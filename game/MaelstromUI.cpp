@@ -202,9 +202,17 @@ MaelstromUI::MaelstromUI(FrameBuf *screen, Prefs *prefs) : UIManager(screen, pre
 	m_strings = hash_create(screen, hash_hash_string, hash_keymatch_string, hash_nuke_string_text);
 
 	/* Set up some conditions useful for UI loading */
-#if defined(SDL_PLATFORM_IOS) || defined(SDL_PLATFORM_ANDROID)
-	SetCondition("MOBILE");
+#if defined(SDL_PLATFORM_IOS) || defined(SDL_PLATFORM_ANDROID) || defined(SDL_PLATFORM_EMSCRIPTEN)
+	bool quit_available = false;
+#else
+	bool quit_available = true;
 #endif
+	if (quit_available) {
+		SetCondition("QUIT_AVAILABLE");
+	}
+	if (gNetworkAvailable) {
+		SetCondition("NETWORK_AVAILABLE");
+	}
 
 	/* Load up our UI templates */
 	ClearLoadPath();

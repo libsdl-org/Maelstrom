@@ -22,7 +22,8 @@
 #ifndef _init_h
 #define _init_h
 
-extern int DoInitializations(int window_width, int window_height, Uint32 window_flags);
+extern bool StartInitialization(int window_width, int window_height, Uint32 window_flags);
+extern bool ContinueInitialization();
 extern void CleanUp(void);
 
 #endif /* _init_h */

@@ -45,7 +45,19 @@ protected:
 	bool UpdateGameState();
 	void DoHousekeeping();
 	void DoBonus();
+	void ShowBonus();
+	void BonusShowValue();
+	void BonusShowMultiplier();
+	void BonusDisplayDelay();
+	void BonusDisplay();
+	void BonusCheckSound();
+	void BonusTaunt();
+	void BonusPraise();
+	void BonusCountdown();
+	void BonusNextWave();
+	void BonusHide();
 	void NextWave();
+	void StartNextWave();
 	void GameOver();
 
 protected:
@@ -68,6 +80,22 @@ protected:
 	UIElement *m_multiplayerColor;
 	UIElement *m_fragsLabel;
 	UIElement *m_frags;
+
+	enum {
+		STATE_PLAYING,
+		STATE_SHOW_BONUS,
+		STATE_BONUS_SHOW_VALUE,
+		STATE_BONUS_SHOW_MULTIPLIER,
+		STATE_BONUS_DISPLAY_DELAY,
+		STATE_BONUS_DISPLAY,
+		STATE_BONUS_CHECK_SOUND,
+		STATE_BONUS_TAUNT,
+		STATE_BONUS_PRAISE,
+		STATE_BONUS_COUNTDOWN,
+		STATE_BONUS_NEXT_WAVE,
+		STATE_BONUS_HIDE,
+		STATE_START_NEXT_WAVE,
+	} m_state;
 };
 
 /* ----------------------------------------------------------------- */

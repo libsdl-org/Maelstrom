@@ -208,38 +208,60 @@ FrameBuf::StretchBlit(const SDL_Rect *_dstrect, SDL_Texture *src, const SDL_Rect
 void
 FrameBuf::Update(void)
 {
+	if (Fading() || m_faded) {
+		return;
+	}
+
 	if (m_target) {
-		/* Make sure resize events are seen before drawing to the screen */
-		SDL_PumpEvents();
-
-		SDL_SetRenderTarget(m_renderer, NULL);
-
-		SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-		SDL_RenderClear(m_renderer);
-
-		SDL_RenderTexture(m_renderer, m_target, NULL, NULL);
-		SDL_RenderPresent(m_renderer);
-
-		SDL_SetRenderTarget(m_renderer, m_target);
+		Update(m_target);
 	} else {
 		SDL_RenderPresent(m_renderer);
 	}
 }
 
 void
+FrameBuf::Update(SDL_Texture *texture)
+{
+	SDL_SetRenderTarget(m_renderer, NULL);
+
+	SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+	SDL_RenderClear(m_renderer);
+
+	SDL_RenderTexture(m_renderer, texture, NULL, NULL);
+	SDL_RenderPresent(m_renderer);
+
+	SDL_SetRenderTarget(m_renderer, m_target);
+}
+
+void
 FrameBuf::Fade(void)
 {
-	const int max = 32;
-	Uint8 value;
+	m_fadeStep = 1;
 
-	for ( int i = 1; i <= max; ++i ) {
-		int v = m_faded ? i : max - i;
-		value = (Uint8)(255 * v / max);
-		SDL_SetTextureColorMod(m_target, value, value, value);
-		Update();
-		SDL_Delay(10);
+	if (!m_fadeTexture) {
+		m_fadeTexture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_TARGET, m_width, m_height);
 	}
-	m_faded = !m_faded;
+	SDL_SetRenderTarget(m_renderer, m_fadeTexture);
+	SDL_RenderTexture(m_renderer, m_target, nullptr, nullptr);
+	SDL_SetRenderTarget(m_renderer, m_target);
+}
+
+void
+FrameBuf::FadeStep(void)
+{
+	const int max = 32;
+	int v = m_faded ? m_fadeStep : max - m_fadeStep;
+	Uint8 value = (Uint8)(255 * v / max);
+	SDL_SetTextureColorMod(m_fadeTexture, value, value, value);
+	Update(m_fadeTexture);
+	SDL_Delay(10);
+	++m_fadeStep;
+
+	if (m_fadeStep > max) {
+		SDL_DestroyTexture(m_fadeTexture);
+		m_fadeTexture = nullptr;
+		m_faded = !m_faded;
+	}
 } 
 
 int
