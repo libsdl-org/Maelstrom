@@ -573,7 +573,7 @@ UIElement::HandleEvent(const SDL_Event &event)
 {
 	if (m_mouseEnabled) {
 		bool checkMouseLocation = false;
-		int x, y;
+		int x = 0, y = 0;
 
 		if (event.type == SDL_EVENT_MOUSE_MOTION) {
 			x = (int)event.motion.x;

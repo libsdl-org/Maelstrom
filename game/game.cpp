@@ -160,6 +160,7 @@ GamePanelDelegate::OnLoad()
 	char name[32];
 
 	/* Initialize our panel variables */
+	m_touchControls = m_panel->GetElement<UIElement>("touch_controls");
 	m_score = m_panel->GetElement<UIElement>("score");
 	m_shield = m_panel->GetElement<UIElement>("shield");
 	m_wave = m_panel->GetElement<UIElement>("wave");
@@ -454,6 +455,17 @@ GamePanelDelegate::OnDraw(DRAWLEVEL drawLevel)
 		}
 		gPlayers[i]->BlitSprite();
 	}
+}
+
+bool
+GamePanelDelegate::HandleEvent(const SDL_Event &event)
+{
+	if (event.type == SDL_EVENT_FINGER_DOWN) {
+		if (m_touchControls) {
+			m_touchControls->Show();
+		}
+	}
+	return false;
 }
 
 bool

@@ -205,9 +205,6 @@ MaelstromUI::MaelstromUI(FrameBuf *screen, Prefs *prefs) : UIManager(screen, pre
 #if defined(SDL_PLATFORM_IOS) || defined(SDL_PLATFORM_ANDROID)
 	SetCondition("MOBILE");
 #endif
-#if defined(SDL_PLATFORM_IOS)
-	SetCondition("IOS");
-#endif
 
 	/* Load up our UI templates */
 	ClearLoadPath();

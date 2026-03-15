@@ -93,51 +93,55 @@
 			<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="frags_label" x="4"/>
 		</Label>
 
-		<!-- Touch controls -->
-		<Button condition="TOUCH" name="abort" action="CONTROL_ABORT" image="abort">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" x="-6" y="4"/>
-		</Button>
-		<Button condition="TOUCH" name="pause" action="CONTROL_PAUSE" image="pause">
-			<Anchor anchorFrom="RIGHT" anchorTo="LEFT" anchor="abort" x="-12"/>
-		</Button>
+		<Area name="touch_controls" show="false">
+			<Elements>
+				<!-- Touch controls -->
+				<Button name="abort" action="CONTROL_ABORT" image="abort">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" x="-6" y="4"/>
+				</Button>
+				<Button name="pause" action="CONTROL_PAUSE" image="pause">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="6" y="4"/>
+				</Button>
 
-		<!-- Touch button style controls -->
-		<Thumbstick condition="TOUCH" name="fire" image="fire">
-			<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-8" y="-16"/>
-			<Action action_enter="CONTROL_DOWN_FIRE" action_leave="CONTROL_UP_FIRE"/>
-		</Thumbstick>
-		<Thumbstick condition="TOUCH" name="thrust" image="thrust">
-			<Anchor anchorFrom="RIGHT" anchorTo="LEFT" anchor="fire" x="-8"/>
-			<Action action_enter="CONTROL_DOWN_THRUST" action_leave="CONTROL_UP_THRUST"/>
-		</Thumbstick>
+				<!-- Touch button style controls -->
+				<Thumbstick name="fire" image="fire">
+					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-8" y="-16"/>
+					<Action action_enter="CONTROL_DOWN_FIRE" action_leave="CONTROL_UP_FIRE"/>
+				</Thumbstick>
+				<Thumbstick name="thrust" image="thrust">
+					<Anchor anchorFrom="RIGHT" anchorTo="LEFT" anchor="fire" x="-8"/>
+					<Action action_enter="CONTROL_DOWN_THRUST" action_leave="CONTROL_UP_THRUST"/>
+				</Thumbstick>
 
-		<Thumbstick condition="TOUCH" name="rotate_left" image="rotate_left">
-			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" x="0" x="8" y="-16"/>
-			<Action action_enter="CONTROL_DOWN_LEFT" action_leave="CONTROL_UP_LEFT"/>
-		</Thumbstick>
-		<Thumbstick condition="TOUCH" name="rotate_right" image="rotate_right">
-			<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="rotate_left" x="8"/>
-			<Action action_enter="CONTROL_DOWN_RIGHT" action_leave="CONTROL_UP_RIGHT"/>
-		</Thumbstick>
-		<Thumbstick condition="TOUCH" name="shield" image="shield">
-			<Anchor anchorFrom="BOTTOM" anchorTo="TOP" anchor="rotate_left" x="32" y="-4"/>
-			<Action action_enter="CONTROL_DOWN_SHIELD" action_leave="CONTROL_UP_SHIELD"/>
-		</Thumbstick>
-		<!-- End button style controls -->
+				<Thumbstick name="rotate_left" image="rotate_left">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" x="0" x="8" y="-16"/>
+					<Action action_enter="CONTROL_DOWN_LEFT" action_leave="CONTROL_UP_LEFT"/>
+				</Thumbstick>
+				<Thumbstick name="rotate_right" image="rotate_right">
+					<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="rotate_left" x="8"/>
+					<Action action_enter="CONTROL_DOWN_RIGHT" action_leave="CONTROL_UP_RIGHT"/>
+				</Thumbstick>
+				<Thumbstick name="shield" image="shield">
+					<Anchor anchorFrom="BOTTOM" anchorTo="TOP" anchor="rotate_left" x="32" y="-4"/>
+					<Action action_enter="CONTROL_DOWN_SHIELD" action_leave="CONTROL_UP_SHIELD"/>
+				</Thumbstick>
+				<!-- End button style controls -->
 
-		<!-- Touch thumbstick style controls
-		<Thumbstick condition="TOUCH" image="thumbstick" followTouch="true" sensitiveRadius="128">
-			<ImageArea><Size w="64" h="64"/></ImageArea>
-			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" x="32" y="-40"/>
-			<Action angle="0" arc="60" active_radius="8" action_enter="CONTROL_DOWN_THRUST" action_leave="CONTROL_UP_THRUST"/>
-			<Action angle="180" arc="60" active_radius="2" action_enter="CONTROL_DOWN_SHIELD" action_leave="CONTROL_UP_SHIELD"/>
-			<Action angle="90" arc="60" active_radius="0" action_enter="CONTROL_DOWN_RIGHT" action_leave="CONTROL_UP_RIGHT"/>
-			<Action angle="270" arc="60" active_radius="0" action_enter="CONTROL_DOWN_LEFT" action_leave="CONTROL_UP_LEFT"/>
-		</Thumbstick>
-		<Thumbstick condition="TOUCH" image="fire" followTouch="true" sensitiveRadius="128">
-			<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-32" y="-40"/>
-			<Action action_enter="CONTROL_DOWN_FIRE" action_leave="CONTROL_UP_FIRE"/>
-		</Thumbstick>
-		<!-- End thumbstick style controls -->
+				<!-- Touch thumbstick style controls
+				<Thumbstick image="thumbstick" followTouch="true" sensitiveRadius="128">
+					<ImageArea><Size w="64" h="64"/></ImageArea>
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" x="32" y="-40"/>
+					<Action angle="0" arc="60" active_radius="8" action_enter="CONTROL_DOWN_THRUST" action_leave="CONTROL_UP_THRUST"/>
+					<Action angle="180" arc="60" active_radius="2" action_enter="CONTROL_DOWN_SHIELD" action_leave="CONTROL_UP_SHIELD"/>
+					<Action angle="90" arc="60" active_radius="0" action_enter="CONTROL_DOWN_RIGHT" action_leave="CONTROL_UP_RIGHT"/>
+					<Action angle="270" arc="60" active_radius="0" action_enter="CONTROL_DOWN_LEFT" action_leave="CONTROL_UP_LEFT"/>
+				</Thumbstick>
+				<Thumbstick image="fire" followTouch="true" sensitiveRadius="128">
+					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-32" y="-40"/>
+					<Action action_enter="CONTROL_DOWN_FIRE" action_leave="CONTROL_UP_FIRE"/>
+				</Thumbstick>
+				<!-- End thumbstick style controls -->
+			</Elements>
+		</Area>
 	</Elements>
 </Panel>

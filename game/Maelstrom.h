@@ -122,7 +122,7 @@ typedef struct {
 typedef struct {
 	int		xCoord;
 	int		yCoord;
-	unsigned long	color;
+	Uint32	color;
 } Star, *StarPtr;
 
 /* Sprite blitting information structure */
