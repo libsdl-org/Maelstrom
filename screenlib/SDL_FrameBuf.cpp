@@ -118,20 +118,11 @@ FrameBuf::ProcessEvent(SDL_Event *event)
 bool
 FrameBuf::ConvertTouchCoordinates(const SDL_TouchFingerEvent &finger, int *x, int *y)
 {
-	int w, h;
-
-	SDL_GetRenderOutputSize(m_renderer, &w, &h);
-	*x = (int)(finger.x * w);
-	*y = (int)(finger.y * h);
+	// SDL_ConvertEventToRenderCoordinates() converted these into non-normalized values
+	*x = (int)finger.x;
+	*y = (int)finger.y;
 	return true;
 }
-
-#ifdef __IPHONEOS__
-extern "C" {
-	extern int SDL_iPhoneKeyboardHide(SDL_Window * window);
-	extern int SDL_iPhoneKeyboardShow(SDL_Window * window);
-}
-#endif
 
 void
 FrameBuf::GetCursorPosition(int *x, int *y)

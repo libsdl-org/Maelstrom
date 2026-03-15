@@ -749,7 +749,7 @@ void CleanUp(void)
 int DoInitializations(int window_width, int window_height, Uint32 window_flags)
 {
 	int w, h;
-	SDL_Surface* icon;
+	SDL_Surface *icon = nullptr;
 
 	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD)) {
 		error("Couldn't initialize SDL: %s\n", SDL_GetError());
@@ -775,11 +775,13 @@ int DoInitializations(int window_width, int window_height, Uint32 window_flags)
 	InitPlayerControls();
 
 	/* Load the Maelstrom icon */
+#if !defined(SDL_PLATFORM_APPLE) || defined(ENABLE_STEAM)
 	icon = SDL_LoadSurface_IO(OpenRead("icon.png"), true);
 	if ( icon == NULL ) {
 		error("Fatal: Couldn't load icon: %s\n", SDL_GetError());
 		return(-1);
 	}
+#endif
 
 	/* We will handle drag and drop events */
 	SDL_SetEventEnabled(SDL_EVENT_DROP_FILE, true);

@@ -37,6 +37,7 @@ public:
 	virtual void OnHide();
 	virtual void OnTick();
 	virtual void OnDraw(DRAWLEVEL drawLevel);
+	virtual bool HandleEvent(const SDL_Event &event);
 	virtual bool OnAction(UIBaseElement *sender, const char *action);
 
 protected:
@@ -48,6 +49,8 @@ protected:
 	void GameOver();
 
 protected:
+	UIElement *m_touchControls;
+
 	UIElement *m_score;
 	UIElement *m_shield;
 	UIElement *m_wave;

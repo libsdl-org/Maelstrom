@@ -214,11 +214,11 @@
 		<Label template="SmallYellow" text=" About Maelstrom...">
 			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPRIGHT" anchor="AboutButton" x="3" y="21"/>
 		</Label>
-		<!-- You can't explicitly quit the iOS app -->
-		<Button condition="!IOS" name="QuitButton" template="MenuButton" hotkey="Q" text="Q" action="quit" clickSound="106">
+		<!-- You can't explicitly quit the mobile app -->
+		<Button condition="!MOBILE" name="QuitButton" template="MenuButton" hotkey="Q" text="Q" action="quit" clickSound="106">
 			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="AboutButton" y="34"/>
 		</Button>
-		<Label condition="!IOS" template="SmallYellow" text=" Quit Maelstrom">
+		<Label condition="!MOBILE" template="SmallYellow" text=" Quit Maelstrom">
 			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPRIGHT" anchor="QuitButton" x="3" y="21"/>
 		</Label>
 		<Button name="VolumeDownButton" template="MenuButton" hotkey="0" text="0" action="volume_down">

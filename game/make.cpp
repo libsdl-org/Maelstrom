@@ -166,7 +166,7 @@ void MakeBonus(void)
 	int	newsprite, x, y, which;
 	int	rx, xVel, yVel;
 	int	index, cap;
-	long	multFact;
+	int	multFact;
 
 	if (FastRandom(BLUE_MOON) == 0)
 		cap = (FastRandom(MOON_FACTOR) + 2) * 2;

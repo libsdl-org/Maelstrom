@@ -48,10 +48,6 @@
 #include "../screenlib/UIElementCheckbox.h"
 #include "../screenlib/UIElementEditbox.h"
 
-#if __IPHONEOS__
-#include "../Xcode-iOS/Maelstrom_GameKit.h"
-#endif
-
 #define MAELSTROM_ORGANIZATION	"Ambrosia Software"
 #define MAELSTROM_NAME		"Maelstrom"
 
@@ -173,7 +169,7 @@ int main(int argc, char *argv[])
 	/* Command line flags */
 	int window_width = 0;
 	int window_height = 0;
-	Uint32 window_flags = SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE;
+	Uint32 window_flags = SDL_WINDOW_FULLSCREEN | SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_RESIZABLE;
 
 	/* Initializing Steam can set up environment variables, so do this first */
 	InitSteam();
@@ -186,9 +182,6 @@ int main(int argc, char *argv[])
 	SeedRandom(0L);
 
 	/* Parse command line arguments */
-#if /*!defined(FAST_ITERATION) ||*/ defined(__IPHONEOS__)
-	window_flags |= SDL_WINDOW_FULLSCREEN;
-#endif
 	for ( int i = 1; i < argc; ++i ) {
 		if ( strcmp(argv[i], "--fullscreen") == 0 ) {
 			window_flags |= SDL_WINDOW_FULLSCREEN;
@@ -232,14 +225,6 @@ int main(int argc, char *argv[])
 
 	ui->ShowPanel(PANEL_MAIN);
 
-#if __IPHONEOS__
-	// Initialize the Game Center for scoring and matchmaking
-	InitGameCenter();
-
-	// Set up the game to run in the window animation callback on iOS
-	// so that Game Center and so forth works correctly.
-	SDL_SetiOSAnimationCallback(screen->GetWindow(), 2, ShowFrame, 0);
-#else
 	while ( gRunning ) {
 		ShowFrame(0);
 
@@ -248,7 +233,6 @@ int main(int argc, char *argv[])
 		DelayFrame();
 	}
 	CleanUp();
-#endif
 
 	QuitSteam();
 

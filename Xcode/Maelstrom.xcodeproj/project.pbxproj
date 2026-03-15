@@ -60,6 +60,7 @@
 		AA928E512EDB9D830005200A /* Mac_Sound.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA928E4F2EDB9D830005200A /* Mac_Sound.cpp */; };
 		AA929E852EDBA1900005200A /* Docs in Resources */ = {isa = PBXBuildFile; fileRef = AA929E842EDBA1900005200A /* Docs */; };
 		AA929E872EDBA3B80005200A /* Data in Resources */ = {isa = PBXBuildFile; fileRef = AA929E862EDBA3B80005200A /* Data */; };
+		F3281F432F66693200107D76 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F3281F422F66693200107D76 /* Assets.xcassets */; };
 		F3CC41422F60E6A10033BDFA /* steam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F3CC41412F60E6A10033BDFA /* steam.cpp */; };
 /* End PBXBuildFile section */
 
@@ -80,7 +81,6 @@
 
 /* Begin PBXFileReference section */
 		AA9284B32EDB8BB30005200A /* Maelstrom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Maelstrom.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		AA9284C12EDB8BE00005200A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA9284C72EDB8CEE0005200A /* SDL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL.xcodeproj; path = ../external/SDL/Xcode/SDL/SDL.xcodeproj; sourceTree = SOURCE_ROOT; };
 		AA9285752EDB8E8A0005200A /* SDL3.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDL3.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA9285772EDB8EA00005200A /* SDL3.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDL3.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -197,6 +197,7 @@
 		AA928E4F2EDB9D830005200A /* Mac_Sound.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Mac_Sound.cpp; sourceTree = "<group>"; };
 		AA929E842EDBA1900005200A /* Docs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Docs; path = ../Docs; sourceTree = "<group>"; };
 		AA929E862EDBA3B80005200A /* Data */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Data; path = ../Data; sourceTree = "<group>"; };
+		F3281F422F66693200107D76 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F3CC41402F60E6A10033BDFA /* steam.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = steam.h; sourceTree = "<group>"; };
 		F3CC41412F60E6A10033BDFA /* steam.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = steam.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -226,7 +227,7 @@
 				AA928E462EDB9D260005200A /* miniz */,
 				AA928E0C2EDB9CF90005200A /* screenlib */,
 				AA928DFB2EDB9CB40005200A /* utils */,
-				AA9284C12EDB8BE00005200A /* Assets.xcassets */,
+				F3281F422F66693200107D76 /* Assets.xcassets */,
 				AA9285742EDB8E8A0005200A /* Frameworks */,
 				AA9284B42EDB8BB30005200A /* Products */,
 			);
@@ -426,6 +427,7 @@
 				AA9284B02EDB8BB30005200A /* Frameworks */,
 				AA92857A2EDB8EA00005200A /* Embed Frameworks */,
 				AA929E702EDBA0880005200A /* Resources */,
+				F3703E532F66A94F005F0779 /* Run Script */,
 			);
 			buildRules = (
 			);
@@ -488,11 +490,34 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA929E872EDBA3B80005200A /* Data in Resources */,
+				F3281F432F66693200107D76 /* Assets.xcassets in Resources */,
 				AA929E852EDBA1900005200A /* Docs in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		F3703E532F66A94F005F0779 /* Run Script */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nif [ -d \"$INSTALL_ROOT/Library\" ]; then\n    echo \"Removing frameworks from INSTALL_ROOT for archiving\"\n    rm -rf \"$INSTALL_ROOT/Library\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		AA9284AF2EDB8BB30005200A /* Sources */ = {
@@ -673,40 +698,42 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = ../Data/Fonts;
+				DEVELOPMENT_TEAM = EH385AYQ6F;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
-				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
-				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
-				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
-				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
-				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
-				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
-				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.arcade-games";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Maelstrom would like to use Bluetooth controllers for input.";
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Maelstrom would like to use Bluetooth controllers for input.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Maelstrom does not use the camera.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Maelstrom can play with other players on the local network.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Maelstrom does not use the microphone.";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 11.5;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 4.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = org.libsdl.Maelstrom;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 2.6;
 			};
 			name = Debug;
@@ -716,40 +743,42 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = ../Data/Fonts;
+				DEVELOPMENT_TEAM = EH385AYQ6F;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
-				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
-				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
-				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
-				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
-				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
-				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
-				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.arcade-games";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Maelstrom would like to use Bluetooth controllers for input.";
+				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Maelstrom would like to use Bluetooth controllers for input.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Maelstrom does not use the camera.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Maelstrom can play with other players on the local network.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Maelstrom does not use the microphone.";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 11.5;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 4.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = org.libsdl.Maelstrom;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 2.6;
 			};
 			name = Release;

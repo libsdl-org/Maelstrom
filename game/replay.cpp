@@ -190,7 +190,7 @@ Replay::Save(const char *file)
 		SDL_Log("Error compressing replay data");
 		goto done;
 	}
-	data.len = destLen;
+	data.len = (int)destLen;
 	SDL_WriteU32LE(fp, m_data.Size());
 	SDL_WriteU32LE(fp, data.Size());
 	if (!SDL_WriteIO(fp, data.Data(), data.Size())) {
