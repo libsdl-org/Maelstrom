@@ -40,15 +40,15 @@
 #define GAME_PREFS_FILE	"Maelstrom_Prefs.txt"
 
 // Global variables set in this file...
-Prefs    *prefs = NULL;
-Sound    *sound = NULL;
-FontServ *fontserv = NULL;
-FrameBuf *screen = NULL;
-UIManager *ui = NULL;
+Prefs    *prefs = nullptr;
+Sound    *sound = nullptr;
+FontServ *fontserv = nullptr;
+FrameBuf *screen = nullptr;
+UIManager *ui = nullptr;
 
 array<Resolution> gResolutions;
 int	gResolutionIndex;
-char   *gReplayFile;
+char   *gReplayFile = nullptr;
 Sint32	gLastHigh;
 Uint64	gLastDrawn;
 int     gNumSprites;
@@ -76,8 +76,42 @@ UITexture *gAutoFireIcon, *gAirBrakesIcon, *gMult2Icon, *gMult3Icon;
 UITexture *gMult4Icon, *gMult5Icon, *gLuckOfTheIrishIcon, *gLongFireIcon;
 UITexture *gTripleFireIcon, *gShieldIcon;
 
+enum LoadingStage
+{
+	LOAD_STAGE_STARTING,
+	LOAD_STAGE_BLITS1,
+	LOAD_STAGE_BLITS2,
+	LOAD_STAGE_BLITS3,
+	LOAD_STAGE_BLITS4,
+	LOAD_STAGE_BLITS5,
+	LOAD_STAGE_BLITS6,
+	LOAD_STAGE_BLITS7,
+	LOAD_STAGE_BLITS8,
+	LOAD_STAGE_BLITS9,
+	LOAD_STAGE_BLITS10,
+	LOAD_STAGE_BLITS11,
+	LOAD_STAGE_BLITS12,
+	LOAD_STAGE_BLITS13,
+	LOAD_STAGE_BLITS14,
+	LOAD_STAGE_BLITS15,
+	LOAD_STAGE_BLITS16,
+	LOAD_STAGE_BLITS17,
+	LOAD_STAGE_BLITS18,
+	LOAD_STAGE_BLITS19,
+	LOAD_STAGE_BLITS20,
+	LOAD_STAGE_BLITS21,
+	LOAD_STAGE_BLITS22,
+	LOAD_STAGE_BLITS23,
+	LOAD_STAGE_BLITS24,
+	LOAD_STAGE_BLITS25,
+	LOAD_STAGE_SHOTS,
+	LOAD_STAGE_SPRITES,
+	LOAD_STAGE_COMPLETE
+};
+static int gLoadingStage = LOAD_STAGE_STARTING;
+
 // Local functions used in this file.
-static void DrawLoadBar(int stage);
+static void DrawLoadBar();
 static int InitSprites(void);
 static int LoadBlits(void);
 static int LoadCICNS(void);
@@ -106,7 +140,7 @@ static bool InitResolutions(int &w, int &h)
 		if (!attr) {
 			error("Resolution missing 'w' attribute in resolutions.xml\n");
 			SDL_free(buffer);
-			return false;;
+			return false;
 		}
 		resolution.w = SDL_atoi(attr->value());
 
@@ -114,7 +148,7 @@ static bool InitResolutions(int &w, int &h)
 		if (!attr) {
 			error("Resolution missing 'h' attribute in resolutions.xml\n");
 			SDL_free(buffer);
-			return false;;
+			return false;
 		}
 		resolution.h = SDL_atoi(attr->value());
 
@@ -122,7 +156,7 @@ static bool InitResolutions(int &w, int &h)
 		if (!attr) {
 			error("Resolution missing 'path_suffix' attribute in resolutions.xml\n");
 			SDL_free(buffer);
-			return false;;
+			return false;
 		}
 		SDL_strlcpy(resolution.path_suffix, attr->value(), sizeof(resolution.path_suffix));
 
@@ -130,7 +164,7 @@ static bool InitResolutions(int &w, int &h)
 		if (!attr) {
 			error("Resolution missing 'file_suffix' attribute in resolutions.xml\n");
 			SDL_free(buffer);
-			return false;;
+			return false;
 		}
 		SDL_strlcpy(resolution.file_suffix, attr->value(), sizeof(resolution.file_suffix));
 
@@ -138,7 +172,7 @@ static bool InitResolutions(int &w, int &h)
 		if (!attr) {
 			error("Resolution missing 'scale' attribute in resolutions.xml\n");
 			SDL_free(buffer);
-			return false;;
+			return false;
 		}
 		int numerator, denominator;
 		SDL_sscanf(attr->value(), "%d/%d", &numerator, &denominator);
@@ -159,8 +193,9 @@ static bool InitResolutions(int &w, int &h)
 
 #define	MAX_BAR	26
 
-static void DrawLoadBar(int stage)
+static void DrawLoadBar()
 {
+	static int stage = 1;
 	UIPanel *panel;
 	UIElement *progress = NULL;
 	int fact;
@@ -174,7 +209,7 @@ static void DrawLoadBar(int stage)
 		fact = (FULL_WIDTH * stage) / MAX_BAR;
 		progress->SetWidth(fact);
 	}
-	ui->Draw();
+	++stage;
 }	/* -- DrawLoadBar */
 
 
@@ -714,10 +749,6 @@ void CleanUp(void)
 	FreeScores();
 	SaveControls();
 	QuitPlayerControls();
-	if ( gReplayFile ) {
-		SDL_free( gReplayFile );
-		gReplayFile = NULL;
-	}
 	if ( ui ) {
 		delete ui;
 		ui = NULL;
@@ -746,19 +777,20 @@ void CleanUp(void)
 
 /* ----------------------------------------------------------------- */
 /* -- Perform some initializations and report failure if we choke */
-int DoInitializations(int window_width, int window_height, Uint32 window_flags)
+bool StartInitialization(int window_width, int window_height, Uint32 window_flags)
 {
 	int w, h;
 	SDL_Surface *icon = nullptr;
 
+	gInitializing = true;
+
 	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD)) {
 		error("Couldn't initialize SDL: %s\n", SDL_GetError());
-		return(-1);
+		return false;
 	}
-	if (!NET_Init()) {
-		error("Couldn't initialize SDL_net: %s\n", SDL_GetError());
-		return(-1);
-	}
+
+	// It's okay if this fails, we'll disable multiplayer in that case
+	gNetworkAvailable = NET_Init();
 
 	// -- Initialize some variables
 	gLastHigh = -1;
@@ -779,22 +811,19 @@ int DoInitializations(int window_width, int window_height, Uint32 window_flags)
 	icon = SDL_LoadSurface_IO(OpenRead("icon.png"), true);
 	if ( icon == NULL ) {
 		error("Fatal: Couldn't load icon: %s\n", SDL_GetError());
-		return(-1);
+		return false;
 	}
 #endif
-
-	/* We will handle drag and drop events */
-	SDL_SetEventEnabled(SDL_EVENT_DROP_FILE, true);
 
 	/* Initialize the screen */
 	screen = new FrameBuf;
 	if (!InitResolutions(w, h)) {
-		return(-1);
+		return false;
 	}
 	window_flags |= SDL_WINDOW_HIDDEN;
 	if (screen->Init(w, h, window_flags, "Maelstrom", icon) < 0){
 		error("Fatal: %s\n", screen->Error());
-		return(-1);
+		return false;
 	}
 	if (window_width && window_height) {
 		SDL_SetWindowSize(screen->GetWindow(), window_width, window_height);
@@ -802,26 +831,18 @@ int DoInitializations(int window_width, int window_height, Uint32 window_flags)
 	SDL_ShowWindow(screen->GetWindow());
 	SDL_DestroySurface(icon);
 
-	/* Get startup events, which shows the window on Mac OS X */
-	SDL_Event event;
-	while (SDL_PollEvent(&event)) {
-		if (event.type == SDL_EVENT_DROP_FILE) {
-			gReplayFile = SDL_strdup(event.drop.data);
-		}
-	}
-
 	/* Load the Font Server and fonts */
 	fontserv = new FontServ(screen, "Maelstrom Fonts");
 	if ( fontserv->Error() ) {
 		error("Fatal: %s\n", fontserv->Error());
-		return(-1);
+		return false;
 	}
 
 	/* Load the Sound Server and initialize sound */
 	sound = new Sound("Maelstrom Sounds", gSoundLevel);
 	if ( sound->Error() ) {
 		error("Fatal: %s\n", sound->Error());
-		return(-1);
+		return false;
 	}
 
 	/* Set up for the resolution we actually got */
@@ -853,33 +874,94 @@ int DoInitializations(int window_width, int window_height, Uint32 window_flags)
 	if (ui->GetPanelTransition() == PANEL_TRANSITION_FADE) {
 		screen->FadeOut();
 	}
+
 	ui->ShowPanel(PANEL_LOADING);
-	ui->Draw();
 
-	/* -- Load in the prize CICN's */
-	if ( LoadCICNS() < 0 )
-		return(-1);
+	return true;
+}
 
-	/* -- Create the stars array */
-	InitStars();
+bool ContinueInitialization()
+{
+	switch (gLoadingStage) {
+	case LOAD_STAGE_STARTING:
+		/* -- Load in the prize CICN's */
+		if ( LoadCICNS() < 0 ) {
+			return false;
+		}
 
-	/* -- Set up the velocity tables */
-	BuildVelocityTable();
+		/* -- Create the stars array */
+		InitStars();
 
-	if ( LoadBlits() < 0 ) {
-		return(-1);
+		/* -- Set up the velocity tables */
+		BuildVelocityTable();
+
+		DrawLoadBar();
+		gLoadingStage = LOAD_STAGE_BLITS1;
+		break;
+
+	case LOAD_STAGE_BLITS1:
+	case LOAD_STAGE_BLITS2:
+	case LOAD_STAGE_BLITS3:
+	case LOAD_STAGE_BLITS4:
+	case LOAD_STAGE_BLITS5:
+	case LOAD_STAGE_BLITS6:
+	case LOAD_STAGE_BLITS7:
+	case LOAD_STAGE_BLITS8:
+	case LOAD_STAGE_BLITS9:
+	case LOAD_STAGE_BLITS10:
+	case LOAD_STAGE_BLITS11:
+	case LOAD_STAGE_BLITS12:
+	case LOAD_STAGE_BLITS13:
+	case LOAD_STAGE_BLITS14:
+	case LOAD_STAGE_BLITS15:
+	case LOAD_STAGE_BLITS16:
+	case LOAD_STAGE_BLITS17:
+	case LOAD_STAGE_BLITS18:
+	case LOAD_STAGE_BLITS19:
+	case LOAD_STAGE_BLITS20:
+	case LOAD_STAGE_BLITS21:
+	case LOAD_STAGE_BLITS22:
+	case LOAD_STAGE_BLITS23:
+	case LOAD_STAGE_BLITS24:
+	case LOAD_STAGE_BLITS25:
+		if ( LoadBlits() < 0 ) {
+			return false;
+		}
+		break;
+
+	case LOAD_STAGE_SHOTS:
+		/* -- Create the shots array */
+		InitShots();
+
+		gLoadingStage = LOAD_STAGE_SPRITES;
+
+		// Fallthrough...
+		//break;
+
+	case LOAD_STAGE_SPRITES:
+		/* -- Initialize the sprite manager - after we load blits and shots! */
+		if ( InitSprites() < 0 ) {
+			return false;
+		}
+
+		gLoadingStage = LOAD_STAGE_COMPLETE;
+
+		// Fallthrough...
+		//break;
+
+	case LOAD_STAGE_COMPLETE:
+		ui->DeletePanel(PANEL_LOADING);
+
+		gInitializing = false;
+
+		ui->ShowPanel(PANEL_MAIN);
+
+		gRunning = true;
+		break;
 	}
 
-	/* -- Create the shots array */
-	InitShots();
+	return true;
 
-	/* -- Initialize the sprite manager - after we load blits and shots! */
-	if ( InitSprites() < 0 )
-		return(-1);
-
-	ui->DeletePanel(PANEL_LOADING);
-
-	return(0);
 }	/* -- DoInitializations */
 
 
@@ -888,171 +970,197 @@ int DoInitializations(int window_width, int window_height, Uint32 window_flags)
 
 static int LoadBlits(void)
 {
-	int stage = 1;
 	int i;
 	short id;
 
-	DrawLoadBar(stage++);
-
-/* -- Load in the thrusters */
-
-	if ( LoadSmallSprite(&gThrust1, 400, SHIP_FRAMES) < 0 )
-		return(-1);
-	DrawLoadBar(stage++);
-
-	if ( LoadSmallSprite(&gThrust2, 500, SHIP_FRAMES) < 0 )
-		return(-1);
-	DrawLoadBar(stage++);
-
-/* -- Load in the player's ship */
-
-	for (i = 0; i < MAX_PLAYERS; ++i) {
-		id = i*10000 + 200;
-		if ( LoadLargeSprite(&gPlayerShip[i], id, SHIP_FRAMES) < 0 )
+	switch (gLoadingStage) {
+	case LOAD_STAGE_BLITS1:
+		/* -- Load in the thrusters */
+		if ( LoadSmallSprite(&gThrust1, 400, SHIP_FRAMES) < 0 ) {
 			return(-1);
-	}
-	DrawLoadBar(stage++);
+		}
+		break;
 
-/* -- Load in the large rock */
-
-	if ( LoadLargeSprite(&gRock1R, 500, 60) < 0 )
-		return(-1);
-	BackwardsSprite(&gRock1L, gRock1R);
-	DrawLoadBar(stage++);
-
-/* -- Load in the medium rock */
-
-	if ( LoadLargeSprite(&gRock2R, 400, 40) < 0 )
-		return(-1);
-	BackwardsSprite(&gRock2L, gRock2R);
-	DrawLoadBar(stage++);
-
-/* -- Load in the small rock */
-
-	if ( LoadSmallSprite(&gRock3R, 300, 20) < 0 )
-		return(-1);
-	BackwardsSprite(&gRock3L, gRock3R);
-	DrawLoadBar(stage++);
-
-/* -- Load in the explosion */
-
-	if ( LoadLargeSprite(&gExplosion, 600, 12) < 0 )
-		return(-1);
-	DrawLoadBar(stage++);
-
-/* -- Load in the 2x multiplier */
-
-	if ( LoadLargeSprite(&gMult[0], 2000, 1) < 0 )
-		return(-1);
-	DrawLoadBar(stage++);
-
-/* -- Load in the 3x multiplier */
-
-	if ( LoadLargeSprite(&gMult[1], 2002, 1) < 0 )
-		return(-1);
-	DrawLoadBar(stage++);
-
-/* -- Load in the 4x multiplier */
-
-	if ( LoadLargeSprite(&gMult[2], 2004, 1) < 0 )
-		return(-1);
-	DrawLoadBar(stage++);
-
-/* -- Load in the 5x multiplier */
-
-	if ( LoadLargeSprite(&gMult[3], 2006, 1) < 0 )
-		return(-1);
-	DrawLoadBar(stage++);
-
-/* -- Load in the steel asteroid */
-
-	if ( LoadLargeSprite(&gSteelRoidL, 700, 40) < 0 )
-		return(-1);
-	BackwardsSprite(&gSteelRoidR, gSteelRoidL);
-	DrawLoadBar(stage++);
-
-/* -- Load in the prize */
-
-	if ( LoadLargeSprite(&gPrize, 800, 30) < 0 )
-		return(-1);
-	DrawLoadBar(stage++);
-
-/* -- Load in the bonus */
-
-	if ( LoadLargeSprite(&gBonusBlit, 900, 10) < 0 )
-		return(-1);
-	DrawLoadBar(stage++);
-
-/* -- Load in the bonus */
-
-	if ( LoadLargeSprite(&gPointBlit, 1000, 6) < 0 )
-		return(-1);
-	DrawLoadBar(stage++);
-
-/* -- Load in the vortex */
-
-	if ( LoadLargeSprite(&gVortexBlit, 1100, 10) < 0 )
-		return(-1);
-	DrawLoadBar(stage++);
-
-/* -- Load in the homing mine */
-
-	if ( LoadLargeSprite(&gMineBlitR, 1200, 40) < 0 )
-		return(-1);
-	BackwardsSprite(&gMineBlitL, gMineBlitR);
-	DrawLoadBar(stage++);
-
-/* -- Load in the shield */
-
-	if ( LoadLargeSprite(&gShieldBlit, 1300, 2) < 0 )
-		return(-1);
-	DrawLoadBar(stage++);
-
-/* -- Load in the nova */
-
-	if ( LoadLargeSprite(&gNova, 1400, 18) < 0 )
-		return(-1);
-	DrawLoadBar(stage++);
-
-/* -- Load in the ship explosion */
-
-	if ( LoadLargeSprite(&gShipExplosion, 1500, 21) < 0 )
-		return(-1);
-	DrawLoadBar(stage++);
-
-/* -- Load in the shrapnel */
-
-	for (i = 0; i < MAX_PLAYERS; ++i) {
-		id = i*10000 + 1800;
-		if ( LoadLargeSprite(&gShrapnel1[i], id, 48) < 0 )
+	case LOAD_STAGE_BLITS2:
+		if ( LoadSmallSprite(&gThrust2, 500, SHIP_FRAMES) < 0 ) {
 			return(-1);
-	}
-	DrawLoadBar(stage++);
+		}
+		break;
 
-	for (i = 0; i < MAX_PLAYERS; ++i) {
-		id = i*10000 + 1900;
-		if ( LoadLargeSprite(&gShrapnel2[i], id, 40) < 0 )
+	case LOAD_STAGE_BLITS3:
+		/* -- Load in the player's ship */
+		for (i = 0; i < MAX_PLAYERS; ++i) {
+			id = i*10000 + 200;
+			if ( LoadLargeSprite(&gPlayerShip[i], id, SHIP_FRAMES) < 0 )
+				return(-1);
+		}
+		break;
+
+	case LOAD_STAGE_BLITS4:
+		/* -- Load in the large rock */
+		if ( LoadLargeSprite(&gRock1R, 500, 60) < 0 ) {
 			return(-1);
+		}
+		BackwardsSprite(&gRock1L, gRock1R);
+		break;
+
+	case LOAD_STAGE_BLITS5:
+		/* -- Load in the medium rock */
+		if ( LoadLargeSprite(&gRock2R, 400, 40) < 0 ) {
+			return(-1);
+		}
+		BackwardsSprite(&gRock2L, gRock2R);
+		break;
+
+	case LOAD_STAGE_BLITS6:
+		/* -- Load in the small rock */
+		if ( LoadSmallSprite(&gRock3R, 300, 20) < 0 ) {
+			return(-1);
+		}
+		BackwardsSprite(&gRock3L, gRock3R);
+		break;
+
+	case LOAD_STAGE_BLITS7:
+		/* -- Load in the explosion */
+		if ( LoadLargeSprite(&gExplosion, 600, 12) < 0 ) {
+			return(-1);
+		}
+		break;
+
+	case LOAD_STAGE_BLITS8:
+		/* -- Load in the 2x multiplier */
+		if ( LoadLargeSprite(&gMult[0], 2000, 1) < 0 ) {
+			return(-1);
+		}
+		break;
+
+	case LOAD_STAGE_BLITS9:
+		/* -- Load in the 3x multiplier */
+		if ( LoadLargeSprite(&gMult[1], 2002, 1) < 0 ) {
+			return(-1);
+		}
+		break;
+
+	case LOAD_STAGE_BLITS10:
+		/* -- Load in the 4x multiplier */
+		if ( LoadLargeSprite(&gMult[2], 2004, 1) < 0 ) {
+			return(-1);
+		}
+		break;
+
+	case LOAD_STAGE_BLITS11:
+		/* -- Load in the 5x multiplier */
+		if ( LoadLargeSprite(&gMult[3], 2006, 1) < 0 ) {
+			return(-1);
+		}
+		break;
+
+	case LOAD_STAGE_BLITS12:
+		/* -- Load in the steel asteroid */
+		if ( LoadLargeSprite(&gSteelRoidL, 700, 40) < 0 ) {
+			return(-1);
+		}
+		BackwardsSprite(&gSteelRoidR, gSteelRoidL);
+		break;
+
+	case LOAD_STAGE_BLITS13:
+		/* -- Load in the prize */
+		if ( LoadLargeSprite(&gPrize, 800, 30) < 0 ) {
+			return(-1);
+		}
+		break;
+
+	case LOAD_STAGE_BLITS14:
+		/* -- Load in the bonus */
+		if ( LoadLargeSprite(&gBonusBlit, 900, 10) < 0 ) {
+			return(-1);
+		}
+		break;
+
+	case LOAD_STAGE_BLITS15:
+		/* -- Load in the bonus */
+		if ( LoadLargeSprite(&gPointBlit, 1000, 6) < 0 ) {
+			return(-1);
+		}
+		break;
+
+	case LOAD_STAGE_BLITS16:
+		/* -- Load in the vortex */
+		if ( LoadLargeSprite(&gVortexBlit, 1100, 10) < 0 ) {
+			return(-1);
+		}
+		break;
+
+	case LOAD_STAGE_BLITS17:
+		/* -- Load in the homing mine */
+		if ( LoadLargeSprite(&gMineBlitR, 1200, 40) < 0 ) {
+			return(-1);
+		}
+		BackwardsSprite(&gMineBlitL, gMineBlitR);
+		break;
+
+	case LOAD_STAGE_BLITS18:
+		/* -- Load in the shield */
+		if ( LoadLargeSprite(&gShieldBlit, 1300, 2) < 0 ) {
+			return(-1);
+		}
+		break;
+
+	case LOAD_STAGE_BLITS19:
+		/* -- Load in the nova */
+		if ( LoadLargeSprite(&gNova, 1400, 18) < 0 ) {
+			return(-1);
+		}
+		break;
+
+	case LOAD_STAGE_BLITS20:
+		/* -- Load in the ship explosion */
+		if ( LoadLargeSprite(&gShipExplosion, 1500, 21) < 0 ) {
+			return(-1);
+		}
+		break;
+
+	case LOAD_STAGE_BLITS21:
+		/* -- Load in the shrapnel */
+		for (i = 0; i < MAX_PLAYERS; ++i) {
+			id = i*10000 + 1800;
+			if ( LoadLargeSprite(&gShrapnel1[i], id, 48) < 0 )
+				return(-1);
+		}
+		break;
+
+	case LOAD_STAGE_BLITS22:
+		for (i = 0; i < MAX_PLAYERS; ++i) {
+			id = i*10000 + 1900;
+			if ( LoadLargeSprite(&gShrapnel2[i], id, 40) < 0 )
+				return(-1);
+		}
+		break;
+
+	case LOAD_STAGE_BLITS23:
+		/* -- Load in the damaged ship */
+		if ( LoadLargeSprite(&gDamagedShip, 1600, 10) < 0 ) {
+			return(-1);
+		}
+		break;
+
+	case LOAD_STAGE_BLITS24:
+		/* -- Load in the enemy ship */
+		if ( LoadLargeSprite(&gEnemyShip, 1700, 40) < 0 ) {
+			return(-1);
+		}
+		break;
+
+	case LOAD_STAGE_BLITS25:
+		/* -- Load in the enemy ship */
+		if ( LoadLargeSprite(&gEnemyShip2, 2100, 40) < 0 ) {
+			return(-1);
+		}
+		break;
 	}
-	DrawLoadBar(stage++);
 
-/* -- Load in the damaged ship */
-
-	if ( LoadLargeSprite(&gDamagedShip, 1600, 10) < 0 )
-		return(-1);
-	DrawLoadBar(stage++);
-
-/* -- Load in the enemy ship */
-
-	if ( LoadLargeSprite(&gEnemyShip, 1700, 40) < 0 )
-		return(-1);
-	DrawLoadBar(stage++);
-
-/* -- Load in the enemy ship */
-
-	if ( LoadLargeSprite(&gEnemyShip2, 2100, 40) < 0 )
-		return(-1);
-	DrawLoadBar(stage++);
+	DrawLoadBar();
+	gLoadingStage += 1;
 
 	return(0);
 }	/* -- LoadBlits */

@@ -133,11 +133,5 @@ void ZapHighScores()
 
 	FreeScores();
 	gLastHigh = -1;
-
-	/* Fade the screen and redisplay scores */
-	screen->FadeOut();
-	Delay(SOUND_DELAY);
-	sound->PlaySound(gExplosionSound, 5);
-	gUpdateBuffer = true;
 }
 

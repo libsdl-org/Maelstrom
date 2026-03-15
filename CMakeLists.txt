@@ -14,6 +14,11 @@ project(Maelstrom
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 
+# on Web targets, we need CMake to generate a HTML webpage.
+if(EMSCRIPTEN)
+    set(CMAKE_EXECUTABLE_SUFFIX_CXX ".html" CACHE INTERNAL "")
+endif()
+
 add_subdirectory(maclib)
 add_subdirectory(external/SDL EXCLUDE_FROM_ALL)
 block()
@@ -188,74 +193,85 @@ endif()
 
 target_link_libraries(Maelstrom PRIVATE SDLmac)
 target_link_libraries(Maelstrom PRIVATE SDL3::SDL3)
-target_link_libraries(Maelstrom PRIVATE SDL3_net::SDL3_net-static)
+target_link_libraries(Maelstrom PRIVATE SDL3_net::SDL3_net)
 
-option(STANDALONE_INSTALL "Build Maelstrom installed into a single directory" TRUE)
+if(EMSCRIPTEN)
+    # Increase the default stack size
+    target_link_options(Maelstrom PRIVATE -sSTACK_SIZE=1048576)
 
-if(STANDALONE_INSTALL)
-    set(CMAKE_INSTALL_BINDIR ".")
-    set(CMAKE_INSTALL_LIBDIR ".")
-    set(CMAKE_INSTALL_DOCDIR "Docs")
-    set(GAME_INSTALL_DATADIR ".")
-    if(APPLE)
-        set_property(TARGET Maelstrom SDL3-shared PROPERTY INSTALL_RPATH "@executable_path")
-    else()
-        set_property(TARGET Maelstrom SDL3-shared PROPERTY INSTALL_RPATH "$ORIGIN")
-    endif()
-else()
-    include(GNUInstallDirs)
-    set(GAME_INSTALL_DATADIR "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}")
-
-    target_compile_definitions(Maelstrom PRIVATE MAELSTROM_DATA=\"${CMAKE_INSTALL_PREFIX}/${GAME_INSTALL_DATADIR}/Data/\")
-endif()
-
-install(TARGETS Maelstrom SDL3-shared LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" NAMELINK_SKIP RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
-if(STEAM)
-    install(IMPORTED_RUNTIME_ARTIFACTS SteamworksSDK::steam_api)
-endif()
-install(DIRECTORY Data DESTINATION "${GAME_INSTALL_DATADIR}")
-
-file(GLOB docs "Docs/*.txt" "README*")
-install(FILES ${docs} "COPYING" TYPE DOC)
-
-#
-# Uninstall
-#
-configure_file(cmake/cmake_uninstall.cmake.in cmake_uninstall.cmake IMMEDIATE @ONLY)
-
-add_custom_target(uninstall
-  COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
-
-#
-# Source package
-#
-find_package(Git QUIET)
-
-if(GIT_FOUND)
-    add_custom_target(package_sources
-      COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/dist
-      COMMAND ${GIT_EXECUTABLE} archive HEAD -o "${PROJECT_BINARY_DIR}/dist/${PROJECT_NAME}-${PROJECT_VERSION}.zip" --prefix "${PROJECT_NAME}-${PROJECT_VERSION}/"
-      COMMAND ${GIT_EXECUTABLE} archive HEAD -o "${PROJECT_BINARY_DIR}/dist/${PROJECT_NAME}-${PROJECT_VERSION}.tar.gz" --prefix "${PROJECT_NAME}-${PROJECT_VERSION}/"
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      COMMENT "Creating source archive..."
-      VERBATIM
+    # on the web, we have to put the files inside of the webassembly
+    # somewhat unintuitively, this is done via a linker argument.
+    target_link_libraries(Maelstrom PRIVATE 
+        "--preload-file \"${CMAKE_CURRENT_LIST_DIR}/Data@/\""
     )
 else()
-    message(WARNING "Git not found, 'package_sources' target will not be available.")
-endif()
+    option(STANDALONE_INSTALL "Build Maelstrom installed into a single directory" TRUE)
 
-#
-# Binary package
-#
+    if(STANDALONE_INSTALL)
+        set(CMAKE_INSTALL_BINDIR ".")
+        set(CMAKE_INSTALL_LIBDIR ".")
+        set(CMAKE_INSTALL_DOCDIR "Docs")
+        set(GAME_INSTALL_DATADIR ".")
+        if(APPLE)
+            set_property(TARGET Maelstrom SDL3-shared PROPERTY INSTALL_RPATH "@executable_path")
+        else()
+            set_property(TARGET Maelstrom SDL3-shared PROPERTY INSTALL_RPATH "$ORIGIN")
+        endif()
+    else()
+        include(GNUInstallDirs)
+        set(GAME_INSTALL_DATADIR "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}")
 
-if(MSVC)
-    set(CPACK_GENERATOR "ZIP")
-else()
-    set(CPACK_GENERATOR "TGZ")
+        target_compile_definitions(Maelstrom PRIVATE MAELSTROM_DATA=\"${CMAKE_INSTALL_PREFIX}/${GAME_INSTALL_DATADIR}/Data/\")
+    endif()
+
+    install(TARGETS Maelstrom SDL3-shared LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" NAMELINK_SKIP RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+    if(STEAM)
+        install(IMPORTED_RUNTIME_ARTIFACTS SteamworksSDK::steam_api)
+    endif()
+    install(DIRECTORY Data DESTINATION "${GAME_INSTALL_DATADIR}")
+
+    file(GLOB docs "Docs/*.txt" "README*")
+    install(FILES ${docs} "COPYING" TYPE DOC)
+
+    #
+    # Uninstall
+    #
+    configure_file(cmake/cmake_uninstall.cmake.in cmake_uninstall.cmake IMMEDIATE @ONLY)
+
+    add_custom_target(uninstall
+      COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+
+    #
+    # Source package
+    #
+    find_package(Git QUIET)
+
+    if(GIT_FOUND)
+        add_custom_target(package_sources
+          COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/dist
+          COMMAND ${GIT_EXECUTABLE} archive HEAD -o "${PROJECT_BINARY_DIR}/dist/${PROJECT_NAME}-${PROJECT_VERSION}.zip" --prefix "${PROJECT_NAME}-${PROJECT_VERSION}/"
+          COMMAND ${GIT_EXECUTABLE} archive HEAD -o "${PROJECT_BINARY_DIR}/dist/${PROJECT_NAME}-${PROJECT_VERSION}.tar.gz" --prefix "${PROJECT_NAME}-${PROJECT_VERSION}/"
+          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+          COMMENT "Creating source archive..."
+          VERBATIM
+        )
+    else()
+        message(WARNING "Git not found, 'package_sources' target will not be available.")
+    endif()
+
+    #
+    # Binary package
+    #
+
+    if(MSVC)
+        set(CPACK_GENERATOR "ZIP")
+    else()
+        set(CPACK_GENERATOR "TGZ")
+    endif()
+    configure_file(cmake/CPackProjectConfig.cmake.in CPackProjectConfig.cmake @ONLY)
+    set(CPACK_PROJECT_CONFIG_FILE "${PROJECT_BINARY_DIR}/CPackProjectConfig.cmake")
+    # CPACK_SOURCE_PACKAGE_FILE_NAME must end with "-src" (so we can block creating a source archive)
+    set(CPACK_SOURCE_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-src")
+    set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}/dist")
+    include(CPack)
 endif()
-configure_file(cmake/CPackProjectConfig.cmake.in CPackProjectConfig.cmake @ONLY)
-set(CPACK_PROJECT_CONFIG_FILE "${PROJECT_BINARY_DIR}/CPackProjectConfig.cmake")
-# CPACK_SOURCE_PACKAGE_FILE_NAME must end with "-src" (so we can block creating a source archive)
-set(CPACK_SOURCE_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-src")
-set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}/dist")
-include(CPack)

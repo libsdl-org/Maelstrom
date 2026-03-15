@@ -31,6 +31,7 @@
 /* 								 */
 /* ------------------------------------------------------------- */
 
+#define SDL_MAIN_USE_CALLBACKS 1
 #include <SDL3/SDL_main.h>
 
 #include "Maelstrom_Globals.h"
@@ -55,8 +56,12 @@ static const char *Version =
 "Maelstrom v1.4.3 (GPL version 4.0.0) -- 10/08/2011 by Sam Lantinga\n";
 
 // Global variables set in this file...
-Bool	gUpdateBuffer;
-Bool	gRunning;
+Bool	gInitializing = false;
+Bool	gNetworkAvailable = false;
+Bool	gUpdateBuffer = false;
+Bool	gDelaySound = false;
+int		gDelayTicks = 0;
+Bool	gRunning = false;
 
 
 // Main Menu actions:
@@ -139,43 +144,25 @@ void PrintUsage(const char *progname)
 }
 
 /* ----------------------------------------------------------------- */
-extern "C" void ShowFrame(void*);
-extern "C"
-void ShowFrame(void*)
-{
-	ui->Draw();
-
-	if (!gGameOn) {
-		// If we got a reply event, start it up!
-		if (gReplayFile) {
-			RunReplayGame(gReplayFile);
-			SDL_free(gReplayFile);
-			gReplayFile = NULL;
-		}
-
-		/* -- Get events */
-		SDL_Event event;
-		while ( screen->PollEvent(&event) ) {
-			if ( ui->HandleEvent(event) )
-				continue;
-		}
-	}
-}
-
-/* ----------------------------------------------------------------- */
 /* -- Blitter main program */
-int main(int argc, char *argv[])
+SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
 	/* Command line flags */
 	int window_width = 0;
 	int window_height = 0;
-	Uint32 window_flags = SDL_WINDOW_FULLSCREEN | SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_RESIZABLE;
+	Uint32 window_flags = SDL_WINDOW_RESIZABLE;
+#ifdef SDL_PLATFORM_EMSCRIPTEN
+	window_flags |= SDL_WINDOW_FILL_DOCUMENT;
+#else
+	window_flags |= SDL_WINDOW_FULLSCREEN;
+#endif
+	window_flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
 	/* Initializing Steam can set up environment variables, so do this first */
 	InitSteam();
 
 	if ( !InitFilesystem(MAELSTROM_ORGANIZATION, MAELSTROM_NAME) ) {
-		exit(1);
+		return SDL_APP_FAILURE;
 	}
 
 	/* Seed the random number generator */
@@ -191,54 +178,107 @@ int main(int argc, char *argv[])
 			++i;
 			if (SDL_sscanf(argv[i], "%dx%d", &window_width, &window_height) != 2) {
 				PrintUsage(argv[0]);
-				exit(1);
+				return SDL_APP_FAILURE;
 			}
 		} else if ( strcmp(argv[i], "-NSDocumentRevisionsDebugMode") == 0 && argv[i+1] ) {
 			// Ignore Xcode debug option
 			++i;
 		} else if ( strcmp(argv[i], "--version") == 0 ) {
 			error("%s", Version);
-			exit(0);
+			return SDL_APP_SUCCESS;
 		} else {
 			PrintUsage(argv[0]);
-			exit(1);
+			return SDL_APP_FAILURE;
 		}
 	}
 
 	/* Initialize everything. :) */
-	if ( DoInitializations(window_width, window_height, window_flags) < 0 ) {
+	if (!StartInitialization(window_width, window_height, window_flags)) {
 		/* An error message was already printed */
-		CleanUp();
-		exit(1);
+		return SDL_APP_FAILURE;
 	}
 
-	gRunning = true;
+	return SDL_APP_CONTINUE;
+}
 
-#ifdef WAIT_BOOM  // Don't wait for the boom, since we don't fade on iOS
-	DropEvents();
-
-#ifndef FAST_ITERATION
-	while ( sound->Playing() )
-		Delay(SOUND_DELAY);
-#endif
-#endif // WAIT_BOOM
-
-	ui->ShowPanel(PANEL_MAIN);
-
-	while ( gRunning ) {
-		ShowFrame(0);
-
-		UpdateSteam();
-
-		DelayFrame();
+SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
+{
+	if (event->type == SDL_EVENT_DROP_FILE) {
+		SDL_free(gReplayFile);
+		gReplayFile = SDL_strdup(event->drop.data);
 	}
+
+	screen->ProcessEvent(event);
+
+	HandleEvent(event);
+
+	return SDL_APP_CONTINUE;
+}
+
+SDL_AppResult SDL_AppIterate(void *appstate)
+{
+	if (screen->Fading()) {
+		screen->FadeStep();
+		return SDL_APP_CONTINUE;
+	}
+
+	if (gDelaySound) {
+		if (sound->Playing()) {
+			screen->Update();
+			Delay(2);
+			return SDL_APP_CONTINUE;
+		}
+		gDelaySound = false;
+	}
+
+	if (gDelayTicks) {
+		int ticks = SDL_min(gDelayTicks, 2);
+		screen->Update();
+		Delay(ticks);
+		gDelayTicks -= ticks;
+		return SDL_APP_CONTINUE;
+	}
+
+	if (gInitializing) {
+		if (ContinueInitialization()) {
+			ui->Draw();
+			Delay(2);
+			return SDL_APP_CONTINUE;
+		} else {
+			return SDL_APP_FAILURE;
+		}
+	}
+
+	ui->Draw();
+
+	if (!gGameOn) {
+		// If we got a replay event, start it up!
+		if (gReplayFile) {
+			RunReplayGame(gReplayFile);
+			SDL_free(gReplayFile);
+			gReplayFile = nullptr;
+		}
+	}
+
+	UpdateSteam();
+
+	DelayFrame();
+
+	if (gRunning) {
+		return SDL_APP_CONTINUE;
+	} else {
+		return SDL_APP_SUCCESS;
+	}
+}
+
+void SDL_AppQuit(void *appstate, SDL_AppResult result)
+{
+	SDL_free(gReplayFile);
+
 	CleanUp();
 
 	QuitSteam();
-
-	return 0;
-
-}	/* -- main */
+}
 
 
 /* ----------------------------------------------------------------- */
@@ -253,13 +293,6 @@ MainPanelDelegate::OnLoad()
 	label = m_panel->GetElement<UIElement>("version");
 	if (label) {
 		label->SetText(VERSION_STRING);
-	}
-
-	m_spinnerImage = NULL;
-
-	UIElement *m_spinner = m_panel->GetElement<UIElement>("spinner");
-	if (m_spinner) {
-		m_spinnerImage = m_spinner->GetImage();
 	}
 
 	return true;
@@ -280,13 +313,8 @@ MainPanelDelegate::OnTick()
 	char name[32];
 	char text[128];
 
-	// Rotate the spinner, if needed
-	if (m_spinnerImage) {
-		float angle = m_spinnerImage->Angle();
-		const float FPS = (60.0f / FRAME_DELAY);
-		const float SPINNER_RATE = 60.0f; // seconds per rotation
-		const float increment = 360.0f / (SPINNER_RATE * FPS);
-		m_spinnerImage->SetAngle(angle + increment);
+	if (m_bQuitting && !sound->Playing()) {
+		gRunning = false;
 	}
 
 	if (!gUpdateBuffer) {
@@ -418,9 +446,7 @@ MainPanelDelegate::OnActionMultiplayer()
 void
 MainPanelDelegate::OnActionQuitGame()
 {
-	while ( sound->Playing() )
-		Delay(SOUND_DELAY);
-	gRunning = false;
+	m_bQuitting = true;
 }
 
 void
@@ -504,6 +530,14 @@ void
 MainPanelDelegate::OnActionZapHighScores()
 {
 	ZapHighScores();
+
+	// Fade the screen and redisplay scores
+	if (ui->GetPanelTransition() == PANEL_TRANSITION_FADE) {
+		screen->FadeOut();
+		Delay(SOUND_DELAY);
+	}
+	sound->PlaySound(gExplosionSound, 5);
+	gUpdateBuffer = true;
 }
 
 void
@@ -531,19 +565,19 @@ void DelayFrame(void)
 		delay /= 2;
 	}
 
-	while ( ((ticks=SDL_GetTicks())-gLastDrawn) < delay ) {
+	while (((ticks=SDL_GetTicks())-gLastDrawn) < delay) {
 		ui->Poll();
 		SDL_Delay(1);
 	}
 	gLastDrawn = ticks;
 }
 
+void DelaySound()
+{
+	gDelaySound = true;
+}
+
 void DelayAndDraw(int ticks)
 {
-	while (ticks >= 2) {
-		screen->Update();
-		Delay(2);
-		ticks -= 2;
-	}
-	Delay(ticks);
+	gDelayTicks = ticks;
 }

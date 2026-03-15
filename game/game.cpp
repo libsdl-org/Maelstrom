@@ -259,6 +259,47 @@ GamePanelDelegate::OnTick()
 	int i, j;
 	SYNC_RESULT syncResult;
 
+	switch (m_state) {
+	case STATE_SHOW_BONUS:
+		ShowBonus();
+		return;
+	case STATE_BONUS_SHOW_VALUE:
+		BonusShowValue();
+		return;
+	case STATE_BONUS_SHOW_MULTIPLIER:
+		BonusShowMultiplier();
+		return;
+	case STATE_BONUS_DISPLAY_DELAY:
+		BonusDisplayDelay();
+		return;
+	case STATE_BONUS_DISPLAY:
+		BonusDisplay();
+		return;
+	case STATE_BONUS_CHECK_SOUND:
+		BonusCheckSound();
+		return;
+	case STATE_BONUS_TAUNT:
+		BonusTaunt();
+		return;
+	case STATE_BONUS_PRAISE:
+		BonusPraise();
+		return;
+	case STATE_BONUS_COUNTDOWN:
+		BonusCountdown();
+		return;
+	case STATE_BONUS_NEXT_WAVE:
+		BonusNextWave();
+		return;
+	case STATE_BONUS_HIDE:
+		BonusHide();
+		return;
+	case STATE_START_NEXT_WAVE:
+		StartNextWave();
+		return;
+	default:
+		break;
+	}
+
 	if (!gGameOn) {
 		// This generally shouldn't happen, but could if there were
 		// a consistency error during a replay at the bonus screen.
@@ -268,9 +309,6 @@ GamePanelDelegate::OnTick()
 	if ( gGameInfo.GetLocalState() & STATE_BONUS ) {
 		return;
 	}
-
-	/* -- Read in keyboard input for our ship */
-	HandleEvents(0);
 
 	/* -- Send Sync! signal to all players, and handle keyboard. */
 	if (!gReplay.HandlePlayback()) {
@@ -428,6 +466,10 @@ GamePanelDelegate::OnDraw(DRAWLEVEL drawLevel)
 	int i;
 
 	if (drawLevel != DRAWLEVEL_BACKGROUND) {
+		return;
+	}
+
+	if (m_state != STATE_PLAYING) {
 		return;
 	}
 
@@ -782,18 +824,16 @@ void
 GamePanelDelegate::DoBonus()
 {
 	UIPanel *panel;
-	UIElement *image;
 	UIElement *label;
-	UIElement *bonus;
-	UIElement *score;
-	int i;
 	char numbuf[128];
+	int i;
 
 	/* -- Now do the bonus */
 	sound->HaltSound();
 
 	panel = ui->GetPanel(PANEL_BONUS);
 	if (!panel) {
+		m_state = STATE_START_NEXT_WAVE;
 		return;
 	}
 	panel->HideAll();
@@ -816,21 +856,7 @@ GamePanelDelegate::DoBonus()
 
 	gGameInfo.SetLocalState(STATE_BONUS, true);
 
-	/* Fade out */
-	screen->FadeOut();
-
-	ui->ShowPanel(PANEL_BONUS);
-	ui->Draw();
-
-	/* Fade in */
-	screen->FadeIn();
-	while ( sound->Playing() )
-		DelayAndDraw(SOUND_DELAY);
-
-	/* -- Count the score down */
-
-	bonus = panel->GetElement<UIElement>("bonus");
-	score = panel->GetElement<UIElement>("score");
+	// Handle the bonus for other players
 	OBJ_LOOP(i, MAX_PLAYERS) {
 		if (!gPlayers[i]->IsValid()) {
 			continue;
@@ -851,32 +877,98 @@ GamePanelDelegate::DoBonus()
 
 		if (i != gDisplayed) {
 			gPlayers[i]->MultBonus();
-			continue;
-		}
-
-		if (TheShip->GetBonusMult() != 1) {
-			if (bonus) {
-				SDL_snprintf(numbuf, sizeof(numbuf), "%-5.1d", TheShip->GetBonus());
-				bonus->SetText(numbuf);
-				bonus->Show();
-			}
-			bonus = panel->GetElement<UIElement>("multiplied_bonus");
-
-			TheShip->MultBonus();
-			DelayAndDraw(SOUND_DELAY);
-			sound->PlaySound(gMultiplier, 5);
-
-			SDL_snprintf(numbuf, sizeof(numbuf), "multiplier%d", TheShip->GetBonusMult());
-			image = panel->GetElement<UIElement>(numbuf);
-			if (image) {
-				image->Show();
-			}
-
-			DelayAndDraw(60);
+			gPlayers[i]->IncrScore(gPlayers[i]->GetBonus());
+			gPlayers[i]->IncrBonus(-gPlayers[i]->GetBonus());
 		}
 	}
+
+	/* Fade out */
+	screen->FadeOut();
+
+	m_state = STATE_SHOW_BONUS;
+}
+
+
+void
+GamePanelDelegate::ShowBonus()
+{
+	ui->ShowPanel(PANEL_BONUS);
+
+	/* Fade in */
+	screen->FadeIn();
+	DelaySound();
+	m_state = STATE_BONUS_SHOW_VALUE;
+}
+
+void
+GamePanelDelegate::BonusShowValue()
+{
+	UIPanel *panel;
+	UIElement *bonus;
+	char numbuf[128];
+
+	if (TheShip->GetBonusMult() != 1) {
+		panel = ui->GetPanel(PANEL_BONUS);
+		bonus = panel->GetElement<UIElement>("bonus");
+		if (bonus) {
+			SDL_snprintf(numbuf, sizeof(numbuf), "%-5.1d", TheShip->GetBonus());
+			bonus->SetText(numbuf);
+			bonus->Show();
+		}
+
+		TheShip->MultBonus();
+		DelayAndDraw(SOUND_DELAY);
+		m_state = STATE_BONUS_SHOW_MULTIPLIER;
+		return;
+	}
+	m_state = STATE_BONUS_DISPLAY_DELAY;
+}
+
+void
+GamePanelDelegate::BonusShowMultiplier()
+{
+	UIPanel *panel;
+	UIElement *image;
+	char numbuf[128];
+
+	sound->PlaySound(gMultiplier, 5);
+
+	panel = ui->GetPanel(PANEL_BONUS);
+	SDL_snprintf(numbuf, sizeof(numbuf), "multiplier%d", TheShip->GetBonusMult());
+	image = panel->GetElement<UIElement>(numbuf);
+	if (image) {
+		image->Show();
+	}
+
+	DelayAndDraw(60);
+
+	m_state = STATE_BONUS_DISPLAY_DELAY;
+}
+
+void
+GamePanelDelegate::BonusDisplayDelay()
+{
 	DelayAndDraw(SOUND_DELAY);
+	m_state = STATE_BONUS_DISPLAY;
+}
+
+void
+GamePanelDelegate::BonusDisplay()
+{
+	UIPanel *panel;
+	UIElement *bonus;
+	UIElement *score;
+	char numbuf[128];
+
 	sound->PlaySound(gFunk, 5);
+
+	panel = ui->GetPanel(PANEL_BONUS);
+	if (TheShip->GetBonusMult() != 1) {
+		bonus = panel->GetElement<UIElement>("multiplied_bonus");
+	} else {
+		bonus = panel->GetElement<UIElement>("bonus");
+	}
+	score = panel->GetElement<UIElement>("score");
 
 	if (bonus) {
 		SDL_snprintf(numbuf, sizeof(numbuf), "%-5.1d", TheShip->GetBonus());
@@ -888,73 +980,109 @@ GamePanelDelegate::DoBonus()
 		score->SetText(numbuf);
 		score->Show();
 	}
-	ui->Draw();
 	DelayAndDraw(60);
 
+	m_state = STATE_BONUS_CHECK_SOUND;
+}
+
+void
+GamePanelDelegate::BonusCheckSound()
+{
 	/* -- Praise them or taunt them as the case may be */
 	if (TheShip->GetBonus() == 0) {
 		DelayAndDraw(SOUND_DELAY);
-		sound->PlaySound(gNoBonus, 5);
+		m_state = STATE_BONUS_TAUNT;
+		return;
 	}
 	if (TheShip->GetBonus() > 10000) {
 		DelayAndDraw(SOUND_DELAY);
-		sound->PlaySound(gPrettyGood, 5);
+		m_state = STATE_BONUS_PRAISE;
+		return;
 	}
-	while ( sound->Playing() )
-		DelayAndDraw(SOUND_DELAY);
+	DelaySound();
+	m_state = STATE_BONUS_COUNTDOWN; 
+}
 
-	/* -- Count the score down */
-	OBJ_LOOP(i, MAX_PLAYERS) {
-		if (!gPlayers[i]->IsValid()) {
-			continue;
-		}
-		if (i != gDisplayed) {
-			while ( gPlayers[i]->GetBonus() > 500 ) {
-				gPlayers[i]->IncrScore(500);
-				gPlayers[i]->IncrBonus(-500);
-			}
-			continue;
-		}
+void
+GamePanelDelegate::BonusTaunt()
+{
+	sound->PlaySound(gNoBonus, 5);
+	DelaySound();
+	m_state = STATE_BONUS_COUNTDOWN; 
+}
 
-		while (TheShip->GetBonus() > 0) {
-			while ( sound->Playing() )
-				DelayAndDraw(SOUND_DELAY);
+void
+GamePanelDelegate::BonusPraise()
+{
+	sound->PlaySound(gPrettyGood, 5);
+	DelaySound();
+	m_state = STATE_BONUS_COUNTDOWN; 
+}
 
-			sound->PlaySound(gBonk, 5);
-			if ( TheShip->GetBonus() >= 500 ) {
-				TheShip->IncrScore(500);
-				TheShip->IncrBonus(-500);
-			} else {
-				TheShip->IncrScore(TheShip->GetBonus());
-				TheShip->IncrBonus(-TheShip->GetBonus());
-			}
+void
+GamePanelDelegate::BonusCountdown()
+{
+	UIPanel *panel;
+	UIElement *bonus;
+	UIElement *score;
+	char numbuf[128];
 
-			if (bonus) {
-				SDL_snprintf(numbuf, sizeof(numbuf), "%-5.1d", TheShip->GetBonus());
-				bonus->SetText(numbuf);
-			}
-			if (score) {
-				SDL_snprintf(numbuf, sizeof(numbuf), "%-5.1d", TheShip->GetScore());
-				score->SetText(numbuf);
-			}
-
-			ui->Draw();
-		}
+	panel = ui->GetPanel(PANEL_BONUS);
+	if (TheShip->GetBonusMult() != 1) {
+		bonus = panel->GetElement<UIElement>("multiplied_bonus");
 	}
-	while ( sound->Playing() )
-		DelayAndDraw(SOUND_DELAY);
-	HandleEvents(10);
+	else {
+		bonus = panel->GetElement<UIElement>("bonus");
+	}
+	score = panel->GetElement<UIElement>("score");
+
+	if (TheShip->GetBonus() > 0) {
+		sound->PlaySound(gBonk, 5);
+
+		if ( TheShip->GetBonus() >= 500 ) {
+			TheShip->IncrScore(500);
+			TheShip->IncrBonus(-500);
+		} else {
+			TheShip->IncrScore(TheShip->GetBonus());
+			TheShip->IncrBonus(-TheShip->GetBonus());
+		}
+
+		if (bonus) {
+			SDL_snprintf(numbuf, sizeof(numbuf), "%-5.1d", TheShip->GetBonus());
+			bonus->SetText(numbuf);
+		}
+		if (score) {
+			SDL_snprintf(numbuf, sizeof(numbuf), "%-5.1d", TheShip->GetScore());
+			score->SetText(numbuf);
+		}
+		DelaySound();
+		return;
+	}
+	m_state = STATE_BONUS_NEXT_WAVE;
+}
+
+void
+GamePanelDelegate::BonusNextWave()
+{
+	UIPanel *panel;
+	UIElement *label;
+	char numbuf[128];
 
 	/* -- Draw the "next wave" message */
+	panel = ui->GetPanel(PANEL_BONUS);
 	label = panel->GetElement<UIElement>("next");
 	if (label) {
 		SDL_snprintf(numbuf, sizeof(numbuf), "Prepare for Wave %d...", gWave+1);
 		label->SetText(numbuf);
 		label->Show();
 	}
-	ui->Draw();
-	HandleEvents(100);
+	DelayAndDraw(6);
+	m_state = STATE_BONUS_HIDE;
+}
 
+void
+GamePanelDelegate::BonusHide()
+{
 	ui->HidePanel(PANEL_BONUS);
 
 	gGameInfo.SetLocalState(STATE_BONUS, false);
@@ -963,7 +1091,8 @@ GamePanelDelegate::DoBonus()
 	screen->FadeOut();
 	screen->Clear();
 
-}	/* -- DoBonus */
+	m_state = STATE_START_NEXT_WAVE;
+}
 
 /* ----------------------------------------------------------------- */
 /* -- Start the next wave! */
@@ -971,9 +1100,7 @@ GamePanelDelegate::DoBonus()
 void
 GamePanelDelegate::NextWave()
 {
-	int	i, x, y;
-	int	NewRoids;
-	short	temp;
+	int i;
 
 	gEnemySprite = NULL;
 
@@ -997,8 +1124,19 @@ GamePanelDelegate::NextWave()
 		}
 	}
 
-	if (gWave != (gGameInfo.wave - 1))
+	if (gWave != (gGameInfo.wave - 1)) {
 		DoBonus();
+	} else {
+		m_state = STATE_START_NEXT_WAVE;
+	}
+}
+
+void
+GamePanelDelegate::StartNextWave()
+{
+	int	i, x, y;
+	int	NewRoids;
+	short	temp;
 
 	gWave++;
 
@@ -1093,6 +1231,8 @@ GamePanelDelegate::NextWave()
 	}
 
 	SetSteamTimelineLevelStarted(gWave);
+
+	m_state = STATE_PLAYING;
 
 }	/* -- NextWave */
 

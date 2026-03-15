@@ -386,12 +386,16 @@ static void UpdateControl(Player *player)
 	player->SetControl(THRUST_KEY, keys[THRUST_KEY]);
 }
 
-static void HandleEvent(SDL_Event *event)
+void HandleEvent(SDL_Event *event)
 {
 	Player *player;
 	SDL_Keycode key;
 
 	if (ui->HandleEvent(*event)) {
+		return;
+	}
+
+	if (!gGameOn) {
 		return;
 	}
 
@@ -561,36 +565,5 @@ void QuitPlayerControls(void)
 		SDL_CloseGamepad(gamepad->gamepad);
 	}
 	gamepads.clear();
-}
-
-/* This function gives a good way to delay a specified amount of time
-   while handling keyboard/joystick events, or just to poll for events.
-*/
-void HandleEvents(int timeout)
-{
-	SDL_Event event;
-
-	do { 
-		while ( screen->PollEvent(&event) ) {
-			HandleEvent(&event);
-		}
-		if ( timeout ) {
-			/* Delay 1/60 of a second... */
-			Delay(1);
-		}
-	} while ( timeout-- );
-}
-
-int DropEvents(void)
-{
-	SDL_Event event;
-	int keys = 0;
-
-	while ( screen->PollEvent(&event) ) {
-		if ( event.type == SDL_EVENT_KEY_DOWN ) {
-			++keys;
-		}
-	}
-	return(keys);
 }
 

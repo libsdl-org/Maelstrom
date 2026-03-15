@@ -73,6 +73,7 @@ extern void   PrintUsage(void);
 extern int    DrawText(int x, int y, const char *text, MFont *font, Uint8 style,
 						Uint8 R, Uint8 G, Uint8 B);
 extern void   DelayFrame(void);
+extern void   DelaySound(void);
 extern void   DelayAndDraw(int ticks);
 
 // Functions from init.cpp
@@ -80,8 +81,11 @@ extern void  SetStar(int which);
 
 // External variables...
 // in main.cpp : 
+extern Bool	gInitializing;
+extern Bool	gNetworkAvailable;
 extern Bool	gUpdateBuffer;
 extern Bool	gRunning;
+
 
 // in init.cpp : 
 struct Resolution {

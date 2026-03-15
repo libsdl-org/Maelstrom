@@ -150,10 +150,6 @@ void GameOverPanelDelegate::OnHide()
 	   update UI in a future replay
 	*/
 	gGameInfo.Reset();
-
-	while ( sound->Playing() )
-		Delay(SOUND_DELAY);
-	HandleEvents(0);
 }
 
 void GameOverPanelDelegate::OnTick()
@@ -163,8 +159,9 @@ void GameOverPanelDelegate::OnTick()
 	}
 
 	/* -- Wait for the game over sound */
-	if ( sound->Playing() )
+	if (sound->Playing()) {
 		return;
+	}
 
 	if (gGameInfo.IsMultiplayer()) { /* Let them watch their ranking */
 		const Uint32 MULTIPLAYER_SHOW_TIME = 3000;
@@ -249,8 +246,6 @@ void GameOverPanelDelegate::BeginEnterName()
 	}
 	m_handleSize = (int)SDL_strlen(m_handle);
 
-	// Flush events before enabling text input
-	HandleEvents(0);
 	screen->EnableTextInput();
 }
 
@@ -264,9 +259,8 @@ void GameOverPanelDelegate::FinishEnterName()
 		gReplay.Save();
 		LoadScores();
 	}
+	m_handleLabel = nullptr;
 
 	sound->HaltSound();
 	sound->PlaySound(gGotPrize, 6);
-
-	ui->ShowPanel(PANEL_MAIN);
 }
