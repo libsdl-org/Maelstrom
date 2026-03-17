@@ -47,7 +47,7 @@ public:
 	void SetSteamTimelineMode(STEAM_TIMELINE_MODE mode);
 	void SetSteamTimelineLevelStarted(int level);
 	void SetSteamTimelineEvent(STEAM_TIMELINE_EVENT event);
-	void GrantAchievement(const char *achievement);
+	void UnlockAchievement(const char *achievement);
 
 	void Update();
 
@@ -204,7 +204,7 @@ void SteamInterface::SetSteamTimelineEvent(STEAM_TIMELINE_EVENT event)
 	SteamTimeline()->AddInstantaneousTimelineEvent(title, nullptr, icon, 0, 0.0f, k_ETimelineEventClipPriority_Standard);
 }
 
-void SteamInterface::GrantAchievement(const char *achievement)
+void SteamInterface::UnlockAchievement(const char *achievement)
 {
 	if (!m_initialized) {
 		return;
@@ -534,9 +534,9 @@ void SetSteamTimelineEvent(STEAM_TIMELINE_EVENT event)
 	steam.SetSteamTimelineEvent(event);
 }
 
-void GrantAchievement(const char *achievement)
+void UnlockAchievement(const char *achievement)
 {
-	steam.GrantAchievement(achievement);
+	steam.UnlockAchievement(achievement);
 }
 
 void UpdateSteam()
@@ -601,7 +601,7 @@ void SetSteamTimelineEvent(STEAM_TIMELINE_EVENT event)
 {
 }
 
-void GrantAchievement(const char *achievement)
+void UnlockAchievement(const char *achievement)
 {
 }
 

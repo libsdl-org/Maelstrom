@@ -827,13 +827,13 @@ GamePanelDelegate::DoBonus()
 		if (gPlayers[i]->CanGetSinglePlayerAchievement()) {
 			int bonus = gPlayers[i]->GetBonus() * gPlayers[i]->GetBonusMult();
 			if (bonus >= 8000) {
-				GrantAchievement("ACHIEVEMENT_BONUS_8");
+				UnlockAchievement("ACHIEVEMENT_BONUS_8");
 			} else if (bonus >= 6000) {
-				GrantAchievement("ACHIEVEMENT_BONUS_6");
+				UnlockAchievement("ACHIEVEMENT_BONUS_6");
 			} else if (bonus >= 4000) {
-				GrantAchievement("ACHIEVEMENT_BONUS_4");
+				UnlockAchievement("ACHIEVEMENT_BONUS_4");
 			} else if (bonus >= 2000) {
-				GrantAchievement("ACHIEVEMENT_BONUS_2");
+				UnlockAchievement("ACHIEVEMENT_BONUS_2");
 			}
 		}
 
@@ -980,7 +980,7 @@ GamePanelDelegate::NextWave()
 			}
 
 			if (gPlayers[i]->CanGetSinglePlayerAchievement()) {
-				GrantAchievement(achievement);
+				UnlockAchievement(achievement);
 			}
 		}
 	}
