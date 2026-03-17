@@ -11,10 +11,10 @@
 		<DialogLabel name="timeout" text="10">
 			<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
 		</DialogLabel>
-		<DialogButton name="cancelButton" text="Cancel">
+		<DialogButton name="cancelButton" text="Cancel" default="true">
 			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="99" y="74"/>
 		</DialogButton>
-		<DialogButton text="Do it!" id="1" default="true">
+		<DialogButton text="Do it!" id="1">
 			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="cancelButton" x="13"/>
 		</DialogButton>
 	</Elements>
