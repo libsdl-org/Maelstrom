@@ -24,6 +24,7 @@
 #include "main.h"
 #include "load.h"
 #include "controls.h"
+#include "init.h"
 #include "about.h"
 #include "game.h"
 #include "continue.h"
@@ -377,7 +378,9 @@ MaelstromUI::CreatePanel(const char *type, const char *name)
 UIPanelDelegate *
 MaelstromUI::CreatePanelDelegate(UIPanel *panel, const char *delegate)
 {
-	if (SDL_strcasecmp(delegate, "MainPanel") == 0) {
+	if (SDL_strcasecmp(delegate, "LoadingPanel") == 0) {
+		return new LoadingPanelDelegate(panel);
+	} else if (SDL_strcasecmp(delegate, "MainPanel") == 0) {
 		return new MainPanelDelegate(panel);
 	} else if (SDL_strcasecmp(delegate, "AboutPanel") == 0) {
 		return new AboutPanelDelegate(panel);

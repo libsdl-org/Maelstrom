@@ -22,6 +22,21 @@
 #ifndef _init_h
 #define _init_h
 
+#include "../screenlib/UIPanel.h"
+
+class LoadingPanelDelegate : public UIPanelDelegate
+{
+public:
+	LoadingPanelDelegate(UIPanel *panel) : UIPanelDelegate(panel) { }
+
+	virtual void OnShow();
+	virtual bool HandleEvent(const SDL_Event &event);
+
+private:
+	void StartWaiting();
+	void StartLoading();
+};
+
 extern bool StartInitialization(int window_width, int window_height, Uint32 window_flags);
 extern bool ContinueInitialization();
 extern void CleanUp(void);

@@ -78,6 +78,7 @@ UITexture *gTripleFireIcon, *gShieldIcon;
 
 enum LoadingStage
 {
+	LOAD_STAGE_WAITING,
 	LOAD_STAGE_STARTING,
 	LOAD_STAGE_BLITS1,
 	LOAD_STAGE_BLITS2,
@@ -108,7 +109,7 @@ enum LoadingStage
 	LOAD_STAGE_SPRITES,
 	LOAD_STAGE_COMPLETE
 };
-static int gLoadingStage = LOAD_STAGE_STARTING;
+static int gLoadingStage = LOAD_STAGE_WAITING;
 
 // Local functions used in this file.
 static void DrawLoadBar();
@@ -820,8 +821,7 @@ bool StartInitialization(int window_width, int window_height, Uint32 window_flag
 	if (!InitResolutions(w, h)) {
 		return false;
 	}
-	window_flags |= SDL_WINDOW_HIDDEN;
-	if (screen->Init(w, h, window_flags, "Maelstrom", icon) < 0){
+	if (screen->Init(w, h, window_flags | SDL_WINDOW_HIDDEN, "Maelstrom", icon) < 0){
 		error("Fatal: %s\n", screen->Error());
 		return false;
 	}
@@ -957,6 +957,9 @@ bool ContinueInitialization()
 		ui->ShowPanel(PANEL_MAIN);
 
 		gRunning = true;
+		break;
+
+	default:
 		break;
 	}
 
@@ -1351,3 +1354,65 @@ static int LoadSmallSprite(BlitPtr *theBlit, int baseID, int numFrames)
 {
 	return LoadSprite(false, theBlit, baseID, numFrames);
 }
+
+
+/* ----------------------------------------------------------------- */
+/* -- Delegate to handle the loading panel */
+
+void LoadingPanelDelegate::OnShow()
+{
+#ifdef SDL_PLATFORM_EMSCRIPTEN
+	StartWaiting();
+#else
+	StartLoading();
+#endif
+}
+
+bool LoadingPanelDelegate::HandleEvent(const SDL_Event &event)
+{
+	if (gLoadingStage == LOAD_STAGE_WAITING) {
+		switch (event.type) {
+		case SDL_EVENT_KEY_DOWN:
+		case SDL_EVENT_MOUSE_BUTTON_DOWN:
+			StartLoading();
+			return true;
+		default:
+			break;
+		}
+	}
+	return false;
+}
+
+void LoadingPanelDelegate::StartWaiting()
+{
+	UIPanel *panel = ui->GetPanel(PANEL_LOADING);
+	if (panel) {
+		UIElement *waiting_label = panel->GetElement<UIElement>("waiting");
+		UIElement *loading_label = panel->GetElement<UIElement>("loading");
+		if (waiting_label) {
+			waiting_label->Show();
+		}
+		if (loading_label) {
+			loading_label->Hide();
+		}
+	}
+	gLoadingStage = LOAD_STAGE_WAITING;
+}
+
+void LoadingPanelDelegate::StartLoading()
+{
+	UIPanel *panel = ui->GetPanel(PANEL_LOADING);
+	if (panel) {
+		UIElement *waiting_label = panel->GetElement<UIElement>("waiting");
+		UIElement *loading_label = panel->GetElement<UIElement>("loading");
+		if (waiting_label) {
+			waiting_label->Hide();
+		}
+		if (loading_label) {
+			loading_label->Show();
+		}
+	}
+	sound->PlaySound(gPrizeAppears);
+	gLoadingStage = LOAD_STAGE_STARTING;
+}
+
