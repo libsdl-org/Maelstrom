@@ -1,8 +1,11 @@
-<Panel template="FramedPanel" enterSound="111" leaveSound="123">
+<Panel template="FramedPanel" delegate="LoadingPanel" leaveSound="123">
 	<Elements>
 		<Title name="image" id="130"/>
 
-		<Label template="SmallYellow" text="Loading...">
+		<Label template="SmallYellow" name="waiting" text="Click to begin" show="false">
+			<Anchor anchorFrom="CENTER" anchorTo="BOTTOM" anchor="image" y="20"/>
+		</Label>
+		<Label template="SmallYellow" name="loading" text="Loading...">
 			<Anchor anchorFrom="CENTER" anchorTo="BOTTOM" anchor="image" y="20"/>
 		</Label>
 
