@@ -580,7 +580,7 @@ public:
 					}
 
 					if (gPlayers[i]->CanGetSinglePlayerAchievement()) {
-						GrantAchievement("ACHIEVEMENT_STEEL_BALLS");
+						UnlockAchievement("ACHIEVEMENT_STEEL_BALLS");
 					}
 				}
 				return(Object::Explode());
