@@ -1,0 +1,8 @@
+"lang"
+{
+	"Language"	"english"
+	"Tokens"
+	{
+		"#StatusPlaying"	"Wave %wave%"
+	}
+}

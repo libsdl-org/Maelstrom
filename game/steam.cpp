@@ -142,6 +142,7 @@ void SteamInterface::SetSteamTimelineMode(STEAM_TIMELINE_MODE mode)
 		case STEAM_TIMELINE_MENUS:
 			SteamTimeline()->ClearTimelineTooltip(0.0f);
 			SteamTimeline()->SetTimelineGameMode(k_ETimelineGameMode_Menus);
+			SteamFriends()->SetRichPresence( "steam_display", "" );
 			break;
 		case STEAM_TIMELINE_PLAYING:
 			SteamTimeline()->SetTimelineGameMode(k_ETimelineGameMode_Playing);
@@ -167,6 +168,10 @@ void SteamInterface::SetSteamTimelineLevelStarted(int level)
 
 	SteamTimeline()->AddInstantaneousTimelineEvent("Next Wave", nullptr, icon, 0, 0.0f, k_ETimelineEventClipPriority_None);
 	SteamTimeline()->SetTimelineTooltip(wave, 0.0f);
+
+	SDL_snprintf(wave, sizeof(wave), "%d", level);
+	SteamFriends()->SetRichPresence( "wave", wave );
+	SteamFriends()->SetRichPresence( "steam_display", "#StatusPlaying" );
 }
 
 void SteamInterface::SetSteamTimelineEvent(STEAM_TIMELINE_EVENT event)
