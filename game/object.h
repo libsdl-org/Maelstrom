@@ -34,6 +34,21 @@ public:
 	virtual int IsPlayer(void) {
 		return(0);
 	}
+	virtual int IsRock(void) {
+		return(0);
+	}
+	virtual int IsSmallRock(void) {
+		return(0);
+	}
+	virtual int IsMediumRock(void) {
+		return(0);
+	}
+	virtual int IsLargeRock(void) {
+		return(0);
+	}
+	virtual int IsExploding(void) {
+		return(Exploding);
+	}
 	virtual int IsGhost(void) {
 		return(0);
 	}

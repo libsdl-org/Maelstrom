@@ -38,6 +38,7 @@ int	gBoomDelay;
 int	gNextBoom;
 int	gBoomPhase;
 int	gNumRocks;
+int	gNumSmallRocksDestroyed;
 int	gLastStar;
 int	gWhenDone;
 int	gDisplayed;
@@ -996,6 +997,7 @@ GamePanelDelegate::BonusCheckSound()
 	if (TheShip->GetBonus() == 0) {
 		DelayAndDraw(SOUND_DELAY);
 		m_state = STATE_BONUS_TAUNT;
+		UnlockSinglePlayerAchievement("ACHIEVEMENT_BONUS_0");
 		return;
 	}
 	if (TheShip->GetBonus() > 10000) {
@@ -1104,12 +1106,11 @@ GamePanelDelegate::BonusHide()
 void
 GamePanelDelegate::NextWave()
 {
-	int i;
-
 	gEnemySprite = NULL;
 
 	/* -- Initialize some variables */
 	gNumRocks = 0;
+	gNumSmallRocksDestroyed = 0;
 	gShakeTime = 0;
 	gFreezeTime = 0;
 
@@ -1117,15 +1118,7 @@ GamePanelDelegate::NextWave()
 		char achievement[32];
 
 		SDL_snprintf(achievement, sizeof(achievement), "ACHIEVEMENT_WAVE_%d", gWave);
-		OBJ_LOOP(i, MAX_PLAYERS) {
-			if (!gPlayers[i]->IsValid()) {
-				continue;
-			}
-
-			if (gPlayers[i]->CanGetSinglePlayerAchievement()) {
-				UnlockAchievement(achievement);
-			}
-		}
+		UnlockSinglePlayerAchievement(achievement);
 	}
 
 	if (gWave != (gGameInfo.wave - 1)) {

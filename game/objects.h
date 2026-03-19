@@ -39,32 +39,39 @@ public:
 			case 0:
 				/* -- They got machine guns! */
 				ship->SetSpecial(MACHINE_GUNS);
+				UnlockSinglePlayerAchievement("ACHIEVEMENT_PRIZE_MACHINE_GUNS");
 				break;
 			case 1:
 				/* -- They got Air brakes */
 				ship->SetSpecial(AIR_BRAKES);
+				UnlockSinglePlayerAchievement("ACHIEVEMENT_PRIZE_AIR_BRAKES");
 				break;
 			case 2:
 				/* -- They might get Lucky */
 				ship->SetSpecial(LUCKY_IRISH);
+				UnlockSinglePlayerAchievement("ACHIEVEMENT_PRIZE_LUCK");
 				break;
 			case 3:
 				/* -- They triple fire */
 				ship->SetSpecial(TRIPLE_FIRE);
+				UnlockSinglePlayerAchievement("ACHIEVEMENT_PRIZE_TRIPLE_FIRE");
 				break;
 			case 4:
 				/* -- They got long range */
 				ship->SetSpecial(LONG_RANGE);
+				UnlockSinglePlayerAchievement("ACHIEVEMENT_PRIZE_LONG_RANGE");
 				break;
 			case 5:
 				/* -- They got more shields */
 				ship->IncrShieldLevel((MAX_SHIELD/5)+
 						FastRandom(MAX_SHIELD/2));
+				UnlockSinglePlayerAchievement("ACHIEVEMENT_PRIZE_SHIELDS");
 				break;
 			case 6:
 				/* -- Put 'em on ICE */
 				sound->PlaySound(gFreezeSound, 4);
 				gFreezeTime = FREEZE_DURATION;
+				UnlockSinglePlayerAchievement("ACHIEVEMENT_PRIZE_FREEZING");
 				break;
 			case 7:
 				/* Blow up everything */
@@ -84,6 +91,7 @@ public:
 					gPlayers[i]->CutThrust(SHAKE_DURATION);
 				}
 				gShakeTime = SHAKE_DURATION;
+				UnlockSinglePlayerAchievement("ACHIEVEMENT_PRIZE_EXPLOSION");
 				break;
 		}
 		sound->PlaySound(gGotPrize, 4);
@@ -138,6 +146,14 @@ public:
 	int BeenTimedOut(void) {
 		if ( ! Exploding ) {
 			int i;
+
+			int was_exploding = 0;
+			OBJ_LOOP(i, gNumSprites) {
+				if (gSprites[i]->IsRock() && gSprites[i]->IsExploding()) {
+					++was_exploding;
+				}
+			}
+
 			sound->PlaySound(gNovaBoom, 5);
 			OBJ_LOOP(i, gNumSprites) {
 				if ( gSprites[i] == this )
@@ -154,6 +170,16 @@ public:
 				gPlayers[i]->CutThrust(SHAKE_DURATION);
 			}
 			gShakeTime = SHAKE_DURATION;
+
+			int is_exploding = 0;
+			OBJ_LOOP(i, gNumSprites) {
+				if (gSprites[i]->IsRock() && gSprites[i]->IsExploding()) {
+					++is_exploding;
+				}
+			}
+			if (is_exploding > was_exploding && is_exploding == gNumRocks) {
+				UnlockSinglePlayerAchievement("ACHIEVEMENT_SUPERNOVA");
+			}
 		}
 		return(-1);
 	}
@@ -220,6 +246,7 @@ public:
 		if (!ship->IsGhost()) {
 			ship->IncrLives(1);
 			sound->PlaySound(gSavedShipSound, 4);
+			UnlockSinglePlayerAchievement("ACHIEVEMENT_GOOD_SAMARITAN");
 		}
 		return(1);
 	}
@@ -391,13 +418,61 @@ protected:
 	int target;
 };
 
+class Rock : public Object {
+public:
+	Rock(int X, int Y, int Xvec, int Yvec, Blit *blit, int PhaseTime) : Object(X, Y, Xvec, Yvec, blit, PhaseTime) { }
 
-class SmallRock : public Object {
+	virtual int IsRock(void) {
+		return(1);
+	}
+
+	virtual int BeenRunOver(Object *ship) {
+		int was_exploding = ship->IsExploding();
+		int result = Object::BeenRunOver(ship);
+		if ( ship->IsPlayer() && !was_exploding && ship->IsExploding() && gNumRocks == 1 ) {
+			UnlockSinglePlayerAchievement("ACHIEVEMENT_USING_YOUR_NOGGIN");
+		}
+		return result;
+    }
+
+	virtual int Explode() {
+		int result = Object::Explode();
+
+		if (gNumSmallRocksDestroyed == 0) {
+			int i;
+
+			int hot_mess = 0;
+			OBJ_LOOP(i, gNumSprites) {
+				if (gSprites[i]->IsExploding()) {
+					continue;
+				}
+				if (gSprites[i]->IsSmallRock()) {
+					++hot_mess;
+					continue;
+				}
+				if (gSprites[i]->IsMediumRock() || gSprites[i]->IsLargeRock()) {
+					hot_mess = false;
+					break;
+				}
+			}
+			if (hot_mess >= 3) {
+				UnlockSinglePlayerAchievement("ACHIEVEMENT_HOT_MESS");
+			}
+		}
+		return result;
+	}
+};
+
+class SmallRock : public Rock {
 
 public:
 	SmallRock(int X, int Y, int xVel, int yVel, int phaseFreq);
 	~SmallRock() {
 		--gNumRocks;
+	}
+
+	virtual int IsSmallRock(void) {
+		return(1);
 	}
 
 	int Explode() {
@@ -406,6 +481,8 @@ public:
 			return(0);
 		}
 
+		++gNumSmallRocksDestroyed;
+
 		/* Speed things up. :-) */
 		if ( --gBoomDelay < BOOM_MIN )
 			gBoomDelay = BOOM_MIN;
@@ -413,15 +490,20 @@ public:
 error("-   Small rock! (%d)\n", gNumRocks);
 #endif
 
-		return(Object::Explode());
+		return(Rock::Explode());
 	}
 };
-class MediumRock : public Object {
+
+class MediumRock : public Rock {
 
 public:
 	MediumRock(int X, int Y, int xVel, int yVel, int phaseFreq);
 	~MediumRock() {
 		--gNumRocks;
+	}
+
+	virtual int IsMediumRock(void) {
+		return(1);
 	}
 
 	int Explode() {
@@ -468,17 +550,21 @@ public:
 error("--  Medium rock! (%d)\n", gNumRocks);
 #endif
 
-		return(Object::Explode());
+		return(Rock::Explode());
 	}
 };
 
 
-class LargeRock : public Object {
+class LargeRock : public Rock {
 
 public:
 	LargeRock(int X, int Y, int xVel, int yVel, int phaseFreq);
 	~LargeRock() {
 		--gNumRocks;
+	}
+
+	virtual int IsLargeRock(void) {
+		return(1);
 	}
 
 	int Explode() {
@@ -525,7 +611,7 @@ public:
 error("--- Large rock! (%d)\n", gNumRocks);
 #endif
 
-		return(Object::Explode());
+		return(Rock::Explode());
 	}
 };
 
@@ -553,7 +639,6 @@ public:
     }
 
 	int Explode(void) {
-		int i;
 		int newsprite;
 
 		/* Don't do anything if we're already exploding */
@@ -574,15 +659,7 @@ public:
 
 			/* Blow up! */
 			case 1:
-				OBJ_LOOP(i, MAX_PLAYERS) {
-					if (!gPlayers[i]->IsValid()) {
-						continue;
-					}
-
-					if (gPlayers[i]->CanGetSinglePlayerAchievement()) {
-						UnlockAchievement("ACHIEVEMENT_STEEL_BALLS");
-					}
-				}
+				UnlockSinglePlayerAchievement("ACHIEVEMENT_STEEL_BALLS");
 				return(Object::Explode());
 
 			/* Turn into a homing mine */

@@ -83,6 +83,7 @@ Player::NewGame(int lives)
 	Frags = 0;
 	special = 0;
 	Ghost = 0;
+	LastWaveDied = 0;
 	NewShip();
 }
 void
@@ -98,7 +99,19 @@ Player::NewWave(void)
 {
 	int i;
 
-	/* If we were exploding, rejuvinate us */
+	/* If we completed the last level with no shields, unlock achievement */
+	if (NoShieldsThisLevel) {
+		UnlockSinglePlayerAchievement("ACHIEVEMENT_IRON_MAN");
+	}
+
+	int NumWavesSurvived = ((gWave - 1) - LastWaveDied);
+	if (NumWavesSurvived == 10) {
+		UnlockSinglePlayerAchievement("ACHIEVEMENT_SURVIVOR_10");
+	} else if (NumWavesSurvived == 5) {
+		UnlockSinglePlayerAchievement("ACHIEVEMENT_SURVIVOR_5");
+	}
+
+	/* If we were exploding, rejuvenate us */
 	if ( Exploding || (!Alive() && Playing) ) {
 		IncrLives(1);
 		NewShip();
@@ -124,6 +137,8 @@ Player::NewWave(void)
 	phase = 0;
 	OBJ_LOOP(i, numshots)
 		KillShot(i);
+
+	NoShieldsThisLevel = (ShieldLevel == 0);
 }
 /* Returns the number of lives left */
 int 
@@ -212,6 +227,7 @@ Player::BeenShot(Object *ship, Shot *shot)
 		return(0);
 	if ( (special & LUCKY_IRISH) && (FastRandom(LUCK_ODDS) == 0) ) {
 		sound->PlaySound(gLuckySound, 4);
+		UnlockSinglePlayerAchievement("ACHIEVEMENT_LUCKY");
 		return(0);
 	}
 	return(Object::BeenShot(ship, shot));
@@ -229,6 +245,7 @@ Player::BeenRunOver(Object *ship)
 		return(0);
 	if ( (special & LUCKY_IRISH) && (FastRandom(LUCK_ODDS) == 0) ) {
 		sound->PlaySound(gLuckySound, 4);
+		UnlockSinglePlayerAchievement("ACHIEVEMENT_LUCKY");
 		return(0);
 	}
 	return(Object::BeenRunOver(ship));
@@ -244,6 +261,7 @@ Player::BeenDamaged(int damage)
 		return(0);
 	if ( (special & LUCKY_IRISH) && (FastRandom(LUCK_ODDS) == 0) ) {
 		sound->PlaySound(gLuckySound, 4);
+		UnlockSinglePlayerAchievement("ACHIEVEMENT_LUCKY");
 		return(0);
 	}
 	return(Object::BeenDamaged(damage));
@@ -298,6 +316,8 @@ Player::Explode(void)
 	/* Don't explode while already exploding. :)  (DeathMatch) */
 	if ( Exploding || !Alive() )
 		return(0);
+
+	LastWaveDied = gWave;
 
 	/* Type 1 shrapnel */
 	rx = (SCALE_FACTOR);
@@ -510,6 +530,9 @@ printf("\n");
 					WasShielded = 1;
 				}
 				--ShieldLevel;
+				if (ShieldLevel == 0) {
+					UnlockSinglePlayerAchievement("ACHIEVEMENT_SHIELDS_DOWN");
+				}
 			} else if ( ShieldOn & SHIELD_MANUAL ) {
 				sound->PlaySound(gNoShieldSound, 2);
 			}
@@ -817,3 +840,21 @@ void RotatePlayerView()
 			break;
 	}
 }
+
+/* Function to unlock a single player achievement */
+void UnlockSinglePlayerAchievement(const char *achievement)
+{
+	int i;
+
+	OBJ_LOOP(i, MAX_PLAYERS) {
+		if (!gPlayers[i]->IsValid()) {
+			continue;
+		}
+
+		if (gPlayers[i]->CanGetSinglePlayerAchievement()) {
+			UnlockAchievement(achievement);
+			return;
+		}
+	}
+}
+
