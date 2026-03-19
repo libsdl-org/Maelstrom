@@ -794,7 +794,7 @@ Player::KillShot(int index)
 	OBJ_KILL(shots, index, numshots, Shot);
 }
 
-/* The Shot sprites for the Shinobi and Player */
+/* The Shot sprites for the Shenobi and Player */
 
 UITexture *gPlayerShot;
 UITexture *gEnemyShot;

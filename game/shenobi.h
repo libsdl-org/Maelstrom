@@ -21,10 +21,10 @@
 
 /* Da da da dum, the ENEMY */
 
-class Shinobi : public Object {
+class Shenobi : public Object {
 
 public:
-	Shinobi(int X, int Y, Blit *blit, int ShotOdds) :
+	Shenobi(int X, int Y, Blit *blit, int ShotOdds) :
 					Object(X, Y, 0, 0, blit, 1) {
 		Set_Points(ENEMY_PTS);
 		Set_HitPoints(ENEMY_HITS);
@@ -42,7 +42,7 @@ public:
 		gEnemySprite = this;
 		sound->PlaySound(gEnemyAppears, 4);
 	}
-	~Shinobi() {
+	~Shenobi() {
 		for ( int i=0; i<MAX_SHOTS; ++i )
 			delete shots[i];
 		gEnemySprite = NULL;
@@ -268,17 +268,17 @@ private:
 };
 
 
-class BigShinobi : public Shinobi {
+class BigShenobi : public Shenobi {
 
 public:
-	BigShinobi(int X, int Y) : Shinobi(X, Y, gEnemyShip, 30) {
+	BigShenobi(int X, int Y) : Shenobi(X, Y, gEnemyShip, 30) {
 	}
 };
 
-class LittleShinobi : public Shinobi {
+class LittleShenobi : public Shenobi {
 
 public:
-	LittleShinobi(int X, int Y) : Shinobi(X, Y, gEnemyShip2, 15) {
+	LittleShenobi(int X, int Y) : Shenobi(X, Y, gEnemyShip2, 15) {
 	}
 
 	virtual void IncrFrags(void) {

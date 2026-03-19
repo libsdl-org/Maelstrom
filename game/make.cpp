@@ -26,7 +26,7 @@
 #include "object.h"
 #include "player.h"
 #include "objects.h"
-#include "shinobi.h"
+#include "shenobi.h"
 
 
 /* ----------------------------------------------------------------- */
@@ -42,9 +42,9 @@ void MakeEnemy(void)
 
 	newsprite = gNumSprites;
 	if (FastRandom(5 + gWave) > 10)
-		gSprites[newsprite] = new LittleShinobi(x, y);
+		gSprites[newsprite] = new LittleShenobi(x, y);
 	else
-		gSprites[newsprite] = new BigShinobi(x, y);
+		gSprites[newsprite] = new BigShenobi(x, y);
 
 	SetSteamTimelineEvent(STEAM_TIMELINE_EVENT_ENEMY);
 }	/* -- MakeEnemy */
