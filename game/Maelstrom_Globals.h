@@ -114,6 +114,7 @@ extern int	gBoomDelay;
 extern int	gNextBoom;
 extern int	gBoomPhase;
 extern int	gNumRocks;
+extern int	gNumSmallRocksDestroyed;
 extern int	gLastStar;
 extern int	gWhenDone;
 

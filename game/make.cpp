@@ -58,10 +58,12 @@ void MakePrize(void)
 	int	x, y, newsprite, xVel, yVel, rx;
 	int	index, cap;
 
-	if (FastRandom(BLUE_MOON) == 0)
+	if (FastRandom(BLUE_MOON) == 0) {
 		cap = (FastRandom(MOON_FACTOR) + 2) * 2;
-	else
+		UnlockSinglePlayerAchievement("ACHIEVEMENT_BLUE_MOON_PRIZE");
+	} else {
 		cap = 1;
+	}
 	
 	for (index = 0; index < cap; index++) {
 		x = FastRandom(GAME_WIDTH - SPRITES_WIDTH) + SPRITES_WIDTH;
@@ -155,6 +157,7 @@ tryAgain:
 	gSprites[newsprite] = new Nova(x, y);
 
 	SetSteamTimelineEvent(STEAM_TIMELINE_EVENT_NOVA);
+	UnlockSinglePlayerAchievement("ACHIEVEMENT_NOVA");
 }	/* -- MakeNova */
 
 
@@ -168,10 +171,12 @@ void MakeBonus(void)
 	int	index, cap;
 	int	multFact;
 
-	if (FastRandom(BLUE_MOON) == 0)
+	if (FastRandom(BLUE_MOON) == 0) {
 		cap = (FastRandom(MOON_FACTOR) + 2) * 2;
-	else
+		UnlockSinglePlayerAchievement("ACHIEVEMENT_BLUE_MOON_BONUS");
+	} else {
 		cap = 1;
+	}
 
 	for (index = 0; index < cap; index++) {
 		x = FastRandom(GAME_WIDTH - SPRITES_WIDTH) + SPRITES_WIDTH;
@@ -245,10 +250,13 @@ void MakeGravity(void)
 	int	x, y, min_bad_distance;
 	int	index, cap;
 
-	if (FastRandom(BLUE_MOON) == 0)
+	if (FastRandom(BLUE_MOON) == 0) {
 		cap = (FastRandom(MOON_FACTOR) + 2) * 2;
-	else
+		UnlockSinglePlayerAchievement("ACHIEVEMENT_BLUE_MOON_GRAVITY");
+	} else {
 		cap = 1;
+		UnlockSinglePlayerAchievement("ACHIEVEMENT_GRAVITY");
+	}
 	
 	for (index = 0; index < cap; index++) {
 		min_bad_distance = MIN_BAD_DISTANCE;
@@ -299,10 +307,12 @@ void MakeHoming(void)
 	int	x, y;
 	int	index, cap;
 
-	if (FastRandom(BLUE_MOON) == 0)
+	if (FastRandom(BLUE_MOON) == 0) {
 		cap = (FastRandom(MOON_FACTOR) + 2) * 2;
-	else
+		UnlockSinglePlayerAchievement("ACHIEVEMENT_BLUE_MOON_MINE");
+	} else {
 		cap = 1;
+	}
 	
 	for (index = 0; index < cap; index++) {
 		rx = (VEL_FACTOR + (gWave / 6)) * (SCALE_FACTOR);

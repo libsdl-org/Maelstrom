@@ -280,5 +280,9 @@ class LittleShinobi : public Shinobi {
 public:
 	LittleShinobi(int X, int Y) : Shinobi(X, Y, gEnemyShip2, 15) {
 	}
+
+	virtual void IncrFrags(void) {
+		UnlockSinglePlayerAchievement("ACHIEVEMENT_ALIEN_ABDUCTION");
+	}
 };
 

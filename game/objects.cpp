@@ -118,7 +118,7 @@ error("Created a homing mine!\n");
 }
 
 SmallRock::SmallRock(int X, int Y, int xVel, int yVel, int phaseFreq) :
-	Object(X, Y, xVel, yVel, 
+	Rock(X, Y, xVel, yVel, 
 		((xVel > 0) ? gRock3R : gRock3L), phaseFreq)
 {
 	Set_Points(SMALL_ROID_PTS);
@@ -129,7 +129,7 @@ error("+   Small rock! (%d)\n", gNumRocks);
 }
 
 MediumRock::MediumRock(int X, int Y, int xVel, int yVel, int phaseFreq) :
-	Object(X, Y, xVel, yVel, 
+	Rock(X, Y, xVel, yVel,
 		((xVel > 0) ? gRock2R : gRock2L), phaseFreq)
 {
 	Set_Points(MEDIUM_ROID_PTS);
@@ -140,7 +140,7 @@ error("++  Medium rock! (%d)\n", gNumRocks);
 }
 
 LargeRock::LargeRock(int X, int Y, int xVel, int yVel, int phaseFreq) :
-	Object(X, Y, xVel, yVel, 
+	Rock(X, Y, xVel, yVel, 
 		((xVel > 0) ? gRock1R : gRock1L), phaseFreq)
 {
 	Set_Points(BIG_ROID_PTS);

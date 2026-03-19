@@ -111,6 +111,7 @@ public:
 		ShieldLevel += level;
 		if ( ShieldLevel > MAX_SHIELD )
 			ShieldLevel = MAX_SHIELD;
+		NoShieldsThisLevel = false;
 	}
 	virtual int GetShieldLevel(void) {
 		return(ShieldLevel);
@@ -171,6 +172,7 @@ private:
 	int Playing;
 	int Dead;
 	int Ghost;
+	int LastWaveDied;
 
 	Shot *shots[MAX_SHOTS];
 	int numshots;
@@ -178,6 +180,8 @@ private:
 
 	Uint8 controlType;
 	Uint32 controlState;
+
+	bool NoShieldsThisLevel = false;
 
 	/* Create a new shot */
 	int MakeShot(int offset);
@@ -207,3 +211,6 @@ Player *GetControlPlayer(Uint8 controlType);
 
 /* Function to switch the displayed player */
 void RotatePlayerView();
+
+/* Function to unlock a single player achievement */
+void UnlockSinglePlayerAchievement(const char *achievement);
