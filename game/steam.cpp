@@ -46,7 +46,7 @@ public:
 
 	void SetSteamTimelineMode(STEAM_TIMELINE_MODE mode);
 	void SetSteamTimelineLevelStarted(int level);
-	void SetSteamTimelineEvent(STEAM_TIMELINE_EVENT event);
+	void AddSteamTimelineEvent(STEAM_TIMELINE_EVENT event);
 	void UnlockAchievement(const char *achievement);
 
 	void Update();
@@ -174,7 +174,7 @@ void SteamInterface::SetSteamTimelineLevelStarted(int level)
 	SteamFriends()->SetRichPresence( "steam_display", "#StatusPlaying" );
 }
 
-void SteamInterface::SetSteamTimelineEvent(STEAM_TIMELINE_EVENT event)
+void SteamInterface::AddSteamTimelineEvent(STEAM_TIMELINE_EVENT event)
 {
 	if (!m_initialized) {
 		return;
@@ -200,7 +200,7 @@ void SteamInterface::SetSteamTimelineEvent(STEAM_TIMELINE_EVENT event)
 		icon = "steam_caution";
 		break;
 	case STEAM_TIMELINE_EVENT_NOVA:
-		title = "Supernova";
+		title = "Nova";
 		icon = "steam_explosion";
 		break;
 	default:
@@ -534,9 +534,9 @@ void SetSteamTimelineLevelStarted(int level)
 	steam.SetSteamTimelineLevelStarted(level);
 }
 
-void SetSteamTimelineEvent(STEAM_TIMELINE_EVENT event)
+void AddSteamTimelineEvent(STEAM_TIMELINE_EVENT event)
 {
-	steam.SetSteamTimelineEvent(event);
+	steam.AddSteamTimelineEvent(event);
 }
 
 void UnlockAchievement(const char *achievement)
@@ -602,7 +602,7 @@ void SetSteamTimelineLevelStarted(int level)
 {
 }
 
-void SetSteamTimelineEvent(STEAM_TIMELINE_EVENT event)
+void AddSteamTimelineEvent(STEAM_TIMELINE_EVENT event)
 {
 }
 

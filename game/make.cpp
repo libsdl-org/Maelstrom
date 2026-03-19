@@ -46,7 +46,7 @@ void MakeEnemy(void)
 	else
 		gSprites[newsprite] = new BigShenobi(x, y);
 
-	SetSteamTimelineEvent(STEAM_TIMELINE_EVENT_ENEMY);
+	AddSteamTimelineEvent(STEAM_TIMELINE_EVENT_ENEMY);
 }	/* -- MakeEnemy */
 
 
@@ -156,7 +156,7 @@ tryAgain:
 	newsprite = gNumSprites;
 	gSprites[newsprite] = new Nova(x, y);
 
-	SetSteamTimelineEvent(STEAM_TIMELINE_EVENT_NOVA);
+	AddSteamTimelineEvent(STEAM_TIMELINE_EVENT_NOVA);
 	UnlockSinglePlayerAchievement("ACHIEVEMENT_NOVA");
 }	/* -- MakeNova */
 
@@ -294,7 +294,7 @@ void MakeGravity(void)
 		newsprite = gNumSprites;
 		gSprites[newsprite] = new Gravity(x, y);
 	}
-	SetSteamTimelineEvent(STEAM_TIMELINE_EVENT_GRAVITY);
+	AddSteamTimelineEvent(STEAM_TIMELINE_EVENT_GRAVITY);
 }	/* -- MakeGravity */
 
 
@@ -341,7 +341,7 @@ void MakeHoming(void)
 		newsprite = gNumSprites;
 		gSprites[newsprite] = new Homing(x, y, xVel, yVel);
 	}
-	SetSteamTimelineEvent(STEAM_TIMELINE_EVENT_MINE);
+	AddSteamTimelineEvent(STEAM_TIMELINE_EVENT_MINE);
 }	/* -- MakeHoming */
 
 

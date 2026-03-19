@@ -372,7 +372,7 @@ Player::Explode(void)
 	Set_Blit(gShipExplosion);
 	Set_TTL(myblit->numFrames*phasetime);
 	ExplodeSound();
-	SetSteamTimelineEvent(STEAM_TIMELINE_EVENT_DEATH);
+	AddSteamTimelineEvent(STEAM_TIMELINE_EVENT_DEATH);
 	return(0);
 }
 
