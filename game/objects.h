@@ -374,7 +374,7 @@ public:
 	Homing(int X, int Y, int xVel, int yVel);
 	~Homing() { }
 
-	/* This is duplicated in the Shinobi class */
+	/* This is duplicated in the Shenobi class */
 	virtual int AcquireTarget(void) {
 		int targets[MAX_PLAYERS];
 		int numTargets = 0;

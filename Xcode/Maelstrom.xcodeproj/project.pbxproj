@@ -136,7 +136,7 @@
 		AA928DE12EDB9CA60005200A /* replay.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = replay.cpp; sourceTree = "<group>"; };
 		AA928DE22EDB9CA60005200A /* scores.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = scores.h; sourceTree = "<group>"; };
 		AA928DE32EDB9CA60005200A /* scores.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = scores.cpp; sourceTree = "<group>"; };
-		AA928DE42EDB9CA60005200A /* shinobi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = shinobi.h; sourceTree = "<group>"; };
+		AA928DE42EDB9CA60005200A /* shenobi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = shenobi.h; sourceTree = "<group>"; };
 		AA928DFC2EDB9CEA0005200A /* array.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = array.h; sourceTree = "<group>"; };
 		AA928DFD2EDB9CEA0005200A /* ErrorBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ErrorBase.h; sourceTree = "<group>"; };
 		AA928DFE2EDB9CEA0005200A /* files.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = files.h; sourceTree = "<group>"; };
@@ -304,7 +304,7 @@
 				AA928DE12EDB9CA60005200A /* replay.cpp */,
 				AA928DE22EDB9CA60005200A /* scores.h */,
 				AA928DE32EDB9CA60005200A /* scores.cpp */,
-				AA928DE42EDB9CA60005200A /* shinobi.h */,
+				AA928DE42EDB9CA60005200A /* shenobi.h */,
 				F3CC41402F60E6A10033BDFA /* steam.h */,
 				F3CC41412F60E6A10033BDFA /* steam.cpp */,
 			);

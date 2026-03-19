@@ -81,7 +81,7 @@ set(MAELSTROM_SOURCES
 	game/replay.h
 	game/scores.cpp
 	game/scores.h
-	game/shinobi.h
+	game/shenobi.h
 	game/steam.cpp
 	game/steam.h
 
