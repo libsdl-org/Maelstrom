@@ -46,7 +46,12 @@ UIDialogButton::Load(rapidxml::xml_node<> *node, const UITemplates *templates)
 
 	LoadBool(node, "default", m_default);
 	if (m_default) {
-		m_hotkey = SDLK_RETURN;
+		if (m_hotkey == SDLK_UNKNOWN) {
+			m_hotkey = SDLK_RETURN;
+		}
+		if (m_gamepadButton == GAMEPAD_BUTTON_NONE) {
+			m_gamepadButton = GAMEPAD_BUTTON_PRIMARY;
+		}
 	}
 
 	LoadBool(node, "closeDialog", m_closeDialog);

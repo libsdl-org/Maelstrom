@@ -184,7 +184,7 @@
 		-->
 
 		<!-- Instructions -->
-		<Button name="PlayButton" template="MenuButton" hotkey="P" text="P" action="play" clickSound="114">
+		<Button name="PlayButton" template="MenuButton" hotkey="P" gamepad="primary" text="P" action="play" clickSound="114">
 			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="vertical_divider" x="9" y="10"/>
 		</Button>
 		<Label template="SmallYellow" text=" Start playing Maelstrom">
@@ -220,7 +220,7 @@
 		<Label template="SmallYellow" text=" About Maelstrom...">
 			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPRIGHT" anchor="AboutButton" x="3" y="21"/>
 		</Label>
-		<Button condition="QUIT_AVAILABLE" name="QuitButton" template="MenuButton" hotkey="Q" text="Q" action="quit" clickSound="106">
+		<Button condition="QUIT_AVAILABLE" name="QuitButton" template="MenuButton" hotkey="Q" gamepad="secondary" text="Q" action="quit" clickSound="106">
 			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="PlayButton" y="170"/>
 		</Button>
 		<Label condition="QUIT_AVAILABLE" template="SmallYellow" text=" Quit Maelstrom">
