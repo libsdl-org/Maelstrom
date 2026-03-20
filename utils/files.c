@@ -20,6 +20,10 @@
 
 #include "files.h"
 
+#ifdef SDL_PLATFORM_EMSCRIPTEN
+#include <emscripten/emscripten.h>
+#endif
+
 #ifndef PATH_MAX
 #define PATH_MAX    256
 #endif
@@ -34,6 +38,29 @@ bool InitFilesystem(const char *org, const char *app)
 
 	storage_org = org;
 	storage_app = app;
+
+#ifdef SDL_PLATFORM_EMSCRIPTEN
+	char *prefpath = SDL_GetPrefPath(org, app);
+	if (prefpath) {
+		MAIN_THREAD_EM_ASM({
+			const prefpath = UTF8ToString($0);
+			FS.mkdirTree(prefpath);
+			FS.mount(IDBFS, {}, prefpath);
+			filesystem_ready = 0;
+			FS.syncfs(true, function(err) {
+				if (err) {
+					console.log("Couldn't mount " + prefpath + ": " + err);
+					filesystem_ready = -1;
+				} else {
+					//console.log("Filesystem ready");
+					filesystem_ready = 1;
+				}
+			});
+		}, prefpath);
+
+		SDL_free(prefpath);
+	}
+#endif // SDL_PLATFORM_EMSCRIPTEN
 
 	if (env) {
 		SDL_strlcpy(datapath, env, sizeof(datapath));
@@ -67,6 +94,25 @@ bool InitFilesystem(const char *org, const char *app)
 	return true;
 
 #endif // MAELSTROM_DATA
+}
+
+bool FilesystemReady(bool *failed)
+{
+	*failed = false;
+
+#ifdef SDL_PLATFORM_EMSCRIPTEN
+	int result = MAIN_THREAD_EM_ASM_INT({ return filesystem_ready; });
+	switch (result) {
+	case -1:
+		*failed = true;
+		return false;
+	case 0:
+		return false;
+	default:
+		return true;
+	}
+#endif
+	return true;
 }
 
 SDL_IOStream *OpenRead(const char *file)
@@ -185,5 +231,20 @@ done:
 		result = false;
 	}
 	SDL_CloseIO(src);
+
+#ifdef SDL_PLATFORM_EMSCRIPTEN
+	if (result) {
+		MAIN_THREAD_EM_ASM({
+			FS.syncfs(false, function(err) {
+				if (err) {
+					console.log("Couldn't save file: " + err);
+				} else {
+					//console.log("File saved!");
+				}
+			});
+		});
+	}
+#endif // SDL_PLATFORM_EMSCRIPTEN
+
 	return result;
 }

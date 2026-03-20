@@ -197,7 +197,7 @@ target_link_libraries(Maelstrom PRIVATE SDL3_net::SDL3_net)
 
 if(EMSCRIPTEN)
     # Increase the default stack size
-    target_link_options(Maelstrom PRIVATE -sSTACK_SIZE=1048576)
+    target_link_options(Maelstrom PRIVATE -sSTACK_SIZE=1048576 -lidbfs.js)
 
     # on the web, we have to put the files inside of the webassembly
     # somewhat unintuitively, this is done via a linker argument.

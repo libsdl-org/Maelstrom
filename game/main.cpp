@@ -49,9 +49,6 @@
 #include "../screenlib/UIElementCheckbox.h"
 #include "../screenlib/UIElementEditbox.h"
 
-#define MAELSTROM_ORGANIZATION	"Ambrosia Software"
-#define MAELSTROM_NAME		"Maelstrom"
-
 static const char *Version =
 "Maelstrom v1.4.3 (GPL version 4.0.0) -- 10/08/2011 by Sam Lantinga\n";
 
@@ -160,10 +157,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
 	/* Initializing Steam can set up environment variables, so do this first */
 	InitSteam();
-
-	if ( !InitFilesystem(MAELSTROM_ORGANIZATION, MAELSTROM_NAME) ) {
-		return SDL_APP_FAILURE;
-	}
 
 	/* Seed the random number generator */
 	SeedRandom(0L);
