@@ -35,11 +35,6 @@ public:
 		BUTTON_STATE_DISABLED,
 		NUM_BUTTON_STATES
 	};
-	enum GAMEPAD_BUTTON {
-		GAMEPAD_BUTTON_NONE,
-		GAMEPAD_BUTTON_PRIMARY,
-		GAMEPAD_BUTTON_SECONDARY
-	};
 
 public:
 	UIElementButton(UIBaseElement *parent, const char *name, UIDrawEngine *drawEngine);
@@ -62,12 +57,10 @@ protected:
 	virtual void OnClick() override;
 
 	bool ShouldHandleKey(SDL_Keycode key);
-	bool ShouldHandleGamepadButton(SDL_JoystickID gamepadID, SDL_GamepadButton button);
 
 protected:
 	SDL_Keycode m_hotkey;
 	int m_hotkeyMod;
-	GAMEPAD_BUTTON m_gamepadButton;
 	char *m_pressSound;
 	char *m_releaseSound;
 	char *m_clickSound;
