@@ -46,7 +46,7 @@ UIDialogButton::Load(rapidxml::xml_node<> *node, const UITemplates *templates)
 
 	LoadBool(node, "default", m_default);
 	if (m_default) {
-		m_hotkey = SDLK_RETURN;
+		m_hotkey.key = SDLK_RETURN;
 	}
 
 	LoadBool(node, "closeDialog", m_closeDialog);

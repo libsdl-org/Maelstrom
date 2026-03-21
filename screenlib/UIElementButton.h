@@ -51,16 +51,22 @@ public:
 	}
 
 protected:
+	struct Hotkey {
+		SDL_Keycode key = SDLK_UNKNOWN;
+		int mod = 0;
+	};
+
 	void SetButtonState(BUTTON_STATE state);
 
 	virtual void UpdateDisabledState() override;
 	virtual void OnClick() override;
 
-	bool ShouldHandleKey(SDL_Keycode key);
+	bool ParseHotkey(rapidxml::xml_attribute<> *attr, Hotkey *hotkey);
+	bool ShouldHandleKey(const SDL_KeyboardEvent* key, Hotkey* hotkey);
 
 protected:
-	SDL_Keycode m_hotkey;
-	int m_hotkeyMod;
+	Hotkey m_hotkey;
+	Hotkey m_hotkey2;
 	char *m_pressSound;
 	char *m_releaseSound;
 	char *m_clickSound;
