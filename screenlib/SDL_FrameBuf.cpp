@@ -148,7 +148,6 @@ FrameBuf::ProcessGamepadEvent(SDL_Event *event)
 		return;
 	}
 
-	const int DEADZONE = 8000;
 	switch (event->type) {
 	case SDL_EVENT_GAMEPAD_ADDED:
 		OpenGamepad(event->gdevice.which);
