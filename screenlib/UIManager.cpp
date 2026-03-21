@@ -269,6 +269,9 @@ UIManager::ShowPanel(UIPanel *panel)
 		if (!panel->IsCursorVisible()) {
 			m_screen->HideCursor();
 		}
+		if (panel->IsCursorVisible()) {
+			m_screen->SetGamepadMouse(true);
+		}
 	}
 }
 
@@ -284,6 +287,9 @@ UIManager::HidePanel(UIPanel *panel)
 		}
 		if (!panel->IsCursorVisible()) {
 			m_screen->ShowCursor();
+		}
+		if (panel->IsCursorVisible()) {
+			m_screen->SetGamepadMouse(false);
 		}
 
 #ifdef FAST_ITERATION
