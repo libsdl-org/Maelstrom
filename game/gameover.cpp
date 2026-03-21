@@ -177,29 +177,12 @@ void GameOverPanelDelegate::OnTick()
 bool GameOverPanelDelegate::HandleEvent(const SDL_Event &event)
 {
 	char key;
-	SDL_Gamepad *gamepad;
 
 	if (!m_handleLabel) {
 		return false;
 	}
 
 	switch (event.type) {
-	case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
-		return true;
-	case SDL_EVENT_GAMEPAD_BUTTON_UP:
-		gamepad = SDL_OpenGamepad(event.gbutton.which);
-		if (gamepad) {
-			switch (SDL_GetGamepadButtonLabel(gamepad, (SDL_GamepadButton)event.gbutton.button)) {
-			case SDL_GAMEPAD_BUTTON_LABEL_A:
-			case SDL_GAMEPAD_BUTTON_LABEL_CROSS:
-				FinishEnterName();
-				break;
-			default:
-				break;
-			}
-			SDL_CloseGamepad(gamepad);
-		}
-		return true;
 	case SDL_EVENT_KEY_DOWN:
 		return true;
 	case SDL_EVENT_KEY_UP:

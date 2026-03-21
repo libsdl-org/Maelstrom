@@ -34,7 +34,6 @@ UIElementButton::UIElementButton(UIBaseElement *parent, const char *name, UIDraw
 
 	m_hotkey = SDLK_UNKNOWN;
 	m_hotkeyMod = SDL_KMOD_NONE;
-	m_gamepadButton = GAMEPAD_BUTTON_NONE;
 	m_pressSound = NULL;
 	m_releaseSound = NULL;
 	m_clickSound = NULL;
@@ -110,19 +109,6 @@ UIElementButton::Load(rapidxml::xml_node<> *node, const UITemplates *templates)
 		}
 	}
 
-	attr = node->first_attribute("gamepad", 0, false);
-	if (attr) {
-		const char *value = attr->value();
-		if (SDL_strcasecmp(value, "primary") == 0) {
-			m_gamepadButton = GAMEPAD_BUTTON_PRIMARY;
-		} else if (SDL_strcasecmp(value, "secondary") == 0) {
-			m_gamepadButton = GAMEPAD_BUTTON_SECONDARY;
-		} else {
-			SetError("Couldn't interpret gamepad value '%s'", value);
-			return false;
-		}
-	}
-
 	// Load the button state images, if any
 	static const char *stateImageNames[] = {
 		"normal_image",
@@ -182,52 +168,10 @@ UIElementButton::ShouldHandleKey(SDL_Keycode key)
 }
 
 bool
-UIElementButton::ShouldHandleGamepadButton(SDL_JoystickID gamepadID, SDL_GamepadButton button)
-{
-	bool handle = false;
-	SDL_Gamepad *gamepad = nullptr;
-	switch (m_gamepadButton) {
-	case GAMEPAD_BUTTON_PRIMARY:
-		gamepad = SDL_OpenGamepad(gamepadID);
-		if (gamepad) {
-			switch (SDL_GetGamepadButtonLabel(gamepad, button)) {
-			case SDL_GAMEPAD_BUTTON_LABEL_A:
-			case SDL_GAMEPAD_BUTTON_LABEL_CROSS:
-				handle = true;
-				break;
-			default:
-				break;
-			}
-			SDL_CloseGamepad(gamepad);
-		}
-		break;
-	case GAMEPAD_BUTTON_SECONDARY:
-		gamepad = SDL_OpenGamepad(gamepadID);
-		if (gamepad) {
-			switch (SDL_GetGamepadButtonLabel(gamepad, button)) {
-			case SDL_GAMEPAD_BUTTON_LABEL_B:
-			case SDL_GAMEPAD_BUTTON_LABEL_CIRCLE:
-				handle = true;
-				break;
-			default:
-				break;
-			}
-			SDL_CloseGamepad(gamepad);
-		}
-		break;
-	default:
-		break;
-	}
-	return handle;
-}
-
-bool
 UIElementButton::HandleEvent(const SDL_Event &event)
 {
-	if ((event.type == SDL_EVENT_KEY_DOWN &&
-	     ShouldHandleKey(event.key.key)) ||
-	    (event.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN &&
-	     ShouldHandleGamepadButton(event.gbutton.which, (SDL_GamepadButton)event.gbutton.button))) {
+	if (event.type == SDL_EVENT_KEY_DOWN &&
+	    ShouldHandleKey(event.key.key)) {
 		if (!m_mousePressed) {
 			m_mousePressed = true;
 			OnMouseDown();
@@ -235,10 +179,8 @@ UIElementButton::HandleEvent(const SDL_Event &event)
 		return true;
 	}
 
-	if ((event.type == SDL_EVENT_KEY_UP &&
-	     ShouldHandleKey(event.key.key)) ||
-	    (event.type == SDL_EVENT_GAMEPAD_BUTTON_UP &&
-	     ShouldHandleGamepadButton(event.gbutton.which, (SDL_GamepadButton)event.gbutton.button))) {
+	if (event.type == SDL_EVENT_KEY_UP &&
+	    ShouldHandleKey(event.key.key)) {
 		if (!m_hotkeyMod || (event.key.mod & m_hotkeyMod)) {
 			if (m_mousePressed) {
 				m_mousePressed = false;
