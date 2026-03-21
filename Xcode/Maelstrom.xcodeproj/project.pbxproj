@@ -708,6 +708,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.arcade-games";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Maelstrom would like to use Bluetooth controllers for input.";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Maelstrom would like to use Bluetooth controllers for input.";
@@ -753,6 +754,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.arcade-games";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Maelstrom would like to use Bluetooth controllers for input.";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "Maelstrom would like to use Bluetooth controllers for input.";
