@@ -32,8 +32,6 @@ UIElementButton::UIElementButton(UIBaseElement *parent, const char *name, UIDraw
 	// Turn on mouse events at the UIElement level
 	m_mouseEnabled = true;
 
-	m_hotkey = SDLK_UNKNOWN;
-	m_hotkeyMod = SDL_KMOD_NONE;
 	m_pressSound = NULL;
 	m_releaseSound = NULL;
 	m_clickSound = NULL;
@@ -78,34 +76,15 @@ UIElementButton::Load(rapidxml::xml_node<> *node, const UITemplates *templates)
 
 	attr = node->first_attribute("hotkey", 0, false);
 	if (attr) {
-		const char *value = attr->value();
-		const char *hyphen = SDL_strchr(value, '-');
-
-		if (hyphen) {
-			size_t len = size_t(hyphen-value);
-			if (SDL_strncasecmp(value, "ALT", len) == 0) {
-				m_hotkeyMod = SDL_KMOD_ALT;
-			} else if (SDL_strncasecmp(value, "CTRL", len) == 0 ||
-			           SDL_strncasecmp(value, "Control", len) == 0) {
-				m_hotkeyMod = SDL_KMOD_CTRL;
-			} else if (SDL_strncasecmp(value, "SHIFT", len) == 0) {
-				m_hotkeyMod = SDL_KMOD_SHIFT;
-			} else {
-				SetError("Couldn't interpret hotkey value '%s'", value);
-				return false;
-			}
-			value = hyphen+1;
+		if (!ParseHotkey(attr, &m_hotkey)) {
+			return false;
 		}
+	}
 
-		if (strcmp(value, "any") == 0) {
-			/* This will be a catch-all button */
-			m_hotkey = ~0;
-		} else {
-			m_hotkey = SDL_GetKeyFromName(value);
-			if (m_hotkey == SDLK_UNKNOWN) {
-				SetError("Couldn't interpret hotkey value '%s'", value);
-				return false;
-			}
+	attr = node->first_attribute("hotkey2", 0, false);
+	if (attr) {
+		if (!ParseHotkey(attr, &m_hotkey2)) {
+			return false;
 		}
 	}
 
@@ -143,13 +122,51 @@ UIElementButton::Load(rapidxml::xml_node<> *node, const UITemplates *templates)
 }
 
 bool
-UIElementButton::ShouldHandleKey(SDL_Keycode key)
+UIElementButton::ParseHotkey(rapidxml::xml_attribute<> *attr, Hotkey *hotkey)
 {
-	if (key == m_hotkey) {
+	const char *value = attr->value();
+	const char *hyphen = SDL_strchr(value, '-');
+
+	if (hyphen) {
+		size_t len = size_t(hyphen-value);
+		if (SDL_strncasecmp(value, "ALT", len) == 0) {
+			hotkey->mod = SDL_KMOD_ALT;
+		} else if (SDL_strncasecmp(value, "CTRL", len) == 0 ||
+				   SDL_strncasecmp(value, "Control", len) == 0) {
+			hotkey->mod = SDL_KMOD_CTRL;
+		} else if (SDL_strncasecmp(value, "SHIFT", len) == 0) {
+			hotkey->mod = SDL_KMOD_SHIFT;
+		} else {
+			SetError("Couldn't interpret hotkey value '%s'", value);
+			return false;
+		}
+		value = hyphen+1;
+	} else {
+		hotkey->mod = 0;
+	}
+
+	if (strcmp(value, "any") == 0) {
+		/* This will be a catch-all button */
+		hotkey->key = ~0;
+	} else {
+		hotkey->key = SDL_GetKeyFromName(value);
+		if (hotkey->key == SDLK_UNKNOWN) {
+			SetError("Couldn't interpret hotkey value '%s'", value);
+			return false;
+		}
+	}
+	return true;
+}
+
+bool
+UIElementButton::ShouldHandleKey(const SDL_KeyboardEvent *key, Hotkey *hotkey)
+{
+	if (key->key == hotkey->key &&
+	    (!hotkey->mod || (key->mod & hotkey->mod))) {
 		return true;
 	}
-	if (m_hotkey == ~0u) {
-		switch (key) {
+	if (hotkey->key == ~0u) {
+		switch (key->key) {
 			// Ignore modifier keys
 			case SDLK_LSHIFT:
 			case SDLK_RSHIFT:
@@ -171,7 +188,8 @@ bool
 UIElementButton::HandleEvent(const SDL_Event &event)
 {
 	if (event.type == SDL_EVENT_KEY_DOWN &&
-	    ShouldHandleKey(event.key.key)) {
+	    (ShouldHandleKey(&event.key, &m_hotkey) ||
+	     ShouldHandleKey(&event.key, &m_hotkey2))) {
 		if (!m_mousePressed) {
 			m_mousePressed = true;
 			OnMouseDown();
@@ -180,15 +198,14 @@ UIElementButton::HandleEvent(const SDL_Event &event)
 	}
 
 	if (event.type == SDL_EVENT_KEY_UP &&
-	    ShouldHandleKey(event.key.key)) {
-		if (!m_hotkeyMod || (event.key.mod & m_hotkeyMod)) {
-			if (m_mousePressed) {
-				m_mousePressed = false;
-				OnMouseUp();
-			}
-			OnClick();
-			return true;
+	    (ShouldHandleKey(&event.key, &m_hotkey) ||
+	     ShouldHandleKey(&event.key, &m_hotkey2))) {
+		if (m_mousePressed) {
+			m_mousePressed = false;
+			OnMouseUp();
 		}
+		OnClick();
+		return true;
 	}
 
 	return UIElement::HandleEvent(event);
