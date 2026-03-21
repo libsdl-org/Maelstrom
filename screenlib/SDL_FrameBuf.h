@@ -72,7 +72,7 @@ public:
 
 	bool ConvertTouchCoordinates(const SDL_TouchFingerEvent &finger, int *x, int *y);
 
-	void EnableTextInput();
+	void EnableTextInput(int textfieldX, int textfieldY, int textfieldWidth, int textfieldHeight, bool numeric = false);
 	void DisableTextInput();
 	void SetGamepadMouse(bool enabled);
 	bool GamepadMouseEnabled() { return (m_gamepadMouse > 0); }

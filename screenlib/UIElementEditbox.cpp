@@ -152,7 +152,7 @@ UIElementEditbox::SetFocus(bool focus)
 	}
 
 	if (m_focus) {
-		m_screen->EnableTextInput();
+		m_screen->EnableTextInput(X(), Y(), Width(), Height(), m_numeric);
 	} else {
 		m_screen->DisableTextInput();
 	}
