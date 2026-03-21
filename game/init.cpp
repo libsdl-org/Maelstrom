@@ -777,6 +777,37 @@ void CleanUp(void)
 	SDL_Quit();
 }
 
+static bool LoadIcon(SDL_Surface **icon)
+{
+#if defined(SDL_PLATFORM_WIN32) || \
+	(defined(SDL_PLATFORM_APPLE) && !defined(ENABLE_STEAM))
+	// The icon is already included in the app resources
+#else
+	SDL_Surface *surface = SDL_LoadSurface_IO(OpenRead("Icons/icon-256.png"), true);
+	if (!surface) {
+		error("Fatal: Couldn't load icon: %s\n", SDL_GetError());
+		return false;
+	}
+
+	// Add alternate images
+	static int sizes[] = {
+		128, 96, 64, 48, 32, 24, 16
+	};
+	for (unsigned int i = 0; i < SDL_arraysize(sizes); ++i) {
+		char file[32];
+		SDL_snprintf(file, sizeof(file), "Icons/icon-%d.png", sizes[i]);
+
+		SDL_Surface *alternate = SDL_LoadSurface_IO(OpenRead(file), true);
+		if (alternate) {
+			SDL_AddSurfaceAlternateImage(surface, alternate);
+			SDL_DestroySurface(alternate);
+		}
+	}
+	*icon = surface;
+#endif
+	return true;
+}
+
 /* ----------------------------------------------------------------- */
 /* -- Perform some initializations and report failure if we choke */
 bool StartInitialization(int window_width, int window_height, Uint32 window_flags)
@@ -803,13 +834,9 @@ bool StartInitialization(int window_width, int window_height, Uint32 window_flag
 	}
 
 	/* Load the Maelstrom icon */
-#if !defined(SDL_PLATFORM_APPLE) || defined(ENABLE_STEAM)
-	icon = SDL_LoadSurface_IO(OpenRead("icon.png"), true);
-	if ( icon == NULL ) {
-		error("Fatal: Couldn't load icon: %s\n", SDL_GetError());
+	if (!LoadIcon(&icon)) {
 		return false;
 	}
-#endif
 
 	/* Initialize the screen */
 	screen = new FrameBuf;

@@ -46,7 +46,7 @@ END
 // Icon
 //
 
-IDI_ICON1 ICON DISCARDABLE "icons\icon.ico"
+IDI_ICON1 ICON DISCARDABLE "Data\Icons\icon.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
