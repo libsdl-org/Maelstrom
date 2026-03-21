@@ -25,12 +25,6 @@
 #include "SDL_FrameBuf.h"
 
 
-#define LOWER_PREC(X)	((X)/16)	/* Lower the precision of a value */
-#define RAISE_PREC(X)	((X)/16)	/* Raise the precision of a value */
-
-#define MIN(A, B)	((A < B) ? A : B)
-#define MAX(A, B)	((A > B) ? A : B)
-
 /* Constructors cannot fail. :-/ */
 FrameBuf::FrameBuf() : ErrorBase()
 {
@@ -98,6 +92,9 @@ FrameBuf::Init(int width, int height, Uint32 window_flags, const char *title, SD
 
 FrameBuf::~FrameBuf()
 {
+	for (unsigned int i = 0; i < m_gamepads.length(); ++i) {
+		SDL_CloseGamepad(m_gamepads[i]);
+	}
 	if (m_target) {
 		SDL_DestroyTexture(m_target);
 	}
@@ -113,6 +110,188 @@ void
 FrameBuf::ProcessEvent(SDL_Event *event)
 {
 	SDL_ConvertEventToRenderCoordinates(m_renderer, event);
+	ProcessGamepadEvent(event);
+}
+
+void
+FrameBuf::OpenGamepad(SDL_JoystickID id)
+{
+	SDL_Gamepad *gamepad = SDL_OpenGamepad(id);
+	if (gamepad) {
+		m_gamepads.add(gamepad);
+	}
+}
+
+void
+FrameBuf::CloseGamepad(SDL_JoystickID id)
+{
+	for (unsigned int i = 0; i < m_gamepads.length(); ++i) {
+		SDL_Gamepad *gamepad = m_gamepads[i];
+		if (SDL_GetGamepadID(gamepad) == id) {
+			SDL_CloseGamepad(gamepad);
+			m_gamepads.removeAt(i);
+			break;
+		}
+	}
+}
+
+void
+FrameBuf::ProcessGamepadEvent(SDL_Event *event)
+{
+	SDL_Gamepad *gamepad = nullptr;
+
+	if (!GamepadMouseEnabled()) {
+		return;
+	}
+
+	const int DEADZONE = 8000;
+	switch (event->type) {
+	case SDL_EVENT_GAMEPAD_ADDED:
+		OpenGamepad(event->gdevice.which);
+		break;
+	case SDL_EVENT_GAMEPAD_REMOVED:
+		CloseGamepad(event->gdevice.which);
+		break;
+	case SDL_EVENT_GAMEPAD_AXIS_MOTION:
+		if (event->gaxis.axis == SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) {
+			if (event->gaxis.value > 0) {
+				if (!m_gamepadMouseDown) {
+					SDL_Event mouse_event;
+					SDL_zero(mouse_event);
+					mouse_event.type = SDL_EVENT_MOUSE_BUTTON_DOWN;
+					mouse_event.button.windowID = SDL_GetWindowID(m_window);
+					mouse_event.button.button = SDL_BUTTON_LEFT;
+					mouse_event.button.down = true;
+					SDL_GetMouseState(&mouse_event.button.x, &mouse_event.button.y);
+					SDL_PushEvent(&mouse_event);
+					m_gamepadMouseDown = true;
+				}
+			} else {
+				if (m_gamepadMouseDown) {
+					SDL_Event mouse_event;
+					SDL_zero(mouse_event);
+					mouse_event.type = SDL_EVENT_MOUSE_BUTTON_UP;
+					mouse_event.button.windowID = SDL_GetWindowID(m_window);
+					mouse_event.button.button = SDL_BUTTON_LEFT;
+					mouse_event.button.down = false;
+					SDL_GetMouseState(&mouse_event.button.x, &mouse_event.button.y);
+					SDL_PushEvent(&mouse_event);
+					m_gamepadMouseDown = false;
+				}
+			}
+		}
+		break;
+	case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+	case SDL_EVENT_GAMEPAD_BUTTON_UP:
+		gamepad = SDL_OpenGamepad(event->gbutton.which);
+		if (gamepad) {
+			SDL_Keycode key = SDLK_UNKNOWN;
+			switch (SDL_GetGamepadButtonLabel(gamepad, (SDL_GamepadButton)event->gbutton.button)) {
+			case SDL_GAMEPAD_BUTTON_LABEL_A:
+			case SDL_GAMEPAD_BUTTON_LABEL_CROSS:
+				key = SDLK_RETURN;
+				break;
+			case SDL_GAMEPAD_BUTTON_LABEL_B:
+			case SDL_GAMEPAD_BUTTON_LABEL_CIRCLE:
+				key = SDLK_ESCAPE;
+				break;
+			default:
+				break;
+			}
+			if (key != SDLK_UNKNOWN) {
+				SDL_Event keyboard_event;
+				SDL_zero(keyboard_event);
+				bool down = (event->type == SDL_EVENT_GAMEPAD_BUTTON_DOWN);
+				keyboard_event.type = down ? SDL_EVENT_KEY_DOWN : SDL_EVENT_KEY_UP;
+				keyboard_event.key.windowID = SDL_GetWindowID(m_window);
+				keyboard_event.key.key = key;
+				keyboard_event.key.down = down;
+				SDL_PushEvent(&keyboard_event);
+			}
+			SDL_CloseGamepad(gamepad);
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+void
+FrameBuf::SetGamepadMouse(bool enabled)
+{
+	if (enabled) {
+		++m_gamepadMouse;
+	} else {
+		--m_gamepadMouse;
+		SDL_assert(m_gamepadMouse >= 0);
+	}
+
+	if (!GamepadMouseEnabled()) {
+		m_mouseRemainderX = 0.0f;
+		m_mouseRemainderY = 0.0f;
+	}
+}
+
+static float VectorLengthSquared(const SDL_FPoint &point)
+{
+	return (point.x * point.x + point.y * point.y);
+}
+
+void
+FrameBuf::UpdateGamepadMouseMovement()
+{
+	const float MOUSE_SPEED = 16.0f;
+	SDL_FPoint velocity = { 0.0f, 0.0f };
+	SDL_FPoint mouse;
+	SDL_FPoint delta;
+
+	if (!GamepadMouseEnabled()) {
+		return;
+	}
+
+	// Get the thumbstick with the most deflection
+	const int DEADZONE = 8000;
+	float max_length = 0.0f;
+	for (unsigned int i = 0; i < m_gamepads.length(); ++i) {
+		SDL_Gamepad *gamepad = m_gamepads[i];
+		SDL_FPoint axis;
+		axis.x = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTX);
+		axis.y = SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_LEFTY);
+
+		float length = VectorLengthSquared(axis);
+		if (length > max_length) {
+			velocity = axis;
+			max_length = length;
+		}
+	}
+	if (max_length <= (DEADZONE * DEADZONE)) {
+		return;
+	}
+
+	// Normalize the velocity
+	float length = SDL_sqrtf(VectorLengthSquared(velocity));
+	velocity.x /= length;
+	velocity.y /= length;
+
+	// Remove the deadzone and scale to 1.0
+	float scale = (length - DEADZONE) / (SDL_JOYSTICK_AXIS_MAX - DEADZONE);
+	velocity.x *= scale;
+	velocity.y *= scale;
+
+	SDL_GetMouseState(&mouse.x, &mouse.y);
+	SDL_RenderCoordinatesFromWindow(m_renderer, mouse.x, mouse.y, &mouse.x, &mouse.y);
+
+	delta.x = (velocity.x * MOUSE_SPEED) + m_mouseRemainderX;
+	delta.y = (velocity.y * MOUSE_SPEED) + m_mouseRemainderY;
+	m_mouseRemainderX = SDL_modff(delta.x, &delta.x);
+	m_mouseRemainderY = SDL_modff(delta.y, &delta.y);
+
+	mouse.x += delta.x;
+	mouse.x = SDL_clamp(mouse.x, 0.0f, (float)m_width);
+	mouse.y += delta.y;
+	mouse.y = SDL_clamp(mouse.y, 0.0f, (float)m_height);
+	SDL_RenderCoordinatesToWindow(m_renderer, mouse.x, mouse.y, &mouse.x, &mouse.y);
+	SDL_WarpMouseInWindow(m_window, mouse.x, mouse.y);
 }
 
 bool
@@ -208,6 +387,8 @@ FrameBuf::StretchBlit(const SDL_Rect *_dstrect, SDL_Texture *src, const SDL_Rect
 void
 FrameBuf::Update(void)
 {
+	UpdateGamepadMouseMovement();
+
 	if (Fading() || m_faded) {
 		return;
 	}

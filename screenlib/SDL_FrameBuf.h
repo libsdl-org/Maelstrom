@@ -34,6 +34,7 @@
 #include <stdio.h>
 
 #include <SDL3/SDL.h>
+#include "../utils/array.h"
 #include "../utils/ErrorBase.h"
 
 typedef enum {
@@ -73,6 +74,8 @@ public:
 
 	void EnableTextInput();
 	void DisableTextInput();
+	void SetGamepadMouse(bool enabled);
+	bool GamepadMouseEnabled() { return (m_gamepadMouse > 0); }
 
 	void ToggleFullScreen(void) {
 		if (SDL_GetWindowFlags(m_window) & SDL_WINDOW_FULLSCREEN) {
@@ -198,6 +201,11 @@ private:
 	SDL_FRect m_clip;
 	int m_width;
 	int m_height;
+	int m_gamepadMouse = 0;
+	float m_mouseRemainderX = 0.0f;
+	float m_mouseRemainderY = 0.0f;
+	bool m_gamepadMouseDown = false;
+	array<SDL_Gamepad *> m_gamepads;
 
 	void UpdateDrawColor(Uint32 color) {
 		Uint8 r, g, b;
@@ -206,6 +214,11 @@ private:
 		b = (color >>  0) & 0xFF;
 		SDL_SetRenderDrawColor(m_renderer, r, g, b, 0xFF);
 	}
+
+	void OpenGamepad(SDL_JoystickID id);
+	void CloseGamepad(SDL_JoystickID id);
+	void ProcessGamepadEvent(SDL_Event *event);
+	void UpdateGamepadMouseMovement();
 };
 
 #endif /* _SDL_FrameBuf_h */
