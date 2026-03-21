@@ -21,6 +21,10 @@
 
 #include <stdio.h>
 
+#ifdef ENABLE_STEAM
+#include <steam/steam_api.h>
+#endif
+
 #include "../utils/files.h"
 #include "SDL_FrameBuf.h"
 
@@ -316,15 +320,54 @@ FrameBuf::GetCursorPosition(int *x, int *y)
 }
 
 void
-FrameBuf::EnableTextInput()
+FrameBuf::EnableTextInput(int textfieldX, int textfieldY, int textfieldWidth, int textfieldHeight, bool numeric)
 {
-	SDL_StartTextInput(m_window);
+	SDL_Rect textrect;
+	float x = (float)textfieldX;
+	float y = (float)textfieldY;
+
+	SDL_RenderCoordinatesToWindow(m_renderer, x, y, &x, &y);
+	textrect.x = (int)x;
+	textrect.y = (int)y;
+	textrect.w = textfieldWidth;
+	textrect.h = textfieldHeight;
+
+	int window_width, window_height;
+	if (SDL_GetWindowSize(m_window, &window_width, &window_height)) {
+		float scale = (float)window_width / m_width;
+		textrect.w = (int)(textrect.w * scale);
+		textrect.h = (int)(textrect.h * scale);
+	}
+
+#ifdef ENABLE_STEAM
+	ISteamUtils *pSteamUtils = SteamUtils();
+	if (pSteamUtils) {
+		pSteamUtils->ShowFloatingGamepadTextInput(k_EFloatingGamepadTextInputModeModeSingleLine, textrect.x, textrect.y, textrect.w, textrect.h);
+	}
+#endif
+
+	SDL_SetTextInputArea(m_window, &textrect, 0);
+
+	SDL_PropertiesID props = SDL_CreateProperties();
+	if (numeric) {
+		SDL_SetNumberProperty(props, SDL_PROP_TEXTINPUT_TYPE_NUMBER, SDL_TEXTINPUT_TYPE_NUMBER);
+	}
+	SDL_SetBooleanProperty(props, SDL_PROP_TEXTINPUT_MULTILINE_BOOLEAN, false);
+	SDL_StartTextInputWithProperties(m_window, props);
+	SDL_DestroyProperties(props);
 }
 
 void
 FrameBuf::DisableTextInput()
 {
 	SDL_StopTextInput(m_window);
+
+#ifdef ENABLE_STEAM
+	ISteamUtils *pSteamUtils = SteamUtils();
+	if (pSteamUtils) {
+		pSteamUtils->DismissFloatingGamepadTextInput();
+	}
+#endif
 }
 
 void

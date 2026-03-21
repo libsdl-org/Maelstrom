@@ -246,7 +246,7 @@ void GameOverPanelDelegate::BeginEnterName()
 	}
 	m_handleSize = (int)SDL_strlen(m_handle);
 
-	screen->EnableTextInput();
+	screen->EnableTextInput(m_handleLabel->X(), m_handleLabel->Y(), m_handleLabel->Width(), m_handleLabel->Height());
 }
 
 void GameOverPanelDelegate::FinishEnterName()
