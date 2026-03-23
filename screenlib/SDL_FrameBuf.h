@@ -66,6 +66,7 @@ public:
 		m_clip.w = (float)cliprect->w;
 		m_clip.h = (float)cliprect->h;
 	}
+	void SetLogicalSize(int width, int height);
 
 	/* Event Routines */
 	void ProcessEvent(SDL_Event *event);
@@ -88,6 +89,9 @@ public:
 	/* Information routines */
 	SDL_Window *GetWindow() const {
 		return m_window;
+	}
+	SDL_Renderer *GetRenderer() const {
+		return m_renderer;
 	}
 	int Width() const {
 		return m_width;

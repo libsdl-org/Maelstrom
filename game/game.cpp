@@ -184,6 +184,8 @@ GamePanelDelegate::OnLoad()
 	m_fragsLabel = m_panel->GetElement<UIElement>("frags_label");
 	m_frags = m_panel->GetElement<UIElement>("frags");
 
+	m_zoom = false;
+
 	return true;
 }
 
@@ -191,6 +193,8 @@ void
 GamePanelDelegate::OnShow()
 {
 	int i;
+
+	UpdateZoom();
 
 	SetSteamTimelineMode(STEAM_TIMELINE_PLAYING);
 
@@ -481,6 +485,10 @@ GamePanelDelegate::OnDraw(DRAWLEVEL drawLevel)
 		return;
 	}
 
+	if (m_zoom) {
+		StartZoomedDrawing();
+	}
+
 	/* -- Draw the star field */
 	for ( i=0; i<MAX_STARS; ++i ) {
 		int x = (gTheStars[i]->xCoord << SPRITE_PRECISION);
@@ -498,6 +506,10 @@ GamePanelDelegate::OnDraw(DRAWLEVEL drawLevel)
 		}
 		gPlayers[i]->BlitSprite();
 	}
+
+	if (m_zoom) {
+		StopZoomedDrawing();
+	}
 }
 
 bool
@@ -507,6 +519,9 @@ GamePanelDelegate::HandleEvent(const SDL_Event &event)
 		if (m_touchControls) {
 			m_touchControls->Show();
 		}
+	} else if (event.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED ||
+	           event.type == SDL_EVENT_WINDOW_SAFE_AREA_CHANGED) {
+		UpdateZoom();
 	}
 	return false;
 }
@@ -565,6 +580,94 @@ GamePanelDelegate::OnAction(UIBaseElement *sender, const char *action)
 		return false;
 	}
 	return true;
+}
+
+void
+GamePanelDelegate::UpdateZoom()
+{
+	SDL_Renderer *renderer = screen->GetRenderer();
+	SDL_Rect rect;
+	int saved_w, saved_h;
+	SDL_RendererLogicalPresentation saved_mode;
+	SDL_GetRenderLogicalPresentation(renderer, &saved_w, &saved_h, &saved_mode);
+	SDL_SetRenderLogicalPresentation(renderer, 0, 0, SDL_LOGICAL_PRESENTATION_DISABLED);
+	SDL_GetRenderSafeArea(renderer, &rect);
+	SDL_SetRenderLogicalPresentation(renderer, saved_w, saved_h, saved_mode);
+
+	// We can zoom if we're on a phone in landscape mode and not local multiplayer
+	bool zoom = false;
+
+	if (SDL_IsPhone() && rect.w > rect.h) {
+		int i;
+
+		int local_players = 0;
+		OBJ_LOOP(i, MAX_PLAYERS) {
+			if (!gPlayers[i]->IsValid()) {
+				continue;
+			}
+
+			if (IS_LOCAL_CONTROL(gPlayers[i]->GetControlType())) {
+				++local_players;
+			}
+		}
+		if (local_players == 1) {
+			zoom = true;
+		}
+	}
+
+	if (zoom) {
+		float scale = (float)GAME_WIDTH / rect.w;
+		int x = (int)SDL_round(rect.x * scale);
+		int y = (int)SDL_round(rect.y * scale);
+		int height = (int)SDL_round(rect.h * scale);
+		ui->SetPosition(x, y);
+		ui->SetSize(GAME_WIDTH, height);
+	} else {
+		ui->SetPosition(0, 0);
+		ui->SetSize(GAME_WIDTH, GAME_HEIGHT);
+	}
+	m_zoom = zoom;
+}
+
+void
+GamePanelDelegate::StartZoomedDrawing()
+{
+	SDL_Renderer *renderer = screen->GetRenderer();
+	SDL_SetRenderLogicalPresentation(renderer, 0, 0, SDL_LOGICAL_PRESENTATION_DISABLED);
+	int w = 0, h = 0;
+	SDL_GetCurrentRenderOutputSize(renderer, &w, &h);
+	float scale = (float)w / GAME_WIDTH;
+
+	int playerX, playerY;
+	gPlayers[0]->GetPos(&playerX, &playerY);
+	GetRenderCoordinates(playerX, playerY);
+	playerY += (32 / 2);
+
+	SDL_SetRenderScale(renderer, scale, scale);
+
+	int half_viewable_height = (int)(gScrnRect.h / 2 * ((float)gScrnRect.w / gScrnRect.h) / (((float)w / h)));
+	int shortfall = (int)(gScrnRect.h - (h / scale));
+	SDL_Rect viewport;
+	viewport.w = w;
+	viewport.h = h;
+	viewport.x = 0;
+	viewport.y = -playerY + half_viewable_height;
+	if (viewport.y > 0) {
+		viewport.y = 0;
+	} else if (viewport.y < -shortfall) {
+		viewport.y = -shortfall;
+	}
+	SDL_SetRenderViewport(renderer, &viewport);
+}
+
+void
+GamePanelDelegate::StopZoomedDrawing()
+{
+	SDL_Renderer *renderer = screen->GetRenderer();
+
+	SDL_SetRenderScale(renderer, 1.0f, 1.0f);
+	SDL_SetRenderViewport(renderer, nullptr);
+	SDL_SetRenderLogicalPresentation(renderer, ui->X() + ui->Width() + ui->X(), ui->Y() + ui->Height() + ui->Y(), SDL_LOGICAL_PRESENTATION_LETTERBOX);
 }
 
 /* ----------------------------------------------------------------- */
@@ -1242,6 +1345,9 @@ GamePanelDelegate::GameOver()
 	CloseSocket();
 
 	DisableRemoteInput();
+
+	ui->SetPosition(0, 0);
+	ui->SetSize(GAME_WIDTH, GAME_HEIGHT);
 
 	ui->ShowPanel(PANEL_GAMEOVER);
 }

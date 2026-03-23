@@ -75,7 +75,7 @@ FrameBuf::Init(int width, int height, Uint32 window_flags, const char *title, SD
 	Clear();
 
 	/* Set the output area */
-	SDL_SetRenderLogicalPresentation(m_renderer, width, height, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+	SetLogicalSize(width, height);
 
 	m_width = width;
 	m_height = height;
@@ -97,6 +97,16 @@ FrameBuf::~FrameBuf()
 	}
 	if (m_window) {
 		SDL_DestroyWindow(m_window);
+	}
+}
+
+void
+FrameBuf::SetLogicalSize(int width, int height)
+{
+	if (width && height) {
+		SDL_SetRenderLogicalPresentation(m_renderer, width, height, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+	} else {
+		SDL_SetRenderLogicalPresentation(m_renderer, 0, 0, SDL_LOGICAL_PRESENTATION_DISABLED);
 	}
 }
 
