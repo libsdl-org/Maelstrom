@@ -70,6 +70,9 @@ FrameBuf::Init(int width, int height, Uint32 window_flags, const char *title, SD
 		SetError("Couldn't create renderer: %s", SDL_GetError());
 		return(-1);
 	}
+	//SDL_SetDefaultTextureScaleMode(m_renderer, SDL_SCALEMODE_PIXELART);
+
+	Clear();
 
 	/* Set the output area */
 	SDL_SetRenderLogicalPresentation(m_renderer, width, height, SDL_LOGICAL_PRESENTATION_LETTERBOX);
@@ -81,16 +84,6 @@ FrameBuf::Init(int width, int height, Uint32 window_flags, const char *title, SD
 	m_clip.w = (float)width;
 	m_clip.h = (float)height;
 
-	/* Create the render target */
-	m_target = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_TARGET, width, height);
-	if (!m_target) {
-		SetError("Couldn't create target: %s", SDL_GetError());
-		return(-1);
-	}
-	//SDL_SetTextureScaleMode(m_target, SDL_SCALEMODE_PIXELART);
-
-	SDL_SetRenderTarget(m_renderer, m_target);
-
 	return(0);
 }
 
@@ -98,9 +91,6 @@ FrameBuf::~FrameBuf()
 {
 	for (unsigned int i = 0; i < m_gamepads.length(); ++i) {
 		SDL_CloseGamepad(m_gamepads[i]);
-	}
-	if (m_target) {
-		SDL_DestroyTexture(m_target);
 	}
 	if (m_renderer) {
 		SDL_DestroyRenderer(m_renderer);
@@ -435,25 +425,7 @@ FrameBuf::Update(void)
 		return;
 	}
 
-	if (m_target) {
-		Update(m_target);
-	} else {
-		SDL_RenderPresent(m_renderer);
-	}
-}
-
-void
-FrameBuf::Update(SDL_Texture *texture)
-{
-	SDL_SetRenderTarget(m_renderer, NULL);
-
-	SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-	SDL_RenderClear(m_renderer);
-
-	SDL_RenderTexture(m_renderer, texture, NULL, NULL);
 	SDL_RenderPresent(m_renderer);
-
-	SDL_SetRenderTarget(m_renderer, m_target);
 }
 
 void
@@ -461,12 +433,10 @@ FrameBuf::Fade(void)
 {
 	m_fadeStep = 1;
 
-	if (!m_fadeTexture) {
-		m_fadeTexture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_TARGET, m_width, m_height);
-	}
-	SDL_SetRenderTarget(m_renderer, m_fadeTexture);
-	SDL_RenderTexture(m_renderer, m_target, nullptr, nullptr);
-	SDL_SetRenderTarget(m_renderer, m_target);
+	SDL_Surface *content = SDL_RenderReadPixels(m_renderer, NULL);
+	SDL_DestroyTexture(m_fadeTexture);
+	m_fadeTexture = SDL_CreateTextureFromSurface(m_renderer, content);
+	SDL_DestroySurface(content);
 }
 
 void
@@ -475,17 +445,27 @@ FrameBuf::FadeStep(void)
 	const int max = 32;
 	int v = m_faded ? m_fadeStep : max - m_fadeStep;
 	Uint8 value = (Uint8)(255 * v / max);
+	SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+	SDL_RenderClear(m_renderer);
 	SDL_SetTextureColorMod(m_fadeTexture, value, value, value);
-	Update(m_fadeTexture);
+	SDL_RenderTexture(m_renderer, m_fadeTexture, NULL, NULL);
+	SDL_RenderPresent(m_renderer);
 	SDL_Delay(10);
 	++m_fadeStep;
 
 	if (m_fadeStep > max) {
-		SDL_DestroyTexture(m_fadeTexture);
-		m_fadeTexture = nullptr;
-		m_faded = !m_faded;
+		FadeComplete();
 	}
-} 
+}
+
+void
+FrameBuf::FadeComplete(void)
+{
+	SDL_SetRenderTarget(m_renderer, nullptr);
+	SDL_DestroyTexture(m_fadeTexture);
+	m_fadeTexture = nullptr;
+	m_faded = !m_faded;
+}
 
 int
 FrameBuf::ScreenDump(const char *prefix, int x, int y, int w, int h)
@@ -560,7 +540,14 @@ FrameBuf::LoadImage(const char *file)
 SDL_Texture *
 FrameBuf::LoadImage(SDL_Surface *surface)
 {
-	return SDL_CreateTextureFromSurface(m_renderer, surface);
+	SDL_Texture *texture;
+
+	texture = SDL_CreateTextureFromSurface(m_renderer, surface);
+	if (!texture) {
+		SetError("%s", SDL_GetError());
+		return NULL;
+	}
+	return(texture);
 }
 
 SDL_Texture *

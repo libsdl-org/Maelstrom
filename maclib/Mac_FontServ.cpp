@@ -378,7 +378,9 @@ FontServ::TextImage(const char *text, MFont *font, Uint8 style, SDL_Color fg)
 
 		image = screen->LoadImage(surface);
 		SDL_FreeSurface(surface);
-		SDL_SetTextureBlendMode(image, SDL_BLENDMODE_BLEND);
+		SDL_SetTextureBlendMode(image, SDL_ComposeCustomBlendMode(
+			SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD,
+			SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD));
 		SDL_SetTextureColorMod(image, fg.r, fg.g, fg.b);
 		return image;
 	}
@@ -491,7 +493,9 @@ FontServ::TextImage(const char *text, MFont *font, Uint8 style, SDL_Color fg)
 	/* Create the image */
 	image = screen->LoadImage(width, height, bitmap);
 	delete[] bitmap;
-	SDL_SetTextureBlendMode(image, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureBlendMode(image, SDL_ComposeCustomBlendMode(
+		SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD,
+		SDL_BLENDFACTOR_ZERO, SDL_BLENDFACTOR_ONE, SDL_BLENDOPERATION_ADD));
 	SDL_SetTextureColorMod(image, fg.r, fg.g, fg.b);
 
 	return(image);

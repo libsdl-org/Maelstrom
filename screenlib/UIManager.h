@@ -121,7 +121,7 @@ public:
 	bool CheckCondition(const char *condition);
 
 	void Poll();
-	void Draw(bool fullUpdate = true);
+	void Draw(bool tick = true);
 	bool HandleEvent(const SDL_Event &event);
 
 	virtual void OnRectChanged() {

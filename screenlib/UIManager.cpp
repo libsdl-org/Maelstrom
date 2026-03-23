@@ -278,19 +278,30 @@ UIManager::ShowPanel(UIPanel *panel)
 void
 UIManager::HidePanel(UIPanel *panel)
 {
-	if (panel && m_visible.remove(panel)) {
-		panel->Hide();
-
+	if (panel && m_visible.find(panel)) {
 		if (m_panelTransition == PANEL_TRANSITION_FADE &&
-		    panel->IsFullscreen()) {
+			panel->IsFullscreen()) {
+			// Draw one last time so we have valid contents to fade
+			m_screen->Clear();
+			for (unsigned int i = 0; i < m_visible.length(); ++i) {
+				UIPanel* panel = m_visible[i];
+
+				for (int drawLevel = 0; drawLevel < NUM_DRAWLEVELS; ++drawLevel) {
+					panel->Draw((DRAWLEVEL)drawLevel);
+				}
+			}
 			m_screen->FadeOut();
 		}
+
+		panel->Hide();
+
 		if (!panel->IsCursorVisible()) {
 			m_screen->ShowCursor();
 		}
 		if (panel->IsCursorVisible()) {
 			m_screen->SetGamepadMouse(false);
 		}
+		m_visible.remove(panel);
 
 #ifdef FAST_ITERATION
 		// This is useful for iteration, panels are reloaded 
@@ -387,21 +398,21 @@ UIManager::Poll()
 }
 
 void
-UIManager::Draw(bool fullUpdate)
+UIManager::Draw(bool tick)
 {
 	unsigned int i;
 
 	// Run the tick before we draw in case it changes drawing state
-	for (i = 0; i < m_visible.length(); ++i) {
-		UIPanel *panel = m_visible[i];
+	if (tick) {
+		for (i = 0; i < m_visible.length(); ++i) {
+			UIPanel* panel = m_visible[i];
 
-		panel->Poll();
-		panel->Tick();
+			panel->Poll();
+			panel->Tick();
+		}
 	}
 
-	if (fullUpdate) {
-		m_screen->Clear();
-	}
+	m_screen->Clear();
 	for (i = 0; i < m_visible.length(); ++i) {
 		UIPanel *panel = m_visible[i];
 
@@ -409,11 +420,9 @@ UIManager::Draw(bool fullUpdate)
 			panel->Draw((DRAWLEVEL)drawLevel);
 		}
 	}
-	if (fullUpdate) {
-		m_screen->Update();
-		if (m_panelTransition == PANEL_TRANSITION_FADE) {
-			m_screen->FadeIn();
-		}
+	m_screen->Update();
+	if (m_panelTransition == PANEL_TRANSITION_FADE) {
+		m_screen->FadeIn();
 	}
 }
 

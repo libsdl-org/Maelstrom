@@ -109,7 +109,6 @@ public:
 	void StretchBlit(const SDL_Rect *dstrect, SDL_Texture *src, const SDL_Rect *srcrect);
 
 	void Update(void);
-	void Update(SDL_Texture *texture);
 	void FadeOut(void) {
 		if (!m_faded) {
 			Fade();
@@ -125,6 +124,7 @@ public:
 		return m_fadeTexture ? true : false;
 	}
 	void FadeStep(void);
+	void FadeComplete(void);
 
 	/* Drawing routines */
 	void Clear(int x, int y, int w, int h) {
@@ -194,7 +194,6 @@ private:
 	/* The current display */
 	SDL_Window *m_window = nullptr;
 	SDL_Renderer *m_renderer = nullptr;
-	SDL_Texture *m_target = nullptr;
 	SDL_Texture *m_fadeTexture = nullptr;
 	int m_fadeStep = 0;
 	bool m_faded = false;
@@ -212,7 +211,7 @@ private:
 		r = (color >> 16) & 0xFF;
 		g = (color >>  8) & 0xFF;
 		b = (color >>  0) & 0xFF;
-		SDL_SetRenderDrawColor(m_renderer, r, g, b, 0xFF);
+		SDL_SetRenderDrawColor(m_renderer, r, g, b, SDL_ALPHA_OPAQUE);
 	}
 
 	void OpenGamepad(SDL_JoystickID id);
