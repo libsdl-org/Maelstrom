@@ -41,6 +41,9 @@ public:
 	virtual bool OnAction(UIBaseElement *sender, const char *action);
 
 protected:
+	void UpdateZoom();
+	void StartZoomedDrawing();
+	void StopZoomedDrawing();
 	void DrawStatus(Bool first);
 	bool UpdateGameState();
 	void DoHousekeeping();
@@ -96,6 +99,8 @@ protected:
 		STATE_BONUS_HIDE,
 		STATE_START_NEXT_WAVE,
 	} m_state;
+
+	bool m_zoom;
 };
 
 /* ----------------------------------------------------------------- */

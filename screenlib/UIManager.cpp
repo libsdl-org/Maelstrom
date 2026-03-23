@@ -263,9 +263,7 @@ UIManager::ShowPanel(UIPanel *panel)
 		}
 
 		panel->Show();
-		if (panel->IsFullscreen()) {
-			Draw();
-		}
+
 		if (!panel->IsCursorVisible()) {
 			m_screen->HideCursor();
 		}
@@ -412,6 +410,7 @@ UIManager::Draw(bool tick)
 		}
 	}
 
+	m_screen->SetLogicalSize(X() + Width() + X(), Y() + Height() + Y());
 	m_screen->Clear();
 	for (i = 0; i < m_visible.length(); ++i) {
 		UIPanel *panel = m_visible[i];
