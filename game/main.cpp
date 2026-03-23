@@ -58,7 +58,7 @@ Bool	gNetworkAvailable = false;
 Bool	gUpdateBuffer = false;
 Bool	gDelaySound = false;
 int		gDelayTicks = 0;
-Bool	gRunning = false;
+Bool	gRunning = true;
 
 
 // Main Menu actions:
@@ -210,52 +210,56 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
+	while (!screen->Fading()) {
+
+		if (gDelaySound) {
+			if (sound->Playing()) {
+				ui->Draw(false);
+				Delay(2);
+				break;
+			}
+			gDelaySound = false;
+		}
+
+		if (gDelayTicks) {
+			int ticks = SDL_min(gDelayTicks, 2);
+			ui->Draw(false);
+			Delay(ticks);
+			gDelayTicks -= ticks;
+			break;
+		}
+
+		if (gInitializing) {
+			if (ContinueInitialization()) {
+				ui->Draw();
+				Delay(2);
+				break;
+			} else {
+				return SDL_APP_FAILURE;
+			}
+		}
+
+		ui->Draw();
+
+		if (!gGameOn) {
+			// If we got a replay event, start it up!
+			if (gReplayFile) {
+				RunReplayGame(gReplayFile);
+				SDL_free(gReplayFile);
+				gReplayFile = nullptr;
+			}
+		}
+
+		UpdateSteam();
+
+		DelayFrame();
+
+		break;
+	}
+
 	if (screen->Fading()) {
 		screen->FadeStep();
-		return SDL_APP_CONTINUE;
 	}
-
-	if (gDelaySound) {
-		if (sound->Playing()) {
-			screen->Update();
-			Delay(2);
-			return SDL_APP_CONTINUE;
-		}
-		gDelaySound = false;
-	}
-
-	if (gDelayTicks) {
-		int ticks = SDL_min(gDelayTicks, 2);
-		screen->Update();
-		Delay(ticks);
-		gDelayTicks -= ticks;
-		return SDL_APP_CONTINUE;
-	}
-
-	if (gInitializing) {
-		if (ContinueInitialization()) {
-			ui->Draw();
-			Delay(2);
-			return SDL_APP_CONTINUE;
-		} else {
-			return SDL_APP_FAILURE;
-		}
-	}
-
-	ui->Draw();
-
-	if (!gGameOn) {
-		// If we got a replay event, start it up!
-		if (gReplayFile) {
-			RunReplayGame(gReplayFile);
-			SDL_free(gReplayFile);
-			gReplayFile = nullptr;
-		}
-	}
-
-	UpdateSteam();
-
-	DelayFrame();
 
 	if (gRunning) {
 		return SDL_APP_CONTINUE;
