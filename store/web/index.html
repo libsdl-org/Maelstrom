@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maelstrom</title>
+    <link rel="icon" href="icon.ico" />
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Maelstrom">
+    <meta property="og:description" content="Maelstrom is a fast-action, asteroids-like game.">
+    <meta property="og:image" content="https://www.libsdl.org/projects/Maelstrom/play/preview.png" />
+    <meta property="og:image:width" content="1024" />
+    <meta property="og:image:height" content="536" />
+    <style>
+      main {
+        display: flex;
+      }
+
+      main > #content {
+        flex: 1 1 auto;
+        margin-bottom: 16px;
+      }
+
+      #loading {
+        margin-top: 25%;
+      }
+
+      .canvas-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #canvas {
+        max-width: 100%;
+      }
+    </style>
+  </head>
+  <body style="background-color:black">
+    <main>
+      <div id="content">
+        <div class="canvas-container">
+          <img id="loading" src="spinner.gif"/>
+          <canvas id="canvas" oncontextmenu="event.preventDefault()"/>
+        </div>
+      </div>
+    </main>
+
+    <script async type="text/javascript" src="Maelstrom.js"></script>
+  </body>
+</html>
