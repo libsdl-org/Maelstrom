@@ -70,7 +70,7 @@ FrameBuf::Init(int width, int height, Uint32 window_flags, const char *title, SD
 		SetError("Couldn't create renderer: %s", SDL_GetError());
 		return(-1);
 	}
-	//SDL_SetDefaultTextureScaleMode(m_renderer, SDL_SCALEMODE_PIXELART);
+	SDL_SetDefaultTextureScaleMode(m_renderer, SDL_SCALEMODE_PIXELART);
 
 	Clear();
 
