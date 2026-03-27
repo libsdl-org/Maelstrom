@@ -198,6 +198,7 @@
 		AA929E842EDBA1900005200A /* Docs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Docs; path = ../Docs; sourceTree = "<group>"; };
 		AA929E862EDBA3B80005200A /* Data */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Data; path = ../Data; sourceTree = "<group>"; };
 		F3281F422F66693200107D76 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F3B28F792F76DADC007DABD6 /* Maelstrom-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Maelstrom-Info.plist"; sourceTree = "<group>"; };
 		F3CC41402F60E6A10033BDFA /* steam.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = steam.h; sourceTree = "<group>"; };
 		F3CC41412F60E6A10033BDFA /* steam.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = steam.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -218,6 +219,7 @@
 		AA9284AA2EDB8BB30005200A = {
 			isa = PBXGroup;
 			children = (
+				F3B28F792F76DADC007DABD6 /* Maelstrom-Info.plist */,
 				AA9284C72EDB8CEE0005200A /* SDL.xcodeproj */,
 				AA9285942EDB9A3D0005200A /* SDL_net.xcodeproj */,
 				AA929E862EDBA3B80005200A /* Data */,
@@ -723,6 +725,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Maelstrom-Info.plist";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.arcade-games";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Maelstrom would like to use Bluetooth controllers for input.";
@@ -767,6 +770,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Maelstrom-Info.plist";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.arcade-games";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Maelstrom would like to use Bluetooth controllers for input.";
