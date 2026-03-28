@@ -42,6 +42,8 @@ public:
 
 protected:
 	void UpdateZoom();
+	void StartZoom(const SDL_Rect &rect);
+	void StopZoom();
 	void StartZoomedDrawing();
 	void StopZoomedDrawing();
 	void DrawStatus(Bool first);
@@ -101,6 +103,8 @@ protected:
 	} m_state;
 
 	bool m_zoom;
+	SDL_Texture *m_texture = nullptr;
+	SDL_Rect m_savedClip;
 };
 
 /* ----------------------------------------------------------------- */
