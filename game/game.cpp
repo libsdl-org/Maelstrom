@@ -616,48 +616,58 @@ GamePanelDelegate::UpdateZoom()
 	}
 
 	if (zoom) {
-		float scale = (float)GAME_WIDTH / rect.w;
-		int x = (int)SDL_round(rect.x * scale);
-		int y = (int)SDL_round(rect.y * scale);
-		int height = (int)SDL_round(rect.h * scale);
-		ui->SetPosition(x, y);
-		ui->SetSize(GAME_WIDTH, height);
+		StartZoom(rect);
 	} else {
-		ui->SetPosition(0, 0);
-		ui->SetSize(GAME_WIDTH, GAME_HEIGHT);
+		StopZoom();
 	}
-	m_zoom = zoom;
+}
+
+void
+GamePanelDelegate::StartZoom(const SDL_Rect &rect)
+{
+	SDL_Renderer *renderer = screen->GetRenderer();
+	float scale = (float)GAME_WIDTH / rect.w;
+	int x = (int)SDL_round(rect.x * scale);
+	int y = (int)SDL_round(rect.y * scale);
+	int height = (int)SDL_round(rect.h * scale);
+	ui->SetPosition(x, y);
+	ui->SetSize(GAME_WIDTH, height);
+
+	if (!m_texture) {
+		m_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_TARGET, GAME_WIDTH, GAME_HEIGHT);
+	}
+
+	m_zoom = true;
+}
+
+void
+GamePanelDelegate::StopZoom()
+{
+	ui->SetPosition(0, 0);
+	ui->SetSize(GAME_WIDTH, GAME_HEIGHT);
+
+	if (m_texture) {
+		SDL_DestroyTexture(m_texture);
+		m_texture = nullptr;
+	}
+
+	m_zoom = false;
 }
 
 void
 GamePanelDelegate::StartZoomedDrawing()
 {
 	SDL_Renderer *renderer = screen->GetRenderer();
-	SDL_SetRenderLogicalPresentation(renderer, 0, 0, SDL_LOGICAL_PRESENTATION_DISABLED);
-	int w = 0, h = 0;
-	SDL_GetCurrentRenderOutputSize(renderer, &w, &h);
-	float scale = (float)w / GAME_WIDTH;
 
-	int playerX, playerY;
-	gPlayers[0]->GetPos(&playerX, &playerY);
-	GetRenderCoordinates(playerX, playerY);
-	playerY += (32 / 2);
+	// Don't clip the top and bottom
+	screen->GetClip(&m_savedClip);
+	SDL_Rect clip = m_savedClip;
+	clip.y = 0;
+	clip.h = GAME_HEIGHT;
+	screen->ClipBlit(&clip);
 
-	SDL_SetRenderScale(renderer, scale, scale);
-
-	int half_viewable_height = (int)(gScrnRect.h / 2 * ((float)gScrnRect.w / gScrnRect.h) / (((float)w / h)));
-	int shortfall = (int)(gScrnRect.h - (h / scale));
-	SDL_Rect viewport;
-	viewport.w = w;
-	viewport.h = h;
-	viewport.x = 0;
-	viewport.y = -playerY + half_viewable_height;
-	if (viewport.y > 0) {
-		viewport.y = 0;
-	} else if (viewport.y < -shortfall) {
-		viewport.y = -shortfall;
-	}
-	SDL_SetRenderViewport(renderer, &viewport);
+	SDL_SetRenderTarget(renderer, m_texture);
+	screen->Clear();
 }
 
 void
@@ -665,9 +675,88 @@ GamePanelDelegate::StopZoomedDrawing()
 {
 	SDL_Renderer *renderer = screen->GetRenderer();
 
-	SDL_SetRenderScale(renderer, 1.0f, 1.0f);
-	SDL_SetRenderViewport(renderer, nullptr);
+	SDL_SetRenderTarget(renderer, nullptr);
+	SDL_SetRenderLogicalPresentation(renderer, 0, 0, SDL_LOGICAL_PRESENTATION_DISABLED);
+
+	int w = 0, h = 0;
+	SDL_GetRenderOutputSize(renderer, &w, &h);
+
+	int playerX, playerY;
+	gPlayers[0]->GetPos(&playerX, &playerY);
+	GetRenderCoordinates(playerX, playerY);
+	playerX += (32 / 2);
+	playerY += (32 / 2);
+
+	float scale = (float)GAME_WIDTH / w;
+	SDL_Rect src;
+	src.w = GAME_WIDTH;
+	src.h = (int)SDL_roundf(h * scale);
+	src.x = 0;
+	src.y = playerY - src.h / 2;
+	float minu = (float)src.x / m_texture->w;
+	float minv = (float)src.y / m_texture->h;
+	float maxu = (float)(src.x + src.w) / m_texture->w;
+	float maxv = (float)(src.y + src.h) / m_texture->h;
+
+	SDL_FRect dst;
+	dst.x = 0.0f;
+	dst.y = 0.0f;
+	dst.w = (float)w;
+	dst.h = (float)h;
+
+	SDL_FColor color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	SDL_Vertex verts[6];
+	SDL_Vertex *vert = verts;
+	/* 0 */
+	vert->position.x = dst.x;
+	vert->position.y = dst.y;
+	vert->color = color;
+	vert->tex_coord.x = minu;
+	vert->tex_coord.y = minv;
+	vert++;
+	/* 1 */
+	vert->position.x = dst.x + dst.w;
+	vert->position.y = dst.y;
+	vert->color = color;
+	vert->tex_coord.x = maxu;
+	vert->tex_coord.y = minv;
+	vert++;
+	/* 2 */
+	vert->position.x = dst.x + dst.w;
+	vert->position.y = dst.y + dst.h;
+	vert->color = color;
+	vert->tex_coord.x = maxu;
+	vert->tex_coord.y = maxv;
+	vert++;
+	/* 0 */
+	vert->position.x = dst.x;
+	vert->position.y = dst.y;
+	vert->color = color;
+	vert->tex_coord.x = minu;
+	vert->tex_coord.y = minv;
+	vert++;
+	/* 2 */
+	vert->position.x = dst.x + dst.w;
+	vert->position.y = dst.y + dst.h;
+	vert->color = color;
+	vert->tex_coord.x = maxu;
+	vert->tex_coord.y = maxv;
+	vert++;
+	/* 3 */
+	vert->position.x = dst.x;
+	vert->position.y = dst.y + dst.h;
+	vert->color = color;
+	vert->tex_coord.x = minu;
+	vert->tex_coord.y = maxv;
+	vert++;
+
+	SDL_SetRenderTextureAddressMode(renderer, SDL_TEXTURE_ADDRESS_WRAP, SDL_TEXTURE_ADDRESS_WRAP);
+	SDL_RenderGeometry(renderer, m_texture, verts, 6, NULL, 0);
+	SDL_SetRenderTextureAddressMode(renderer, SDL_TEXTURE_ADDRESS_AUTO, SDL_TEXTURE_ADDRESS_AUTO);
+
 	SDL_SetRenderLogicalPresentation(renderer, ui->X() + ui->Width() + ui->X(), ui->Y() + ui->Height() + ui->Y(), SDL_LOGICAL_PRESENTATION_LETTERBOX);
+
+	screen->ClipBlit(&m_savedClip);
 }
 
 /* ----------------------------------------------------------------- */
@@ -1346,10 +1435,9 @@ GamePanelDelegate::GameOver()
 
 	DisableRemoteInput();
 
-	ui->SetPosition(0, 0);
-	ui->SetSize(GAME_WIDTH, GAME_HEIGHT);
-
 	ui->ShowPanel(PANEL_GAMEOVER);
+
+	StopZoom();
 }
 
 /* ----------------------------------------------------------------- */
@@ -1370,4 +1458,13 @@ void RenderSprite(UITexture *sprite, int x, int y, int w, int h)
 	w = (int)(((float)w * gScrnRect.w) / GAME_WIDTH);
 	h = (int)(((float)h * gScrnRect.h) / GAME_HEIGHT);
 	screen->QueueBlit(sprite->Texture(), x, y, w, h, DOCLIP);
+
+	// Render the other side of the sprite
+	if (y < 0) {
+		y += GAME_HEIGHT;
+		screen->QueueBlit(sprite->Texture(), x, y, w, h, DOCLIP);
+	} else if ((y + h) > GAME_HEIGHT) {
+		y -= GAME_HEIGHT;
+		screen->QueueBlit(sprite->Texture(), x, y, w, h, DOCLIP);
+	}
 }

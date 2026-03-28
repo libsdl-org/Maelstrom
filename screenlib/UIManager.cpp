@@ -403,10 +403,15 @@ UIManager::Draw(bool tick)
 	// Run the tick before we draw in case it changes drawing state
 	if (tick) {
 		for (i = 0; i < m_visible.length(); ++i) {
-			UIPanel* panel = m_visible[i];
+			UIPanel *panel = m_visible[i];
 
 			panel->Poll();
 			panel->Tick();
+
+			if (i >= m_visible.length() || panel != m_visible[i]) {
+				// This panel was hidden, don't draw it
+				return;
+			}
 		}
 	}
 

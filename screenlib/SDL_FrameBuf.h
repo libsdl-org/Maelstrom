@@ -66,6 +66,12 @@ public:
 		m_clip.w = (float)cliprect->w;
 		m_clip.h = (float)cliprect->h;
 	}
+	void GetClip(SDL_Rect *cliprect) {
+		cliprect->x = (int)m_clip.x;
+		cliprect->y = (int)m_clip.y;
+		cliprect->w = (int)m_clip.w;
+		cliprect->h = (int)m_clip.h;
+	}
 	void SetLogicalSize(int width, int height);
 
 	/* Event Routines */
