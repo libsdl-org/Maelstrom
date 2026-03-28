@@ -44,6 +44,8 @@ public:
 	bool Init();
 	void Quit();
 
+	bool StreamingToPhone();
+
 	void SetSteamTimelineMode(STEAM_TIMELINE_MODE mode);
 	void SetSteamTimelineLevelStarted(int level);
 	void AddSteamTimelineEvent(STEAM_TIMELINE_EVENT event);
@@ -126,6 +128,28 @@ void SteamInterface::Quit()
 	SteamController()->Shutdown();
 	SteamAPI_Shutdown();
 	m_initialized = false;
+}
+
+bool SteamInterface::StreamingToPhone()
+{
+	if (!m_initialized) {
+		return false;
+	}
+
+	ISteamRemotePlay *pSteamRemotePlay = SteamRemotePlay();
+	for (uint32 i = 0; i < pSteamRemotePlay->GetSessionCount(); ++i) {
+		RemotePlaySessionID_t sessionID = pSteamRemotePlay->GetSessionID(i);
+
+		// Skip Remote Play Together sessions
+		if (pSteamRemotePlay->BSessionRemotePlayTogether(sessionID)) {
+			continue;
+		}
+
+		if (pSteamRemotePlay->GetSessionClientFormFactor(sessionID) == k_ESteamDeviceFormFactorPhone) {
+			return true;
+		}
+	}
+	return false;
 }
 
 void SteamInterface::SetSteamTimelineMode(STEAM_TIMELINE_MODE mode)
@@ -435,28 +459,25 @@ void SteamInterface::OnRemotePlaySessionConnected(SteamRemotePlaySessionConnecte
 {
 	RemotePlaySessionID_t sessionID = pParam->m_unSessionID;
 
-	if (!IsRemotePlayTogether(sessionID)) {
-		// Ignore this session, it'll control the local player
-		return;
-	}
+	if (IsRemotePlayTogether(sessionID)) {
+		RemoteSession_t *session = new RemoteSession_t;
+		session->id = sessionID;
+		session->steamID = SteamRemotePlay()->GetSessionSteamID(sessionID);
 
-	RemoteSession_t *session = new RemoteSession_t;
-	session->id = sessionID;
-	session->steamID = SteamRemotePlay()->GetSessionSteamID(sessionID);
-
-	if (session->steamID.IsValid()) {
-		session->name = SDL_strdup(SteamFriends()->GetFriendPersonaName(session->steamID));
-	} else {
-		uint32 unGuestID = SteamRemotePlay()->GetSessionGuestID(sessionID);
-		if (unGuestID) {
-			SDL_asprintf(&session->name, TEXT("Guest %u"), unGuestID);
+		if (session->steamID.IsValid()) {
+			session->name = SDL_strdup(SteamFriends()->GetFriendPersonaName(session->steamID));
 		} else {
-			session->name = NULL;
+			uint32 unGuestID = SteamRemotePlay()->GetSessionGuestID(sessionID);
+			if (unGuestID) {
+				SDL_asprintf(&session->name, TEXT("Guest %u"), unGuestID);
+			} else {
+				session->name = NULL;
+			}
 		}
-	}
-	SDL_zeroa(session->keystate);
+		SDL_zeroa(session->keystate);
 
-	m_sessions.add(session);
+		m_sessions.add(session);
+	}
 
 	UpdatePlayers();
 }
@@ -465,21 +486,18 @@ void SteamInterface::OnRemotePlaySessionDisconnected(SteamRemotePlaySessionDisco
 {
 	RemotePlaySessionID_t sessionID = pParam->m_unSessionID;
 	RemoteSession_t *session = GetSession(sessionID);
-	if (!session) {
-		return;
-	}
+	if (session) {
+		m_sessions.remove(session);
 
-	m_sessions.remove(session);
-
-	for (unsigned int i = 0; i < SDL_arraysize(m_players); ++i) {
-		if (session == m_players[i]) {
-			m_players[i] = nullptr;
-			break;
+		for (unsigned int i = 0; i < SDL_arraysize(m_players); ++i) {
+			if (session == m_players[i]) {
+				m_players[i] = nullptr;
+				break;
+			}
 		}
+		SDL_free(session->name);
+		delete session;
 	}
-	SDL_free(session->name);
-	delete session;
-
 	UpdatePlayers();
 }
 
@@ -487,6 +505,11 @@ void SteamInterface::OnRemotePlaySessionDisconnected(SteamRemotePlaySessionDisco
 bool InitSteam()
 {
 	return steam.Init();
+}
+
+bool SteamStreamingToPhone()
+{
+	return steam.StreamingToPhone();
 }
 
 Uint32 GetRemoteSessionForGamepad(SDL_Gamepad *gamepad)
@@ -557,6 +580,11 @@ void QuitSteam()
 #else
 
 bool InitSteam()
+{
+	return false;
+}
+
+bool SteamStreamingToPhone()
 {
 	return false;
 }
