@@ -163,9 +163,6 @@ Prefs::SetString(const char *key, const char *value, bool dirty)
 
 	if (dirty) {
 		m_dirty = true;
-
-		// Save immediately, in case we crash or are unloaded
-		Save();
 	}
 }
 

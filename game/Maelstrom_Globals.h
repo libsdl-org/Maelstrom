@@ -43,9 +43,6 @@
 #include "gameinfo.h"
 #include "steam.h"
 
-#define MAELSTROM_ORGANIZATION	"Ambrosia Software"
-#define MAELSTROM_NAME		"Maelstrom"
-
 // Preferences keys
 #define PREFERENCES_RESOLUTION "Resolution"
 #define PREFERENCES_HANDLE "Handle"
