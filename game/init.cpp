@@ -107,7 +107,6 @@ enum LoadingStage
 	LOAD_STAGE_BLITS25,
 	LOAD_STAGE_SHOTS,
 	LOAD_STAGE_SPRITES,
-	LOAD_STAGE_FILESYSTEM,
 	LOAD_STAGE_COMPLETE
 };
 static int gLoadingStage = LOAD_STAGE_WAITING;
@@ -826,12 +825,18 @@ bool StartInitialization(int window_width, int window_height, Uint32 window_flag
 	gNetworkAvailable = NET_Init();
 
 	// -- Initialize some variables
-	prefs = new Prefs(GAME_PREFS_FILE);
 	gLastHigh = -1;
 
-	if (!InitFilesystem(MAELSTROM_ORGANIZATION, MAELSTROM_NAME)) {
-		return false;
-	}
+	// -- Create our scores file
+	LoadScores();
+
+	// -- Load our preferences files
+	prefs = new Prefs(GAME_PREFS_FILE);
+	prefs->Load();
+
+	// -- Load our controls
+	LoadControls();
+	InitPlayerControls();
 
 	/* Load the Maelstrom icon */
 	if (!LoadIcon(&icon)) {
@@ -904,8 +909,6 @@ bool StartInitialization(int window_width, int window_height, Uint32 window_flag
 
 bool ContinueInitialization()
 {
-	bool failed;
-
 	switch (gLoadingStage) {
 	case LOAD_STAGE_STARTING:
 		/* -- Load in the prize CICN's */
@@ -967,29 +970,6 @@ bool ContinueInitialization()
 		if ( InitSprites() < 0 ) {
 			return false;
 		}
-
-		gLoadingStage = LOAD_STAGE_FILESYSTEM;
-
-		// Fallthrough...
-		//break;
-
-	case LOAD_STAGE_FILESYSTEM:
-		if (!FilesystemReady(&failed)) {
-			if (failed) {
-				return false;
-			}
-			break;
-		}
-
-		// -- Create our scores file
-		LoadScores();
-
-		// -- Load our preferences files
-		prefs->Load();
-
-		// -- Load our controls
-		LoadControls();
-		InitPlayerControls();
 
 		gLoadingStage = LOAD_STAGE_COMPLETE;
 

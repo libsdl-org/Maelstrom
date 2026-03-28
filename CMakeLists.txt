@@ -17,6 +17,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 # on Web targets, we need CMake to generate a HTML webpage.
 if(EMSCRIPTEN)
     set(CMAKE_EXECUTABLE_SUFFIX_CXX ".html" CACHE INTERNAL "")
+
+    # Enable persistent storage
+    set(SDL_EMSCRIPTEN_PERSISTENT_PATH /storage)
 endif()
 
 add_subdirectory(maclib)
@@ -203,7 +206,7 @@ target_link_libraries(${TARGET_NAME} PRIVATE SDL3::SDL3)
 
 if(EMSCRIPTEN)
     # Increase the default stack size
-    target_link_options(${TARGET_NAME} PRIVATE -sSTACK_SIZE=1048576 -lidbfs.js)
+    target_link_options(${TARGET_NAME} PRIVATE -sSTACK_SIZE=1048576)
 
     # on the web, we have to put the files inside of the webassembly
     # somewhat unintuitively, this is done via a linker argument.

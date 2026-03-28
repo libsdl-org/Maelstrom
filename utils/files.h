@@ -28,7 +28,6 @@ extern "C" {
 #endif
 
 bool InitFilesystem(const char *org, const char *app);
-bool FilesystemReady(bool *failed);
 
 SDL_IOStream *OpenRead(const char *file);
 
