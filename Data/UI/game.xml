@@ -93,39 +93,146 @@
 			<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="frags_label" x="4"/>
 		</Label>
 
-		<Area name="touch_controls" show="false">
+		<!-- Touch controls -->
+		<Area condition="!PHONE" name="touch_controls" show="false">
 			<Elements>
 				<!-- Touch controls -->
-				<Button name="abort" action="CONTROL_ABORT" image="abort">
-					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" x="-6" y="4"/>
+				<Button name="abort" action="CONTROL_ABORT" image="circle">
+					<Size w="30" h="30"/>
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="20" y="8"/>
+					<Elements>
+						<Image image="abort">
+							<Size w="24" h="24"/>
+							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
+						</Image>
+					</Elements>
 				</Button>
-				<Button name="pause" action="CONTROL_PAUSE" image="pause">
-					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="6" y="4"/>
+				<Button name="pause" action="CONTROL_PAUSE" image="circle">
+					<Size w="30" h="30"/>
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" x="-20" y="8"/>
+					<Elements>
+						<Image image="pause">
+							<Size w="24" h="24"/>
+							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
+						</Image>
+					</Elements>
 				</Button>
 
-				<!-- Touch button style controls -->
-				<Thumbstick name="fire" image="fire">
-					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-8" y="-16"/>
+				<Image image="pad">
+					<Size w="96" h="95"/>
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" x="20" y="-20"/>
+					<Elements>
+						<Thumbstick name="rotate_left">
+							<Size w="30" h="30"/>
+							<Anchor anchorFrom="LEFT" anchorTo="LEFT"/>
+							<Action action_enter="CONTROL_DOWN_LEFT" action_leave="CONTROL_UP_LEFT"/>
+						</Thumbstick>
+						<Thumbstick name="rotate_right">
+							<Size w="30" h="30"/>
+							<Anchor anchorFrom="RIGHT" anchorTo="RIGHT"/>
+							<Action action_enter="CONTROL_DOWN_RIGHT" action_leave="CONTROL_UP_RIGHT"/>
+						</Thumbstick>
+						<Thumbstick name="thrust">
+							<Size w="30" h="30"/>
+							<Anchor anchorFrom="TOP" anchorTo="TOP"/>
+							<Action action_enter="CONTROL_DOWN_THRUST" action_leave="CONTROL_UP_THRUST"/>
+						</Thumbstick>
+					</Elements>
+				</Image>
+
+				<Thumbstick name="fire" image="circle" followTouch="true">
+					<Size w="40" h="40"/>
+					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-60" y="-30"/>
 					<Action action_enter="CONTROL_DOWN_FIRE" action_leave="CONTROL_UP_FIRE"/>
+					<Elements>
+						<Icon id="136">
+							<Size w="16" h="16"/>
+							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
+						</Icon>
+					</Elements>
 				</Thumbstick>
-				<Thumbstick name="thrust" image="thrust">
-					<Anchor anchorFrom="RIGHT" anchorTo="LEFT" anchor="fire" x="-8"/>
-					<Action action_enter="CONTROL_DOWN_THRUST" action_leave="CONTROL_UP_THRUST"/>
-				</Thumbstick>
-
-				<Thumbstick name="rotate_left" image="rotate_left">
-					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" x="0" x="8" y="-16"/>
-					<Action action_enter="CONTROL_DOWN_LEFT" action_leave="CONTROL_UP_LEFT"/>
-				</Thumbstick>
-				<Thumbstick name="rotate_right" image="rotate_right">
-					<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="rotate_left" x="8"/>
-					<Action action_enter="CONTROL_DOWN_RIGHT" action_leave="CONTROL_UP_RIGHT"/>
-				</Thumbstick>
-				<Thumbstick name="shield" image="shield">
-					<Anchor anchorFrom="BOTTOM" anchorTo="TOP" anchor="rotate_left" x="32" y="-4"/>
+				<Thumbstick name="shield" image="circle" followTouch="true">
+					<Size w="40" h="40"/>
+					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-30" y="-60"/>
 					<Action action_enter="CONTROL_DOWN_SHIELD" action_leave="CONTROL_UP_SHIELD"/>
+					<Elements>
+						<Image image="shield">
+							<Size w="16" h="16"/>
+							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
+						</Icon>
+					</Elements>
 				</Thumbstick>
-				<!-- End button style controls -->
+			</Elements>
+		</Area>
+
+		<Area condition="PHONE" name="touch_controls" show="false">
+			<Elements>
+				<!-- Touch controls -->
+				<Button name="abort" action="CONTROL_ABORT" image="circle">
+					<Size w="45" h="45"/>
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="30" y="12"/>
+					<Elements>
+						<Image image="abort">
+							<Size w="36" h="36"/>
+							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
+						</Image>
+					</Elements>
+				</Button>
+				<Button name="pause" action="CONTROL_PAUSE" image="circle">
+					<Size w="45" h="45"/>
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" x="-30" y="12"/>
+					<Elements>
+						<Image image="pause">
+							<Size w="36" h="36"/>
+							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
+						</Image>
+					</Elements>
+				</Button>
+
+				<Image image="pad">
+					<Size w="144" h="142"/>
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" x="30" y="-30"/>
+					<Elements>
+						<Thumbstick name="rotate_left">
+							<Size w="45" h="45"/>
+							<Anchor anchorFrom="LEFT" anchorTo="LEFT"/>
+							<Action action_enter="CONTROL_DOWN_LEFT" action_leave="CONTROL_UP_LEFT"/>
+						</Thumbstick>
+						<Thumbstick name="rotate_right">
+							<Size w="45" h="45"/>
+							<Anchor anchorFrom="RIGHT" anchorTo="RIGHT"/>
+							<Action action_enter="CONTROL_DOWN_RIGHT" action_leave="CONTROL_UP_RIGHT"/>
+						</Thumbstick>
+						<Thumbstick name="thrust">
+							<Size w="45" h="45"/>
+							<Anchor anchorFrom="TOP" anchorTo="TOP"/>
+							<Action action_enter="CONTROL_DOWN_THRUST" action_leave="CONTROL_UP_THRUST"/>
+						</Thumbstick>
+					</Elements>
+				</Image>
+
+				<Thumbstick name="fire" image="circle" followTouch="true">
+					<Size w="60" h="60"/>
+					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-90" y="-45"/>
+					<Action action_enter="CONTROL_DOWN_FIRE" action_leave="CONTROL_UP_FIRE"/>
+					<Elements>
+						<Icon id="136">
+							<Size w="24" h="24"/>
+							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
+						</Icon>
+					</Elements>
+				</Thumbstick>
+				<Thumbstick name="shield" image="circle" followTouch="true">
+					<Size w="60" h="60"/>
+					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-45" y="-90"/>
+					<Action action_enter="CONTROL_DOWN_SHIELD" action_leave="CONTROL_UP_SHIELD"/>
+					<Elements>
+						<Image image="shield">
+							<Size w="24" h="24"/>
+							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
+						</Icon>
+					</Elements>
+				</Thumbstick>
 
 				<!-- Touch thumbstick style controls
 				<Thumbstick image="thumbstick" followTouch="true" sensitiveRadius="128">
