@@ -595,8 +595,8 @@ GamePanelDelegate::UpdateZoom()
 	SDL_GetRenderSafeArea(renderer, &rect);
 	SDL_SetRenderLogicalPresentation(renderer, saved_w, saved_h, saved_mode);
 
-	// We can zoom if we're on a phone in landscape mode
-	if ((SDL_IsPhone() || SteamStreamingToPhone()) && rect.w > rect.h) {
+	// We can zoom if we're on a phone or tablet in landscape mode
+	if ((SDL_IsPhone() || SDL_IsTablet() || SteamStreamingToPhoneOrTablet()) && rect.w > rect.h) {
 		StartZoom(rect);
 	} else {
 		StopZoom();
