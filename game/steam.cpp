@@ -44,7 +44,7 @@ public:
 	bool Init();
 	void Quit();
 
-	bool StreamingToPhone();
+	bool StreamingToPhoneOrTablet();
 
 	void SetSteamTimelineMode(STEAM_TIMELINE_MODE mode);
 	void SetSteamTimelineLevelStarted(int level);
@@ -130,7 +130,7 @@ void SteamInterface::Quit()
 	m_initialized = false;
 }
 
-bool SteamInterface::StreamingToPhone()
+bool SteamInterface::StreamingToPhoneOrTablet()
 {
 	if (!m_initialized) {
 		return false;
@@ -145,7 +145,9 @@ bool SteamInterface::StreamingToPhone()
 			continue;
 		}
 
-		if (pSteamRemotePlay->GetSessionClientFormFactor(sessionID) == k_ESteamDeviceFormFactorPhone) {
+		ESteamDeviceFormFactor eFormFactor = pSteamRemotePlay->GetSessionClientFormFactor(sessionID);
+		if (eFormFactor == k_ESteamDeviceFormFactorPhone || 
+		    eFormFactor == k_ESteamDeviceFormFactorTablet) {
 			return true;
 		}
 	}
@@ -507,9 +509,9 @@ bool InitSteam()
 	return steam.Init();
 }
 
-bool SteamStreamingToPhone()
+bool SteamStreamingToPhoneOrTablet()
 {
-	return steam.StreamingToPhone();
+	return steam.StreamingToPhoneOrTablet();
 }
 
 Uint32 GetRemoteSessionForGamepad(SDL_Gamepad *gamepad)
@@ -584,7 +586,7 @@ bool InitSteam()
 	return false;
 }
 
-bool SteamStreamingToPhone()
+bool SteamStreamingToPhoneOrTablet()
 {
 	return false;
 }
