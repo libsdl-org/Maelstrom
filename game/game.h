@@ -103,8 +103,6 @@ protected:
 	} m_state;
 
 	bool m_zoom;
-	SDL_Texture *m_texture = nullptr;
-	SDL_Rect m_savedClip;
 };
 
 /* ----------------------------------------------------------------- */
