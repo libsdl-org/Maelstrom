@@ -520,7 +520,8 @@ GamePanelDelegate::HandleEvent(const SDL_Event &event)
 			m_touchControls->Show();
 		}
 	} else if (event.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED ||
-	           event.type == SDL_EVENT_WINDOW_SAFE_AREA_CHANGED) {
+	           event.type == SDL_EVENT_WINDOW_SAFE_AREA_CHANGED ||
+	           event.type == SDL_EVENT_REMOTE_PLAYERS_CHANGED) {
 		UpdateZoom();
 	}
 	return false;
@@ -597,7 +598,7 @@ GamePanelDelegate::UpdateZoom()
 	// We can zoom if we're on a phone in landscape mode and not local multiplayer
 	bool zoom = false;
 
-	if (SDL_IsPhone() && rect.w > rect.h) {
+	if ((SDL_IsPhone() || SteamStreamingToPhone()) && rect.w > rect.h) {
 		int i;
 
 		int local_players = 0;
