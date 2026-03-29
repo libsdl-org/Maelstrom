@@ -1,6 +1,6 @@
 The source code to Maelstrom 4.0 has been released under the Zlib license:
 --
-  Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -23,7 +23,7 @@ The artwork and animations in Maelstrom may be used under the terms
 of the Creative Commons Attribution 3.0 license (unported):
 http://creativecommons.org/licenses/by/3.0/legalcode
 
-The following files must accompany any distribution of Maeltrom 3.0:
+The following files must accompany any distribution of Maelstrom:
 	Ambrosia_Software,_Inc._FAQ
 	MaelstromGPL_press_release
 They can be found in the Docs directory.
