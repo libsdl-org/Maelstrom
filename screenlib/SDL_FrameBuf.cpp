@@ -199,6 +199,9 @@ FrameBuf::ProcessGamepadEvent(SDL_Event *event)
 				key = SDLK_ESCAPE;
 				break;
 			default:
+				if (event->gbutton.button == SDL_GAMEPAD_BUTTON_BACK) {
+					key = SDLK_ESCAPE;
+				}
 				break;
 			}
 			if (key != SDLK_UNKNOWN) {
