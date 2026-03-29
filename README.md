@@ -19,5 +19,42 @@ Maelstrom is available for free on:
 
 You can download the latest release and source code from [GitHub](https://github.com/libsdl-org/Maelstrom)
 
+## New Features
+
+### Kid Mode
+
+Clicking the "kid mode" icon next to the play button will enable an easier play mode which will add the retro-thruster prize and automatically shield you as long as shields are available. Achievements and high scores are not available while in this mode.
+
+### Multiplayer
+
+You can host or join a multiplayer game from the main menu. Up to three players can play at once, and they can be any combination of other players on the local network, connected controllers, and friends invited via Steam Remote Play.
+
+### Steam Achievements
+
+If you play the game on Steam, there are lots of fun achievements to unlock, such as "Alien Abduction" and "Balls of Steel".
+
+### Steam Game Recording
+
+If you play the game on Steam and enable game recording, the timeline will automatically be populated with exciting events such as aliens, nova explosions, and more!
+
+### Replays
+
+You can click on the high score entries to watch that game again. This is especially fun with the Steam game recording feature, as you can see the events on the timeline and re-share the game video with your friends.
+
+### Easter Eggs
+
+The classic easter eggs from the original game are all there, and it's up to you to find them...
+
+### Addons
+
+If you have access to the original sound and sprite packs for Maelstrom, you can build Maelstrom from source and use the included tool `macres` to unpack them into the Data directory to change the art and sounds for the game:
+```
+macres --export '%Maelstrom Sprites' Data
+macres --export '%Maelstrom Sounds' Data
+```
+
+---
+
 Enjoy!
+
 Sam Lantinga (slouken@libsdl.org)
