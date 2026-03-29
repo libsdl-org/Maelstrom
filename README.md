@@ -23,7 +23,9 @@ You can download the latest release and source code from [GitHub](https://github
 
 ### Kid Mode
 
-Clicking the "kid mode" icon next to the play button will enable an easier play mode which will add the retro-thruster prize and automatically shield you as long as shields are available. Achievements and high scores are not available while in this mode.
+Clicking the "kid mode" icon next to the play button will enable an easier play mode which will add the retro-thruster prize and automatically shield you as long as shields are available - but beware the Shenobi ships! Their shots will not trigger the automatic defensive systems.
+
+Achievements and high scores are not available while in this mode.
 
 ### Multiplayer
 
