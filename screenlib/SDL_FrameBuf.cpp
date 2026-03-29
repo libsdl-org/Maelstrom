@@ -341,7 +341,27 @@ FrameBuf::EnableTextInput(int textfieldX, int textfieldY, int textfieldWidth, in
 #ifdef ENABLE_STEAM
 	ISteamUtils *pSteamUtils = SteamUtils();
 	if (pSteamUtils) {
-		pSteamUtils->ShowFloatingGamepadTextInput(k_EFloatingGamepadTextInputModeModeSingleLine, textrect.x, textrect.y, textrect.w, textrect.h);
+		// Don't show the gamepad input when streaming to a phone or tablet
+		bool bStreamingToPhoneOrTablet = false;
+		ISteamRemotePlay *pSteamRemotePlay = SteamRemotePlay();
+		for (uint32 i = 0; i < pSteamRemotePlay->GetSessionCount(); ++i) {
+			RemotePlaySessionID_t sessionID = pSteamRemotePlay->GetSessionID(i);
+
+			// Skip Remote Play Together sessions
+			if (pSteamRemotePlay->BSessionRemotePlayTogether(sessionID)) {
+				continue;
+			}
+
+			ESteamDeviceFormFactor eFormFactor = pSteamRemotePlay->GetSessionClientFormFactor(sessionID);
+			if (eFormFactor == k_ESteamDeviceFormFactorPhone || 
+				eFormFactor == k_ESteamDeviceFormFactorTablet) {
+				bStreamingToPhoneOrTablet = true;
+				break;
+			}
+		}
+		if (!bStreamingToPhoneOrTablet) {
+			pSteamUtils->ShowFloatingGamepadTextInput(k_EFloatingGamepadTextInputModeModeSingleLine, textrect.x, textrect.y, textrect.w, textrect.h);
+		}
 	}
 #endif
 
