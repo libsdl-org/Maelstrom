@@ -47,11 +47,15 @@ The classic easter eggs from the original game are all there, and it's up to you
 
 ### Addons
 
+The art and sounds for the game are in the Data directory and can be freely modified for your own use.
+
 If you have access to the original sound and sprite packs for Maelstrom, you can build Maelstrom from source and use the included tool `macres` to unpack them into the Data directory to change the art and sounds for the game:
 ```
 macres --export '%Maelstrom Sprites' Data
 macres --export '%Maelstrom Sounds' Data
 ```
+
+If you play network multiplayer, all players must have the same set of sprites, otherwise the games will get out of sync.
 
 ---
 
