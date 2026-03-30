@@ -545,6 +545,8 @@ GamePanelDelegate::OnAction(UIBaseElement *sender, const char *action)
 		unsigned char control;
 		if (SDL_strcasecmp(action, "THRUST") == 0) {
 			control = THRUST_KEY;
+		} else if (SDL_strcasecmp(action, "BRAKE") == 0) {
+			control = BRAKE_KEY;
 		} else if (SDL_strcasecmp(action, "RIGHT") == 0) {
 			control = RIGHT_KEY;
 		} else if (SDL_strcasecmp(action, "LEFT") == 0) {

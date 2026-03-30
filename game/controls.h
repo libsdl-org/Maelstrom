@@ -37,12 +37,13 @@ extern void	HandleEvent(SDL_Event *event);
 
 /* Generic key control definitions */
 #define THRUST_KEY	0x01
-#define RIGHT_KEY	0x02
-#define LEFT_KEY	0x03
-#define SHIELD_KEY	0x04
-#define FIRE_KEY	0x05
-#define PAUSE_KEY	0x06
-#define ABORT_KEY	0x07
+#define BRAKE_KEY	0x02
+#define RIGHT_KEY	0x03
+#define LEFT_KEY	0x04
+#define SHIELD_KEY	0x05
+#define FIRE_KEY	0x06
+#define PAUSE_KEY	0x07
+#define ABORT_KEY	0x08
 
 /* The controls structure */
 class Controls
@@ -56,6 +57,7 @@ public:
 	PrefsVariable<SDL_Keycode> gPauseControl;
 	PrefsVariable<SDL_Keycode> gShieldControl;
 	PrefsVariable<SDL_Keycode> gThrustControl;
+	PrefsVariable<SDL_Keycode> gBrakeControl;
 	PrefsVariable<SDL_Keycode> gTurnRControl;
 	PrefsVariable<SDL_Keycode> gTurnLControl;
 	PrefsVariable<SDL_Keycode> gFireControl;
@@ -92,6 +94,7 @@ protected:
 	enum {
 		FIRE_CTL,
 		THRUST_CTL,
+		BRAKE_CTL,
 		SHIELD_CTL,
 		TURNR_CTL,
 		TURNL_CTL,

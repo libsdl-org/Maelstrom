@@ -137,6 +137,11 @@
 							<Anchor anchorFrom="TOP" anchorTo="TOP"/>
 							<Action action_enter="CONTROL_DOWN_THRUST" action_leave="CONTROL_UP_THRUST"/>
 						</Thumbstick>
+						<Thumbstick name="brake">
+							<Size w="30" h="30"/>
+							<Anchor anchorFrom="BOTTOM" anchorTo="BOTTOM"/>
+							<Action action_enter="CONTROL_DOWN_BRAKE" action_leave="CONTROL_UP_BRAKE"/>
+						</Thumbstick>
 					</Elements>
 				</Image>
 
@@ -207,6 +212,11 @@
 							<Size w="45" h="45"/>
 							<Anchor anchorFrom="TOP" anchorTo="TOP"/>
 							<Action action_enter="CONTROL_DOWN_THRUST" action_leave="CONTROL_UP_THRUST"/>
+						</Thumbstick>
+						<Thumbstick name="brake">
+							<Size w="45" h="45"/>
+							<Anchor anchorFrom="BOTTOM" anchorTo="BOTTOM"/>
+							<Action action_enter="CONTROL_DOWN_BRAKE" action_leave="CONTROL_UP_BRAKE"/>
 						</Thumbstick>
 					</Elements>
 				</Image>
