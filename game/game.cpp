@@ -382,7 +382,7 @@ GamePanelDelegate::OnTick()
 		if (gGameInfo.IsKidMode()) {
 			bool enableShield = false;
 			OBJ_LOOP(i, gNumSprites) {
-				if (gSprites[i]->Collide(gPlayers[j], false)) {
+				if (gSprites[i]->IsDangerous() && gSprites[i]->Collide(gPlayers[j], false)) {
 					enableShield = true;
 					break;
 				}

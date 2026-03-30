@@ -28,6 +28,10 @@ public:
 	Prize(int X, int Y, int xVel, int yVel);
 	~Prize() { }
 
+	virtual int IsDangerous(void) {
+		return(0);
+	}
+
 	/* When we are run over, we give prizes! */
 	int BeenRunOver(Object *ship) {
 		int i;
@@ -241,6 +245,10 @@ class DamagedShip : public Object {
 public:
 	DamagedShip(int X, int Y, int xVel, int yVel);
 	~DamagedShip() { }
+
+	virtual int IsDangerous(void) {
+		return(0);
+	}
 
 	int BeenRunOver(Object *ship) {
 		if (!ship->IsGhost()) {
