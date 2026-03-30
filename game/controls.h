@@ -80,6 +80,12 @@ public:
 	virtual bool HandleEvent(const SDL_Event &event);
 
 protected:
+	void ShowControlLabel(int index);
+	void ShowControlLabels() {
+		for (int i = 0; i < NUM_CTLS; ++i) {
+			ShowControlLabel(i);
+		}
+	}
 	void ShowKeyLabel(int index);
 	void ShowKeyLabels() {
 		for (int i = 0; i < NUM_CTLS; ++i) {
@@ -87,6 +93,7 @@ protected:
 		}
 	}
 
+	int TranslateIndex(int index);
 	SDL_Keycode GetKeycode(int index);
 	void SetKeycode(int index, SDL_Keycode keycode);
 
@@ -104,7 +111,9 @@ protected:
 	};
 
 	Controls m_controls;
+	UIElement *m_controlBoxes[NUM_CTLS];
 	UIElement *m_controlKeys[NUM_CTLS];
+	UIElement *m_controlLabels[NUM_CTLS];
 	UIElementRadioGroup *m_radioGroup;
 	Uint64 m_keyinuseTimers[NUM_CTLS];
 };

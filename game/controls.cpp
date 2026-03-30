@@ -19,7 +19,7 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-/* This file handles the controls configuration and updating the keystrokes 
+/* This file handles the controls configuration and updating the keystrokes
 */
 
 #include "Maelstrom_Globals.h"
@@ -77,19 +77,45 @@ ControlsDialogDelegate::OnLoad()
 {
 	char name[32];
 
-	for (int i = 0; (unsigned)i < SDL_arraysize(m_controlKeys); ++i) {
+	for (unsigned int i = 0; i < SDL_arraysize(m_controlKeys); ++i) {
+		SDL_snprintf(name, sizeof(name), "control%d_box", 1+i);
+		m_controlBoxes[i] = m_panel->GetElement<UIElement>(name);
+		if (!m_controlBoxes[i]) {
+			error("Warning: Couldn't find control '%s'\n", name);
+			return false;
+		}
+	}
+
+	for (unsigned int i = 0; i < SDL_arraysize(m_controlKeys); ++i) {
 		SDL_snprintf(name, sizeof(name), "control%d", 1+i);
 		m_controlKeys[i] = m_panel->GetElement<UIElement>(name);
 		if (!m_controlKeys[i]) {
-			fprintf(stderr, "Warning: Couldn't find control key label '%s'\n", name);
+			error("Warning: Couldn't find control '%s'\n", name);
 			return false;
 		}
 	}
 
 	m_radioGroup = m_panel->GetElement<UIElementRadioGroup>("controlsRadioGroup");
 	if (!m_radioGroup) {
-		fprintf(stderr, "Warning: Couldn't find 'controlsRadioGroup'\n");
+		error("Warning: Couldn't find 'controlsRadioGroup'\n");
 		return false;
+	}
+
+	for (unsigned int i = 0; i < SDL_arraysize(m_controlLabels); ++i) {
+		SDL_snprintf(name, sizeof(name), "label%d", 1+i);
+		m_controlLabels[i] = m_panel->GetElement<UIElement>(name);
+		if (!m_controlLabels[i]) {
+			error("Warning: Couldn't find control '%s'\n", name);
+			return false;
+		}
+	}
+
+	unsigned int num_controls = SDL_arraysize(m_controlKeys);
+	if (!gControlBrakes) {
+		--num_controls;
+		m_controlBoxes[num_controls]->Hide();
+		m_controlKeys[num_controls]->Hide();
+		m_controlLabels[num_controls]->Hide();
 	}
 
 	return true;
@@ -112,6 +138,7 @@ ControlsDialogDelegate::OnShow()
 	m_controls = controls;
 
 	ShowKeyLabels();
+	ShowControlLabels();
 }
 
 void
@@ -164,6 +191,78 @@ ControlsDialogDelegate::HandleEvent(const SDL_Event &event)
 	return false;
 }
 
+int
+ControlsDialogDelegate::TranslateIndex(int index)
+{
+	static int s_arrBrakeEnabled[] = {
+		FIRE_CTL,
+		THRUST_CTL,
+		BRAKE_CTL,
+		SHIELD_CTL,
+		TURNR_CTL,
+		TURNL_CTL,
+		PAUSE_CTL,
+		QUIT_CTL
+	};
+	static int s_arrBrakeDisabled[] = {
+		FIRE_CTL,
+		THRUST_CTL,
+		SHIELD_CTL,
+		TURNR_CTL,
+		TURNL_CTL,
+		PAUSE_CTL,
+		QUIT_CTL
+	};
+
+	if (gControlBrakes) {
+		if (index < SDL_arraysize(s_arrBrakeEnabled)) {
+			return s_arrBrakeEnabled[index];
+		}
+	} else {
+		if (index < SDL_arraysize(s_arrBrakeDisabled)) {
+			return s_arrBrakeDisabled[index];
+		}
+	}
+	return NUM_CTLS;
+}
+
+void
+ControlsDialogDelegate::ShowControlLabel(int index)
+{
+	const char *text;
+
+	switch (TranslateIndex(index)) {
+		case FIRE_CTL:
+			text = "Fire";
+			break;
+		case THRUST_CTL:
+			text = "Thrust";
+			break;
+		case BRAKE_CTL:
+			text = "Brake";
+			break;
+		case SHIELD_CTL:
+			text = "Shield";
+			break;
+		case TURNR_CTL:
+			text = "Turn Clockwise";
+			break;
+		case TURNL_CTL:
+			text = "Turn Counter-Clockwise";
+			break;
+		case PAUSE_CTL:
+			text = "Pause";
+			break;
+		case QUIT_CTL:
+			text = "Abort Game";
+			break;
+		default:
+			text = "";
+			break;
+	}
+	m_controlLabels[index]->SetText(text);
+}
+
 void
 ControlsDialogDelegate::ShowKeyLabel(int index)
 {
@@ -180,7 +279,7 @@ ControlsDialogDelegate::ShowKeyLabel(int index)
 SDL_Keycode
 ControlsDialogDelegate::GetKeycode(int index)
 {
-	switch (index) {
+	switch (TranslateIndex(index)) {
 		case FIRE_CTL:
 			return m_controls.gFireControl;
 		case THRUST_CTL:
@@ -205,7 +304,7 @@ ControlsDialogDelegate::GetKeycode(int index)
 void
 ControlsDialogDelegate::SetKeycode(int index, SDL_Keycode keycode)
 {
-	switch (index) {
+	switch (TranslateIndex(index)) {
 		case FIRE_CTL:
 			m_controls.gFireControl = keycode;
 			break;
