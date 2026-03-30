@@ -62,6 +62,9 @@ GameInfo::SetHost(Uint8 wave, Uint8 lives, Uint8 turbo, Uint8 deathMatch, bool k
 	if (kidMode) {
 		this->gameMode |= GAME_MODE_KIDS;
 	}
+	if (gControlBrakes) {
+		this->gameMode |= GAME_MODE_CONTROL_BRAKES;
+	}
 	this->deathMatch = deathMatch;
 
 	// We are the host node

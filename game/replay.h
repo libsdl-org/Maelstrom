@@ -31,7 +31,7 @@
 // Examples of this would be changing the game play area, game info structure,
 // game logic, etc.
 //
-#define REPLAY_VERSION	1
+#define REPLAY_VERSION	2
 #define REPLAY_DIRECTORY "Games"
 #define REPLAY_FILETYPE "mreplay"
 #define LAST_REPLAY	"LastGame." REPLAY_FILETYPE

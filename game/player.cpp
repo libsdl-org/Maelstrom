@@ -33,8 +33,11 @@
 static void ThrustCallback(Uint8 theChannel)
 {
 	for (int i = 0; i < MAX_PLAYERS; ++i) {
-		if ( gPlayers[i]->IsThrusting() ) {
-			sound->PlaySound(gThrusterSound,1,theChannel,ThrustCallback);
+		if ( !gPlayers[i]->IsValid() ) {
+			continue;
+		}
+		if ( gPlayers[i]->IsThrusting() || gPlayers[i]->IsManualBraking() ) {
+			sound->PlaySound(gThrusterSound, 1, theChannel, ThrustCallback);
 			break;
 		}
 	}
@@ -129,6 +132,7 @@ Player::NewWave(void)
 	);
 	xvec = yvec = 0;
 	Thrusting = 0;
+	Braking = 0;
 	NoThrust = 0;
 	ThrustBlit = gThrust1;
 	Shooting = 0;
@@ -165,8 +169,9 @@ Player::NewShip(void)
 	Sphase = 0;
 	xvec = yvec = 0;
 	Thrusting = 0;
-	WasThrusting = 0;
 	ThrustBlit = gThrust1;
+	Braking = 0;
+	WasThrustingOrManualBraking = 0;
 	Shooting = 0;
 	WasShooting = 0;
 	Rotating = 0;
@@ -361,6 +366,7 @@ Player::Explode(void)
 	/* Finish our explosion */
 	Exploding = 1;
 	Thrusting = 0;
+	Braking = 0;
 	Shooting = 0;
 	ShieldOn = 0;
 	solid = 0;
@@ -463,7 +469,7 @@ printf("\n");
 	/* Update our status... :-) */
 	if ( Alive() && ! Exploding ) {
 		/* Airbrakes slow us down. :) */
-		if ( special & AIR_BRAKES ) {
+		if ( IsBraking() ) {
 			if ( yvec > 0 )
 				--yvec;
 			else if ( yvec < 0 )
@@ -477,19 +483,23 @@ printf("\n");
 
 		/* Thrust speeds us up! :)  */
 		if ( Thrusting ) {
-			if ( ! WasThrusting ) {
-				sound->PlaySound(gThrusterSound,
-							1, 3, ThrustCallback);
-				WasThrusting = 1;
-			}
-
 			/* -- The thrust key is down, increase the thrusters! */
 			if ( ! NoThrust ) {
 				Accelerate(gVelocityTable[phase].h,
 						gVelocityTable[phase].v);
 			}
-		} else
-			WasThrusting = 0;
+		}
+
+		if ( Thrusting || IsManualBraking() ) {
+			if ( ! WasThrustingOrManualBraking ) {
+				sound->PlaySound(gThrusterSound,
+							1, 3, ThrustCallback);
+				WasThrustingOrManualBraking = 1;
+			}
+
+		} else {
+			WasThrustingOrManualBraking = 0;
+		}
 
 		/* Shoot baby, shoot. */
 		if ( Shooting ) {
@@ -600,6 +610,9 @@ Player::HandleKeys(void)
 				case THRUST_KEY:
 					Thrusting = 1;
 					break;
+				case BRAKE_KEY:
+					Braking = 1;
+					break;
 				case RIGHT_KEY:
 					Rotating |= 0x01;
 					break;
@@ -621,6 +634,9 @@ Player::HandleKeys(void)
 					Thrusting = 0;
 					if ( sound->Playing(gThrusterSound) )
 						sound->HaltSound(3);
+					break;
+				case BRAKE_KEY:
+					Braking = 0;
 					break;
 				case RIGHT_KEY:
 					Rotating &= ~0x01;

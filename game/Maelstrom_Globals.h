@@ -82,6 +82,7 @@ extern void  SetStar(int which);
 // External variables...
 // in main.cpp : 
 extern Bool	gInitializing;
+extern Bool	gControlBrakes;
 extern Bool	gNetworkAvailable;
 extern Bool	gUpdateBuffer;
 extern Bool	gRunning;

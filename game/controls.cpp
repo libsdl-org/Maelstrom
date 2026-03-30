@@ -34,6 +34,7 @@ Controls::Controls() :
 	gPauseControl("Controls.PauseControl", SDLK_PAUSE),
 	gShieldControl("Controls.ShieldControl", SDLK_SPACE),
 	gThrustControl("Controls.ThrustControl", SDLK_UP),
+	gBrakeControl("Controls.BrakeControl", SDLK_DOWN),
 	gTurnRControl("Controls.TurnRControl", SDLK_RIGHT),
 	gTurnLControl("Controls.TurnLControl", SDLK_LEFT),
 	gFireControl("Controls.FireControl", SDLK_TAB),
@@ -47,6 +48,7 @@ Controls::Bind(Prefs *prefs)
 	gPauseControl.Bind(prefs);
 	gShieldControl.Bind(prefs);
 	gThrustControl.Bind(prefs);
+	gBrakeControl.Bind(prefs);
 	gTurnRControl.Bind(prefs);
 	gTurnLControl.Bind(prefs);
 	gFireControl.Bind(prefs);
@@ -183,6 +185,8 @@ ControlsDialogDelegate::GetKeycode(int index)
 			return m_controls.gFireControl;
 		case THRUST_CTL:
 			return m_controls.gThrustControl;
+		case BRAKE_CTL:
+			return m_controls.gBrakeControl;
 		case SHIELD_CTL:
 			return m_controls.gShieldControl;
 		case TURNR_CTL:
@@ -207,6 +211,9 @@ ControlsDialogDelegate::SetKeycode(int index, SDL_Keycode keycode)
 			break;
 		case THRUST_CTL:
 			m_controls.gThrustControl = keycode;
+			break;
+		case BRAKE_CTL:
+			m_controls.gBrakeControl = keycode;
 			break;
 		case SHIELD_CTL:
 			m_controls.gShieldControl = keycode;
@@ -348,6 +355,12 @@ static void UpdateControl(Player *player)
 				SDL_GetGamepadAxis(gamepad->gamepad, SDL_GAMEPAD_AXIS_RIGHTY) <= -16000) {
 				keys[THRUST_KEY] = true;
 			}
+
+			if (SDL_GetGamepadButton(gamepad->gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP) ||
+				SDL_GetGamepadAxis(gamepad->gamepad, SDL_GAMEPAD_AXIS_LEFTY) <= -16000 ||
+				SDL_GetGamepadAxis(gamepad->gamepad, SDL_GAMEPAD_AXIS_RIGHTY) <= -16000) {
+				keys[BRAKE_KEY] = true;
+			}
 		}
 
 		if (!gamepad->sessionID) {
@@ -377,6 +390,9 @@ static void UpdateControl(Player *player)
 		if (keystate[SDL_GetScancodeFromKey(controls.gThrustControl, SDL_KMOD_NONE)]) {
 			keys[THRUST_KEY] = true;
 		}
+		if (keystate[SDL_GetScancodeFromKey(controls.gBrakeControl, SDL_KMOD_NONE)]) {
+			keys[BRAKE_KEY] = true;
+		}
 	}
 
 	player->SetControl(FIRE_KEY, keys[FIRE_KEY]);
@@ -384,6 +400,7 @@ static void UpdateControl(Player *player)
 	player->SetControl(LEFT_KEY, keys[LEFT_KEY]);
 	player->SetControl(RIGHT_KEY, keys[RIGHT_KEY]);
 	player->SetControl(THRUST_KEY, keys[THRUST_KEY]);
+	player->SetControl(BRAKE_KEY, keys[BRAKE_KEY]);
 }
 
 void HandleEvent(SDL_Event *event)

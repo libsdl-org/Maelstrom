@@ -44,7 +44,8 @@ enum PLAYER_CONTROL {
 };
 
 enum GAME_MODE {
-	GAME_MODE_KIDS       = 0x01,
+	GAME_MODE_KIDS           = 0x01,
+	GAME_MODE_CONTROL_BRAKES = 0x02,
 };
 
 #define IS_LOCAL_CONTROL(X)	(X & CONTROL_LOCAL)
@@ -194,6 +195,9 @@ public:
 	}
 	bool IsKidMode() const {
 		return (gameMode & GAME_MODE_KIDS) != 0;
+	}
+	bool ControlBrakes() const {
+		return (gameMode & GAME_MODE_CONTROL_BRAKES) != 0;
 	}
 
 	void SetNodeState(int index, Uint8 state);

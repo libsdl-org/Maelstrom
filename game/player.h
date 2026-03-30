@@ -122,6 +122,23 @@ public:
 	virtual int IsThrusting(void) {
 		return(Thrusting);
 	}
+	int IsBraking() {
+		if ( GetSpecial( AIR_BRAKES ) ) {
+			if ( gGameInfo.ControlBrakes() ) {
+				return(Braking);
+			} else {
+				return(1);
+			}
+		} else {
+			return(0);
+		}
+	}
+	int IsManualBraking() {
+		if ( GetSpecial(AIR_BRAKES) && gGameInfo.ControlBrakes() ) {
+			return(Braking && (xvec || yvec));
+		}
+		return(0);
+	}
 	virtual void SetSpecial(unsigned char Spec) {
 		special |= Spec;
 	}
@@ -164,7 +181,8 @@ private:
 	int Thrusting;
 	int NoThrust;
 	Blit *ThrustBlit;
-	int WasThrusting;
+	int Braking;
+	int WasThrustingOrManualBraking;
 	int Shooting;
 	int WasShooting;
 	int Rotating;
