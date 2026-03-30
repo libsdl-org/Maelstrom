@@ -47,29 +47,38 @@
 		<DialogLabel name="control7">
 			<Anchor anchor="control7_box"/>
 		</DialogLabel>
+		<Rectangle name="control8_box" template="ControlKeyBox">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="control7_box" y="3"/>
+		</Rectangle>
+		<DialogLabel name="control8">
+			<Anchor anchor="control8_box"/>
+		</DialogLabel>
 
 		<DialogRadioGroup name="controlsRadioGroup">
 			<Elements>
-				<DialogRadioButton text="Fire" id="1">
+				<DialogRadioButton name="label1" id="1">
 					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="control1_box"/>
 				</DialogRadioButton>
-				<DialogRadioButton text="Thrust" id="2">
+				<DialogRadioButton name="label2" id="2">
 					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="control2_box"/>
 				</DialogRadioButton>
-				<DialogRadioButton text="Shield" id="3">
+				<DialogRadioButton name="label3" id="3">
 					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="control3_box"/>
 				</DialogRadioButton>
-				<DialogRadioButton text="Turn Clockwise" id="4">
+				<DialogRadioButton name="label4" id="4">
 					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="control4_box"/>
 				</DialogRadioButton>
-				<DialogRadioButton text="Turn Counter-Clockwise" id="5">
+				<DialogRadioButton name="label5" id="5">
 					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="control5_box"/>
 				</DialogRadioButton>
-				<DialogRadioButton text="Pause" id="6">
+				<DialogRadioButton name="label6" id="6">
 					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="control6_box"/>
 				</DialogRadioButton>
-				<DialogRadioButton text="Abort Game" id="7">
+				<DialogRadioButton name="label7" id="7">
 					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="control7_box"/>
+				</DialogRadioButton>
+				<DialogRadioButton name="label8" id="8">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="control8_box"/>
 				</DialogRadioButton>
 			</Elements>
 		</DialogRadioGroup>
