@@ -46,6 +46,9 @@ public:
 	virtual int IsPlayer(void) {
 		return(1);
 	}
+	virtual int IsDangerous(void) {
+		return(0);
+	}
 	virtual int IsGhost(void) {
 		return Ghost;
 	}
