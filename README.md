@@ -2,7 +2,7 @@
 
 You pilot your ship through the dreaded "Maelstrom" asteroid belt -- suddenly your best friend thrusts towards you and fires, directly at your cockpit. You raise your shields just in time, and the battle is joined.
 
-The deadliest stretch of space known to mankind has just gotten deadlier. Everywhere massive asteroids jostle for a chance to crush your ship, and deadly shinobi fighter patrols pursue you across the asteroid belt. But the deadliest of them all is your sister ship, assigned to you on patrol. The pilot, trained by your own Navy, battle hardened by months in the Maelstrom, is equipped with a twin of your own ship and intimate knowledge of your tactics.
+The deadliest stretch of space known to mankind has just gotten deadlier. Everywhere massive asteroids jostle for a chance to crush your ship, and deadly Shenobi fighter patrols pursue you across the asteroid belt. But the deadliest of them all is your sister ship, assigned to you on patrol. The pilot, trained by your own Navy, battle hardened by months in the Maelstrom, is equipped with a twin of your own ship and intimate knowledge of your tactics.
 
 The lovely Stratocaster R&R facility never sounded so good, but as you fire full thrusters to dodge the latest barrage you begin to think you'll never get home...
 
