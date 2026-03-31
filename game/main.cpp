@@ -212,6 +212,10 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 		gReplayFile = SDL_strdup(event->drop.data);
 	}
 
+	if (event->type == SDL_EVENT_QUIT) {
+		return SDL_APP_SUCCESS;
+	}
+
 	screen->ProcessEvent(event);
 
 	HandleEvent(event);
@@ -390,12 +394,6 @@ MainPanelDelegate::HandleEvent(const SDL_Event &event)
 	/* -- Handle file drop requests */
 	if ( event.type == SDL_EVENT_DROP_FILE ) {
 		gReplayFile = SDL_strdup( event.drop.data );
-		return true;
-	}
-
-	/* -- Handle window close requests */
-	if ( event.type == SDL_EVENT_QUIT ) {
-		OnActionQuitGame();
 		return true;
 	}
 

@@ -32,7 +32,6 @@ public:
 	virtual void OnShow();
 	virtual void OnHide();
 	virtual void OnTick();
-	virtual bool HandleEvent(const SDL_Event &event);
 
 protected:
 	UIElement *m_timeoutLabel;
