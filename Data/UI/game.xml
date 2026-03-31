@@ -145,7 +145,7 @@
 					</Elements>
 				</Image>
 
-				<Thumbstick name="fire" image="circle" followTouch="true">
+				<Thumbstick name="fire" image="circle">
 					<Size w="40" h="40"/>
 					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-60" y="-30"/>
 					<Action action_enter="CONTROL_DOWN_FIRE" action_leave="CONTROL_UP_FIRE"/>
@@ -156,7 +156,7 @@
 						</Icon>
 					</Elements>
 				</Thumbstick>
-				<Thumbstick name="shield" image="circle" followTouch="true">
+				<Thumbstick name="shield" image="circle">
 					<Size w="40" h="40"/>
 					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-30" y="-60"/>
 					<Action action_enter="CONTROL_DOWN_SHIELD" action_leave="CONTROL_UP_SHIELD"/>
@@ -221,7 +221,7 @@
 					</Elements>
 				</Image>
 
-				<Thumbstick name="fire" image="circle" followTouch="true">
+				<Thumbstick name="fire" image="circle">
 					<Size w="60" h="60"/>
 					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-90" y="-45"/>
 					<Action action_enter="CONTROL_DOWN_FIRE" action_leave="CONTROL_UP_FIRE"/>
@@ -232,7 +232,7 @@
 						</Icon>
 					</Elements>
 				</Thumbstick>
-				<Thumbstick name="shield" image="circle" followTouch="true">
+				<Thumbstick name="shield" image="circle">
 					<Size w="60" h="60"/>
 					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-45" y="-90"/>
 					<Action action_enter="CONTROL_DOWN_SHIELD" action_leave="CONTROL_UP_SHIELD"/>
