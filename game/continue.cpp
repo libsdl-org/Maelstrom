@@ -65,11 +65,3 @@ void ContinuePanelDelegate::OnTick()
 		m_timeoutLabel->SetText(num);
 	}
 }
-
-bool ContinuePanelDelegate::HandleEvent(const SDL_Event &event)
-{
-	if (event.type == SDL_EVENT_QUIT) {
-		ui->HidePanel(m_panel);
-	}
-	return false;
-}

@@ -635,10 +635,6 @@ void HandleEvent(SDL_Event *event)
 		case SDL_EVENT_WINDOW_RESTORED:
 			gGameInfo.SetLocalState(STATE_MINIMIZE, false);
 			break;
-
-		case SDL_EVENT_QUIT:
-			gGameInfo.SetLocalState(STATE_ABORT, true);
-			break;
 	}
 }
 
