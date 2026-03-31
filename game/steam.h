@@ -45,7 +45,8 @@ enum STEAM_TIMELINE_EVENT
 typedef Uint32 RemotePlaySessionID_t;
 
 extern bool InitSteam();
-extern bool SteamStreamingToPhoneOrTablet();
+extern bool SteamStreamingToPhone();
+extern bool SteamStreamingToTablet();
 extern RemotePlaySessionID_t GetRemoteSessionForGamepad(SDL_Gamepad *gamepad);
 extern Uint8 GetRemoteSessionControl(RemotePlaySessionID_t sessionID);
 extern const char *GetRemotePlayerName(Uint8 controlType);

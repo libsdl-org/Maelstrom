@@ -70,6 +70,8 @@ typedef Uint8 Bool;
 
 // Functions from main.cpp
 extern void   PrintUsage(void);
+extern bool   IsPhone(void);
+extern bool   IsTablet(void);
 extern int    DrawText(int x, int y, const char *text, MFont *font, Uint8 style,
 						Uint8 R, Uint8 G, Uint8 B);
 extern void   DelayFrame(void);
