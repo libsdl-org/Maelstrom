@@ -54,13 +54,13 @@ static SDL_EnumerationResult SDLCALL LoadScoresCallback(void *userdata, const ch
 	if (SDL_strcmp(fname, LAST_REPLAY) == 0) {
 		return SDL_ENUM_CONTINUE;
 	}
-	if (!replay.Load(fname, true)) {
-		return SDL_ENUM_CONTINUE;
+	if (replay.Load(fname, true)) {
+		SDL_strlcpy(score.name, replay.GetDisplayName(), sizeof(score.name));
+		score.wave = replay.GetFinalWave();
+		score.score = replay.GetFinalScore();
+	} else {
+		SDL_zero(score);
 	}
-
-	SDL_strlcpy(score.name, replay.GetDisplayName(), sizeof(score.name));
-	score.wave = replay.GetFinalWave();
-	score.score = replay.GetFinalScore();
 	score.file = SDL_strdup(fname);
 	scores->add(score);
 
@@ -81,22 +81,26 @@ void LoadScores(void)
 		return;
 	}
 	SDL_EnumerateStorageDirectory(storage, REPLAY_DIRECTORY, LoadScoresCallback, &scores);
-	SDL_CloseStorage(storage);
 
 	// Take the top 10
 	if (scores.length() > 0) {
 		SDL_qsort(&scores[0], scores.length(), sizeof(scores[0]), SortScores);
 	}
 	for (i = 0; i < scores.length() && i < NUM_SCORES; ++i) {
+		if (!scores[i].score) {
+			break;
+		}
 		hScores[i] = scores[i];
 	}
 
 	// Trim the rest
 	for ( ; i < scores.length(); ++i) {
 		SDL_snprintf(path, sizeof(path), "%s/%s", REPLAY_DIRECTORY, scores[i].file);
-		SDL_RemovePath(path);
+		SDL_RemoveStoragePath(storage, path);
 		SDL_free(scores[i].file);
 	}
+
+	SDL_CloseStorage(storage);
 }
 
 void FreeScores(void)
