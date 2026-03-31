@@ -187,6 +187,10 @@ bool GameOverPanelDelegate::HandleEvent(const SDL_Event &event)
 		return true;
 	case SDL_EVENT_KEY_UP:
 		switch (event.key.key) {
+			case SDLK_ESCAPE:
+				m_handle[0] = '\0';
+				FinishEnterName();
+				return true;
 			case SDLK_RETURN:
 				FinishEnterName();
 				return true;
