@@ -25,13 +25,16 @@
 #include "gameinfo.h"
 #include "packet.h"
 
+// You should increment this every time the replay header or game info changes
+#define HEADER_VERSION	2
+
 // You should increment this every time game code changes in ways that would
 // affect the random number sequence for a game.
 //
-// Examples of this would be changing the game play area, game info structure,
-// game logic, etc.
+// Examples of this would be changing the game play area, game logic, etc.
 //
-#define REPLAY_VERSION	2
+#define REPLAY_VERSION	1
+
 #define REPLAY_DIRECTORY "Games"
 #define REPLAY_FILETYPE "mreplay"
 #define LAST_REPLAY	"LastGame." REPLAY_FILETYPE

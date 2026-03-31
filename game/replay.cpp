@@ -94,8 +94,8 @@ Replay::Load(const char *file, bool headerOnly)
 		SDL_Log("Couldn't read data: %s", SDL_GetError());
 		goto done;
 	}
-	if (version != REPLAY_VERSION) {
-		SDL_Log("Unsupported version %d, expected %d", version, REPLAY_VERSION);
+	if (version != HEADER_VERSION) {
+		SDL_Log("Unsupported version %d, expected %d", version, HEADER_VERSION);
 		goto done;
 	}
 	SDL_ReadU32LE(fp, &m_frameCount);
@@ -121,6 +121,22 @@ Replay::Load(const char *file, bool headerOnly)
 	}
 
 	if (!headerOnly) {
+		if (!SDL_ReadIO(fp, &version, 1)) {
+			SDL_Log("Couldn't read data: %s", SDL_GetError());
+			goto done;
+		}
+		if (version != REPLAY_VERSION) {
+			SDL_Log("Unsupported data version %d, expected %d", version, REPLAY_VERSION);
+			goto done;
+		}
+
+		Uint32 spriteCRC = 0;
+		SDL_ReadU32LE(fp, &spriteCRC);
+		if (spriteCRC != gSpriteCRC) {
+			SDL_Log("Game uses a different sprite pack, ignoring");
+			goto done;
+		}
+
 		SDL_ReadU32LE(fp, &size);
 		m_data.Reset();
 		m_data.Grow(size);
@@ -153,7 +169,6 @@ Replay::Save(const char *file)
 {
 	char path[1024];
 	SDL_IOStream *fp = nullptr;
-	Uint8 version;
 	DynamicPacket data;
 	uLongf destLen;
 	bool result = false;
@@ -164,8 +179,7 @@ Replay::Save(const char *file)
 		goto done;
 	}
 
-	version = REPLAY_VERSION;
-	SDL_WriteU8(fp, version);
+	SDL_WriteU8(fp, HEADER_VERSION);
 	SDL_WriteU32LE(fp, m_frameCount);
 	SDL_WriteU8(fp, m_finalPlayer);
 	SDL_WriteU8(fp, m_finalWave);
@@ -182,6 +196,9 @@ Replay::Save(const char *file)
 		SDL_Log("Error writing to %s: %s", file, SDL_GetError());
 		goto done;
 	}
+
+	SDL_WriteU8(fp, REPLAY_VERSION);
+	SDL_WriteU32LE(fp, gSpriteCRC);
 
 	destLen = compressBound(m_data.Size());
 	data.Reset();

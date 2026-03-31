@@ -107,6 +107,7 @@ enum LoadingStage
 	LOAD_STAGE_BLITS25,
 	LOAD_STAGE_SHOTS,
 	LOAD_STAGE_SPRITES,
+	LOAD_STAGE_SCORES,
 	LOAD_STAGE_COMPLETE
 };
 static int gLoadingStage = LOAD_STAGE_WAITING;
@@ -827,9 +828,6 @@ bool StartInitialization(int window_width, int window_height, Uint32 window_flag
 	// -- Initialize some variables
 	gLastHigh = -1;
 
-	// -- Create our scores file
-	LoadScores();
-
 	// -- Load our preferences files
 	prefs = new Prefs(GAME_PREFS_FILE);
 	prefs->Load();
@@ -970,6 +968,15 @@ bool ContinueInitialization()
 		if ( InitSprites() < 0 ) {
 			return false;
 		}
+
+		gLoadingStage = LOAD_STAGE_SCORES;
+
+		// Fallthrough...
+		//break;
+
+	case LOAD_STAGE_SCORES:
+		// -- Create our scores file
+		LoadScores();
 
 		gLoadingStage = LOAD_STAGE_COMPLETE;
 
