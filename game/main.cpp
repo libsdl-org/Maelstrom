@@ -145,6 +145,29 @@ void PrintUsage(const char *progname)
 	);
 }
 
+#if !SDL_VERSION_ATLEAST(3, 5, 0)
+static bool SDL_IsPhone(void)
+{
+#if defined(SDL_PLATFORM_ANDROID) || \
+    (defined(SDL_PLATFORM_IOS) && !defined(SDL_PLATFORM_VISIONOS))
+    if (!SDL_IsTablet() && !SDL_IsTV()) {
+        return true;
+    }
+#endif
+    return false;
+}
+#endif // SDL < 3.5.0
+
+bool IsPhone(void)
+{
+	return (SDL_IsPhone() || SteamStreamingToPhone());
+}
+
+bool IsTablet(void)
+{
+	return (SDL_IsTablet() || SteamStreamingToTablet());
+}
+
 /* ----------------------------------------------------------------- */
 /* -- Blitter main program */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])

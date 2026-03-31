@@ -44,7 +44,8 @@ public:
 	bool Init();
 	void Quit();
 
-	bool StreamingToPhoneOrTablet();
+	bool StreamingToPhone();
+	bool StreamingToTablet();
 
 	void SetSteamTimelineMode(STEAM_TIMELINE_MODE mode);
 	void SetSteamTimelineLevelStarted(int level);
@@ -130,7 +131,7 @@ void SteamInterface::Quit()
 	m_initialized = false;
 }
 
-bool SteamInterface::StreamingToPhoneOrTablet()
+bool SteamInterface::StreamingToPhone()
 {
 	if (!m_initialized) {
 		return false;
@@ -146,8 +147,30 @@ bool SteamInterface::StreamingToPhoneOrTablet()
 		}
 
 		ESteamDeviceFormFactor eFormFactor = pSteamRemotePlay->GetSessionClientFormFactor(sessionID);
-		if (eFormFactor == k_ESteamDeviceFormFactorPhone || 
-		    eFormFactor == k_ESteamDeviceFormFactorTablet) {
+		if (eFormFactor == k_ESteamDeviceFormFactorPhone) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool SteamInterface::StreamingToTablet()
+{
+	if (!m_initialized) {
+		return false;
+	}
+
+	ISteamRemotePlay *pSteamRemotePlay = SteamRemotePlay();
+	for (uint32 i = 0; i < pSteamRemotePlay->GetSessionCount(); ++i) {
+		RemotePlaySessionID_t sessionID = pSteamRemotePlay->GetSessionID(i);
+
+		// Skip Remote Play Together sessions
+		if (pSteamRemotePlay->BSessionRemotePlayTogether(sessionID)) {
+			continue;
+		}
+
+		ESteamDeviceFormFactor eFormFactor = pSteamRemotePlay->GetSessionClientFormFactor(sessionID);
+		if (eFormFactor == k_ESteamDeviceFormFactorTablet) {
 			return true;
 		}
 	}
@@ -509,9 +532,14 @@ bool InitSteam()
 	return steam.Init();
 }
 
-bool SteamStreamingToPhoneOrTablet()
+bool SteamStreamingToPhone()
 {
-	return steam.StreamingToPhoneOrTablet();
+	return steam.StreamingToPhone();
+}
+
+bool SteamStreamingToTablet()
+{
+	return steam.StreamingToTablet();
 }
 
 Uint32 GetRemoteSessionForGamepad(SDL_Gamepad *gamepad)
@@ -586,7 +614,12 @@ bool InitSteam()
 	return false;
 }
 
-bool SteamStreamingToPhoneOrTablet()
+bool SteamStreamingToPhone()
+{
+	return false;
+}
+
+bool SteamStreamingToTablet()
 {
 	return false;
 }

@@ -214,6 +214,9 @@ MaelstromUI::MaelstromUI(FrameBuf *screen, Prefs *prefs) : UIManager(screen, pre
 	if (gNetworkAvailable) {
 		SetCondition("NETWORK_AVAILABLE");
 	}
+	if (IsPhone()) {
+		SetCondition("PHONE");
+	}
 
 	/* Load up our UI templates */
 	ClearLoadPath();

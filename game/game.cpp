@@ -587,19 +587,6 @@ GamePanelDelegate::OnAction(UIBaseElement *sender, const char *action)
 	return true;
 }
 
-#if !SDL_VERSION_ATLEAST(3, 5, 0)
-static bool SDL_IsPhone(void)
-{
-#if defined(SDL_PLATFORM_ANDROID) || \
-    (defined(SDL_PLATFORM_IOS) && !defined(SDL_PLATFORM_VISIONOS))
-    if (!SDL_IsTablet() && !SDL_IsTV()) {
-        return true;
-    }
-#endif
-    return false;
-}
-#endif // SDL < 3.5.0
-
 void
 GamePanelDelegate::UpdateZoom()
 {
@@ -613,7 +600,7 @@ GamePanelDelegate::UpdateZoom()
 	SDL_SetRenderLogicalPresentation(renderer, saved_w, saved_h, saved_mode);
 
 	// We can zoom if we're on a phone or tablet in landscape mode
-	if ((SDL_IsPhone() || SDL_IsTablet() || SteamStreamingToPhoneOrTablet()) && rect.w > rect.h) {
+	if ((IsPhone() || IsTablet()) && rect.w > rect.h) {
 		StartZoom(rect);
 	} else {
 		StopZoom();
