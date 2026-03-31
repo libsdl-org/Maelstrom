@@ -225,6 +225,9 @@ bool GameOverPanelDelegate::HandleEvent(const SDL_Event &event)
 	case SDL_EVENT_GAMEPAD_BUTTON_UP:
 		FinishEnterName();
 		return true;
+	case SDL_EVENT_SCREEN_KEYBOARD_HIDDEN:
+		FinishEnterName();
+		return true;
 	default:
 		break;
 	}
