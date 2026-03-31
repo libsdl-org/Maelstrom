@@ -27,13 +27,11 @@
 static const char *storage_org;
 static const char *storage_app;
 static char datapath[PATH_MAX];
+static char override[PATH_MAX];
 
-bool InitFilesystem(const char *org, const char *app)
+bool InitDataPath(void)
 {
 	const char *env = SDL_getenv("MAELSTROM_DATA");
-
-	storage_org = org;
-	storage_app = app;
 
 	if (env) {
 		SDL_strlcpy(datapath, env, sizeof(datapath));
@@ -69,20 +67,80 @@ bool InitFilesystem(const char *org, const char *app)
 #endif // MAELSTROM_DATA
 }
 
+void InitOverridePath(void)
+{
+	const char *env = SDL_getenv("MAELSTROM_DATA_OVERRIDE");
+
+	if (env) {
+		SDL_strlcpy(override, env, sizeof(override));
+		return;
+	}
+
+#ifdef MAELSTROM_DATA_OVERRIDE
+	SDL_strlcpy(override, MAELSTROM_DATA_OVERRIDE, sizeof(override));
+#else
+	SDL_snprintf(override, sizeof(override), "%s../addon/", datapath);
+#endif
+
+	if (!SDL_GetPathInfo(override, NULL)) {
+		override[0] = '\0';
+	}
+}
+
+bool InitFilesystem(const char *org, const char *app)
+{
+	storage_org = org;
+	storage_app = app;
+
+	if (!InitDataPath()) {
+		return false;
+	}
+
+	// Make sure the datapath ends in '/'
+	if (datapath[SDL_strlen(datapath) - 1] != '/') {
+		SDL_strlcat(datapath, "/", sizeof(datapath));
+	}
+
+	InitOverridePath();
+
+	// Make sure the override ends in '/'
+	if (override[SDL_strlen(override) - 1] != '/') {
+		SDL_strlcat(override, "/", sizeof(override));
+	}
+
+	return true;
+}
+
 SDL_IOStream *OpenRead(const char *file)
 {
+	SDL_IOStream *stream = NULL;
 	char path[PATH_MAX];
 
-	SDL_snprintf(path, sizeof(path), "%s%s", datapath, file);
-	return SDL_IOFromFile(path, "rb");
+	if (*override) {
+		SDL_snprintf(path, sizeof(path), "%s%s", override, file);
+		stream = SDL_IOFromFile(path, "rb");
+	}
+	if (!stream) {
+		SDL_snprintf(path, sizeof(path), "%s%s", datapath, file);
+		stream = SDL_IOFromFile(path, "rb");
+	}
+	return stream;
 }
 
 char *LoadFile(const char *file)
 {
+	char *data = NULL;
 	char path[PATH_MAX];
 
-	SDL_snprintf(path, sizeof(path), "%s%s", datapath, file);
-	return (char *)SDL_LoadFile(path, NULL);
+	if (*override) {
+		SDL_snprintf(path, sizeof(path), "%s%s", override, file);
+		data = (char *)SDL_LoadFile(path, NULL);
+	}
+	if (!data) {
+		SDL_snprintf(path, sizeof(path), "%s%s", datapath, file);
+		data = (char *)SDL_LoadFile(path, NULL);
+	}
+	return data;
 }
 
 SDL_Storage *OpenUserStorage(void)
