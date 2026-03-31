@@ -664,7 +664,7 @@ GamePanelDelegate::DrawBorder()
 	rect.y -= 1;
 	rect.w += 2;
 	rect.h += 2;
-	screen->DrawRect(rect.x, rect.y, rect.w, rect.h, screen->MapRGB(0x9C, 0x9C, 0xFF));
+	screen->DrawRect(rect.x, rect.y, rect.w, rect.h, screen->MapRGB(0x75, 0x75, 0xFF));
 }
 
 /* ----------------------------------------------------------------- */
