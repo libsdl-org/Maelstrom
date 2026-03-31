@@ -507,6 +507,8 @@ GamePanelDelegate::OnDraw(DRAWLEVEL drawLevel)
 		gPlayers[i]->BlitSprite();
 	}
 
+	DrawBorder();
+
 	if (m_zoom) {
 		StopZoomedDrawing();
 	}
@@ -650,6 +652,19 @@ void
 GamePanelDelegate::StopZoomedDrawing()
 {
 	screen->SetLogicalSize(ui->X() + ui->Width() + ui->X(), ui->Y() + ui->Height() + ui->Y());
+}
+
+void
+GamePanelDelegate::DrawBorder()
+{
+	SDL_Rect rect;
+
+	screen->GetClip(&rect);
+	rect.x -= 1;
+	rect.y -= 1;
+	rect.w += 2;
+	rect.h += 2;
+	screen->DrawRect(rect.x, rect.y, rect.w, rect.h, screen->MapRGB(0x9C, 0x9C, 0xFF));
 }
 
 /* ----------------------------------------------------------------- */
