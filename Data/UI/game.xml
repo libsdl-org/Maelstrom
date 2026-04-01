@@ -93,6 +93,11 @@
 			<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="frags_label" x="4"/>
 		</Label>
 
+		<!-- Pause label -->
+		<Label name="paused" template="SmallYellow">
+			<Anchor anchorFrom="CENTER" anchorTo="TOP" y="16"/>
+		</Label>
+
 		<!-- Touch controls -->
 		<Area condition="!PHONE" name="touch_controls" show="false">
 			<Elements>

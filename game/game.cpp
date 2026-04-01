@@ -184,6 +184,8 @@ GamePanelDelegate::OnLoad()
 	m_fragsLabel = m_panel->GetElement<UIElement>("frags_label");
 	m_frags = m_panel->GetElement<UIElement>("frags");
 
+	m_paused = m_panel->GetElement<UIElement>("paused");
+
 	m_zoom = false;
 
 	return true;
@@ -241,6 +243,9 @@ GamePanelDelegate::OnShow()
 		if (m_frags) {
 			m_frags->Hide();
 		}
+	}
+	if (m_paused) {
+		m_paused->Hide();
 	}
 
 	NextWave();
@@ -948,13 +953,42 @@ GamePanelDelegate::UpdateGameState()
 	}
 
 	// Check for pause status
+	bool locally_paused = false;
+	int index_paused = -1;
 	paused = 0;
 	for (i = 0; i < gGameInfo.GetNumNodes(); ++i) {
-		paused |= gGameInfo.GetNodeState(i);
+		Uint8 state = gGameInfo.GetNodeState(i);
+		paused |= state;
+		if (state & (STATE_PAUSE|STATE_MINIMIZE)) {
+			if (i == gGameInfo.GetLocalIndex()) {
+				locally_paused = true;
+			} else {
+				index_paused = i;
+			}
+		}
 	}
 	if ((paused & (STATE_PAUSE|STATE_MINIMIZE)) &&
 	    !(gPaused & (STATE_PAUSE|STATE_MINIMIZE))) {
 		sound->PlaySound(gPauseSound, 5);
+	}
+	if (m_paused) {
+		// Update the pause label
+		if (paused & (STATE_PAUSE|STATE_MINIMIZE)) {
+			char label[128] = { 0 };
+			if (!locally_paused) {
+				const GameInfoPlayer *player = gGameInfo.GetPlayer(index_paused);
+				if (*player->name) {
+					SDL_snprintf(label, sizeof(label), "Paused by %s", player->name);
+				}
+			}
+			if (!*label) {
+				SDL_strlcpy(label, "Paused", sizeof(label));
+			}
+			m_paused->SetText(label);
+			m_paused->Show();
+		} else if (gPaused & (STATE_PAUSE|STATE_MINIMIZE)) {
+			m_paused->Hide();
+		}
 	}
 	gPaused = paused;
 
