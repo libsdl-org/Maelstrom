@@ -58,6 +58,7 @@ static const char *Version =
 // Global variables set in this file...
 Bool	gInitializing = false;
 Bool	gControlBrakes = false;
+Bool	gAlwaysZoom = false;
 Bool	gNetworkAvailable = false;
 Bool	gUpdateBuffer = false;
 Bool	gDelaySound = false;
@@ -142,6 +143,7 @@ void PrintUsage(const char *progname)
 "    --windowed        # Run Maelstrom in windowed mode\n"
 "    --geometry WxH    # Set the window size to WxH\n"
 "    --control-brakes  # Allow manual brake control\n"
+"    --zoom            # Zoom in on the ship\n"
 	);
 }
 
@@ -207,6 +209,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 			}
 		} else if ( strcmp(argv[i], "--control-brakes") == 0 ) {
 			gControlBrakes = true;
+		} else if ( strcmp(argv[i], "--zoom") == 0 ) {
+			gAlwaysZoom = true;
 		} else if ( strcmp(argv[i], "-NSDocumentRevisionsDebugMode") == 0 && argv[i+1] ) {
 			// Ignore Xcode debug option
 			++i;
