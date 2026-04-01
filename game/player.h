@@ -167,6 +167,11 @@ public:
 	}
 	bool CanGetAchievement();
 
+	void GetCameraPos(int *X, int *Y) {
+		*X = CameraX;
+		*Y = CameraY;
+	}
+
 private:
 	int Valid;
 	int Index;
@@ -203,6 +208,11 @@ private:
 	Uint32 controlState;
 
 	bool NoShieldsThisLevel = false;
+
+	int CameraX;
+	int CameraY;
+
+	void UpdateCamera();
 
 	/* Create a new shot */
 	int MakeShot(int offset);

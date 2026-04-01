@@ -138,6 +138,8 @@ Player::NewWave(void)
 	Shooting = 0;
 	WasShooting = 0;
 	Rotating = 0;
+	CameraX = x;
+	CameraY = y;
 	phase = 0;
 	OBJ_LOOP(i, numshots)
 		KillShot(i);
@@ -179,6 +181,8 @@ Player::NewShip(void)
 	phasetime = NO_PHASE_CHANGE;
 	Dead = 0;
 	Exploding = 0;
+	CameraX = x;
+	CameraY = y;
 	Set_TTL(-1);
 	if ( ! gGameInfo.IsDeathmatch() ) {
 		if (Lives > 0) {
@@ -396,10 +400,11 @@ Player::ShotHit(Rect *hitRect)
 	}
 	return(NULL);
 }
+
 int 
 Player::Move(int Freeze)
 {
-	int i;
+	int i, result;
 
 	/* Move and time out old shots */
 #ifdef SERIOUS_DEBUG
@@ -456,6 +461,8 @@ printf("\n");
 
 	/* Check to see if we are dead... */
 	if ( Dead ) {
+		UpdateCamera();
+
 		if ( --Dead == 0 ) {  // New Chance at Life!
 			if ( NewShip() < 0 ) {
 				/* Game Over */
@@ -549,7 +556,39 @@ printf("\n");
 		} else
 			WasShielded = 0;
 	}
-	return(Object::Move(Freeze));
+
+	result = Object::Move(Freeze);
+
+	UpdateCamera();
+
+	return result;
+}
+
+void
+Player::UpdateCamera()
+{
+	if ( Dead ) {
+		// Pan the camera over to our new position
+		const float CAMERA_SPEED = (float)(6 << SPRITE_PRECISION);
+		float deltaX = (float)(x - CameraX);
+		float deltaY = (float)(y - CameraY);
+		float length = SDL_sqrtf(deltaX * deltaX + deltaY * deltaY);
+		float velocityX = (deltaX / length) * CAMERA_SPEED;
+		float velocityY = (deltaY / length) * CAMERA_SPEED;
+		if (SDL_fabs(velocityX) < SDL_fabs(deltaX)) {
+			CameraX += (int)SDL_truncf(velocityX);
+		} else {
+			CameraX = x;
+		}
+		if (SDL_fabs(velocityY) < SDL_fabs(deltaY)) {
+			CameraY += (int)SDL_truncf(velocityY);
+		} else {
+			CameraY = y;
+		}
+	} else {
+		CameraX = x;
+		CameraY = y;
+	}
 }
 
 Uint8 

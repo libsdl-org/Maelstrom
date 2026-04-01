@@ -220,8 +220,8 @@ static void DrawLoadBar()
 
 void SetStar(int which)
 {
-	int x = FastRandom(GAME_WIDTH - 2*SPRITES_WIDTH) + SPRITES_WIDTH;
-	int y = FastRandom(GAME_HEIGHT - 2*SPRITES_WIDTH) + SPRITES_WIDTH;
+	int x = FastRandom(GAME_WIDTH);
+	int y = FastRandom(GAME_HEIGHT);
 
 	gTheStars[which]->xCoord = x;
 	gTheStars[which]->yCoord = y;
