@@ -700,31 +700,21 @@ GamePanelDelegate::StopZoomedDrawing()
 	cameraY += (SPRITES_WIDTH / 2);
 
 	SDL_Rect src;
-	if (w > h) {
-		int visible_width = (GAME_WIDTH - (2 * SPRITES_WIDTH));
-		float scale = (float)visible_width / w;
-		src.w = visible_width;
-		src.h = (int)SDL_roundf(h * scale);
-		src.x = cameraX - src.w / 2;
-		src.y = cameraY - src.h / 2;
-	} else {
-		int visible_height = (GAME_HEIGHT - (2 * SPRITES_WIDTH));
-		float scale = (float)visible_height / h;
-		src.w = (int)SDL_roundf(w * scale);
-		src.h = visible_height;
-		src.x = cameraX - src.w / 2;
-		src.y = cameraY - src.h / 2;
-	}
+	src.w = GAME_WIDTH;
+	src.h = GAME_HEIGHT;
+	src.x = cameraX - src.w / 2;
+	src.y = cameraY - src.h / 2;
 	float minu = (float)src.x / m_texture->w;
 	float minv = (float)src.y / m_texture->h;
 	float maxu = (float)(src.x + src.w) / m_texture->w;
 	float maxv = (float)(src.y + src.h) / m_texture->h;
 
+	float scale = (float)h / GAME_HEIGHT;
 	SDL_FRect dst;
-	dst.x = 0.0f;
-	dst.y = 0.0f;
-	dst.w = (float)w;
+	dst.w = SDL_roundf(GAME_WIDTH * scale);
 	dst.h = (float)h;
+	dst.x = (w - dst.w) / 2;
+	dst.y = 0.0f;
 
 	SDL_FColor color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	SDL_Vertex verts[6];
