@@ -569,7 +569,7 @@ Player::UpdateCamera()
 {
 	if ( Dead ) {
 		// Pan the camera over to our new position
-		const float CAMERA_SPEED = (float)(6 << SPRITE_PRECISION);
+		const float CAMERA_SPEED = (float)(16 << SPRITE_PRECISION);
 		float deltaX = (float)(x - CameraX);
 		float deltaY = (float)(y - CameraY);
 		float length = SDL_sqrtf(deltaX * deltaX + deltaY * deltaY);
