@@ -88,6 +88,7 @@ private:
 	array<RemoteSession_t *> m_sessions;
 	RemoteSession_t *m_players[MAX_PLAYERS - 1] = { };
 
+	STEAM_CALLBACK(SteamInterface, OnGameOverlayActivated, GameOverlayActivated_t);
 	STEAM_CALLBACK(SteamInterface, OnRemotePlaySessionConnected, SteamRemotePlaySessionConnected_t);
 	STEAM_CALLBACK(SteamInterface, OnRemotePlaySessionAvatarLoaded, SteamRemotePlaySessionAvatarLoaded_t);
 	STEAM_CALLBACK(SteamInterface, OnRemotePlaySessionDisconnected, SteamRemotePlaySessionDisconnected_t);
@@ -473,6 +474,17 @@ void SteamInterface::DisableRemoteInput()
 	}
 
 	SteamRemotePlay()->DisableRemotePlayTogetherDirectInput();
+}
+
+void SteamInterface::OnGameOverlayActivated(GameOverlayActivated_t *pParam)
+{
+	SDL_Event event;
+	if (pParam->m_bActive) {
+		event.type = SDL_EVENT_OVERLAY_ACTIVATED;
+	} else {
+		event.type = SDL_EVENT_OVERLAY_DEACTIVATED;
+	}
+	SDL_PushEvent(&event);
 }
 
 void SteamInterface::OnRemotePlaySessionAvatarLoaded(SteamRemotePlaySessionAvatarLoaded_t *pParam)
