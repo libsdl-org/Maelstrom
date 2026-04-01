@@ -628,6 +628,14 @@ void HandleEvent(SDL_Event *event)
 			UpdateControl(player);
 			break;
 
+		case SDL_EVENT_OVERLAY_ACTIVATED:
+			gGameInfo.SetPauseReason(PAUSE_OVERLAY, true);
+			break;
+
+		case SDL_EVENT_OVERLAY_DEACTIVATED:
+			gGameInfo.SetPauseReason(PAUSE_OVERLAY, false);
+			break;
+
 		case SDL_EVENT_WINDOW_MINIMIZED:
 			gGameInfo.SetPauseReason(PAUSE_MINIMIZED, true);
 			break;
