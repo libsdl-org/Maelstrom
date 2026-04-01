@@ -87,6 +87,8 @@ protected:
 	UIElement *m_fragsLabel;
 	UIElement *m_frags;
 
+	UIElement *m_paused;
+
 	enum {
 		STATE_PLAYING,
 		STATE_SHOW_BONUS,
