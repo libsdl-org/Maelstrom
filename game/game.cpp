@@ -607,7 +607,7 @@ GamePanelDelegate::UpdateZoom()
 	// We can zoom if we're on a phone in landscape mode and not local multiplayer
 	bool zoom = false;
 
-	if (gAlwaysZoom || (IsPhone() && rect.w > rect.h)) {
+	if (IsPhone() && rect.w > rect.h) {
 		int i;
 
 		int local_players = 0;
