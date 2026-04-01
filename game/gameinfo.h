@@ -56,8 +56,13 @@ enum NODE_STATE_FLAG {
 	STATE_ABORT	= 0x01,
 	STATE_PAUSE	= 0x02,
 	STATE_BONUS	= 0x04,
-	STATE_MINIMIZE	= 0x08,
 	STATE_DIALOG	= 0x10,
+};
+
+enum PAUSE_REASON {
+	PAUSE_REQUEST		= 0x01,
+	PAUSE_MINIMIZED		= 0x02,
+	PAUSE_CONTROLLER	= 0x04,
 };
 
 enum PING_STATUS {
@@ -203,6 +208,8 @@ public:
 	void SetNodeState(int index, Uint8 state);
 	Uint8 GetNodeState(int index) const;
 
+	void TogglePauseRequest();
+	void SetPauseReason(Uint8 reason, bool enabled);
 	void SetLocalState(Uint8 state, bool enabled);
 	void ToggleLocalState(Uint8 state);
 	Uint8 GetLocalState() const {
@@ -230,6 +237,8 @@ public:
 	Uint8 deathMatch;
 
 	Uint32 localID;
+
+	Uint8 paused;
 
 protected:
 	Uint8 numNodes;
