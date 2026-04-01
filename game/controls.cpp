@@ -535,7 +535,7 @@ void HandleEvent(SDL_Event *event)
 			switch (event->gbutton.button) {
 			case SDL_GAMEPAD_BUTTON_START:
 				if (!event->gbutton.down) {
-					gGameInfo.ToggleLocalState(STATE_PAUSE);
+					gGameInfo.TogglePauseRequest();
 				}
 				break;
 			case SDL_GAMEPAD_BUTTON_BACK:
@@ -602,7 +602,7 @@ void HandleEvent(SDL_Event *event)
 				screen->ToggleFullScreen();
 				break;
 			} else if ( key == controls.gPauseControl ) {
-				gGameInfo.ToggleLocalState(STATE_PAUSE);
+				gGameInfo.TogglePauseRequest();
 				break;
 			} else if ( key == controls.gQuitControl ) {
 				gGameInfo.SetLocalState(STATE_ABORT, true);
@@ -629,11 +629,11 @@ void HandleEvent(SDL_Event *event)
 			break;
 
 		case SDL_EVENT_WINDOW_MINIMIZED:
-			gGameInfo.SetLocalState(STATE_MINIMIZE, true);
+			gGameInfo.SetPauseReason(PAUSE_MINIMIZED, true);
 			break;
 
 		case SDL_EVENT_WINDOW_RESTORED:
-			gGameInfo.SetLocalState(STATE_MINIMIZE, false);
+			gGameInfo.SetPauseReason(PAUSE_MINIMIZED, false);
 			break;
 	}
 }
@@ -641,14 +641,16 @@ void HandleEvent(SDL_Event *event)
 static bool SDLCALL GamepadEventWatch(void *userdata, SDL_Event *event)
 {
 	switch (event->type) {
-		/* -- Handle joystick added */
+		/* -- Handle gamepad added */
 		case SDL_EVENT_GAMEPAD_ADDED:
 			OpenGamepad(event->gdevice.which);
+			gGameInfo.SetPauseReason(PAUSE_CONTROLLER, false);
 			break;
 
-		/* -- Handle joystick removed */
+		/* -- Handle gamepad removed */
 		case SDL_EVENT_GAMEPAD_REMOVED:
 			CloseGamepad(event->gdevice.which);
+			gGameInfo.SetPauseReason(PAUSE_CONTROLLER, true);
 			break;
 
 		default:

@@ -435,6 +435,27 @@ GameInfo::IsFull() const
 }
 
 void
+GameInfo::TogglePauseRequest()
+{
+	if (paused & (PAUSE_REQUEST|PAUSE_CONTROLLER)) {
+		SetPauseReason((PAUSE_REQUEST|PAUSE_CONTROLLER), false);
+	} else {
+		SetPauseReason(PAUSE_REQUEST, true);
+	}
+}
+
+void
+GameInfo::SetPauseReason(Uint8 reason, bool enabled)
+{
+	if (enabled) {
+		paused |= reason;
+	} else {
+		paused &= ~reason;
+	}
+	SetLocalState(STATE_PAUSE, paused ? true : false);
+}
+
+void
 GameInfo::SetLocalState(Uint8 state, bool enabled)
 {
 	if (enabled) {

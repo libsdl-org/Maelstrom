@@ -959,7 +959,7 @@ GamePanelDelegate::UpdateGameState()
 	for (i = 0; i < gGameInfo.GetNumNodes(); ++i) {
 		Uint8 state = gGameInfo.GetNodeState(i);
 		paused |= state;
-		if (state & (STATE_PAUSE|STATE_MINIMIZE)) {
+		if (state & STATE_PAUSE) {
 			if (i == gGameInfo.GetLocalIndex()) {
 				locally_paused = true;
 			} else {
@@ -967,13 +967,12 @@ GamePanelDelegate::UpdateGameState()
 			}
 		}
 	}
-	if ((paused & (STATE_PAUSE|STATE_MINIMIZE)) &&
-	    !(gPaused & (STATE_PAUSE|STATE_MINIMIZE))) {
+	if ((paused & STATE_PAUSE) && !(gPaused & STATE_PAUSE)) {
 		sound->PlaySound(gPauseSound, 5);
 	}
 	if (m_paused) {
 		// Update the pause label
-		if (paused & (STATE_PAUSE|STATE_MINIMIZE)) {
+		if (paused & STATE_PAUSE) {
 			char label[128] = { 0 };
 			if (!locally_paused) {
 				const GameInfoPlayer *player = gGameInfo.GetPlayer(index_paused);
@@ -986,7 +985,7 @@ GamePanelDelegate::UpdateGameState()
 			}
 			m_paused->SetText(label);
 			m_paused->Show();
-		} else if (gPaused & (STATE_PAUSE|STATE_MINIMIZE)) {
+		} else if (gPaused & STATE_PAUSE) {
 			m_paused->Hide();
 		}
 	}
