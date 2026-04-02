@@ -25,6 +25,8 @@
 #include <limits.h> // For PATH_MAX
 
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
+
 #include "Mac_Resource.h"
 #include "Mac_Wave.h"
 
