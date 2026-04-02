@@ -534,6 +534,8 @@ GamePanelDelegate::HandleEvent(const SDL_Event &event)
 	return false;
 }
 
+static int gZoomMode = 0;
+
 bool
 GamePanelDelegate::OnAction(UIBaseElement *sender, const char *action)
 {
@@ -566,6 +568,10 @@ GamePanelDelegate::OnAction(UIBaseElement *sender, const char *action)
 			control = PAUSE_KEY;
 		} else if (SDL_strcasecmp(action, "ABORT") == 0) {
 			control = ABORT_KEY;
+		} else if (SDL_strcasecmp(action, "TEST") == 0) {
+			gZoomMode = (gZoomMode + 1) % 3;
+			UpdateZoom();
+			return true;
 		} else {
 			error("Unknown control action '%s'", action);
 			return false;
@@ -624,6 +630,15 @@ GamePanelDelegate::UpdateZoom()
 			zoom = true;
 		}
 	}
+	if (gZoomMode == 0 || (gZoomMode == -1 && !zoom)) {
+		m_panel->GetElement<UIElement>("test_label")->SetText("(0) Zoom disabled");
+	} else if (gZoomMode == 1 || (gZoomMode == -1 && zoom)) {
+		zoom = true;
+		m_panel->GetElement<UIElement>("test_label")->SetText("(1) Zoomed and centered on ship");
+	} else if (gZoomMode == 2) {
+		zoom = true;
+		m_panel->GetElement<UIElement>("test_label")->SetText("(2) Zoomed and ship moves freely");
+	}
 
 	if (zoom) {
 		StartZoom(rect);
@@ -669,14 +684,17 @@ GamePanelDelegate::StartZoomedDrawing()
 {
 	SDL_Renderer *renderer = screen->GetRenderer();
 
-	// Don't clip
 	screen->GetClip(&m_savedClip);
-	SDL_Rect clip = m_savedClip;
-	clip.y = 0;
-	clip.x = 0;
-	clip.w = GAME_WIDTH;
-	clip.h = GAME_HEIGHT;
-	screen->ClipBlit(&clip);
+
+	if (gZoomMode != 0) {
+		// Don't clip
+		SDL_Rect clip;
+		clip.y = 0;
+		clip.x = 0;
+		clip.w = GAME_WIDTH;
+		clip.h = GAME_HEIGHT;
+		screen->ClipBlit(&clip);
+	}
 
 	SDL_SetRenderTarget(renderer, m_texture);
 	screen->Clear();
@@ -693,25 +711,35 @@ GamePanelDelegate::StopZoomedDrawing()
 	int w = 0, h = 0;
 	SDL_GetRenderOutputSize(renderer, &w, &h);
 
-	int cameraX, cameraY;
-	gPlayers[0]->GetCameraPos(&cameraX, &cameraY);
-	GetRenderCoordinates(cameraX, cameraY);
-	cameraX += (SPRITES_WIDTH / 2);
-	cameraY += (SPRITES_WIDTH / 2);
-
 	SDL_Rect src;
-	src.w = GAME_WIDTH;
-	src.h = GAME_HEIGHT;
-	src.x = cameraX - src.w / 2;
-	src.y = cameraY - src.h / 2;
+	if (gZoomMode == 0) {
+		src.x = 0;
+		src.y = 0;
+		src.w = GAME_WIDTH;
+		src.h = GAME_HEIGHT;
+	} else if (gZoomMode == 1 || gZoomMode == -1) {
+		int cameraX, cameraY;
+		gPlayers[0]->GetCameraPos(&cameraX, &cameraY);
+		GetRenderCoordinates(cameraX, cameraY);
+		cameraX += (SPRITES_WIDTH / 2);
+		cameraY += (SPRITES_WIDTH / 2);
+
+		src.w = GAME_WIDTH;
+		src.h = GAME_HEIGHT;
+		src.x = cameraX - src.w / 2;
+		src.y = cameraY - src.h / 2;
+	} else if (gZoomMode == 2) {
+		src = m_savedClip;
+	}
+
 	float minu = (float)src.x / m_texture->w;
 	float minv = (float)src.y / m_texture->h;
 	float maxu = (float)(src.x + src.w) / m_texture->w;
 	float maxv = (float)(src.y + src.h) / m_texture->h;
 
-	float scale = (float)h / GAME_HEIGHT;
+	float scale = (float)h / src.h;
 	SDL_FRect dst;
-	dst.w = SDL_roundf(GAME_WIDTH * scale);
+	dst.w = SDL_roundf(src.w * scale);
 	dst.h = (float)h;
 	dst.x = (w - dst.w) / 2;
 	dst.y = 0.0f;
@@ -774,7 +802,7 @@ GamePanelDelegate::StopZoomedDrawing()
 void
 GamePanelDelegate::DrawBorder()
 {
-	if (m_zoom) {
+	if (m_zoom && gZoomMode != 0) {
 		return;
 	}
 
