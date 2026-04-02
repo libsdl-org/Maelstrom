@@ -49,6 +49,7 @@ typedef Uint32 RemotePlaySessionID_t;
 extern bool InitSteam();
 extern bool SteamStreamingToPhone();
 extern bool SteamStreamingToTablet();
+extern bool GamepadInputFromMobileTouchController(SDL_Gamepad *gamepad);
 extern RemotePlaySessionID_t GetRemoteSessionForGamepad(SDL_Gamepad *gamepad);
 extern Uint8 GetRemoteSessionControl(RemotePlaySessionID_t sessionID);
 extern const char *GetRemotePlayerName(Uint8 controlType);
