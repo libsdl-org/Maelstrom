@@ -56,6 +56,7 @@ public:
 
 	Uint8 GetControlForSession(RemotePlaySessionID_t sessionID);
 
+	bool GamepadInputFromMobileTouchController(SDL_Gamepad *gamepad);
 	RemotePlaySessionID_t GetRemoteSessionForGamepad(SDL_Gamepad *gamepad);
 
 	const char *GetRemotePlayerName(Uint8 controlType);
@@ -373,6 +374,19 @@ void SteamInterface::ProcessInput(const RemotePlayInput_t &input)
 	}
 }
 
+bool SteamInterface::GamepadInputFromMobileTouchController(SDL_Gamepad *gamepad)
+{
+	InputHandle_t handle = SDL_GetGamepadSteamHandle(gamepad);
+	if (!handle) {
+		return false;
+	}
+
+	if (SteamInput()->GetInputTypeForHandle(handle) == k_ESteamInputType_MobileTouch) {
+		return true;
+	}
+	return false;
+}
+
 RemotePlaySessionID_t SteamInterface::GetRemoteSessionForGamepad(SDL_Gamepad *gamepad)
 {
 	InputHandle_t handle = SDL_GetGamepadSteamHandle(gamepad);
@@ -380,7 +394,7 @@ RemotePlaySessionID_t SteamInterface::GetRemoteSessionForGamepad(SDL_Gamepad *ga
 		return 0;
 	}
 
-	RemotePlaySessionID_t sessionID = SteamInput()->GetRemotePlaySessionID( handle );
+	RemotePlaySessionID_t sessionID = SteamInput()->GetRemotePlaySessionID(handle);
 	if (!IsRemotePlayTogether(sessionID)) {
 		return 0;
 	}
@@ -554,6 +568,11 @@ bool SteamStreamingToTablet()
 	return steam.StreamingToTablet();
 }
 
+bool GamepadInputFromMobileTouchController(SDL_Gamepad *gamepad)
+{
+	return steam.GamepadInputFromMobileTouchController(gamepad);
+}
+
 Uint32 GetRemoteSessionForGamepad(SDL_Gamepad *gamepad)
 {
 	return steam.GetRemoteSessionForGamepad(gamepad);
@@ -632,6 +651,11 @@ bool SteamStreamingToPhone()
 }
 
 bool SteamStreamingToTablet()
+{
+	return false;
+}
+
+bool GamepadInputFromMobileTouchController(SDL_Gamepad *gamepad)
 {
 	return false;
 }

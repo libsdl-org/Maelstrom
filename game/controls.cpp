@@ -437,6 +437,10 @@ static void UpdateControl(Player *player)
 				keys[SHIELD_KEY] = true;
 			}
 
+			if (SDL_GetGamepadButton(gamepad->gamepad, SDL_GAMEPAD_BUTTON_WEST)) {
+				keys[THRUST_KEY] = true;
+			}
+
 			if (SDL_GetGamepadButton(gamepad->gamepad, SDL_GAMEPAD_BUTTON_DPAD_LEFT) ||
 				SDL_GetGamepadAxis(gamepad->gamepad, SDL_GAMEPAD_AXIS_LEFTX) <= -16000 ||
 				SDL_GetGamepadAxis(gamepad->gamepad, SDL_GAMEPAD_AXIS_RIGHTX) <= -16000) {
@@ -449,15 +453,16 @@ static void UpdateControl(Player *player)
 				keys[RIGHT_KEY] = true;
 			}
 
-			if (SDL_GetGamepadButton(gamepad->gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP) ||
-				SDL_GetGamepadAxis(gamepad->gamepad, SDL_GAMEPAD_AXIS_LEFTY) <= -16000 ||
-				SDL_GetGamepadAxis(gamepad->gamepad, SDL_GAMEPAD_AXIS_RIGHTY) <= -16000) {
-				keys[THRUST_KEY] = true;
+			if (SDL_GetGamepadButton(gamepad->gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP)) {
+				// Don't use the D-Pad for thrust on the mobile touch controller
+				if (!GamepadInputFromMobileTouchController(gamepad->gamepad)) {
+					keys[THRUST_KEY] = true;
+				}
 			}
 
-			if (SDL_GetGamepadButton(gamepad->gamepad, SDL_GAMEPAD_BUTTON_DPAD_UP) ||
-				SDL_GetGamepadAxis(gamepad->gamepad, SDL_GAMEPAD_AXIS_LEFTY) <= -16000 ||
-				SDL_GetGamepadAxis(gamepad->gamepad, SDL_GAMEPAD_AXIS_RIGHTY) <= -16000) {
+			if (SDL_GetGamepadButton(gamepad->gamepad, SDL_GAMEPAD_BUTTON_DPAD_DOWN) ||
+				SDL_GetGamepadAxis(gamepad->gamepad, SDL_GAMEPAD_AXIS_LEFTY) >= 16000 ||
+				SDL_GetGamepadAxis(gamepad->gamepad, SDL_GAMEPAD_AXIS_RIGHTY) >= 16000) {
 				keys[BRAKE_KEY] = true;
 			}
 		}
