@@ -14,7 +14,3 @@ add_library(SDLmac STATIC
 )
 target_include_directories(SDLmac PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>")
 target_link_libraries(SDLmac PRIVATE SDL3::SDL3)
-
-add_executable(macres macres.cpp)
-target_link_libraries(macres PRIVATE SDLmac)
-target_link_libraries(macres PRIVATE SDL3::SDL3)
