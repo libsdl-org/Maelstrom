@@ -55,6 +55,22 @@ Controls::Bind(Prefs *prefs)
 	gQuitControl.Bind(prefs);
 }
 
+bool
+Controls::KeyBound(SDL_Keycode key)
+{
+	if (key == gPauseControl ||
+	    key == gShieldControl ||
+	    key == gThrustControl ||
+	    key == gBrakeControl ||
+	    key == gTurnRControl ||
+	    key == gTurnLControl ||
+	    key == gFireControl ||
+	    key == gQuitControl) {
+		return true;
+	}
+	return false;
+}
+
 Controls controls;
 PrefsVariable<int> gSoundLevel("SoundLevel", 4);
 PrefsVariable<int> gGammaCorrect("GammaCorrect", 3);
@@ -588,26 +604,28 @@ void HandleEvent(SDL_Event *event)
 			key = event->key.key;
 
 			/* -- Handle special control keys */
-			if ( key == SDLK_F1 ) {
-				/* Special key --
-					Switch displayed player
-				 */
-				RotatePlayerView();
-				break;
-			} else if ( key == SDLK_F3 ) {
-				/* Special key --
-					Do a screen dump here.
-				 */
-				screen->ScreenDump("ScreenShot",
-							0, 0, 0, 0);
-				break;
-			} else if ( key == SDLK_RETURN &&
-				    (event->key.mod & SDL_KMOD_ALT) ) {
-				/* Special key --
-					Toggle fullscreen mode
-				 */
-				screen->ToggleFullScreen();
-				break;
+			if (!controls.KeyBound(key)) {
+				if ( key == SDLK_F1 ) {
+					/* Special key --
+						Switch displayed player
+					 */
+					RotatePlayerView();
+					break;
+				} else if ( key == SDLK_F3 ) {
+					/* Special key --
+						Do a screen dump here.
+					 */
+					screen->ScreenDump("ScreenShot",
+								0, 0, 0, 0);
+					break;
+				} else if ( key == SDLK_RETURN &&
+						(event->key.mod & SDL_KMOD_ALT) ) {
+					/* Special key --
+						Toggle fullscreen mode
+					 */
+					screen->ToggleFullScreen();
+					break;
+				}
 			} else if ( key == controls.gPauseControl ) {
 				gGameInfo.TogglePauseRequest();
 				break;

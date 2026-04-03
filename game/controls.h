@@ -53,6 +53,8 @@ public:
 
 	void Bind(Prefs *prefs);
 
+	bool KeyBound(SDL_Keycode key);
+
 public:
 	PrefsVariable<SDL_Keycode> gPauseControl;
 	PrefsVariable<SDL_Keycode> gShieldControl;
