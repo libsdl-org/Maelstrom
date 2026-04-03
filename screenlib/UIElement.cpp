@@ -137,7 +137,7 @@ UIElement::Load(rapidxml::xml_node<> *node, const UITemplates *templates)
 
 	int alpha;
 	if (LoadNumber(node, "alpha", alpha)) {
-		SetAlpha((Uint8)alpha);
+		m_alpha = (Uint8)alpha;
 	}
 
 	attr = node->first_attribute("font", 0, false);
@@ -223,6 +223,9 @@ UIElement::FinishLoading()
 	if (m_drawEngine) {
 		m_drawEngine->OnLoad();
 	}
+
+	OnAlphaChanged();
+
 	return UIBaseElement::FinishLoading();
 }
 
@@ -415,6 +418,27 @@ void
 UIElement::SetAlpha(Uint8 alpha)
 {
 	m_alpha = alpha;
+
+    OnAlphaChanged();
+}
+
+void
+UIElement::OnAlphaChanged()
+{
+	int alpha = m_alpha;
+
+	UIBaseElement *parent = GetParent();
+	if (parent && parent->IsA(UIElement::GetType())) {
+		alpha = (alpha * static_cast<UIElement*>(parent)->GetAlpha()) / 255;
+	}
+	m_effectiveAlpha = (Uint8)alpha;
+
+	for (unsigned int i = 0; i < m_elements.length(); ++i) {
+		UIBaseElement *element = m_elements[i];
+		if (element->IsA(UIElement::GetType())) {
+			static_cast<UIElement*>(element)->OnAlphaChanged();
+		}
+	}
 }
 
 void
