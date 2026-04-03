@@ -99,89 +99,89 @@
 		</Label>
 
 		<!-- Touch controls -->
-		<Area condition="!PHONE" name="touch_controls" show="false">
+		<Area condition="!PHONE" name="touch_controls" alpha="128" show="false">
 			<Elements>
 				<!-- Touch controls -->
-				<Button name="abort" action="CONTROL_ABORT" image="circle" alpha="128">
+				<Button name="abort" action="CONTROL_ABORT" image="circle">
 					<Size w="30" h="30"/>
 					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="20" y="8"/>
 					<Elements>
-						<Image image="abort" alpha="128">
+						<Image image="abort">
 							<Size w="24" h="24"/>
 							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
 						</Image>
 					</Elements>
 				</Button>
-				<Button name="pause" action="CONTROL_PAUSE" image="circle" alpha="128">
+				<Button name="pause" action="CONTROL_PAUSE" image="circle">
 					<Size w="30" h="30"/>
 					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" x="-20" y="8"/>
 					<Elements>
-						<Image image="pause" alpha="128">
+						<Image image="pause">
 							<Size w="24" h="24"/>
 							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
 						</Image>
 					</Elements>
 				</Button>
-				<Button name="zoom" action="CONTROL_ZOOM" image="circle" alpha="128">
+				<Button name="zoom" action="CONTROL_ZOOM" image="circle">
 					<Size w="30" h="30"/>
 					<Anchor anchorFrom="TOP" anchorTo="BOTTOM" anchor="pause" y="8"/>
 					<Elements>
-						<Image name="zoom_in" image="zoom-in" alpha="128">
+						<Image name="zoom_in" image="zoom-in">
 							<Size w="24" h="24"/>
 							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
 						</Image>
-						<Image name="zoom_out" image="zoom-out" alpha="128">
+						<Image name="zoom_out" image="zoom-out">
 							<Size w="24" h="24"/>
 							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
 						</Image>
 					</Elements>
 				</Button>
 
-				<Thumbstick image="split-circle" sensitiveRadius="85" alpha="128">
+				<Thumbstick image="split-circle" sensitiveRadius="85">
 					<Size w="70" h="70"/>
 					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" x="30" y="-30"/>
 					<Action angle="90" arc="180" active_radius="0" action_enter="CONTROL_DOWN_RIGHT" action_leave="CONTROL_UP_RIGHT"/>
 					<Action angle="270" arc="180" active_radius="0" action_enter="CONTROL_DOWN_LEFT" action_leave="CONTROL_UP_LEFT"/>
 					<Elements>
-						<Image image="rotate-left" alpha="128">
+						<Image image="rotate-left">
 							<Size w="30" h="30"/>
 							<Anchor anchorFrom="LEFT" anchorTo="LEFT" x="2"/>
 						</Image>
-						<Image image="rotate-right" alpha="128">
+						<Image image="rotate-right">
 							<Size w="30" h="30"/>
 							<Anchor anchorFrom="RIGHT" anchorTo="RIGHT" x="-2"/>
 						</Image>
 					</Elements>
 				</Image>
 
-				<Thumbstick name="fire" image="circle" alpha="128">
+				<Thumbstick name="fire" image="circle">
 					<Size w="40" h="40"/>
 					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-30" y="-60"/>
 					<Action action_enter="CONTROL_DOWN_FIRE" action_leave="CONTROL_UP_FIRE"/>
 					<Elements>
-						<Icon id="136" alpha="128">
+						<Icon id="136">
 							<Size w="16" h="16"/>
 							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
 						</Icon>
 					</Elements>
 				</Thumbstick>
-				<Thumbstick name="shield" image="circle" alpha="128">
+				<Thumbstick name="shield" image="circle">
 					<Size w="40" h="40"/>
 					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-60" y="-30"/>
 					<Action action_enter="CONTROL_DOWN_SHIELD" action_leave="CONTROL_UP_SHIELD"/>
 					<Elements>
-						<Image image="shield" alpha="128">
+						<Image image="shield">
 							<Size w="16" h="16"/>
 							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
 						</Image>
 					</Elements>
 				</Thumbstick>
-				<Thumbstick name="thrust" image="circle" alpha="128">
+				<Thumbstick name="thrust" image="circle">
 					<Size w="40" h="40"/>
 					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-90" y="-60"/>
 					<Action action_enter="CONTROL_DOWN_THRUST" action_leave="CONTROL_UP_THRUST"/>
 					<Elements>
-						<Image image="thrust" alpha="128">
+						<Image image="thrust">
 							<Size w="16" h="16"/>
 							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
 						</Image>
@@ -190,89 +190,89 @@
 			</Elements>
 		</Area>
 
-		<Area condition="PHONE" name="touch_controls" show="false">
+		<Area condition="PHONE" name="touch_controls" alpha="128" show="false">
 			<Elements>
 				<!-- Touch controls -->
-				<Button name="abort" action="CONTROL_ABORT" image="circle" alpha="128">
+				<Button name="abort" action="CONTROL_ABORT" image="circle">
 					<Size w="45" h="45"/>
 					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="30" y="12"/>
 					<Elements>
-						<Image image="abort" alpha="128">
+						<Image image="abort">
 							<Size w="36" h="36"/>
 							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
 						</Image>
 					</Elements>
 				</Button>
-				<Button name="pause" action="CONTROL_PAUSE" image="circle" alpha="128">
+				<Button name="pause" action="CONTROL_PAUSE" image="circle">
 					<Size w="45" h="45"/>
 					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" x="-30" y="12"/>
 					<Elements>
-						<Image image="pause" alpha="128">
+						<Image image="pause">
 							<Size w="36" h="36"/>
 							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
 						</Image>
 					</Elements>
 				</Button>
-				<Button name="zoom" action="CONTROL_ZOOM" image="circle" alpha="128">
+				<Button name="zoom" action="CONTROL_ZOOM" image="circle">
 					<Size w="45" h="45"/>
 					<Anchor anchorFrom="TOP" anchorTo="BOTTOM" anchor="pause" y="12"/>
 					<Elements>
-						<Image name="zoom_in" image="zoom-in" alpha="128">
+						<Image name="zoom_in" image="zoom-in">
 							<Size w="36" h="36"/>
 							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
 						</Image>
-						<Image name="zoom_out" image="zoom-out" alpha="128">
+						<Image name="zoom_out" image="zoom-out">
 							<Size w="36" h="36"/>
 							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
 						</Image>
 					</Elements>
 				</Button>
 
-				<Thumbstick image="split-circle" sensitiveRadius="128" alpha="128">
+				<Thumbstick image="split-circle" sensitiveRadius="128">
 					<Size w="105" h="105"/>
 					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" x="45" y="-45"/>
 					<Action angle="90" arc="180" active_radius="0" action_enter="CONTROL_DOWN_RIGHT" action_leave="CONTROL_UP_RIGHT"/>
 					<Action angle="270" arc="180" active_radius="0" action_enter="CONTROL_DOWN_LEFT" action_leave="CONTROL_UP_LEFT"/>
 					<Elements>
-						<Image image="rotate-left" alpha="128">
+						<Image image="rotate-left">
 							<Size w="45" h="45"/>
 							<Anchor anchorFrom="LEFT" anchorTo="LEFT" x="3"/>
 						</Image>
-						<Image image="rotate-right" alpha="128">
+						<Image image="rotate-right">
 							<Size w="45" h="45"/>
 							<Anchor anchorFrom="RIGHT" anchorTo="RIGHT" x="-3"/>
 						</Image>
 					</Elements>
 				</Image>
 
-				<Thumbstick name="fire" image="circle" alpha="128">
+				<Thumbstick name="fire" image="circle">
 					<Size w="60" h="60"/>
 					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-45" y="-90"/>
 					<Action action_enter="CONTROL_DOWN_FIRE" action_leave="CONTROL_UP_FIRE"/>
 					<Elements>
-						<Icon id="136" alpha="128">
+						<Icon id="136">
 							<Size w="24" h="24"/>
 							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
 						</Icon>
 					</Elements>
 				</Thumbstick>
-				<Thumbstick name="shield" image="circle" alpha="128">
+				<Thumbstick name="shield" image="circle">
 					<Size w="60" h="60"/>
 					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-90" y="-45"/>
 					<Action action_enter="CONTROL_DOWN_SHIELD" action_leave="CONTROL_UP_SHIELD"/>
 					<Elements>
-						<Image image="shield" alpha="128">
+						<Image image="shield">
 							<Size w="24" h="24"/>
 							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
 						</Image>
 					</Elements>
 				</Thumbstick>
-				<Thumbstick name="thrust" image="circle" alpha="128">
+				<Thumbstick name="thrust" image="circle">
 					<Size w="60" h="60"/>
 					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-135" y="-90"/>
 					<Action action_enter="CONTROL_DOWN_THRUST" action_leave="CONTROL_UP_THRUST"/>
 					<Elements>
-						<Image image="thrust" alpha="128">
+						<Image image="thrust">
 							<Size w="24" h="24"/>
 							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
 						</Image>
