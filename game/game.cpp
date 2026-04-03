@@ -185,8 +185,8 @@ GamePanelDelegate::OnLoad()
 	m_frags = m_panel->GetElement<UIElement>("frags");
 
 	m_paused = m_panel->GetElement<UIElement>("paused");
-
-	m_zoom = false;
+	m_zoomIn = m_panel->GetElement<UIElement>("zoom_in");
+	m_zoomOut = m_panel->GetElement<UIElement>("zoom_out");
 
 	return true;
 }
@@ -490,9 +490,7 @@ GamePanelDelegate::OnDraw(DRAWLEVEL drawLevel)
 		return;
 	}
 
-	if (m_zoom) {
-		StartZoomedDrawing();
-	}
+	StartZoomedDrawing();
 
 	/* -- Draw the star field */
 	for ( i=0; i<MAX_STARS; ++i ) {
@@ -514,9 +512,7 @@ GamePanelDelegate::OnDraw(DRAWLEVEL drawLevel)
 
 	DrawBorder();
 
-	if (m_zoom) {
-		StopZoomedDrawing();
-	}
+	StopZoomedDrawing();
 }
 
 bool
@@ -527,14 +523,11 @@ GamePanelDelegate::HandleEvent(const SDL_Event &event)
 			m_touchControls->Show();
 		}
 	} else if (event.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED ||
-	           event.type == SDL_EVENT_WINDOW_SAFE_AREA_CHANGED ||
-	           event.type == SDL_EVENT_REMOTE_PLAYERS_CHANGED) {
+	           event.type == SDL_EVENT_WINDOW_SAFE_AREA_CHANGED) {
 		UpdateZoom();
 	}
 	return false;
 }
-
-static int gZoomMode = 0;
 
 bool
 GamePanelDelegate::OnAction(UIBaseElement *sender, const char *action)
@@ -568,9 +561,8 @@ GamePanelDelegate::OnAction(UIBaseElement *sender, const char *action)
 			control = PAUSE_KEY;
 		} else if (SDL_strcasecmp(action, "ABORT") == 0) {
 			control = ABORT_KEY;
-		} else if (SDL_strcasecmp(action, "TEST") == 0) {
-			gZoomMode = (gZoomMode + 1) % 3;
-			UpdateZoom();
+		} else if (SDL_strcasecmp(action, "ZOOM") == 0) {
+			ToggleZoomGame();
 			return true;
 		} else {
 			error("Unknown control action '%s'", action);
@@ -610,73 +602,60 @@ GamePanelDelegate::UpdateZoom()
 	SDL_GetRenderSafeArea(renderer, &rect);
 	SDL_SetRenderLogicalPresentation(renderer, saved_w, saved_h, saved_mode);
 
-	// We can zoom if we're on a phone in landscape mode and not local multiplayer
-	bool zoom = false;
-
-	if (IsPhone() && rect.w > rect.h) {
-		int i;
-
-		int local_players = 0;
-		OBJ_LOOP(i, MAX_PLAYERS) {
-			if (!gPlayers[i]->IsValid()) {
-				continue;
-			}
-
-			if (IS_LOCAL_CONTROL(gPlayers[i]->GetControlType())) {
-				++local_players;
-			}
-		}
-		if (local_players == 1) {
-			zoom = true;
-		}
-	}
-	if (gZoomMode == 0 || (gZoomMode == -1 && !zoom)) {
-		m_panel->GetElement<UIElement>("test_label")->SetText("(0) Zoom disabled");
-	} else if (gZoomMode == 1 || (gZoomMode == -1 && zoom)) {
-		zoom = true;
-		m_panel->GetElement<UIElement>("test_label")->SetText("(1) Zoomed and centered on ship");
-	} else if (gZoomMode == 2) {
-		zoom = true;
-		m_panel->GetElement<UIElement>("test_label")->SetText("(2) Zoomed and ship moves freely");
-	}
-
-	if (zoom) {
-		StartZoom(rect);
+	if (IsPhone() || IsTablet() || gZoomGame) {
+		StartZoomUI(rect);
 	} else {
-		StopZoom();
+		StopZoomUI();
+	}
+
+	if (gZoomGame) {
+		if (!m_texture) {
+			m_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_TARGET, GAME_WIDTH, GAME_HEIGHT);
+		}
+		if (m_zoomIn) {
+			m_zoomIn->Hide();
+		}
+		if (m_zoomOut) {
+			m_zoomOut->Show();
+		}
+	} else {
+		if (m_texture) {
+			SDL_DestroyTexture(m_texture);
+			m_texture = nullptr;
+		}
+		if (m_zoomIn) {
+			m_zoomIn->Show();
+		}
+		if (m_zoomOut) {
+			m_zoomOut->Hide();
+		}
 	}
 }
 
 void
-GamePanelDelegate::StartZoom(const SDL_Rect &rect)
+GamePanelDelegate::StartZoomUI(const SDL_Rect &rect)
 {
-	SDL_Renderer *renderer = screen->GetRenderer();
 	float scale = (float)GAME_WIDTH / rect.w;
 	int x = (int)SDL_round(rect.x * scale);
 	int y = (int)SDL_round(rect.y * scale);
 	int height = (int)SDL_round(rect.h * scale);
 	ui->SetPosition(x, y);
 	ui->SetSize(GAME_WIDTH, height);
-
-	if (!m_texture) {
-		m_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_TARGET, GAME_WIDTH, GAME_HEIGHT);
-	}
-
-	m_zoom = true;
 }
 
 void
-GamePanelDelegate::StopZoom()
+GamePanelDelegate::StopZoomUI()
 {
 	ui->SetPosition(0, 0);
 	ui->SetSize(GAME_WIDTH, GAME_HEIGHT);
+}
 
-	if (m_texture) {
-		SDL_DestroyTexture(m_texture);
-		m_texture = nullptr;
-	}
+void
+GamePanelDelegate::ToggleZoomGame()
+{
+	gZoomGame = !gZoomGame;
 
-	m_zoom = false;
+	UpdateZoom();
 }
 
 void
@@ -684,17 +663,20 @@ GamePanelDelegate::StartZoomedDrawing()
 {
 	SDL_Renderer *renderer = screen->GetRenderer();
 
+	if (!gZoomGame) {
+		screen->SetLogicalSize(GAME_WIDTH, GAME_HEIGHT);
+		return;
+	}
+
 	screen->GetClip(&m_savedClip);
 
-	if (gZoomMode != 0) {
-		// Don't clip
-		SDL_Rect clip;
-		clip.y = 0;
-		clip.x = 0;
-		clip.w = GAME_WIDTH;
-		clip.h = GAME_HEIGHT;
-		screen->ClipBlit(&clip);
-	}
+	// Don't clip
+	SDL_Rect clip;
+	clip.y = 0;
+	clip.x = 0;
+	clip.w = GAME_WIDTH;
+	clip.h = GAME_HEIGHT;
+	screen->ClipBlit(&clip);
 
 	SDL_SetRenderTarget(renderer, m_texture);
 	screen->Clear();
@@ -705,32 +687,26 @@ GamePanelDelegate::StopZoomedDrawing()
 {
 	SDL_Renderer *renderer = screen->GetRenderer();
 
+	if (!gZoomGame) {
+		screen->SetLogicalSize(ui->X() + ui->Width() + ui->X(), ui->Y() + ui->Height() + ui->Y());
+		return;
+	}
+
 	SDL_SetRenderTarget(renderer, nullptr);
 	SDL_SetRenderLogicalPresentation(renderer, 0, 0, SDL_LOGICAL_PRESENTATION_DISABLED);
 
 	int w = 0, h = 0;
 	SDL_GetRenderOutputSize(renderer, &w, &h);
 
-	SDL_Rect src;
-	if (gZoomMode == 0) {
-		src.x = 0;
-		src.y = 0;
-		src.w = GAME_WIDTH;
-		src.h = GAME_HEIGHT;
-	} else if (gZoomMode == 1 || gZoomMode == -1) {
-		int cameraX, cameraY;
-		gPlayers[0]->GetCameraPos(&cameraX, &cameraY);
-		GetRenderCoordinates(cameraX, cameraY);
-		cameraX += (SPRITES_WIDTH / 2);
-		cameraY += (SPRITES_WIDTH / 2);
+	int cameraX, cameraY;
+	gPlayers[0]->GetCameraPos(&cameraX, &cameraY);
+	GetRenderCoordinates(cameraX, cameraY);
 
-		src.w = GAME_WIDTH;
-		src.h = GAME_HEIGHT;
-		src.x = cameraX - src.w / 2;
-		src.y = cameraY - src.h / 2;
-	} else if (gZoomMode == 2) {
-		src = m_savedClip;
-	}
+	SDL_Rect src;
+	src.w = m_savedClip.w;
+	src.h = m_savedClip.h;
+	src.x = cameraX - src.w / 2;
+	src.y = cameraY - src.h / 2;
 
 	float minu = (float)src.x / m_texture->w;
 	float minv = (float)src.y / m_texture->h;
@@ -802,7 +778,7 @@ GamePanelDelegate::StopZoomedDrawing()
 void
 GamePanelDelegate::DrawBorder()
 {
-	if (m_zoom && gZoomMode != 0) {
+	if (gZoomGame) {
 		return;
 	}
 
@@ -1521,7 +1497,12 @@ GamePanelDelegate::GameOver()
 
 	ui->ShowPanel(PANEL_GAMEOVER);
 
-	StopZoom();
+	StopZoomUI();
+
+	if (m_texture) {
+		SDL_DestroyTexture(m_texture);
+		m_texture = nullptr;
+	}
 }
 
 /* ----------------------------------------------------------------- */

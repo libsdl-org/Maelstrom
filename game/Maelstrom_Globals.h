@@ -142,6 +142,7 @@ extern Replay   gReplay;
 extern Controls	controls;
 extern PrefsVariable<int> gSoundLevel;
 extern PrefsVariable<int> gGammaCorrect;
+extern PrefsVariable<int> gZoomGame;
 // int scores.cpp :
 extern Scores	hScores[NUM_SCORES];
 

@@ -122,6 +122,20 @@
 						</Image>
 					</Elements>
 				</Button>
+				<Button name="zoom" action="CONTROL_ZOOM" image="circle">
+					<Size w="30" h="30"/>
+					<Anchor anchorFrom="TOP" anchorTo="BOTTOM" anchor="pause" y="8"/>
+					<Elements>
+						<Image name="zoom_in" image="zoom-in">
+							<Size w="24" h="24"/>
+							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
+						</Image>
+						<Image name="zoom_out" image="zoom-out">
+							<Size w="24" h="24"/>
+							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
+						</Image>
+					</Elements>
+				</Button>
 
 				<Thumbstick image="split-circle">
 					<Size w="85" h="85"/>
@@ -199,6 +213,20 @@
 						</Image>
 					</Elements>
 				</Button>
+				<Button name="zoom" action="CONTROL_ZOOM" image="circle">
+					<Size w="45" h="45"/>
+					<Anchor anchorFrom="TOP" anchorTo="BOTTOM" anchor="pause" y="12"/>
+					<Elements>
+						<Image name="zoom_in" image="zoom-in">
+							<Size w="36" h="36"/>
+							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
+						</Image>
+						<Image name="zoom_out" image="zoom-out">
+							<Size w="36" h="36"/>
+							<Anchor anchorFrom="CENTER" anchorTo="CENTER"/>
+						</Image>
+					</Elements>
+				</Button>
 
 				<Thumbstick image="split-circle">
 					<Size w="128" h="128"/>
@@ -253,13 +281,5 @@
 			</Elements>
 
 		</Area>
-
-		<Button name="test_button" action="CONTROL_TEST" image="circle">
-			<Size w="45" h="45"/>
-			<Anchor anchorFrom="TOP" anchorTo="TOP" y="8"/>
-		</Button>
-		<Label name="test_label" template="SmallYellow">
-			<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="test_button" x="4"/>
-		</Label>
 	</Elements>
 </Panel>
