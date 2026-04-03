@@ -69,17 +69,17 @@ bool InitDataPath(void)
 
 void InitOverridePath(void)
 {
-	const char *env = SDL_getenv("MAELSTROM_DATA_OVERRIDE");
+	const char *env = SDL_getenv("MAELSTROM_MOD");
 
 	if (env) {
 		SDL_strlcpy(override, env, sizeof(override));
 		return;
 	}
 
-#ifdef MAELSTROM_DATA_OVERRIDE
-	SDL_strlcpy(override, MAELSTROM_DATA_OVERRIDE, sizeof(override));
+#ifdef MAELSTROM_MOD
+	SDL_strlcpy(override, MAELSTROM_MOD, sizeof(override));
 #else
-	SDL_snprintf(override, sizeof(override), "%s../addon/", datapath);
+	SDL_snprintf(override, sizeof(override), "%s../mod/", datapath);
 #endif
 
 	if (!SDL_GetPathInfo(override, NULL)) {
