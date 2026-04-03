@@ -126,10 +126,7 @@ Player::NewWave(void)
 	AutoShield = SAFE_TIME;
 	WasShielded = 0;
 	Sphase = 0;
-	SetPos(
-		((GAME_WIDTH/2-((gGameInfo.GetNumPlayers()/2-Index)*(2*SPRITES_WIDTH)))*SCALE_FACTOR),
-		((GAME_HEIGHT/2)*SCALE_FACTOR)
-	);
+	SetSpawnPosition();
 	xvec = yvec = 0;
 	Thrusting = 0;
 	Braking = 0;
@@ -138,11 +135,11 @@ Player::NewWave(void)
 	Shooting = 0;
 	WasShooting = 0;
 	Rotating = 0;
-	CameraX = x;
-	CameraY = y;
 	phase = 0;
-	OBJ_LOOP(i, numshots)
+	OBJ_LOOP(i, numshots) {
 		KillShot(i);
+	}
+	UpdateCamera();
 
 	NoShieldsThisLevel = (ShieldLevel == 0);
 }
@@ -181,14 +178,13 @@ Player::NewShip(void)
 	phasetime = NO_PHASE_CHANGE;
 	Dead = 0;
 	Exploding = 0;
-	CameraX = x;
-	CameraY = y;
 	Set_TTL(-1);
 	if ( ! gGameInfo.IsDeathmatch() ) {
 		if (Lives > 0) {
 			--Lives;
 		}
 	}
+	UpdateCamera();
 
 	// In Kid Mode you automatically get air brakes
 	if ( gGameInfo.IsKidMode() ) {
@@ -281,10 +277,7 @@ int
 Player::BeenTimedOut(void)
 {
 	Exploding = 0;
-	SetPos(
-		((GAME_WIDTH/2-((gGameInfo.GetNumPlayers()/2-Index)*(2*SPRITES_WIDTH)))*SCALE_FACTOR),
-		((GAME_HEIGHT/2)*SCALE_FACTOR)
-	);
+	SetSpawnPosition();
 	if ( gGameInfo.IsDeathmatch() )
 		Dead = (DEAD_DELAY/2);
 	else
@@ -567,27 +560,30 @@ printf("\n");
 void
 Player::UpdateCamera()
 {
+	int centerX = (x + ((xsize / 2) << SPRITE_PRECISION));
+	int centerY = (y + ((ysize / 2) << SPRITE_PRECISION));
+
 	if ( Dead ) {
 		// Pan the camera over to our new position
 		const float CAMERA_SPEED = (float)(16 << SPRITE_PRECISION);
-		float deltaX = (float)(x - CameraX);
-		float deltaY = (float)(y - CameraY);
+		float deltaX = (float)(centerX - CameraX);
+		float deltaY = (float)(centerY - CameraY);
 		float length = SDL_sqrtf(deltaX * deltaX + deltaY * deltaY);
 		float velocityX = (deltaX / length) * CAMERA_SPEED;
 		float velocityY = (deltaY / length) * CAMERA_SPEED;
 		if (SDL_fabs(velocityX) < SDL_fabs(deltaX)) {
 			CameraX += (int)SDL_truncf(velocityX);
 		} else {
-			CameraX = x;
+			CameraX = centerX;
 		}
 		if (SDL_fabs(velocityY) < SDL_fabs(deltaY)) {
 			CameraY += (int)SDL_truncf(velocityY);
 		} else {
-			CameraY = y;
+			CameraY = centerY;
 		}
 	} else {
-		CameraX = x;
-		CameraY = y;
+		CameraX = centerX;
+		CameraY = centerY;
 	}
 }
 
