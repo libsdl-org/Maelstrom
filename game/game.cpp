@@ -196,6 +196,16 @@ GamePanelDelegate::OnShow()
 {
 	int i;
 
+	SDL_AddEventWatch(EventWatch, this);
+
+	m_lastTouch = SDL_GetTicks();
+
+	if ((IsPhone() || IsTablet()) && GetNumGamepads() == 0) {
+		ShowTouchControls();
+	} else {
+		HideTouchControls();
+	}
+
 	UpdateZoom();
 
 	SetSteamTimelineMode(STEAM_TIMELINE_PLAYING);
@@ -261,6 +271,79 @@ GamePanelDelegate::OnHide()
 		delete gSprites[gNumSprites-1];
 
 	sound->HaltSound();
+
+	SDL_RemoveEventWatch(EventWatch, this);
+}
+
+bool SDLCALL
+GamePanelDelegate::EventWatch(void *userdata, SDL_Event *event)
+{
+	GamePanelDelegate *delegate = static_cast<GamePanelDelegate*>(userdata);
+	delegate->ObserveEvent(event);
+	return true;
+}
+
+void
+GamePanelDelegate::ObserveEvent(const SDL_Event *event)
+{
+	if (event->type == SDL_EVENT_FINGER_DOWN) {
+		ShowTouchControls();
+	} else if (event->type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED ||
+	           event->type == SDL_EVENT_WINDOW_SAFE_AREA_CHANGED) {
+		UpdateZoom();
+	}
+}
+
+void
+GamePanelDelegate::ShowTouchControls()
+{
+	if (!m_touchControls) {
+		return;
+	}
+
+	m_lastTouch = SDL_GetTicks();
+
+	if (!m_touchControls->IsShown()) {
+		m_touchFading = false;
+		m_touchControls->SetAlpha(128);
+		m_touchControls->Show();
+	}
+}
+
+void
+GamePanelDelegate::HideTouchControls()
+{
+	if (!m_touchControls) {
+		return;
+	}
+
+	m_touchControls->Hide();
+}
+
+void
+GamePanelDelegate::HandleTouchFading()
+{
+	if (!m_touchControls || !m_touchControls->IsShown()) {
+		return;
+	}
+
+	if (m_touchFading) {
+		const int max = 16;
+		int v = max - m_fadeStep;
+		Uint8 value = (Uint8)(128 * v / max);
+
+		m_touchControls->SetAlpha(value);
+		++m_fadeStep;
+		if (m_fadeStep > max) {
+			HideTouchControls();
+		}
+	} else {
+		const Uint64 TOUCH_FADE_TIMEOUT = 10 * 1000;
+		if ((SDL_GetTicks() - m_lastTouch) >= TOUCH_FADE_TIMEOUT) {
+			m_touchFading = true;
+			m_fadeStep = 1;
+		}
+	}
 }
 
 void
@@ -268,6 +351,13 @@ GamePanelDelegate::OnTick()
 {
 	int i, j;
 	SYNC_RESULT syncResult;
+
+	if (m_state == STATE_PLAYING) {
+		HandleTouchFading();
+	} else {
+		// Don't time out touch while the bonus is showing
+		m_lastTouch = SDL_GetTicks();
+	}
 
 	switch (m_state) {
 	case STATE_SHOW_BONUS:
@@ -522,20 +612,6 @@ GamePanelDelegate::OnDraw(DRAWLEVEL drawLevel)
 	}
 
 	StopZoomedDrawing();
-}
-
-bool
-GamePanelDelegate::HandleEvent(const SDL_Event &event)
-{
-	if (event.type == SDL_EVENT_FINGER_DOWN) {
-		if (m_touchControls) {
-			m_touchControls->Show();
-		}
-	} else if (event.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED ||
-	           event.type == SDL_EVENT_WINDOW_SAFE_AREA_CHANGED) {
-		UpdateZoom();
-	}
-	return false;
 }
 
 bool
