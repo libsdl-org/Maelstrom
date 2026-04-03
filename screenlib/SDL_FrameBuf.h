@@ -138,22 +138,22 @@ public:
 
 	/* Drawing routines */
 	void Clear(int x, int y, int w, int h) {
-		FillRect(x, y, w, h, 0);
+		FillRect(x, y, w, h, 0, SDL_ALPHA_OPAQUE);
 	}
 	void Clear(Uint32 color = 0) {
-		UpdateDrawColor(color);
+		UpdateDrawColor(color, SDL_ALPHA_OPAQUE);
 		SDL_RenderClear(m_renderer);
 	}
-	void DrawPoint(int x, int y, Uint32 color) {
-		UpdateDrawColor(color);
+	void DrawPoint(int x, int y, Uint32 color, Uint8 alpha = SDL_ALPHA_OPAQUE) {
+		UpdateDrawColor(color, alpha);
 		SDL_RenderPoint(m_renderer, (float)x, (float)y);
 	}
-	void DrawLine(int x1, int y1, int x2, int y2, Uint32 color) {
-		UpdateDrawColor(color);
+	void DrawLine(int x1, int y1, int x2, int y2, Uint32 color, Uint8 alpha = SDL_ALPHA_OPAQUE) {
+		UpdateDrawColor(color, alpha);
 		SDL_RenderLine(m_renderer, (float)x1, (float)y1, (float)x2, (float)y2);
 	}
-	void DrawRect(int x1, int y1, int w, int h, Uint32 color) {
-		UpdateDrawColor(color);
+	void DrawRect(int x1, int y1, int w, int h, Uint32 color, Uint8 alpha = SDL_ALPHA_OPAQUE) {
+		UpdateDrawColor(color, alpha);
 
 		SDL_FRect rect;
 		rect.x = (float)x1;
@@ -162,8 +162,8 @@ public:
 		rect.h = (float)h;
 		SDL_RenderRect(m_renderer, &rect);
 	}
-	void FillRect(int x1, int y1, int w, int h, Uint32 color) {
-		UpdateDrawColor(color);
+	void FillRect(int x1, int y1, int w, int h, Uint32 color, Uint8 alpha = SDL_ALPHA_OPAQUE) {
+		UpdateDrawColor(color, alpha);
 
 		SDL_FRect rect;
 		rect.x = (float)x1;
@@ -216,12 +216,12 @@ private:
 	bool m_gamepadMouseDown = false;
 	array<SDL_Gamepad *> m_gamepads;
 
-	void UpdateDrawColor(Uint32 color) {
+	void UpdateDrawColor(Uint32 color, Uint8 alpha) {
 		Uint8 r, g, b;
 		r = (color >> 16) & 0xFF;
 		g = (color >>  8) & 0xFF;
 		b = (color >>  0) & 0xFF;
-		SDL_SetRenderDrawColor(m_renderer, r, g, b, SDL_ALPHA_OPAQUE);
+		SDL_SetRenderDrawColor(m_renderer, r, g, b, alpha);
 	}
 
 	void OpenGamepad(SDL_JoystickID id);

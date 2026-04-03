@@ -60,7 +60,7 @@ public:
 	void SetStretchGrid(int cornerSize);
 	bool IsStretching() const { return m_stretch; }
 
-	void Draw(FrameBuf *screen, int x, int y, int w, int h);
+	void Draw(FrameBuf *screen, int x, int y, int w, int h, Uint8 alpha);
 
 	// When a texture is locked it shouldn't be freed
 	void SetLocked(bool locked) {

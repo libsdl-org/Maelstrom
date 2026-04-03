@@ -103,8 +103,10 @@ UITexture::SetStretchGrid(int cornerSize)
 }
 
 void
-UITexture::Draw(FrameBuf *screen, int x, int y, int w, int h)
+UITexture::Draw(FrameBuf *screen, int x, int y, int w, int h, Uint8 alpha)
 {
+	SDL_SetTextureAlphaMod(m_texture, alpha);
+
 	if (m_stretch) {
 		SDL_Rect dstAreas[NUM_STRETCH_AREAS];
 
