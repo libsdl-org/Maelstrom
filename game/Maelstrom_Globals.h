@@ -80,6 +80,7 @@ extern void   DelayAndDraw(int ticks);
 
 // Functions from init.cpp
 extern void  SetStar(int which);
+extern void  SetBorderStar(int which);
 
 // External variables...
 // in main.cpp : 
@@ -106,6 +107,7 @@ extern MPoint	gShotOrigins[SHIP_FRAMES];
 extern MPoint	gThrustOrigins[SHIP_FRAMES];
 extern MPoint	gVelocityTable[SHIP_FRAMES];
 extern StarPtr	gTheStars[MAX_STARS];
+extern StarPtr	gBorderStars[MAX_BORDER_STARS];
 extern Uint32	gStarColors[];
 extern Uint32	gSpriteCRC;
 

@@ -500,6 +500,17 @@ GamePanelDelegate::OnDraw(DRAWLEVEL drawLevel)
 		screen->DrawPoint(x, y, gTheStars[i]->color);
 	}
 
+	for ( i=0; i<MAX_BORDER_STARS; ++i ) {
+		int x = (gBorderStars[i]->xCoord << SPRITE_PRECISION);
+		int y = (gBorderStars[i]->yCoord << SPRITE_PRECISION);
+		GetRenderCoordinates(x, y);
+		if (gZoomGame ||
+		    (x >= SPRITES_WIDTH && x < (GAME_WIDTH - SPRITES_WIDTH) &&
+		     y >= SPRITES_WIDTH && y < (GAME_HEIGHT - SPRITES_WIDTH))) {
+			screen->DrawPoint(x, y, gBorderStars[i]->color);
+		}
+	}
+
 	/* -- Blit all the sprites */
 	OBJ_LOOP(i, gNumSprites)
 		gSprites[i]->BlitSprite();
@@ -1014,6 +1025,7 @@ GamePanelDelegate::DoHousekeeping()
 	if ( --gLastStar == 0 ) {
 		gLastStar = STAR_DELAY;
 		SetStar(FastRandom(MAX_STARS));
+		SetBorderStar(FastRandom(MAX_BORDER_STARS));
 	}
 
 	/* -- Time for the next wave? */

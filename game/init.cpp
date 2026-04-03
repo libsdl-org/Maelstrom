@@ -58,6 +58,7 @@ MPoint	gShotOrigins[SHIP_FRAMES];
 MPoint	gThrustOrigins[SHIP_FRAMES];
 MPoint	gVelocityTable[SHIP_FRAMES];
 StarPtr	gTheStars[MAX_STARS];
+StarPtr	gBorderStars[MAX_BORDER_STARS];
 Uint32	gStarColors[20];
 Uint32	gSpriteCRC = 0;
 
@@ -229,6 +230,25 @@ void SetStar(int which)
 }	/* -- SetStar */
 
 /* ----------------------------------------------------------------- */
+/* -- Set a border star */
+
+void SetBorderStar(int which)
+{
+	// Get initial random coordinates
+	int x, y;
+	do
+	{
+		x = FastRandom(GAME_WIDTH);
+		y = FastRandom(GAME_HEIGHT);
+	} while (x > (2*SPRITES_WIDTH) && x < (GAME_WIDTH - (2*SPRITES_WIDTH)) &&
+	         y > (2*SPRITES_WIDTH) && y < (GAME_HEIGHT - (2*SPRITES_WIDTH)));
+
+	gBorderStars[which]->xCoord = x;
+	gBorderStars[which]->yCoord = y;
+	gBorderStars[which]->color = gStarColors[FastRandom(20)];
+}	/* -- SetBorderStar */
+
+/* ----------------------------------------------------------------- */
 /* -- Initialize the stars */
 
 static void InitStars(void)
@@ -301,6 +321,12 @@ static void InitStars(void)
 		gTheStars[index] = new Star;
 		gTheStars[index]->color = 0L;
 		SetStar(index);
+	}
+
+	for (index = 0; index < MAX_BORDER_STARS; index++) {
+		gBorderStars[index] = new Star;
+		gBorderStars[index]->color = 0L;
+		SetBorderStar(index);
 	}
 }	/* -- InitStars */
 
