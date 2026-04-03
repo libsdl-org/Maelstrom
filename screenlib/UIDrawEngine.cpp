@@ -118,30 +118,32 @@ UIDrawEngine::OnDraw()
 	if (m_element->HasFill()) {
 		m_screen->FillRect(m_element->X(), m_element->Y(),
 				m_element->Width(), m_element->Height(),
-				m_element->GetFillColor());
+				m_element->GetFillColor(), m_element->GetAlpha());
 	}
 
 	UITexture *background = m_element->GetBackground();
 	if (background) {
-		background->Draw(m_screen, m_element->X(), m_element->Y(), m_element->Width(), m_element->Height());
+		background->Draw(m_screen, m_element->X(), m_element->Y(), m_element->Width(), m_element->Height(), m_element->GetAlpha());
 	}
 
 	if (m_element->HasBorder()) {
 		m_screen->DrawRect(m_element->X(), m_element->Y(),
 				m_element->Width(), m_element->Height(),
-				m_element->GetCurrentColor());
+				m_element->GetCurrentColor(), m_element->GetAlpha());
 	}
 
 	UITexture *image = m_element->GetImage();
 	if (image) {
 		UIArea *area = m_element->GetImageArea();
-		image->Draw(m_screen, area->X(), area->Y(), area->Width(), area->Height());
+		image->Draw(m_screen, area->X(), area->Y(), area->Width(), area->Height(), m_element->GetAlpha());
 	}
 
 	if (m_textImage) {
 		UIArea *area = m_element->GetTextArea();
 		int x, y, shadowX, shadowY;
 		m_element->GetTextOffset(&x, &y);
+
+		SDL_SetTextureAlphaMod(m_textImage->Texture(), m_element->GetAlpha());
 
 		if (m_element->GetTextShadowOffset(&shadowX, &shadowY)) {
 			Uint8 r, g, b;

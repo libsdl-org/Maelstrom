@@ -37,6 +37,7 @@ UIElement::UIElement(UIBaseElement *parent, const char *name, UIDrawEngine *draw
 	m_fillColor = m_screen->MapRGB(0x00, 0x00, 0x00);
 	m_color = m_screen->MapRGB(0xFF, 0xFF, 0xFF);
 	m_disabledColor = m_screen->MapRGB(0x80, 0x80, 0x80);
+	m_alpha = SDL_ALPHA_OPAQUE;
 	m_fontName = NULL;
 	m_fontSize = 0;
 	m_fontStyle = UIFONT_STYLE_NORMAL;
@@ -132,6 +133,11 @@ UIElement::Load(rapidxml::xml_node<> *node, const UITemplates *templates)
 
 	if (LoadColor(node, "disabledColor", color)) {
 		SetDisabledColor(color);
+	}
+
+	int alpha;
+	if (LoadNumber(node, "alpha", alpha)) {
+		SetAlpha((Uint8)alpha);
 	}
 
 	attr = node->first_attribute("font", 0, false);
@@ -403,6 +409,12 @@ UIElement::SetDisabledColor(Uint32 color)
 	if (IsDisabled() && m_drawEngine) {
 		m_drawEngine->OnColorChanged();
 	}
+}
+
+void
+UIElement::SetAlpha(Uint8 alpha)
+{
+	m_alpha = alpha;
 }
 
 void

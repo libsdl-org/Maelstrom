@@ -177,6 +177,8 @@ public:
 	Uint32 GetCurrentColor() const {
 		return IsDisabled() ? GetDisabledColor() : GetColor();
 	}
+	void SetAlpha(Uint8 alpha);
+	Uint8 GetAlpha() const { return m_alpha; }
 
 	// Text information
 	void SetFont(const char *fontName, int fontSize, UIFontStyle fontStyle);
@@ -272,6 +274,7 @@ protected:
 	Uint32 m_fillColor;
 	Uint32 m_color;
 	Uint32 m_disabledColor;
+	Uint8 m_alpha;
 	char *m_fontName;
 	int m_fontSize;
 	UIFontStyle m_fontStyle;
