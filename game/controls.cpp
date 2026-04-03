@@ -58,12 +58,14 @@ Controls::Bind(Prefs *prefs)
 Controls controls;
 PrefsVariable<int> gSoundLevel("SoundLevel", 4);
 PrefsVariable<int> gGammaCorrect("GammaCorrect", 3);
+PrefsVariable<int> gZoomGame("ZoomGame", 0);
 
 
 void LoadControls(void)
 {
 	gSoundLevel.Bind(prefs);
 	gGammaCorrect.Bind(prefs);
+	gZoomGame.Bind(prefs);
 	controls.Bind(prefs);
 }
 

@@ -42,8 +42,9 @@ public:
 
 protected:
 	void UpdateZoom();
-	void StartZoom(const SDL_Rect &rect);
-	void StopZoom();
+	void StartZoomUI(const SDL_Rect &rect);
+	void StopZoomUI();
+	void ToggleZoomGame();
 	void StartZoomedDrawing();
 	void StopZoomedDrawing();
 	void DrawBorder();
@@ -88,6 +89,8 @@ protected:
 	UIElement *m_frags;
 
 	UIElement *m_paused;
+	UIElement *m_zoomIn;
+	UIElement *m_zoomOut;
 
 	enum {
 		STATE_PLAYING,
@@ -105,7 +108,6 @@ protected:
 		STATE_START_NEXT_WAVE,
 	} m_state;
 
-	bool m_zoom;
 	SDL_Texture *m_texture = nullptr;
 	SDL_Rect m_savedClip;
 };
