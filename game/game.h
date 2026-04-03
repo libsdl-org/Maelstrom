@@ -37,10 +37,16 @@ public:
 	virtual void OnHide();
 	virtual void OnTick();
 	virtual void OnDraw(DRAWLEVEL drawLevel);
-	virtual bool HandleEvent(const SDL_Event &event);
 	virtual bool OnAction(UIBaseElement *sender, const char *action);
 
+	void ObserveEvent(const SDL_Event *event);
+
 protected:
+	static bool SDLCALL EventWatch(void *userdata, SDL_Event *event);
+
+	void ShowTouchControls();
+	void HideTouchControls();
+	void HandleTouchFading();
 	void UpdateZoom();
 	void StartZoomUI(const SDL_Rect &rect);
 	void StopZoomUI();
@@ -109,6 +115,10 @@ protected:
 
 	SDL_Texture *m_texture = nullptr;
 	SDL_Rect m_savedClip;
+
+	Uint64 m_lastTouch;
+	bool m_touchFading;
+	int m_fadeStep;
 };
 
 /* ----------------------------------------------------------------- */
