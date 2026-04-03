@@ -137,19 +137,19 @@
 					</Elements>
 				</Button>
 
-				<Thumbstick image="split-circle" alpha="128">
-					<Size w="85" h="85"/>
-					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" x="20" y="-20"/>
+				<Thumbstick image="split-circle" sensitiveRadius="85" alpha="128">
+					<Size w="70" h="70"/>
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" x="30" y="-30"/>
 					<Action angle="90" arc="180" active_radius="0" action_enter="CONTROL_DOWN_RIGHT" action_leave="CONTROL_UP_RIGHT"/>
 					<Action angle="270" arc="180" active_radius="0" action_enter="CONTROL_DOWN_LEFT" action_leave="CONTROL_UP_LEFT"/>
 					<Elements>
 						<Image image="rotate-left" alpha="128">
 							<Size w="30" h="30"/>
-							<Anchor anchorFrom="LEFT" anchorTo="LEFT" x="6"/>
+							<Anchor anchorFrom="LEFT" anchorTo="LEFT" x="2"/>
 						</Image>
 						<Image image="rotate-right" alpha="128">
 							<Size w="30" h="30"/>
-							<Anchor anchorFrom="RIGHT" anchorTo="RIGHT" x="-6"/>
+							<Anchor anchorFrom="RIGHT" anchorTo="RIGHT" x="-2"/>
 						</Image>
 					</Elements>
 				</Image>
@@ -228,19 +228,19 @@
 					</Elements>
 				</Button>
 
-				<Thumbstick image="split-circle" alpha="128">
-					<Size w="128" h="128"/>
-					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" x="30" y="-30"/>
+				<Thumbstick image="split-circle" sensitiveRadius="128" alpha="128">
+					<Size w="105" h="105"/>
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" x="45" y="-45"/>
 					<Action angle="90" arc="180" active_radius="0" action_enter="CONTROL_DOWN_RIGHT" action_leave="CONTROL_UP_RIGHT"/>
 					<Action angle="270" arc="180" active_radius="0" action_enter="CONTROL_DOWN_LEFT" action_leave="CONTROL_UP_LEFT"/>
 					<Elements>
 						<Image image="rotate-left" alpha="128">
 							<Size w="45" h="45"/>
-							<Anchor anchorFrom="LEFT" anchorTo="LEFT" x="9"/>
+							<Anchor anchorFrom="LEFT" anchorTo="LEFT" x="3"/>
 						</Image>
 						<Image image="rotate-right" alpha="128">
 							<Size w="45" h="45"/>
-							<Anchor anchorFrom="RIGHT" anchorTo="RIGHT" x="-9"/>
+							<Anchor anchorFrom="RIGHT" anchorTo="RIGHT" x="-3"/>
 						</Image>
 					</Elements>
 				</Image>
