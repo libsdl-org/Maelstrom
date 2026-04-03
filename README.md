@@ -13,8 +13,8 @@ In addition to being a faithful reproduction of the original game, this version 
 
 Maelstrom is available for free on:
 - Steam: https://store.steampowered.com/app/4239950/Maelstrom
-- Google Play: 
-- Apple Store: 
+- Google Play: https://play.google.com/apps/testing/org.libsdl.Maelstrom
+- Apple Store: https://testflight.apple.com/join/6rXqay1A
 - Web: https://www.libsdl.org/projects/Maelstrom/play
 
 You can download the latest release and source code from [GitHub](https://github.com/libsdl-org/Maelstrom)
