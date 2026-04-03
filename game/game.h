@@ -47,7 +47,6 @@ protected:
 	void ToggleZoomGame();
 	void StartZoomedDrawing();
 	void StopZoomedDrawing();
-	void DrawBorder();
 	void DrawStatus(Bool first);
 	bool UpdateGameState();
 	void DoHousekeeping();
