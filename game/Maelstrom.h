@@ -43,6 +43,7 @@
 #define MAX_SPRITES		100
 #define MAX_SPRITE_FRAMES	60
 #define	MAX_STARS		30
+#define	MAX_BORDER_STARS	150
 #define	SHIP_FRAMES		48
 #define	SPRITES_WIDTH		32
 #define	SPRITE_PRECISION	4	/* sprite <--> game precision */
