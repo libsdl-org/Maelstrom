@@ -208,6 +208,12 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
                                                WindowInsets.Type.displayCutout());
 
             SDLActivity.onNativeInsetsChanged(combined.left, combined.right, combined.top, combined.bottom);
+
+            if (insets.isVisible(WindowInsets.Type.ime())) {
+                SDLActivity.onNativeScreenKeyboardShown();
+            } else {
+                SDLActivity.onNativeScreenKeyboardHidden();
+            }
         }
 
         // Pass these to any child views in case they need them
