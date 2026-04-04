@@ -222,6 +222,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 	/* Initialize everything. :) */
 	if (!StartInitialization(window_width, window_height, window_flags)) {
 		/* An error message was already printed */
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", "Couldn't initialize game", nullptr);
 		return SDL_APP_FAILURE;
 	}
 
