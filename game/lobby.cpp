@@ -384,6 +384,7 @@ void
 LobbyDialogDelegate::LivesChanged(void *, const char *text)
 {
 	m_game.lives = SDL_atoi(text);
+	UpdateUI();
 }
 
 void
@@ -437,6 +438,11 @@ LobbyDialogDelegate::UpdateUI()
 					play_enabled = false;
 				}
 			} else {
+				// Make sure there are a valid number of lives
+				if (!m_game.lives) {
+					play_enabled = false;
+				}
+
 				// Make sure there is a local player for PvE
 				if (!m_game.HasLocalControl()) {
 					play_enabled = false;
