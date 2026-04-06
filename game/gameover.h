@@ -42,6 +42,7 @@ protected:
 	UIElement *m_handleLabel;
 	int m_handleSize;
 	char m_handle[MAX_NAMELEN+1];
+	bool m_showIME;
 	Uint64 m_showTime;
 };
 
