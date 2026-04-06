@@ -198,7 +198,7 @@ void
 Player::IncrFrags(void)
 {
 	++Frags;
-	if ( gGameInfo.IsDeathmatch() && (Frags >= gGameInfo.deathMatch) ) {
+	if ( gGameInfo.IsDeathmatch() && (Frags >= gGameInfo.lives) ) {
 		/* Game over, we got a stud. :) */
 		int i;
 		OBJ_LOOP(i, MAX_PLAYERS) {
@@ -207,9 +207,6 @@ Player::IncrFrags(void)
 			}
 			gPlayers[i]->IncrLives(-1);
 			gPlayers[i]->Explode();
-#ifdef DEBUG
-error("Killing player %d\n", i+1);
-#endif
 		}
 	}
 }

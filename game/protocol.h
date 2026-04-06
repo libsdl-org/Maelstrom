@@ -72,8 +72,7 @@ enum LobbyProtocol {
 	/* Sent by the hosting game, if there are slots open
 
 		Uint32 timestamp
-		Uint32 gameID
-		Uint8 deathMatch;
+		GameInfo game
 		Uint32 player1_uniqueID;
 		Uint32 player1_host;
 		Uint16 player1_port;

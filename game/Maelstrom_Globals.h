@@ -47,6 +47,8 @@
 #define PREFERENCES_RESOLUTION "Resolution"
 #define PREFERENCES_HANDLE "Handle"
 #define PREFERENCES_DEATHMATCH "Network.Deathmatch"
+#define PREFERENCES_MULTIPLAYER_LIVES "Network.Lives"
+#define PREFERENCES_MULTIPLAYER_FRAGS "Network.Frags"
 #define PREFERENCES_KIDMODE "Cheat.KidMode"
 #define PREFERENCES_CONTINUES "Cheat.Continues"
 

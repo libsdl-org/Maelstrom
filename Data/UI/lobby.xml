@@ -250,13 +250,40 @@
 					</Elements>
 				</Area>
 
-				<DialogLabel name="deathmatch_label" text="Deathmatch Frags:">
-					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" x="12" y="-13"/>
-				</DialogLabel>
-				<DialogEditbox name="deathmatch" numeric="true" maxlen="2" bindText="Network.Deathmatch" text="0">
-					<Size w="30" h="21"/>
-					<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="deathmatch_label" x="8"/>
-				</DialogEditbox>
+				<DialogRadioGroup name="deathmatch" bindValue="Network.Deathmatch">
+					<Elements>
+						<DialogRadioButton name="pve" text="PvE" checked="true" id="0">
+							<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" x="18" y="-13"/>
+						</DialogRadioButton>
+						<DialogRadioButton name="pvp" text="PvP" id="1">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="pve"/>
+						</DialogRadioButton>
+					</Elements>
+				</DialogRadioGroup>
+
+				<Area name="lives">
+					<Elements>
+						<DialogLabel name="lives_label" text="Lives:">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="pvp"/>
+						</DialogLabel>
+						<DialogEditbox name="lives_value" numeric="true" maxlen="2" bindText="Network.Lives" text="0">
+							<Size w="30" h="21"/>
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="lives_label" x="8"/>
+						</DialogEditbox>
+					</Elements>
+				</Area>
+
+				<Area name="frags">
+					<Elements>
+						<DialogLabel name="frags_label" text="Frags:">
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="pvp"/>
+						</DialogLabel>
+						<DialogEditbox name="frags_value" numeric="true" maxlen="2" bindText="Network.Frags" text="0">
+							<Size w="30" h="21"/>
+							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="frags_label" x="8"/>
+						</DialogEditbox>
+					</Elements>
+				</Area>
 			</Elements>
 		</Area>
 

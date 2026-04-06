@@ -46,6 +46,7 @@ enum PLAYER_CONTROL {
 enum GAME_MODE {
 	GAME_MODE_KIDS           = 0x01,
 	GAME_MODE_CONTROL_BRAKES = 0x02,
+	GAME_MODE_DEATHMATCH     = 0x04,
 };
 
 #define IS_LOCAL_CONTROL(X)	(X & CONTROL_LOCAL)
@@ -128,7 +129,7 @@ public:
 		localID = uniqueID;
 	}
 
-	void SetHost(Uint8 wave, Uint8 lives, Uint8 turbo, Uint8 deathMatch, bool kidMode);
+	void SetHost(Uint8 wave, Uint8 lives, Uint8 turbo, bool deathMatch);
 
 	void SetPlayerSlot(int slot, const char *name, Uint8 controlMask);
 	void SetPlayerName(int slot, const char *name);
@@ -197,7 +198,7 @@ public:
 	bool IsFull() const;
 
 	bool IsDeathmatch() const {
-		return deathMatch != 0;
+		return (gameMode & GAME_MODE_DEATHMATCH) != 0;
 	}
 	bool IsKidMode() const {
 		return (gameMode & GAME_MODE_KIDS) != 0;
@@ -235,7 +236,6 @@ public:
 	Uint8 lives;
 	Uint8 turbo;
 	Uint8 gameMode;
-	Uint8 deathMatch;
 
 	Uint32 localID;
 
