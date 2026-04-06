@@ -183,6 +183,9 @@ Replay::Save(const char *file)
 		SDL_WriteU8(fp, m_finalScore[i].Frags);
 	}
 
+	// Use the seed as the unique game ID
+	m_game.gameID = m_game.seed;
+
 	data.Reset();
 	m_game.WriteToPacket(data);
 	SDL_WriteU32LE(fp, data.Size());

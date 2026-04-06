@@ -127,13 +127,10 @@ void GameOverPanelDelegate::OnShow()
 	    TheShip->GetScore() > 0) {
 		for ( i = 0; i<NUM_SCORES; ++i ) {
 			if ( TheShip->GetScore() >= (int)hScores[i].score ) {
-				gLastHigh = i;
 				BeginEnterName();
 				break;
 			}
 		}
-	} else {
-		gLastHigh = -1;
 	}
 
 	m_showTime = SDL_GetTicks();
@@ -144,6 +141,7 @@ void GameOverPanelDelegate::OnHide()
 	if (gReplay.IsRecording()) {
 		// Save this as the last game
 		gReplay.Save(LAST_REPLAY);
+		gLastGameID = gReplay.GetGameInfo().gameID;
 	}
 	gReplay.SetMode(REPLAY_IDLE);
 

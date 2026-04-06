@@ -49,7 +49,7 @@ UIManager *ui = nullptr;
 array<Resolution> gResolutions;
 int	gResolutionIndex;
 char   *gReplayFile = nullptr;
-Sint32	gLastHigh;
+Uint32	gLastGameID;
 Uint64	gLastDrawn;
 int     gNumSprites;
 SDL_Rect gScrnRect;
@@ -855,7 +855,7 @@ bool StartInitialization(int window_width, int window_height, Uint32 window_flag
 	gNetworkAvailable = NET_Init();
 
 	// -- Initialize some variables
-	gLastHigh = -1;
+	gLastGameID = 0;
 
 	// -- Load our preferences files
 	prefs = new Prefs(GAME_PREFS_FILE);
