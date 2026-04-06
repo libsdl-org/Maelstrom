@@ -38,6 +38,7 @@ UIElement::UIElement(UIBaseElement *parent, const char *name, UIDrawEngine *draw
 	m_color = m_screen->MapRGB(0xFF, 0xFF, 0xFF);
 	m_disabledColor = m_screen->MapRGB(0x80, 0x80, 0x80);
 	m_alpha = SDL_ALPHA_OPAQUE;
+	m_effectiveAlpha = SDL_ALPHA_OPAQUE;
 	m_fontName = NULL;
 	m_fontSize = 0;
 	m_fontStyle = UIFONT_STYLE_NORMAL;
