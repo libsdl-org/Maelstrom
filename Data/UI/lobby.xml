@@ -303,7 +303,6 @@
 			<Elements>
 				<Button name="control0" image="control0"/>
 				<Button name="control15" image="control15"/>
-				<Button name="control1" image="control1"/>
 				<Button name="control2" image="control2"/>
 				<Button name="control4" image="control4"/>
 				<Button name="control8" image="control8"/>
