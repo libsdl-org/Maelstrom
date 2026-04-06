@@ -51,19 +51,20 @@ static SDL_EnumerationResult SDLCALL LoadScoresCallback(void *userdata, const ch
 	Replay replay;
 	Scores score;
 
-	if (SDL_strcmp(fname, LAST_REPLAY) == 0) {
-		return SDL_ENUM_CONTINUE;
-	}
 	if (replay.Load(fname, true)) {
 		SDL_strlcpy(score.name, replay.GetDisplayName(), sizeof(score.name));
 		score.wave = replay.GetFinalWave();
 		score.score = replay.GetFinalScore();
+		score.gameID = replay.GetGameInfo().gameID;
 	} else {
 		SDL_zero(score);
 	}
-	score.file = SDL_strdup(fname);
-	scores->add(score);
-
+	if (SDL_strcmp(fname, LAST_REPLAY) == 0) {
+		gLastGameID = score.gameID;
+	} else {
+		score.file = SDL_strdup(fname);
+		scores->add(score);
+	}
 	return SDL_ENUM_CONTINUE;
 }
 
@@ -136,6 +137,5 @@ void ZapHighScores()
 	SDL_CloseStorage(storage);
 
 	FreeScores();
-	gLastHigh = -1;
 }
 

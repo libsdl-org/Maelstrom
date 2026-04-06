@@ -103,7 +103,7 @@ struct Resolution {
 extern array<Resolution> gResolutions;
 extern int	gResolutionIndex;
 extern char    *gReplayFile;
-extern Sint32	gLastHigh;
+extern Uint32	gLastGameID;
 extern SDL_Rect gScrnRect;
 extern MPoint	gShotOrigins[SHIP_FRAMES];
 extern MPoint	gThrustOrigins[SHIP_FRAMES];

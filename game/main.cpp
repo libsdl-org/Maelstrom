@@ -361,7 +361,7 @@ MainPanelDelegate::OnTick()
 	for (int index = 0; index < NUM_SCORES; index++) {
 		Uint8 R, G, B;
 
-		if ( gLastHigh == index ) {
+		if ( gLastGameID && gLastGameID == hScores[index].gameID ) {
 			R = 0xFF;
 			G = 0xFF;
 			B = 0xFF;

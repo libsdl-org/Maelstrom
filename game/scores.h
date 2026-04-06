@@ -32,6 +32,7 @@ typedef	struct {
 	char name[20];
 	Uint32 wave;
 	Uint32 score;	
+	Uint32 gameID;
 	char *file;
 } Scores;
 
