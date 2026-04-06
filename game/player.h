@@ -167,13 +167,7 @@ public:
 	}
 	bool CanGetAchievement();
 
-	void SetSpawnPosition() {
-		int offset = gGameInfo.GetNumPlayers() == 2 ? SPRITES_WIDTH : 0;
-		SetPos(
-			(((GAME_WIDTH/2-((gGameInfo.GetNumPlayers()/2-Index)*(2*SPRITES_WIDTH)))+offset-SPRITES_WIDTH/2)*SCALE_FACTOR),
-			(((GAME_HEIGHT/2)-SPRITES_WIDTH/2)*SCALE_FACTOR) - SPRITES_WIDTH
-		);
-	}
+	void SetSpawnPosition();
 
 	void GetCameraPos(int *X, int *Y) {
 		*X = CameraX;
