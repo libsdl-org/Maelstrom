@@ -574,6 +574,14 @@ GameInfo::UpdateUI(GameInfoPlayer *player)
 			desc = GetGamepadName(2);
 		} else if (IS_REMOTE_CONTROL(player->controlMask)) {
 			desc = player->name;
+		} else if (player->controlMask == CONTROL_NETWORK) {
+			if (!GetNodeByID(player->nodeID)) {
+				desc = "Ship available";
+			}
+		} else if (player->controlMask == CONTROL_LOCAL) {
+			desc = "You're locked in!";
+		} else if (player->controlMask == CONTROL_NONE) {
+			desc = "Ship disabled";
 		}
 		player->UI.desc->SetText(desc);
 	}
