@@ -191,6 +191,11 @@ UIElement::Load(rapidxml::xml_node<> *node, const UITemplates *templates)
 			SDL_Log("Warning: Couldn't load background '%s'", attr->value());
 			return false;
 		}
+
+		int cornerSize;
+		if (LoadNumber(node, "background_corner", cornerSize)) {
+			m_background->SetStretchGrid(cornerSize);
+		}
 	}
 
 	attr = node->first_attribute("image", 0, false);
@@ -198,6 +203,11 @@ UIElement::Load(rapidxml::xml_node<> *node, const UITemplates *templates)
 		if (!SetImage(attr->value())) {
 			SDL_Log("Warning: Couldn't load image '%s'", attr->value());
 			return false;
+		}
+
+		int cornerSize;
+		if (LoadNumber(node, "image_corner", cornerSize)) {
+			m_image->SetStretchGrid(cornerSize);
 		}
 	}
 
