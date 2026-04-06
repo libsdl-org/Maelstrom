@@ -29,13 +29,13 @@
 
 GameInfo::GameInfo()
 {
-	localID = SDL_rand(SDL_MAX_SINT32);
 	Reset();
 }
 
 void
 GameInfo::Reset()
 {
+	localID = SDL_rand(SDL_MAX_SINT32);
 	gameID = 0;
 	seed = 0;
 	wave = 0;
