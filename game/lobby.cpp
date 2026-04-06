@@ -104,6 +104,16 @@ public:
 			return;
 		}
 
+		// If we're clicking twice on the same button, close the dialog
+		if (m_dialog->IsShown()) {
+			UIAnchorInfo anchor;
+			m_dialog->GetAnchor(anchor);
+			if (anchor.element == m_button) {
+				m_dialog->Hide();
+				return;
+			}
+		}
+
 		// Show the control dialog
 		unsigned int num_gamepads = GetNumGamepads();
 		SetControl(CONTROL_NONE, (m_index > 0) && m_game.IsHosting());
