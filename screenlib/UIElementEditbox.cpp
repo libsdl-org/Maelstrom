@@ -72,6 +72,19 @@ UIElementEditbox::HandleEvent(const SDL_Event &event)
 		return UIElementButton::HandleEvent(event);
 	}
 
+	if (event.type == SDL_EVENT_MOUSE_MOTION ||
+	    event.type == SDL_EVENT_MOUSE_BUTTON_DOWN ||
+	    event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+		if (UIElementButton::HandleEvent(event)) {
+			return true;
+		}
+		if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+			// Clicked somewhere else, give up focus
+			SetFocus(false);
+			return false;
+		}
+	}
+
 	if (event.type == SDL_EVENT_KEY_UP) {
 		switch (event.key.key) {
 			// This is confusing in dialogs which are canceled by Escape.
