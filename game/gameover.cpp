@@ -119,6 +119,7 @@ void GameOverPanelDelegate::OnShow()
 	delete[] final;
 
 	/* -- See if they got a high score */
+	m_showIME = false;
 	m_handleLabel = NULL;
 	if (gReplay.IsRecording() && !gReplay.HasContinues() &&
 	    !gGameInfo.IsMultiplayer() && !gGameInfo.IsKidMode() &&
@@ -154,6 +155,16 @@ void GameOverPanelDelegate::OnHide()
 
 void GameOverPanelDelegate::OnTick()
 {
+	if (m_showIME) {
+		// Wait for the sound to complete before bringing up text entry
+		if (sound->Playing()) {
+			return;
+		}
+
+		screen->EnableTextInput(m_handleLabel->X(), m_handleLabel->Y(), m_handleLabel->Width(), m_handleLabel->Height());
+		m_showIME = false;
+	}
+
 	if (m_handleLabel) {
 		return;
 	}
@@ -260,7 +271,7 @@ void GameOverPanelDelegate::BeginEnterName()
 	}
 	m_handleSize = (int)SDL_strlen(m_handle);
 
-	screen->EnableTextInput(m_handleLabel->X(), m_handleLabel->Y(), m_handleLabel->Width(), m_handleLabel->Height());
+	m_showIME = true;
 }
 
 void GameOverPanelDelegate::FinishEnterName()
