@@ -400,7 +400,7 @@ LobbyDialogDelegate::UpdateUI()
 		for (unsigned int i = 0; i < SDL_arraysize(m_gameListElements); ++i) {
 			if (i < m_gameList.length()) {
 				m_gameListElements[i]->Show();
-				m_gameList[i].BindPlayerToUI(0, m_gameListElements[i]);
+				m_gameList[i].BindHostPlayerToUI(m_gameListElements[i]);
 			} else {
 				m_gameListElements[i]->Hide();
 			}

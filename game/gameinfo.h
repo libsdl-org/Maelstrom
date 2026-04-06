@@ -220,6 +220,7 @@ public:
 	}
 
 	void BindPlayerToUI(int index, UIElement *element);
+	void BindHostPlayerToUI(UIElement *element);
 	void UpdateUI();
 	void UpdateUI(GameInfoPlayer *player);
 
