@@ -54,6 +54,8 @@ public:
 		return m_focus;
 	}
 
+	virtual void OnVisibilityChanged(bool visible) override;
+
 	void SetTextMax(int maxLen);
 
 	virtual void SetText(const char *text) override;

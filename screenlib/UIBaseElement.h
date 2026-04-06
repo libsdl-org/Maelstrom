@@ -174,15 +174,26 @@ public:
 		if (m_parent) {
 			m_parent->OnChildShown(this);
 		}
+		OnVisibilityChanged(true);
 	}
 	virtual void Hide() {
 		m_shown = false;
 		if (m_parent) {
 			m_parent->OnChildHidden(this);
 		}
+		OnVisibilityChanged(false);
 	}
 	bool IsShown() const {
 		return m_shown;
+	}
+	virtual void OnVisibilityChanged(bool visible) {
+		for (unsigned int i = 0; i < m_elements.length(); ++i) {
+			UIBaseElement *element = m_elements[i];
+			if (!element->IsShown()) {
+				continue;
+			}
+			element->OnVisibilityChanged(visible);
+		}
 	}
 	virtual void OnRectChanged() {
 		UIArea::OnRectChanged();

@@ -159,6 +159,16 @@ UIElementEditbox::SetFocus(bool focus)
 }
 
 void
+UIElementEditbox::OnVisibilityChanged(bool visible)
+{
+	if (!visible) {
+		SetFocus(false);
+	}
+
+	UIElementButton::OnVisibilityChanged(visible);
+}
+
+void
 UIElementEditbox::SetHighlight(bool highlight)
 {
 	if (highlight != m_highlight) {
