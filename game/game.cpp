@@ -784,7 +784,7 @@ GamePanelDelegate::StopZoomedDrawing()
 	SDL_GetRenderOutputSize(renderer, &w, &h);
 
 	int cameraX, cameraY;
-	gPlayers[0]->GetCameraPos(&cameraX, &cameraY);
+	gPlayers[gDisplayed]->GetCameraPos(&cameraX, &cameraY);
 	GetRenderCoordinates(cameraX, cameraY);
 
 	SDL_Rect src;
