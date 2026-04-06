@@ -34,6 +34,9 @@
 #include <iphlpapi.h>
 #endif
 
+#ifdef SDL_PLATFORM_APPLE
+#define HAVE_GETIFADDRS
+#endif
 #ifdef HAVE_GETIFADDRS
 #include <ifaddrs.h>
 #include <netinet/in.h>
