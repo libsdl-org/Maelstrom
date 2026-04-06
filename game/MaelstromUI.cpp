@@ -420,6 +420,8 @@ MaelstromUI::CreateElement(UIBaseElement *parent, const char *type, const char *
 		element = new UIContainer(parent, name, new UIDrawEngine());
 	} else if (SDL_strcasecmp(type, "Button") == 0) {
 		element = new UIElementButton(parent, name, new UIDrawEngine());
+	} else if (SDL_strcasecmp(type, "RoundedButton") == 0) {
+		element = new UIElementButton(parent, name, new MacRoundedButton());
 	} else if (SDL_strcasecmp(type, "Checkbox") == 0) {
 		element = new UIElementCheckbox(parent, name, new UIDrawEngine());
 	} else if (SDL_strcasecmp(type, "Thumbstick") == 0) {

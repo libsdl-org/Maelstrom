@@ -164,9 +164,13 @@
 						<Image name="label" image="player1">
 							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT"/>
 						</Image>
-						<Button name="control">
+						<RoundedButton name="control">
+							<Size w="40" h="40"/>
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="16"/>
-						</Button>
+							<Elements>
+								<Image name="control_image"/>
+							</Elements>
+						</RoundedButton>
 						<DialogLabel name="desc">
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="80"/>
 						</DialogLabel>
@@ -195,9 +199,13 @@
 						<Image name="label" image="player2">
 							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT"/>
 						</Image>
-						<Button name="control">
+						<RoundedButton name="control">
+							<Size w="40" h="40"/>
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="16"/>
-						</Button>
+							<Elements>
+								<Image name="control_image"/>
+							</Elements>
+						</RoundedButton>
 						<DialogLabel name="desc">
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="80"/>
 						</DialogLabel>
@@ -226,9 +234,13 @@
 						<Image name="label" image="player3">
 							<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT"/>
 						</Image>
-						<Button name="control">
+						<RoundedButton name="control">
+							<Size w="40" h="40"/>
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="16"/>
-						</Button>
+							<Elements>
+								<Image name="control_image"/>
+							</Elements>
+						</RoundedButton>
 						<DialogLabel name="desc">
 							<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="label" x="80"/>
 						</DialogLabel>

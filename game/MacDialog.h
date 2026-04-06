@@ -60,10 +60,10 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 
-class MacDialogButton : public MacDialogDrawEngine
+class MacRoundedButton : public MacDialogDrawEngine
 {
 public:
-	MacDialogButton() : MacDialogDrawEngine() { }
+	MacRoundedButton() : MacDialogDrawEngine() { }
 
 	virtual void Init(UIElement *element) override;
 	virtual void OnLoad() override;
@@ -73,6 +73,16 @@ public:
 
 protected:
 	Uint32 m_colors[2];
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+class MacDialogButton : public MacRoundedButton
+{
+public:
+	MacDialogButton() : MacRoundedButton() { }
+
+	virtual void Init(UIElement *element) override;
 };
 
 //////////////////////////////////////////////////////////////////////////////
