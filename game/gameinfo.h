@@ -102,9 +102,11 @@ struct GameInfoPlayer
 	Uint32 nodeID;
 	char name[MAX_NAMELEN+1];
 	Uint8 controlMask;
+	Uint8 available;
 
 	struct {
 		UIElement *element;
+		UIElement *join;
 		UIElement *desc;
 		UIElement *name;
 		UIElement *host;
@@ -238,6 +240,9 @@ public:
 	Uint8 lives;
 	Uint8 turbo;
 	Uint8 gameMode;
+
+	Uint32 replayVersion;
+	Uint32 spriteCRC;
 
 	Uint32 localID;
 

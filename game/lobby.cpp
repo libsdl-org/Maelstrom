@@ -52,12 +52,10 @@ public:
 	virtual void operator()() {
 		if (m_game.IsHosting()) {
 			// Kick any player that was connected
-			if (m_controlType != CONTROL_NETWORK) {
-				const GameInfoPlayer* player = m_game.GetPlayer(m_index);
-				int nodeIndex = m_game.GetNodeIndex(player->nodeID);
-				if (nodeIndex >= 0) {
-					m_lobby->SendKick(nodeIndex);
-				}
+			const GameInfoPlayer* player = m_game.GetPlayer(m_index);
+			int nodeIndex = m_game.GetNodeIndex(player->nodeID);
+			if (nodeIndex >= 0) {
+				m_lobby->SendKick(nodeIndex);
 			}
 
 			if (m_controlType != CONTROL_NONE && m_controlType != CONTROL_NETWORK) {
@@ -504,8 +502,7 @@ LobbyDialogDelegate::SetState(LOBBY_STATE state)
 			for (i = 0; i < m_game.GetNumNodes(); ++i) {
 				SendKick(i);
 			}
-		} else if (m_state == STATE_JOINING ||
-			   m_state == STATE_JOINED) {
+		} else if (m_state == STATE_JOINING || m_state == STATE_JOINED) {
 			// Notify the host that we're gone
 			SendLeaveRequest();
 		}
@@ -1045,17 +1042,23 @@ LobbyDialogDelegate::ProcessRequestJoin(DynamicPacket &packet)
 		return;
 	}
 
-	m_game.AddNetworkPlayer(nodeID, packet.address, name);
-
-	// Let everybody know!
-	m_reply.StartLobbyMessage(LOBBY_GAME_INFO);
-	m_reply.Write((Uint32)0);
-	m_game.WriteToPacket(m_reply);
-	for (int i = 0; i < m_game.GetNumNodes(); ++i) {
-		if (m_game.IsNetworkNode(i)) {
-			IPaddress address = m_game.GetNode(i)->address;
-			NET_SendDatagram(gSocket, address.host, address.port, m_reply.data, m_reply.len);
+	if (m_game.AddNetworkPlayer(nodeID, packet.address, name)) {
+		// Let everybody know!
+		m_reply.StartLobbyMessage(LOBBY_GAME_INFO);
+		m_reply.Write((Uint32)0);
+		m_game.WriteToPacket(m_reply);
+		for (int i = 0; i < m_game.GetNumNodes(); ++i) {
+			if (m_game.IsNetworkNode(i)) {
+				IPaddress address = m_game.GetNode(i)->address;
+				NET_SendDatagram(gSocket, address.host, address.port, m_reply.data, m_reply.len);
+			}
 		}
+	} else {
+		m_reply.StartLobbyMessage(LOBBY_KICK);
+		m_reply.Write(m_game.gameID);
+		m_reply.Write(nodeID);
+
+		NET_SendDatagram(gSocket, packet.address.host, packet.address.port, m_reply.data, m_reply.len);
 	}
 }
 
