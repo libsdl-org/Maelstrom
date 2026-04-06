@@ -150,16 +150,15 @@ MacDialogDrawEngine::Init(UIElement *element)
 //////////////////////////////////////////////////////////////////////////////
 
 void
-MacDialogButton::Init(UIElement *element)
+MacRoundedButton::Init(UIElement *element)
 {
 	MacDialogDrawEngine::Init(element);
 
 	m_element->SetFill(true);
-	m_element->SetSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 }
 
 void
-MacDialogButton::OnLoad()
+MacRoundedButton::OnLoad()
 {
 	MacDialogDrawEngine::OnLoad();
 
@@ -168,7 +167,7 @@ MacDialogButton::OnLoad()
 }
 
 void
-MacDialogButton::OnDraw()
+MacRoundedButton::OnDraw()
 {
 	Uint32 color;
 	int x, y, maxx, maxy;
@@ -247,7 +246,7 @@ MacDialogButton::OnDraw()
 }
 
 void
-MacDialogButton::OnMouseDown()
+MacRoundedButton::OnMouseDown()
 {
 	MacDialogDrawEngine::OnMouseDown();
 
@@ -257,13 +256,23 @@ MacDialogButton::OnMouseDown()
 }
 
 void
-MacDialogButton::OnMouseUp()
+MacRoundedButton::OnMouseUp()
 {
 	MacDialogDrawEngine::OnMouseUp();
 
 	// Restore the colors
 	m_element->SetFillColor(m_colors[0]);
 	m_element->SetColor(m_colors[1]);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void
+MacDialogButton::Init(UIElement *element)
+{
+	MacRoundedButton::Init(element);
+
+	m_element->SetSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 }
 
 //////////////////////////////////////////////////////////////////////////////

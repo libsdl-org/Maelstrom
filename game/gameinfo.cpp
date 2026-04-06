@@ -497,7 +497,7 @@ GameInfo::BindPlayerToUI(int index, UIElement *element)
 	player->UI.desc = element->GetElement<UIElement>("desc");
 	player->UI.name = element->GetElement<UIElement>("name");
 	player->UI.host = element->GetElement<UIElement>("host");
-	player->UI.control = element->GetElement<UIElement>("control");
+	player->UI.control = element->GetElement<UIElement>("control_image");
 
 	for (int i = 0; i < NUM_PING_STATES; ++i) {
 		SDL_snprintf(name, sizeof(name), "ping%d", i);
