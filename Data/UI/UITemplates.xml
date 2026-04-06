@@ -86,6 +86,14 @@
 		<Color r="0x00" g="0x00" b="0x00"/>
 	</Button>
 
+	<Button templateName="LargeMenuButton" image="mainbutton" image_corner="8" font="Geneva:14:BOLD">
+		<Size w="240" h="44"/>
+		<TextShadow offset="1,1">
+			<Color r="0x00" g="0x00" b="0x00"/>
+		</TextShadow>
+		<Color r="0xFF" g="0xFF" b="0x00"/>
+	</Button>
+
 	<Rectangle templateName="ControlKeyBox">
 		<Size w="170" h="20"/>
 		<Color r="0x00" g="0x00" b="0x00"/>
