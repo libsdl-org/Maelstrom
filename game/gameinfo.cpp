@@ -45,6 +45,8 @@ GameInfo::Reset()
 	numNodes = 0;
 	SDL_zero(nodes);
 	SDL_zero(players);
+	replayVersion = REPLAY_VERSION;
+	spriteCRC = gSpriteCRC;
 }
 
 void
@@ -88,6 +90,12 @@ GameInfo::SetPlayerSlot(int slot, const char *name, Uint8 controlMask)
 	}
 	player->controlMask = controlMask;
 
+	if (controlMask == CONTROL_NETWORK) {
+		player->available = true;
+	} else {
+		player->available = false;
+	}
+
 	UpdateUI(player);
 }
 
@@ -118,8 +126,7 @@ GameInfo::AddNetworkPlayer(Uint32 nodeID, const IPaddress &address, const char *
 	++numNodes;
 
 	for (slot = 0; slot < MAX_PLAYERS; ++slot) {
-		if (!players[slot].nodeID &&
-		    players[slot].controlMask == CONTROL_NETWORK) {
+		if (players[slot].available) {
 			break;
 		}
 	}
@@ -128,6 +135,7 @@ GameInfo::AddNetworkPlayer(Uint32 nodeID, const IPaddress &address, const char *
 	GameInfoPlayer *player = &players[slot];
 	player->nodeID = nodeID;
 	SDL_strlcpy(player->name, name, sizeof(player->name));
+	player->available = false;
 
 	UpdateUI(player);
 
@@ -145,6 +153,8 @@ GameInfo::CopyFrom(const GameInfo &rhs)
 	lives = rhs.lives;
 	turbo = rhs.turbo;
 	gameMode = rhs.gameMode;
+	replayVersion = rhs.replayVersion;
+	spriteCRC = rhs.spriteCRC;
 
 	for (i = 0; i < MAX_NODES; ++i) {
 		const GameInfoNode *node = rhs.GetNode(i);
@@ -182,6 +192,7 @@ GameInfo::CopyFrom(const GameInfo &rhs)
 		} else {
 			players[i].controlMask = CONTROL_NONE;
 		}
+		players[i].available = player->available;
 	}
 
 	UpdateUI();
@@ -246,6 +257,23 @@ GameInfo::ReadFromPacket(DynamicPacket &packet)
 		nodes[HOST_NODE].address = packet.address;
 	}
 
+	if (!packet.Read(replayVersion)) {
+		// Older version
+		replayVersion = 0;
+	}
+
+	if (!packet.Read(spriteCRC)) {
+		// Older version
+		spriteCRC = 0;
+	}
+
+	for (i = 0; i < MAX_PLAYERS; ++i) {
+		if (!packet.Read(players[i].available)) {
+			// Older version
+			players[i].available = false;
+		}
+	}
+
 	return true;
 }
 
@@ -271,6 +299,13 @@ GameInfo::WriteToPacket(DynamicPacket &packet)
 	for (i = 0; i < MAX_PLAYERS; ++i) {
 		packet.Write(players[i].nodeID);
 		packet.Write(players[i].name);
+	}
+
+	packet.Write(replayVersion);
+	packet.Write(spriteCRC);
+
+	for (i = 0; i < MAX_PLAYERS; ++i) {
+		packet.Write(players[i].available);
 	}
 }
 
@@ -325,6 +360,7 @@ GameInfo::RemoveNode(Uint32 nodeID)
 			for (int j = i; j < (GetNumNodes() - 1); ++j) {
 				nodes[j] = nodes[j + 1];
 			}
+			SDL_zero(nodes[GetNumNodes() - 1]);
 			--numNodes;
 		} else {
 			++i;
@@ -345,6 +381,7 @@ GameInfo::RemovePlayer(int index)
 	player->nodeID = 0;
 	SDL_zero(player->name);
 	player->controlMask = CONTROL_NETWORK;
+	player->available = true;
 
 	UpdateUI(player);
 }
@@ -436,8 +473,7 @@ bool
 GameInfo::IsFull() const
 {
 	for (int i = 0; i < MAX_PLAYERS; ++i) {
-		if (!players[i].nodeID &&
-		    players[i].controlMask == CONTROL_NETWORK) {
+		if (players[i].available) {
 			return false;
 		}
 	}
@@ -508,6 +544,7 @@ GameInfo::BindPlayerToUI(int index, UIElement *element)
 	}
 
 	player->UI.element = element;
+	player->UI.join = element->GetElement<UIElement>("join");
 	player->UI.desc = element->GetElement<UIElement>("desc");
 	player->UI.name = element->GetElement<UIElement>("name");
 	player->UI.host = element->GetElement<UIElement>("host");
@@ -562,6 +599,8 @@ GameInfo::UpdateUI(GameInfoPlayer *player)
 		return;
 	}
 
+	bool enableJoin = true;
+
 	if (player->UI.name && player->UI.host) {
 		const GameInfoNode *node = GetNodeByID(player->nodeID);
 		if (!node || node->nodeID == localID) {
@@ -571,7 +610,26 @@ GameInfo::UpdateUI(GameInfoPlayer *player)
 			player->UI.name->Show();
 			player->UI.name->SetText(player->name);
 			player->UI.host->Show();
-			player->UI.host->SetText(NET_GetAddressString(node->address.host));
+			if (replayVersion != REPLAY_VERSION) {
+				player->UI.host->SetText("(different version)");
+				enableJoin = false;
+			} else if (spriteCRC != gSpriteCRC) {
+				player->UI.host->SetText("(different sprites)");
+				enableJoin = false;
+			} else if (IsFull() && !HasLocalControl()) {
+				player->UI.host->SetText("(no ships available)");
+				enableJoin = false;
+			} else {
+				player->UI.host->SetText(NET_GetAddressString(node->address.host));
+			}
+		}
+	}
+
+	if (player->UI.join) {
+		if (enableJoin) {
+			player->UI.join->SetDisabled(false);
+		} else {
+			player->UI.join->SetDisabled(true);
 		}
 	}
 

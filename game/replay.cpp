@@ -121,18 +121,12 @@ Replay::Load(const char *file, bool headerOnly)
 	}
 
 	if (!headerOnly) {
-		if (!SDL_ReadIO(fp, &version, 1)) {
-			SDL_Log("Couldn't read data: %s", SDL_GetError());
-			goto done;
-		}
-		if (version != REPLAY_VERSION) {
+		if (m_game.replayVersion != REPLAY_VERSION) {
 			SDL_Log("Unsupported data version %d, expected %d", version, REPLAY_VERSION);
 			goto done;
 		}
 
-		Uint32 spriteCRC = 0;
-		SDL_ReadU32LE(fp, &spriteCRC);
-		if (spriteCRC != gSpriteCRC) {
+		if (m_game.spriteCRC != gSpriteCRC) {
 			SDL_Log("Game uses a different sprite pack, ignoring");
 			goto done;
 		}
@@ -196,9 +190,6 @@ Replay::Save(const char *file)
 		SDL_Log("Error writing to %s: %s", file, SDL_GetError());
 		goto done;
 	}
-
-	SDL_WriteU8(fp, REPLAY_VERSION);
-	SDL_WriteU32LE(fp, gSpriteCRC);
 
 	destLen = compressBound(m_data.Size());
 	data.Reset();
