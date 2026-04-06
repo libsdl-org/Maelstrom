@@ -522,6 +522,18 @@ GameInfo::BindPlayerToUI(int index, UIElement *element)
 }
 
 void
+GameInfo::BindHostPlayerToUI(UIElement *element)
+{
+	Uint32 hostNodeID = nodes[HOST_NODE].nodeID;
+	for (int index = 0; index < MAX_PLAYERS; ++index) {
+		if (players[index].nodeID == hostNodeID) {
+			BindPlayerToUI(index, element);
+			break;
+		}
+	}
+}
+
+void
 GameInfo::UpdateUI()
 {
 	for (int i = 0; i < MAX_PLAYERS; ++i) {
