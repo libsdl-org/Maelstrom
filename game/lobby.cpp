@@ -313,6 +313,16 @@ LobbyDialogDelegate::OnPoll()
 	}
 }
 
+bool
+LobbyDialogDelegate::HandleEvent(const SDL_Event &event)
+{
+	if (event.type == SDL_EVENT_GAMEPAD_ADDED ||
+	    event.type == SDL_EVENT_GAMEPAD_REMOVED) {
+		m_game.UpdateUI();
+	}
+	return UIDialogDelegate::HandleEvent(event);
+}
+
 void
 LobbyDialogDelegate::SetHostOrJoin(void*, int value)
 {
