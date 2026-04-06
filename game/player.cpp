@@ -792,6 +792,27 @@ Player::CanGetAchievement()
 	return false;
 }
 
+void
+Player::SetSpawnPosition()
+{
+	int offset = gGameInfo.GetNumPlayers() == 2 ? SPRITES_WIDTH : 0;
+	int index = 0;
+	for (int i = 0; i < MAX_PLAYERS; ++i) {
+		if (!gPlayers[i]->IsValid()) {
+			continue;
+		}
+
+		if (i == Index) {
+			break;
+		}
+		++index;
+	}
+	SetPos(
+		(((GAME_WIDTH/2-((gGameInfo.GetNumPlayers()/2-index)*(2*SPRITES_WIDTH)))+offset-SPRITES_WIDTH/2)*SCALE_FACTOR),
+		(((GAME_HEIGHT/2)-SPRITES_WIDTH/2)*SCALE_FACTOR) - SPRITES_WIDTH
+	);
+}
+
 /* Private functions... */
 
 int
