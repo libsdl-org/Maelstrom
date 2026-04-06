@@ -1,281 +1,466 @@
 <Panel template="FramedPanel" delegate="MainPanel">
 	<Elements>
-		<Title name="image" id="129">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="CENTER" x="-251" y="-187"/>
-		</Title>
+		<!-- Desktop form factor UI -->
+		<Area condition="!PHONE">
+			<Elements>
+				<Title name="image" id="129">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="CENTER" x="-251" y="-187"/>
+				</Title>
 
-		<!-- Catch-all button to bonk when a key is pressed -->
-		<Button template="HotkeyOnly" hotkey="any" clickSound="108"/>
+				<!-- Catch-all button to bonk when a key is pressed -->
+				<Button template="HotkeyOnly" hotkey="any" clickSound="108"/>
 
-		<!-- dividers -->
-		<Line name="vertical_divider">
-			<Color r="0x9C" g="0x9C" b="0xFF"/>
-			<Size w="1" h="384"/>
-			<Anchor anchorFrom="CENTER" anchorTo="CENTER" x="42"/>
-		</Line>
-		<Line name="hdivider_left">
-			<Color r="0x9C" g="0x9C" b="0xFF"/>
-			<Size w="298" h="1"/>
-			<Anchor anchorFrom="RIGHT" anchorTo="TOPLEFT" anchor="vertical_divider" y="153"/>
-		</Line>
-		<Line name="hdivider_right">
-			<Color r="0x9C" g="0x9C" b="0xFF"/>
-			<Size w="213" h="1"/>
-			<Anchor anchorFrom="LEFT" anchorTo="TOPRIGHT" anchor="vertical_divider" y="263"/>
-		</Line>
+				<!-- dividers -->
+				<Line name="vertical_divider">
+					<Color r="0x9C" g="0x9C" b="0xFF"/>
+					<Size w="1" h="384"/>
+					<Anchor anchorFrom="CENTER" anchorTo="CENTER" x="42"/>
+				</Line>
+				<Line name="hdivider_left">
+					<Color r="0x9C" g="0x9C" b="0xFF"/>
+					<Size w="298" h="1"/>
+					<Anchor anchorFrom="RIGHT" anchorTo="TOPLEFT" anchor="vertical_divider" y="153"/>
+				</Line>
+				<Line name="hdivider_right">
+					<Color r="0x9C" g="0x9C" b="0xFF"/>
+					<Size w="213" h="1"/>
+					<Anchor anchorFrom="LEFT" anchorTo="TOPRIGHT" anchor="vertical_divider" y="263"/>
+				</Line>
 
-		<!-- high scores -->
-		<Label name="name_header" template="LargeYellowUnderline" text="Name">
-			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" anchor="hdivider_left" x="5" y="23"/>
-		</Label>
-		<Label name="score_header" template="LargeYellowUnderline" text="Score">
-			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" anchor="hdivider_left" x="185" y="23"/>
-		</Label>
-		<Label name="wave_header" template="LargeYellowUnderline" text="Wave">
-			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" anchor="hdivider_left" x="245" y="23"/>
-		</Label>
+				<!-- high scores -->
+				<Label name="name_header" template="LargeYellowUnderline" text="Name">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" anchor="hdivider_left" x="5" y="23"/>
+				</Label>
+				<Label name="score_header" template="LargeYellowUnderline" text="Score">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" anchor="hdivider_left" x="185" y="23"/>
+				</Label>
+				<Label name="wave_header" template="LargeYellowUnderline" text="Wave">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" anchor="hdivider_left" x="245" y="23"/>
+				</Label>
 
-		<Label name="name_0" template="Medium">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_header" y="24"/>
-		</Label>
-		<Label name="score_0" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_header" y="24"/>
-		</Label>
-		<Label name="wave_0" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_header" x="-10" y="24"/>
-		</Label>
-		<Button name="play_0" action="play_0">
-			<Size w="290" h="16"/>
-			<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_0" x="-2"/>
-		</Button>
-		<Label name="name_1" template="Medium">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_0" y="18"/>
-		</Label>
-		<Label name="score_1" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_0" y="18"/>
-		</Label>
-		<Label name="wave_1" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_0" y="18"/>
-		</Label>
-		<Button name="play_1" action="play_1">
-			<Size w="290" h="16"/>
-			<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_1" x="-2"/>
-		</Button>
-		<Label name="name_2" template="Medium">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_1" y="18"/>
-		</Label>
-		<Label name="score_2" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_1" y="18"/>
-		</Label>
-		<Label name="wave_2" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_1" y="18"/>
-		</Label>
-		<Button name="play_2" action="play_2">
-			<Size w="290" h="16"/>
-			<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_2" x="-2"/>
-		</Button>
-		<Label name="name_3" template="Medium">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_2" y="18"/>
-		</Label>
-		<Label name="score_3" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_2" y="18"/>
-		</Label>
-		<Label name="wave_3" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_2" y="18"/>
-		</Label>
-		<Button name="play_3" action="play_3">
-			<Size w="290" h="16"/>
-			<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_3" x="-2"/>
-		</Button>
-		<Label name="name_4" template="Medium">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_3" y="18"/>
-		</Label>
-		<Label name="score_4" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_3" y="18"/>
-		</Label>
-		<Label name="wave_4" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_3" y="18"/>
-		</Label>
-		<Button name="play_4" action="play_4">
-			<Size w="290" h="16"/>
-			<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_4" x="-2"/>
-		</Button>
-		<Label name="name_5" template="Medium">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_4" y="18"/>
-		</Label>
-		<Label name="score_5" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_4" y="18"/>
-		</Label>
-		<Label name="wave_5" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_4" y="18"/>
-		</Label>
-		<Button name="play_5" action="play_5">
-			<Size w="290" h="16"/>
-			<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_5" x="-2"/>
-		</Button>
-		<Label name="name_6" template="Medium">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_5" y="18"/>
-		</Label>
-		<Label name="score_6" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_5" y="18"/>
-		</Label>
-		<Label name="wave_6" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_5" y="18"/>
-		</Label>
-		<Button name="play_6" action="play_6">
-			<Size w="290" h="16"/>
-			<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_6" x="-2"/>
-		</Button>
-		<Label name="name_7" template="Medium">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_6" y="18"/>
-		</Label>
-		<Label name="score_7" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_6" y="18"/>
-		</Label>
-		<Label name="wave_7" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_6" y="18"/>
-		</Label>
-		<Button name="play_7" action="play_7">
-			<Size w="290" h="16"/>
-			<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_7" x="-2"/>
-		</Button>
-		<Label name="name_8" template="Medium">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_7" y="18"/>
-		</Label>
-		<Label name="score_8" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_7" y="18"/>
-		</Label>
-		<Label name="wave_8" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_7" y="18"/>
-		</Label>
-		<Button name="play_8" action="play_8">
-			<Size w="290" h="16"/>
-			<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_8" x="-2"/>
-		</Button>
-		<Label name="name_9" template="Medium">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_8" y="18"/>
-		</Label>
-		<Label name="score_9" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_8" y="18"/>
-		</Label>
-		<Label name="wave_9" template="Medium">
-			<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_8" y="18"/>
-		</Label>
-		<Button name="play_9" action="play_9">
-			<Size w="290" h="16"/>
-			<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_9" x="-2"/>
-		</Button>
+				<Label name="name_0" template="Medium">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_header" y="24"/>
+				</Label>
+				<Label name="score_0" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_header" y="24"/>
+				</Label>
+				<Label name="wave_0" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_header" x="-10" y="24"/>
+				</Label>
+				<Button name="play_0" action="play_0">
+					<Size w="290" h="16"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_0" x="-2"/>
+				</Button>
+				<Label name="name_1" template="Medium">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_0" y="18"/>
+				</Label>
+				<Label name="score_1" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_0" y="18"/>
+				</Label>
+				<Label name="wave_1" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_0" y="18"/>
+				</Label>
+				<Button name="play_1" action="play_1">
+					<Size w="290" h="16"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_1" x="-2"/>
+				</Button>
+				<Label name="name_2" template="Medium">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_1" y="18"/>
+				</Label>
+				<Label name="score_2" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_1" y="18"/>
+				</Label>
+				<Label name="wave_2" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_1" y="18"/>
+				</Label>
+				<Button name="play_2" action="play_2">
+					<Size w="290" h="16"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_2" x="-2"/>
+				</Button>
+				<Label name="name_3" template="Medium">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_2" y="18"/>
+				</Label>
+				<Label name="score_3" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_2" y="18"/>
+				</Label>
+				<Label name="wave_3" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_2" y="18"/>
+				</Label>
+				<Button name="play_3" action="play_3">
+					<Size w="290" h="16"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_3" x="-2"/>
+				</Button>
+				<Label name="name_4" template="Medium">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_3" y="18"/>
+				</Label>
+				<Label name="score_4" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_3" y="18"/>
+				</Label>
+				<Label name="wave_4" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_3" y="18"/>
+				</Label>
+				<Button name="play_4" action="play_4">
+					<Size w="290" h="16"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_4" x="-2"/>
+				</Button>
+				<Label name="name_5" template="Medium">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_4" y="18"/>
+				</Label>
+				<Label name="score_5" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_4" y="18"/>
+				</Label>
+				<Label name="wave_5" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_4" y="18"/>
+				</Label>
+				<Button name="play_5" action="play_5">
+					<Size w="290" h="16"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_5" x="-2"/>
+				</Button>
+				<Label name="name_6" template="Medium">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_5" y="18"/>
+				</Label>
+				<Label name="score_6" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_5" y="18"/>
+				</Label>
+				<Label name="wave_6" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_5" y="18"/>
+				</Label>
+				<Button name="play_6" action="play_6">
+					<Size w="290" h="16"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_6" x="-2"/>
+				</Button>
+				<Label name="name_7" template="Medium">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_6" y="18"/>
+				</Label>
+				<Label name="score_7" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_6" y="18"/>
+				</Label>
+				<Label name="wave_7" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_6" y="18"/>
+				</Label>
+				<Button name="play_7" action="play_7">
+					<Size w="290" h="16"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_7" x="-2"/>
+				</Button>
+				<Label name="name_8" template="Medium">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_7" y="18"/>
+				</Label>
+				<Label name="score_8" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_7" y="18"/>
+				</Label>
+				<Label name="wave_8" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_7" y="18"/>
+				</Label>
+				<Button name="play_8" action="play_8">
+					<Size w="290" h="16"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_8" x="-2"/>
+				</Button>
+				<Label name="name_9" template="Medium">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_8" y="18"/>
+				</Label>
+				<Label name="score_9" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_8" y="18"/>
+				</Label>
+				<Label name="wave_9" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_8" y="18"/>
+				</Label>
+				<Button name="play_9" action="play_9">
+					<Size w="290" h="16"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_9" x="-2"/>
+				</Button>
 
-		<Label name="last_score_label" template="LargeWhite" text="Last Score: ">
-			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" anchor="hdivider_left" x="5" y="230"/>
-		</Label>
-		<Label name="last_score" template="LargeWhite">
-			<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="last_score_label"/>
-		</Label>
-		<Button name="play_last" action="play_last">
-			<Size w="290" h="20"/>
-			<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="last_score_label" x="-2"/>
-		</Button>
+				<Label name="last_score_label" template="LargeWhite" text="Last Score: ">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" anchor="hdivider_left" x="5" y="230"/>
+				</Label>
+				<Label name="last_score" template="LargeWhite">
+					<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="last_score_label"/>
+				</Label>
+				<Button name="play_last" action="play_last">
+					<Size w="290" h="20"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="last_score_label" x="-2"/>
+				</Button>
 
-		<!-- Instructions -->
-		<Button name="PlayButton" template="MenuButton" hotkey="P" hotkey2="Return" text="P" action="play" clickSound="114">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="vertical_divider" x="9" y="10"/>
-		</Button>
-		<Label template="SmallYellow" text=" Start playing Maelstrom">
-			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPRIGHT" anchor="PlayButton" x="3" y="21"/>
-		</Label>
-		<Button condition="NETWORK_AVAILABLE" name="MultiplayerButton" template="MenuButton" hotkey="M" text="M" action="multiplayer" clickSound="114">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="PlayButton" y="34"/>
-		</Button>
-		<Label condition="NETWORK_AVAILABLE" template="SmallYellow" text=" Start a multiplayer game">
-			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPRIGHT" anchor="MultiplayerButton" x="3" y="21"/>
-		</Label>
-		<Area condition="NETWORK_AVAILABLE" name="ControlsButtonAnchor">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="MultiplayerButton"/>
+				<!-- Instructions -->
+				<Button name="PlayButton" template="MenuButton" hotkey="P" hotkey2="Return" text="P" action="play" clickSound="114">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="vertical_divider" x="9" y="10"/>
+				</Button>
+				<Label template="SmallYellow" text=" Start playing Maelstrom">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPRIGHT" anchor="PlayButton" x="3" y="21"/>
+				</Label>
+				<Button condition="NETWORK_AVAILABLE" name="MultiplayerButton" template="MenuButton" hotkey="M" text="M" action="multiplayer" clickSound="114">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="PlayButton" y="34"/>
+				</Button>
+				<Label condition="NETWORK_AVAILABLE" template="SmallYellow" text=" Start a multiplayer game">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPRIGHT" anchor="MultiplayerButton" x="3" y="21"/>
+				</Label>
+				<Area condition="NETWORK_AVAILABLE" name="ControlsButtonAnchor">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="MultiplayerButton"/>
+				</Area>
+				<Area condition="!NETWORK_AVAILABLE" name="ControlsButtonAnchor">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="PlayButton"/>
+				</Area>
+				<Button name="ControlsButton" template="MenuButton" hotkey="C" text="C" action="show_controls" clickSound="119">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ControlsButtonAnchor" y="34"/>
+				</Button>
+				<Label template="SmallYellow" text=" Configure the game controls">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPRIGHT" anchor="ControlsButton" x="3" y="21"/>
+				</Label>
+				<Button name="ZapButton" template="MenuButton" hotkey="Z" text="Z" action="show_zap" clickSound="107">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ControlsButton" y="34"/>
+				</Button>
+				<Label template="SmallYellow" text=" Zap the high scores">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPRIGHT" anchor="ZapButton" x="3" y="21"/>
+				</Label>
+				<Button name="AboutButton" template="MenuButton" hotkey="A" text="A" action="show_about_story" clickSound="122">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ZapButton" y="34"/>
+				</Button>
+				<Label template="SmallYellow" text=" About Maelstrom...">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPRIGHT" anchor="AboutButton" x="3" y="21"/>
+				</Label>
+				<Button condition="QUIT_AVAILABLE" name="QuitButton" template="MenuButton" hotkey="Q" hotkey2="Escape" text="Q" action="quit" clickSound="106">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="PlayButton" y="170"/>
+				</Button>
+				<Label condition="QUIT_AVAILABLE" template="SmallYellow" text=" Quit Maelstrom">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPRIGHT" anchor="QuitButton" x="3" y="21"/>
+				</Label>
+				<Button name="VolumeDownButton" template="MenuButton" hotkey="0" text="0" action="volume_down">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="PlayButton" y="204"/>
+				</Button>
+				<Label template="SmallYellow" text="-">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPRIGHT" anchor="VolumeDownButton" x="3" y="21"/>
+				</Label>
+				<Button name="VolumeUpButton" template="MenuButton" hotkey="8" text="8" action="volume_up">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="VolumeDownButton" x="40"/>
+				</Button>
+				<Label template="SmallYellow" text=" Set Sound Volume">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPRIGHT" anchor="VolumeUpButton" x="3" y="21"/>
+				</Label>
+
+				<!-- Hidden action buttons -->
+				<Button name="ToggleFullscreen" template="HotkeyOnly" hotkey="ALT-Return" action="toggle_fullscreen"/>
+				<Button name="Screenshot" template="HotkeyOnly" hotkey="F3" action="screenshot"/>
+				<Button name="Cheat" template="HotkeyOnly" hotkey="L" action="cheat" clickSound="124"/>
+				<Button name="Special" template="HotkeyOnly" hotkey="X" action="show_dawn" clickSound="128"/>
+				<Button name="SetVolume0" template="HotkeyOnly" hotkey="0" action="setvolume0"/>
+				<Button name="SetVolume1" template="HotkeyOnly" hotkey="1" action="setvolume1"/>
+				<Button name="SetVolume2" template="HotkeyOnly" hotkey="2" action="setvolume2"/>
+				<Button name="SetVolume3" template="HotkeyOnly" hotkey="3" action="setvolume3"/>
+				<Button name="SetVolume4" template="HotkeyOnly" hotkey="4" action="setvolume4"/>
+				<Button name="SetVolume5" template="HotkeyOnly" hotkey="5" action="setvolume5"/>
+				<Button name="SetVolume6" template="HotkeyOnly" hotkey="6" action="setvolume6"/>
+				<Button name="SetVolume7" template="HotkeyOnly" hotkey="7" action="setvolume7"/>
+				<Button name="SetVolume8" template="HotkeyOnly" hotkey="8" action="setvolume8"/>
+
+				<!-- Version -->
+				<Label name="version" font="Geneva:9">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" anchor="image" x="18" y="4"/>
+				</Label>
+
+				<!-- Credits -->
+				<Label template="SmallYellow" text="Port to SDL by Sam Lantinga">
+					<Anchor anchorFrom="CENTER" anchorTo="CENTER" anchor="image" y="52"/>
+				</Label>
+				<Label template="SmallWhite" text="©1992-4 Ambrosia Software, Inc.">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPLEFT" anchor="hdivider_right" x="9" y="-2"/>
+				</Label>
+				<Image image="logo">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="hdivider_right"/>
+				</Image>
+
+				<!-- Sound level -->
+				<Label name="volume" template="SmallBlue">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPLEFT" anchor="VolumeDownButton" x="-6" y="22"/>
+				</Label>
+
+				<!-- Kid mode -->
+				<Checkbox name="KidMode" image="kidmode" checkedImage="kidmode-selected" bindValue="Cheat.KidMode" action="toggle_kidmode">
+					<Anchor anchorFrom="TOP" anchorTo="TOP" anchor="vertical_divider" x="196"/>
+				</Checkbox>
+			</Elements>
 		</Area>
-		<Area condition="!NETWORK_AVAILABLE" name="ControlsButtonAnchor">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="PlayButton"/>
+
+		<!-- Mobile form factor UI -->
+		<Area condition="PHONE">
+			<Elements>
+				<Title name="image" id="129">
+					<Anchor anchorFrom="TOP" anchorTo="CENTER" y="-187"/>
+				</Title>
+
+				<!-- Catch-all button to bonk when a key is pressed -->
+				<Button template="HotkeyOnly" hotkey="any" clickSound="108"/>
+
+				<!-- dividers -->
+				<Line name="hdivider">
+					<Color r="0x9C" g="0x9C" b="0xFF"/>
+					<Size w="512" h="1"/>
+					<Anchor anchorFrom="TOP" anchorTo="TOP" anchor="image" y="153"/>
+				</Line>
+				<Line name="vdivider">
+					<Color r="0x9C" g="0x9C" b="0xFF"/>
+					<Size w="1" h="200"/>
+					<Anchor anchorFrom="TOP" anchorTo="BOTTOM" anchor="hdivider"/>
+				</Line>
+
+				<!-- high scores -->
+				<Label name="name_header" template="LargeYellowUnderline" text="Name">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="hdivider" x="8" y="8"/>
+				</Label>
+				<Label name="score_header" template="LargeYellowUnderline" text="Score">
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_header" x="132"/>
+				</Label>
+				<Label name="wave_header" template="LargeYellowUnderline" text="Wave">
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="score_header" x="60"/>
+				</Label>
+
+				<Label name="name_0" template="Medium">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_header" y="24"/>
+				</Label>
+				<Label name="score_0" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_header" y="24"/>
+				</Label>
+				<Label name="wave_0" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_header" x="-10" y="24"/>
+				</Label>
+				<Button name="play_0" action="play_0">
+					<Size w="244" h="16"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_0" x="-2"/>
+				</Button>
+				<Label name="name_1" template="Medium">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_0" y="18"/>
+				</Label>
+				<Label name="score_1" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_0" y="18"/>
+				</Label>
+				<Label name="wave_1" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_0" y="18"/>
+				</Label>
+				<Button name="play_1" action="play_1">
+					<Size w="244" h="16"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_1" x="-2"/>
+				</Button>
+				<Label name="name_2" template="Medium">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_1" y="18"/>
+				</Label>
+				<Label name="score_2" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_1" y="18"/>
+				</Label>
+				<Label name="wave_2" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_1" y="18"/>
+				</Label>
+				<Button name="play_2" action="play_2">
+					<Size w="244" h="16"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_2" x="-2"/>
+				</Button>
+				<Label name="name_3" template="Medium">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_2" y="18"/>
+				</Label>
+				<Label name="score_3" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_2" y="18"/>
+				</Label>
+				<Label name="wave_3" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_2" y="18"/>
+				</Label>
+				<Button name="play_3" action="play_3">
+					<Size w="244" h="16"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_3" x="-2"/>
+				</Button>
+				<Label name="name_4" template="Medium">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_3" y="18"/>
+				</Label>
+				<Label name="score_4" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_3" y="18"/>
+				</Label>
+				<Label name="wave_4" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_3" y="18"/>
+				</Label>
+				<Button name="play_4" action="play_4">
+					<Size w="244" h="16"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_4" x="-2"/>
+				</Button>
+				<Label name="name_5" template="Medium">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_4" y="18"/>
+				</Label>
+				<Label name="score_5" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_4" y="18"/>
+				</Label>
+				<Label name="wave_5" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_4" y="18"/>
+				</Label>
+				<Button name="play_5" action="play_5">
+					<Size w="244" h="16"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_5" x="-2"/>
+				</Button>
+				<Label name="name_6" template="Medium">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_5" y="18"/>
+				</Label>
+				<Label name="score_6" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_5" y="18"/>
+				</Label>
+				<Label name="wave_6" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_5" y="18"/>
+				</Label>
+				<Button name="play_6" action="play_6">
+					<Size w="244" h="16"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_6" x="-2"/>
+				</Button>
+				<Label name="name_7" template="Medium">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="name_6" y="18"/>
+				</Label>
+				<Label name="score_7" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="score_6" y="18"/>
+				</Label>
+				<Label name="wave_7" template="Medium">
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="wave_6" y="18"/>
+				</Label>
+				<Button name="play_7" action="play_7">
+					<Size w="244" h="16"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="name_7" x="-2"/>
+				</Button>
+
+				<Label name="last_score_label" template="LargeWhite" text="Last Score: ">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" anchor="hdivider" x="8" y="200"/>
+				</Label>
+				<Label name="last_score" template="LargeWhite">
+					<Anchor anchorFrom="LEFT" anchorTo="RIGHT" anchor="last_score_label"/>
+				</Label>
+				<Button name="play_last" action="play_last">
+					<Size w="244" h="20"/>
+					<Anchor anchorFrom="LEFT" anchorTo="LEFT" anchor="last_score_label" x="-2"/>
+				</Button>
+
+				<!-- Instructions -->
+				<Button name="PlayButton" template="LargeMenuButton" text="Start playing Maelstrom" hotkey="P" hotkey2="Return" action="play" clickSound="114">
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="vdivider" x="8" y="8"/>
+				</Button>
+				<Button name="MultiplayerButton" template="LargeMenuButton" text="Start a multiplayer game" hotkey="M" action="multiplayer" clickSound="114">
+					<Anchor anchorFrom="TOP" anchorTo="BOTTOM" anchor="PlayButton" y="4"/>
+				</Button>
+				<Button name="ControlsButton" hotkey="C" text="C" action="show_controls" clickSound="119" show="false"/>
+				<Button name="ZapButton" template="LargeMenuButton" text="Zap the high scores" hotkey="Z" action="show_zap" clickSound="107">
+					<Anchor anchorFrom="TOP" anchorTo="BOTTOM" anchor="MultiplayerButton" y="4"/>
+				</Button>
+				<Button name="AboutButton" template="LargeMenuButton" text="About Maelstrom..." hotkey="A" action="show_about_story" clickSound="122">
+					<Anchor anchorFrom="TOP" anchorTo="BOTTOM" anchor="ZapButton" y="4"/>
+				</Button>
+
+				<!-- Version -->
+				<Label name="version" font="Geneva:9">
+					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" anchor="image" x="18" y="4"/>
+				</Label>
+
+				<!-- Credits -->
+				<Label template="SmallYellow" text="Port to SDL by Sam Lantinga">
+					<Anchor anchorFrom="CENTER" anchorTo="CENTER" anchor="image" y="52"/>
+				</Label>
+				<Label template="SmallWhite" text="©1992-4 Ambrosia Software, Inc.">
+					<Anchor anchorFrom="BOTTOM" anchorTo="BOTTOM" y="-50"/>
+				</Label>
+
+				<!-- Kid mode -->
+				<Checkbox name="KidMode" image="kidmode" checkedImage="kidmode-selected" bindValue="Cheat.KidMode" action="toggle_kidmode">
+					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="TOPRIGHT" anchor="hdivider" x="-8" y="-4"/>
+				</Checkbox>
+			</Elements>
 		</Area>
-		<Button name="ControlsButton" template="MenuButton" hotkey="C" text="C" action="show_controls" clickSound="119">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ControlsButtonAnchor" y="34"/>
-		</Button>
-		<Label template="SmallYellow" text=" Configure the game controls">
-			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPRIGHT" anchor="ControlsButton" x="3" y="21"/>
-		</Label>
-		<Button name="ZapButton" template="MenuButton" hotkey="Z" text="Z" action="show_zap" clickSound="107">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ControlsButton" y="34"/>
-		</Button>
-		<Label template="SmallYellow" text=" Zap the high scores">
-			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPRIGHT" anchor="ZapButton" x="3" y="21"/>
-		</Label>
-		<Button name="AboutButton" template="MenuButton" hotkey="A" text="A" action="show_about_story" clickSound="122">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="ZapButton" y="34"/>
-		</Button>
-		<Label template="SmallYellow" text=" About Maelstrom...">
-			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPRIGHT" anchor="AboutButton" x="3" y="21"/>
-		</Label>
-		<Button condition="QUIT_AVAILABLE" name="QuitButton" template="MenuButton" hotkey="Q" hotkey2="Escape" text="Q" action="quit" clickSound="106">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="PlayButton" y="170"/>
-		</Button>
-		<Label condition="QUIT_AVAILABLE" template="SmallYellow" text=" Quit Maelstrom">
-			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPRIGHT" anchor="QuitButton" x="3" y="21"/>
-		</Label>
-		<Button name="VolumeDownButton" template="MenuButton" hotkey="0" text="0" action="volume_down">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="PlayButton" y="204"/>
-		</Button>
-		<Label template="SmallYellow" text="-">
-			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPRIGHT" anchor="VolumeDownButton" x="3" y="21"/>
-		</Label>
-		<Button name="VolumeUpButton" template="MenuButton" hotkey="8" text="8" action="volume_up">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="VolumeDownButton" x="40"/>
-		</Button>
-		<Label template="SmallYellow" text=" Set Sound Volume">
-			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPRIGHT" anchor="VolumeUpButton" x="3" y="21"/>
-		</Label>
-
-		<!-- Hidden action buttons -->
-		<Button name="ToggleFullscreen" template="HotkeyOnly" hotkey="ALT-Return" action="toggle_fullscreen"/>
-		<Button name="Screenshot" template="HotkeyOnly" hotkey="F3" action="screenshot"/>
-		<Button name="Cheat" template="HotkeyOnly" hotkey="L" action="cheat" clickSound="124"/>
-		<Button name="Special" template="HotkeyOnly" hotkey="X" action="show_dawn" clickSound="128"/>
-		<Button name="SetVolume0" template="HotkeyOnly" hotkey="0" action="setvolume0"/>
-		<Button name="SetVolume1" template="HotkeyOnly" hotkey="1" action="setvolume1"/>
-		<Button name="SetVolume2" template="HotkeyOnly" hotkey="2" action="setvolume2"/>
-		<Button name="SetVolume3" template="HotkeyOnly" hotkey="3" action="setvolume3"/>
-		<Button name="SetVolume4" template="HotkeyOnly" hotkey="4" action="setvolume4"/>
-		<Button name="SetVolume5" template="HotkeyOnly" hotkey="5" action="setvolume5"/>
-		<Button name="SetVolume6" template="HotkeyOnly" hotkey="6" action="setvolume6"/>
-		<Button name="SetVolume7" template="HotkeyOnly" hotkey="7" action="setvolume7"/>
-		<Button name="SetVolume8" template="HotkeyOnly" hotkey="8" action="setvolume8"/>
-
-		<!-- Version -->
-		<Label name="version" font="Geneva:9">
-			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="BOTTOMLEFT" anchor="image" x="18" y="4"/>
-		</Label>
-
-		<!-- Credits -->
-		<Label template="SmallYellow" text="Port to SDL by Sam Lantinga">
-			<Anchor anchorFrom="CENTER" anchorTo="CENTER" anchor="image" y="52"/>
-		</Label>
-		<Label template="SmallWhite" text="©1992-4 Ambrosia Software, Inc.">
-			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPLEFT" anchor="hdivider_right" x="9" y="-2"/>
-		</Label>
-		<Label name="version" fontName="Geneva" fontSize="9">
-			<Color r="0xFF" g="0xFF" b="0xFF"/>
-			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPLEFT" anchor="image" x="15" y="148"/>
-		</Label>
-		<Image image="logo">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="hdivider_right"/>
-		</Image>
-
-		<!-- Sound level -->
-		<Label name="volume" template="SmallBlue">
-			<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPLEFT" anchor="VolumeDownButton" x="-6" y="22"/>
-		</Label>
-
-		<!-- Kid mode -->
-		<Checkbox name="KidMode" image="kidmode" checkedImage="kidmode-selected" bindValue="Cheat.KidMode" action="toggle_kidmode">
-			<Anchor anchorFrom="TOP" anchorTo="TOP" anchor="vertical_divider" x="196"/>
-		</Checkbox>
 	</Elements>
 </Panel>
