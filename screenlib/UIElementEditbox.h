@@ -41,7 +41,8 @@ public:
 	virtual bool HandleEvent(const SDL_Event &event) override;
 
 	virtual void OnClick() override {
-		SetFocus(!HasFocus());
+		SetFocus(false);
+		SetFocus(true);
 	}
 
 	bool IsHighlighted() const {
