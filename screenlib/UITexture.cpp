@@ -88,12 +88,12 @@ UITexture::SetStretchGrid(int cornerSize)
 
 	// Slide the texture into a grid based on the center
 	//
-	// For example, if we have a 9x9 texture with a corner size of 1
+	// For example, if we have a 3x3 texture with a corner size of 1
 	// we would have a set of stretch areas like this:
 	// 	STRETCH_CENTER		1,1 1x1
 	//	STRETCH_LEFT		0,1 1x1
 	//	STRETCH_RIGHT		2,1 1x1
-	//	STRETCH_TOP		1,0 1x1
+	//	STRETCH_TOP			1,0 1x1
 	//	STRETCH_BOTTOM		1,2 1x1
 	//	STRETCH_UPPER_LEFT	0,0 1x1
 	//	STRETCH_UPPER_RIGHT	2,0 1x1
