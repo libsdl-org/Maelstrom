@@ -123,7 +123,7 @@ static void CheatDialogDone(void*, UIDialog *dialog, int status)
 		Delay(SOUND_DELAY);
 		sound->PlaySound(gNewLife, 5);
 		Delay(SOUND_DELAY);
-		gGameInfo.SetHost(wave, lives, turbo, 0, prefs->GetBool(PREFERENCES_KIDMODE));
+		gGameInfo.SetHost(wave, lives, turbo, false);
 		gGameInfo.SetPlayerSlot(0, prefs->GetString(PREFERENCES_HANDLE), CONTROL_LOCAL);
 		RunSinglePlayerGame();
 	}
@@ -462,7 +462,7 @@ MainPanelDelegate::OnAction(UIBaseElement *sender, const char *action)
 void
 MainPanelDelegate::OnActionPlay()
 {
-	gGameInfo.SetHost(DEFAULT_START_WAVE, DEFAULT_START_LIVES, DEFAULT_START_TURBO, 0, prefs->GetBool(PREFERENCES_KIDMODE));
+	gGameInfo.SetHost(DEFAULT_START_WAVE, DEFAULT_START_LIVES, DEFAULT_START_TURBO, false);
 	gGameInfo.SetPlayerSlot(0, prefs->GetString(PREFERENCES_HANDLE), CONTROL_LOCAL);
 	RunSinglePlayerGame();
 }

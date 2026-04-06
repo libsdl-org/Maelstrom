@@ -169,12 +169,24 @@ LobbyDialogDelegate::OnLoad()
 	}
 	m_hostOrJoin->SetValueCallback(this, &LobbyDialogDelegate::SetHostOrJoin);
 
-	m_deathmatch = m_dialog->GetElement<UIElement>("deathmatch");
-	if (!m_deathmatch) {
-		SDL_Log("Warning: Couldn't find editbox 'deathmatch'");
-		return false;
+	m_deathmatch = m_dialog->GetElement<UIElementRadioGroup>("deathmatch");
+	if (m_deathmatch) {
+		m_deathmatch->SetValueCallback(this, &LobbyDialogDelegate::DeathmatchChanged);
 	}
-	m_deathmatch->SetTextCallback(this, &LobbyDialogDelegate::DeathmatchChanged, nullptr);
+
+	m_lives = m_dialog->GetElement<UIElement>("lives");
+	m_livesLabel = m_dialog->GetElement<UIElement>("lives_label");
+	m_livesValue = m_dialog->GetElement<UIElement>("lives_value");
+	if (m_livesValue) {
+		m_livesValue->SetTextCallback(this, &LobbyDialogDelegate::LivesChanged, nullptr);
+	}
+
+	m_frags = m_dialog->GetElement<UIElement>("frags");
+	m_fragsLabel = m_dialog->GetElement<UIElement>("frags_label");
+	m_fragsValue = m_dialog->GetElement<UIElement>("frags_value");
+	if (m_fragsValue) {
+		m_fragsValue->SetTextCallback(this, &LobbyDialogDelegate::LivesChanged, nullptr);
+	}
 
 	if (!GetElement("gamelist", m_gameListArea)) {
 		return false;
@@ -334,9 +346,24 @@ LobbyDialogDelegate::JoinGameClicked(void *_element)
 }
 
 void
-LobbyDialogDelegate::DeathmatchChanged(void *, const char *text)
+LobbyDialogDelegate::DeathmatchChanged(void*, int value)
 {
-	m_game.deathMatch = SDL_atoi(text);
+	if (m_state == STATE_HOSTING) {
+		if (value) {
+			m_game.gameMode |= GAME_MODE_DEATHMATCH;
+			m_game.lives = prefs->GetNumber(PREFERENCES_MULTIPLAYER_FRAGS, DEFAULT_START_LIVES);
+		} else {
+			m_game.gameMode &= ~GAME_MODE_DEATHMATCH;
+			m_game.lives = prefs->GetNumber(PREFERENCES_MULTIPLAYER_LIVES, DEFAULT_START_LIVES);
+		}
+		UpdateUI();
+	}
+}
+
+void
+LobbyDialogDelegate::LivesChanged(void *, const char *text)
+{
+	m_game.lives = SDL_atoi(text);
 }
 
 void
@@ -363,15 +390,48 @@ LobbyDialogDelegate::UpdateUI()
 			m_game.BindPlayerToUI(i, m_gameInfoPlayers[i]);
 		}
 
-		char deathmatch[10];
-		m_deathmatch->SetText(SDL_itoa(m_game.deathMatch, deathmatch, 10));
-	}
-	if (m_state == STATE_HOSTING) {
-		m_playButton->SetDisabled(false);
-		m_deathmatch->SetDisabled(false);
-	} else {
-		m_playButton->SetDisabled(true);
-		m_deathmatch->SetDisabled(true);
+		if (m_deathmatch) {
+			m_deathmatch->SetValue(m_game.IsDeathmatch());
+		}
+		if (m_game.IsDeathmatch()) {
+			m_lives->Hide();
+			m_frags->Show();
+			if (m_fragsValue) {
+				char lives[10];
+				m_fragsValue->SetText(SDL_itoa(m_game.lives, lives, 10));
+			}
+		} else {
+			m_lives->Show();
+			m_frags->Hide();
+			if (m_livesValue) {
+				char lives[10];
+				m_livesValue->SetText(SDL_itoa(m_game.lives, lives, 10));
+			}
+		}
+
+		if (m_state == STATE_HOSTING) {
+			m_playButton->SetDisabled(false);
+			if (m_deathmatch) {
+				m_deathmatch->SetDisabled(false);
+			}
+			if (m_lives) {
+				m_lives->SetDisabled(false);
+			}
+			if (m_frags) {
+				m_frags->SetDisabled(false);
+			}
+		} else {
+			m_playButton->SetDisabled(true);
+			if (m_deathmatch) {
+				m_deathmatch->SetDisabled(true);
+			}
+			if (m_lives) {
+				m_lives->SetDisabled(true);
+			}
+			if (m_frags) {
+				m_frags->SetDisabled(true);
+			}
+		}
 	}
 }
 
@@ -412,11 +472,14 @@ LobbyDialogDelegate::SetState(LOBBY_STATE state)
 			SendLeaveRequest();
 		}
 	} else if (state == STATE_HOSTING) {
-		m_game.SetHost(DEFAULT_START_WAVE,
-				DEFAULT_START_LIVES,
-				DEFAULT_START_TURBO,
-				prefs->GetNumber(PREFERENCES_DEATHMATCH),
-				prefs->GetBool(PREFERENCES_KIDMODE));
+		bool deathmatch = prefs->GetBool(PREFERENCES_DEATHMATCH);
+		Uint8 lives;
+		if (deathmatch) {
+			lives = prefs->GetNumber(PREFERENCES_MULTIPLAYER_FRAGS, DEFAULT_START_LIVES);
+		} else {
+			lives = prefs->GetNumber(PREFERENCES_MULTIPLAYER_LIVES, DEFAULT_START_LIVES);
+		}
+		m_game.SetHost(DEFAULT_START_WAVE, lives, DEFAULT_START_TURBO, deathmatch);
 
 		// Set up the controls for this game
 		for (i = 0; i < MAX_PLAYERS; ++i) {
