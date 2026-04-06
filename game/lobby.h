@@ -48,6 +48,8 @@ public:
 	virtual void OnPoll() override;
 	virtual bool HandleEvent(const SDL_Event &event) override;
 
+	void UpdateUI();
+
 	void SendKick(int index);
 
 protected:
@@ -56,8 +58,6 @@ protected:
 	void JoinGameClicked(void *element);
 	void DeathmatchChanged(void *, int value);
 	void LivesChanged(void *, const char *text);
-
-	void UpdateUI();
 
 	void CheckPings();
 	void GetGameList();

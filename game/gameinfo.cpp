@@ -406,6 +406,20 @@ GameInfo::IsNetworkPlayer(int index) const
 	return (players[index].nodeID != localID);
 }
 
+bool
+GameInfo::HasLocalControl() const
+{
+	for (int i = 0; i < MAX_PLAYERS; ++i) {
+		if (!IsLocalPlayer(i)) {
+			continue;
+		}
+		if (IS_LOCAL_CONTROL(players[i].controlMask)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 int
 GameInfo::GetNumPlayers() const
 {

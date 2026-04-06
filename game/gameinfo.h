@@ -193,6 +193,7 @@ public:
 	bool IsValidPlayer(int index) const;
 	bool IsLocalPlayer(int index) const;
 	bool IsNetworkPlayer(int index) const;
+	bool HasLocalControl() const;
 	int GetNumPlayers() const;
 
 	bool IsFull() const;
