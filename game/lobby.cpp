@@ -83,6 +83,8 @@ public:
 		}
 		m_game.SetPlayerSlot(m_index, name, m_controlType);
 		m_dialog->Hide();
+
+		m_lobby->UpdateUI();
 	}
 
 private:
@@ -116,14 +118,14 @@ public:
 
 		// Show the control dialog
 		unsigned int num_gamepads = GetNumGamepads();
-		SetControl(CONTROL_NONE, (m_index > 0) && m_game.IsHosting());
+		SetControl(CONTROL_NONE, m_game.IsHosting());
 		SetControl(CONTROL_LOCAL, true);
 		SetControl(CONTROL_JOYSTICK1, num_gamepads >= 1);
 		SetControl(CONTROL_JOYSTICK2, num_gamepads >= 2);
 		SetControl(CONTROL_JOYSTICK3, num_gamepads >= 3);
-		SetControl(CONTROL_REMOTE1, (m_index > 0) && m_game.IsHosting() && GetRemotePlayerName(CONTROL_REMOTE1));
-		SetControl(CONTROL_REMOTE2, (m_index > 0) && m_game.IsHosting() && GetRemotePlayerName(CONTROL_REMOTE2));
-		SetControl(CONTROL_NETWORK, (m_index > 0) && m_game.IsHosting());
+		SetControl(CONTROL_REMOTE1, m_game.IsHosting() && GetRemotePlayerName(CONTROL_REMOTE1));
+		SetControl(CONTROL_REMOTE2, m_game.IsHosting() && GetRemotePlayerName(CONTROL_REMOTE2));
+		SetControl(CONTROL_NETWORK, m_game.IsHosting());
 
 		m_dialog->SetAnchor(LEFT, RIGHT, m_button, -4, 0);
 		m_dialog->Show();
@@ -430,7 +432,23 @@ LobbyDialogDelegate::UpdateUI()
 		}
 
 		if (m_state == STATE_HOSTING) {
-			m_playButton->SetDisabled(false);
+			bool play_enabled = true;
+			if (m_game.IsDeathmatch()) {
+				// Make sure we have multiple players for deathmatch
+				if (m_game.GetNumPlayers() <= 1) {
+					play_enabled = false;
+				}
+			} else {
+				// Make sure there is a local player for PvE
+				if (!m_game.HasLocalControl()) {
+					play_enabled = false;
+				}
+			}
+			if (play_enabled) {
+				m_playButton->SetDisabled(false);
+			} else {
+				m_playButton->SetDisabled(true);
+			}
 			if (m_deathmatch) {
 				m_deathmatch->SetDisabled(false);
 			}
