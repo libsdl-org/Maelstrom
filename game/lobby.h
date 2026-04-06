@@ -46,6 +46,7 @@ public:
 	virtual void OnShow() override;
 	virtual void OnHide() override;
 	virtual void OnPoll() override;
+	virtual bool HandleEvent(const SDL_Event &event) override;
 
 	void SendKick(int index);
 
