@@ -239,8 +239,14 @@
 				<!-- Hidden action buttons -->
 				<Button name="ToggleFullscreen" template="HotkeyOnly" hotkey="ALT-Return" action="toggle_fullscreen"/>
 				<Button name="Screenshot" template="HotkeyOnly" hotkey="F3" action="screenshot"/>
-				<Button name="Cheat" template="HotkeyOnly" hotkey="L" action="cheat" clickSound="124"/>
-				<Button name="Special" template="HotkeyOnly" hotkey="X" action="show_dawn" clickSound="128"/>
+				<Button name="Cheat" hotkey="L" action="cheat" clickSound="124">
+					<Size w="16" h="16"/>
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="image"/>
+				</Button>
+				<Button name="Special" hotkey="X" action="show_dawn" clickSound="128">
+					<Size w="16" h="16"/>
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="image"/>
+				</Button>
 				<Button name="SetVolume0" template="HotkeyOnly" hotkey="0" action="setvolume0"/>
 				<Button name="SetVolume1" template="HotkeyOnly" hotkey="1" action="setvolume1"/>
 				<Button name="SetVolume2" template="HotkeyOnly" hotkey="2" action="setvolume2"/>
@@ -441,6 +447,16 @@
 				</Button>
 				<Button name="AboutButton" template="LargeMenuButton" text="About Maelstrom..." hotkey="A" action="show_about_story" clickSound="122">
 					<Anchor anchorFrom="TOP" anchorTo="BOTTOM" anchor="ZapButton" y="4"/>
+				</Button>
+
+				<!-- Hidden action buttons -->
+				<Button name="Cheat" template="HotkeyOnly" hotkey="L" action="cheat" clickSound="124">
+					<Size w="16" h="16"/>
+					<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" anchor="image"/>
+				</Button>
+				<Button name="Special" template="HotkeyOnly" hotkey="X" action="show_dawn" clickSound="128">
+					<Size w="16" h="16"/>
+					<Anchor anchorFrom="TOPRIGHT" anchorTo="TOPRIGHT" anchor="image"/>
 				</Button>
 
 				<!-- Version -->
