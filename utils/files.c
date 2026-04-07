@@ -16,7 +16,8 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <limits.h>	// For PATH_MAX
+#include "physfs.h"
+#include "../external/physfs/extras/physfssdl3.h"
 
 #include "files.h"
 
@@ -27,7 +28,6 @@
 static const char *storage_org;
 static const char *storage_app;
 static char datapath[PATH_MAX];
-static char override[PATH_MAX];
 
 bool InitDataPath(void)
 {
@@ -67,28 +67,10 @@ bool InitDataPath(void)
 #endif // MAELSTROM_DATA
 }
 
-void InitOverridePath(void)
-{
-	const char *env = SDL_getenv("MAELSTROM_MOD");
-
-	if (env) {
-		SDL_strlcpy(override, env, sizeof(override));
-		return;
-	}
-
-#ifdef MAELSTROM_MOD
-	SDL_strlcpy(override, MAELSTROM_MOD, sizeof(override));
-#else
-	SDL_snprintf(override, sizeof(override), "%s../mod/", datapath);
-#endif
-
-	if (!SDL_GetPathInfo(override, NULL)) {
-		override[0] = '\0';
-	}
-}
-
 bool InitFilesystem(const char *org, const char *app)
 {
+	const char *env;
+
 	storage_org = org;
 	storage_app = app;
 
@@ -101,46 +83,43 @@ bool InitFilesystem(const char *org, const char *app)
 		SDL_strlcat(datapath, "/", sizeof(datapath));
 	}
 
-	InitOverridePath();
+	if (!PHYSFS_init(NULL)) {
+		SDL_SetError("Couldn't initialize PhysicsFS: %d", PHYSFS_getLastErrorCode());
+		return false;
+	}
 
-	// Make sure the override ends in '/'
-	if (override[SDL_strlen(override) - 1] != '/') {
-		SDL_strlcat(override, "/", sizeof(override));
+	env = SDL_getenv("MAELSTROM_MOD");
+	if (env) {
+		// Ignore failure to load mods, we'll fall back to the original data
+		PHYSFS_mount(env, "/", true);
+	}
+
+	if (!PHYSFS_mount(datapath, "/", true)) {
+		SDL_SetError("Couldn't add %s to the mount path: %d", datapath, PHYSFS_getLastErrorCode());
+		return false;
 	}
 
 	return true;
 }
 
+void QuitFilesystem(void)
+{
+	PHYSFS_deinit();
+}
+
 SDL_IOStream *OpenRead(const char *file)
 {
-	SDL_IOStream *stream = NULL;
-	char path[PATH_MAX];
-
-	if (*override) {
-		SDL_snprintf(path, sizeof(path), "%s%s", override, file);
-		stream = SDL_IOFromFile(path, "rb");
-	}
-	if (!stream) {
-		SDL_snprintf(path, sizeof(path), "%s%s", datapath, file);
-		stream = SDL_IOFromFile(path, "rb");
-	}
-	return stream;
+	return PHYSFSSDL3_openRead(file);
 }
 
 char *LoadFile(const char *file)
 {
-	char *data = NULL;
-	char path[PATH_MAX];
+	SDL_IOStream *stream = OpenRead(file);
+	if (!stream) {
+		return NULL;
+	}
 
-	if (*override) {
-		SDL_snprintf(path, sizeof(path), "%s%s", override, file);
-		data = (char *)SDL_LoadFile(path, NULL);
-	}
-	if (!data) {
-		SDL_snprintf(path, sizeof(path), "%s%s", datapath, file);
-		data = (char *)SDL_LoadFile(path, NULL);
-	}
-	return data;
+	return (char *)SDL_LoadFile_IO(stream, NULL, true);
 }
 
 SDL_Storage *OpenUserStorage(void)

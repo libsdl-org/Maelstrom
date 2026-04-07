@@ -8,6 +8,9 @@ project(Maelstrom
     LANGUAGES C CXX
     VERSION "${MAJOR_VERSION}.${MINOR_VERSION}.${MICRO_VERSION}"
 )
+if(APPLE)
+	enable_language(OBJC)
+endif()
 
 # set the output directory for built objects.
 # This makes sure that the dynamic library goes into the build directory automatically.
@@ -23,7 +26,13 @@ if(EMSCRIPTEN)
 endif()
 
 add_subdirectory(maclib)
+
+set(PHYSFS_BUILD_SHARED OFF)
+set(PHYSFS_BUILD_TEST OFF)
+add_subdirectory(external/physfs EXCLUDE_FROM_ALL)
+
 add_subdirectory(external/SDL EXCLUDE_FROM_ALL)
+
 # SDL_net's ABI has not yet been finalized
 set(original_BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS}")
 set(BUILD_SHARED_LIBS OFF)
@@ -141,6 +150,8 @@ set(MAELSTROM_SOURCES
 	utils/rapidxml.h
 	utils/rapidxml.hpp
 
+	external/physfs/extras/physfssdl3.c
+
 	miniz/miniz.c
 
 	Maelstrom.rc
@@ -201,6 +212,7 @@ if(STEAM)
 endif()
 
 target_link_libraries(${TARGET_NAME} PRIVATE SDLmac)
+target_link_libraries(${TARGET_NAME} PRIVATE physfs-static)
 target_link_libraries(${TARGET_NAME} PRIVATE SDL3_net::SDL3_net)
 target_link_libraries(${TARGET_NAME} PRIVATE SDL3::SDL3)
 

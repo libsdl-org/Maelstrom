@@ -8,3 +8,6 @@
 	path = external/SteamworksSDK
 	url = https://github.com/slouken/SteamworksSDK
 	branch = v163+
+[submodule "external/physfs"]
+	path = external/physfs
+	url = https://github.com/icculus/physfs
