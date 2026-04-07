@@ -120,7 +120,7 @@ void GameOverPanelDelegate::OnShow()
 
 	/* -- See if they got a high score */
 	m_showIME = false;
-	m_handleLabel = NULL;
+	m_handleLabel = nullptr;
 	if (gReplay.IsRecording() && !gReplay.HasContinues() &&
 	    !gGameInfo.IsMultiplayer() && !gGameInfo.IsKidMode() &&
 	    (gGameInfo.wave == 1) && (gGameInfo.lives <= 3) &&
@@ -282,6 +282,7 @@ void GameOverPanelDelegate::FinishEnterName()
 		gReplay.Save();
 		LoadScores();
 	}
+	m_showIME = false;
 	m_handleLabel = nullptr;
 
 	sound->HaltSound();
