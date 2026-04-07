@@ -78,17 +78,21 @@ void
 Player::NewGame(int lives)
 {
 	Playing = 1;
-	if ( gGameInfo.IsDeathmatch() )
+	if (gGameInfo.IsDeathmatch()) {
 		Lives = 1;
-	else
+	} else {
 		Lives = lives;
+	}
 	Score = 0;
 	Frags = 0;
 	special = 0;
 	Ghost = 0;
 	LastWaveDied = 0;
+	ShotsThisWave = 0;
+	ShotsMissedThisWave = 0;
 	NewShip();
 }
+
 void
 Player::Continue(int lives)
 {
@@ -97,6 +101,7 @@ Player::Continue(int lives)
 	Ghost = 0;
 	NewShip();
 }
+
 void 
 Player::NewWave(void)
 {
@@ -107,11 +112,34 @@ Player::NewWave(void)
 		UnlockSinglePlayerAchievement("ACHIEVEMENT_IRON_MAN");
 	}
 
-	int NumWavesSurvived = ((gWave - 1) - LastWaveDied);
+	int NumWavesCompleted = (gWave - 1);
+	int NumWavesSurvived = (NumWavesCompleted - LastWaveDied);
 	if (NumWavesSurvived == 10) {
 		UnlockSinglePlayerAchievement("ACHIEVEMENT_SURVIVOR_10");
 	} else if (NumWavesSurvived == 5) {
 		UnlockSinglePlayerAchievement("ACHIEVEMENT_SURVIVOR_5");
+	}
+
+	if (NumWavesCompleted == 10 && gGameInfo.lives == 1) {
+		UnlockSinglePlayerAchievement("ACHIEVEMENT_HARDCORE");
+	}
+	if (NumWavesCompleted == 15 && gGameInfo.lives == 1) {
+		UnlockSinglePlayerAchievement("ACHIEVEMENT_ULTRA_HARDCORE");
+	}
+
+	if (NumWavesCompleted > 0 && ShotsThisWave == 0) {
+		UnlockSinglePlayerAchievement("ACHIEVEMENT_NO_HANDS");
+	}
+
+	if (ShotsThisWave >= 10) {
+		if (ShotsMissedThisWave == 0) {
+			UnlockSinglePlayerAchievement("ACHIEVEMENT_SNIPER");
+		} else {
+			int ShotsHitThisWave = (ShotsThisWave - ShotsMissedThisWave);
+			if (ShotsHitThisWave > ShotsMissedThisWave) {
+				UnlockSinglePlayerAchievement("ACHIEVEMENT_MARKSMAN");
+			}
+		}
 	}
 
 	/* If we were exploding, rejuvenate us */
@@ -139,6 +167,8 @@ Player::NewWave(void)
 	OBJ_LOOP(i, numshots) {
 		KillShot(i);
 	}
+	ShotsThisWave = 0;
+	ShotsMissedThisWave = 0;
 	UpdateCamera();
 
 	NoShieldsThisLevel = (ShieldLevel == 0);
@@ -405,6 +435,7 @@ printf("Shots(%d): ", numshots);
 
 		if ( --shots[i]->ttl == 0 ) {
 			KillShot(i);
+			++ShotsMissedThisWave;
 			continue;
 		}
 
@@ -782,7 +813,7 @@ Player::CanGetAchievement()
 {
 	if (gReplay.IsRecording() && !gReplay.HasContinues() &&
 	    !gGameInfo.IsKidMode() &&
-	    (gGameInfo.wave == 1) && (gGameInfo.lives == 3) &&
+	    (gGameInfo.wave == 1) && (gGameInfo.lives <= 3) &&
 	    IS_LOCAL_CONTROL(controlType)) {
 		return true;
 	}
@@ -855,8 +886,10 @@ Player::MakeShot(int offset)
 		shots[numshots]->ttl = (SHOT_DURATION * 2);
 	else
 		shots[numshots]->ttl = SHOT_DURATION;
+	++ShotsThisWave;
 	return(++numshots);
 }
+
 void
 Player::KillShot(int index)
 {
