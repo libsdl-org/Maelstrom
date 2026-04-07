@@ -61,6 +61,28 @@
 		AA929E852EDBA1900005200A /* Docs in Resources */ = {isa = PBXBuildFile; fileRef = AA929E842EDBA1900005200A /* Docs */; };
 		AA929E872EDBA3B80005200A /* Data in Resources */ = {isa = PBXBuildFile; fileRef = AA929E862EDBA3B80005200A /* Data */; };
 		F3281F432F66693200107D76 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F3281F422F66693200107D76 /* Assets.xcassets */; };
+		F3A2C6E32F84C2DD0080C346 /* physfs_archiver_qpak.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6D32F84C2DD0080C346 /* physfs_archiver_qpak.c */; };
+		F3A2C6E42F84C2DD0080C346 /* physfs_archiver_csm.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6CB2F84C2DD0080C346 /* physfs_archiver_csm.c */; };
+		F3A2C6E52F84C2DD0080C346 /* physfs_archiver_zip.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6D92F84C2DD0080C346 /* physfs_archiver_zip.c */; };
+		F3A2C6E62F84C2DD0080C346 /* physfs_archiver_vdf.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6D72F84C2DD0080C346 /* physfs_archiver_vdf.c */; };
+		F3A2C6E72F84C2DD0080C346 /* physfs_archiver_7z.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6CA2F84C2DD0080C346 /* physfs_archiver_7z.c */; };
+		F3A2C6E82F84C2DD0080C346 /* physfs.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6C92F84C2DD0080C346 /* physfs.c */; };
+		F3A2C6E92F84C2DD0080C346 /* physfs_archiver_iso9660.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6CF2F84C2DD0080C346 /* physfs_archiver_iso9660.c */; };
+		F3A2C6EA2F84C2DD0080C346 /* physfs_archiver_unpacked.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6D62F84C2DD0080C346 /* physfs_archiver_unpacked.c */; };
+		F3A2C6EB2F84C2DD0080C346 /* physfs_archiver_lec3d.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6D02F84C2DD0080C346 /* physfs_archiver_lec3d.c */; };
+		F3A2C6EC2F84C2DD0080C346 /* physfs_archiver_pod.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6D22F84C2DD0080C346 /* physfs_archiver_pod.c */; };
+		F3A2C6ED2F84C2DD0080C346 /* physfs_platform_posix.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6E02F84C2DD0080C346 /* physfs_platform_posix.c */; };
+		F3A2C6EE2F84C2DD0080C346 /* physfs_unicode.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6E22F84C2DD0080C346 /* physfs_unicode.c */; };
+		F3A2C6EF2F84C2DD0080C346 /* physfs_archiver_dir.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6CC2F84C2DD0080C346 /* physfs_archiver_dir.c */; };
+		F3A2C6F02F84C2DD0080C346 /* physfs_archiver_mvl.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6D12F84C2DD0080C346 /* physfs_archiver_mvl.c */; };
+		F3A2C6F12F84C2DD0080C346 /* physfs_archiver_hog.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6CE2F84C2DD0080C346 /* physfs_archiver_hog.c */; };
+		F3A2C6F22F84C2DD0080C346 /* physfs_archiver_rofs.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6D42F84C2DD0080C346 /* physfs_archiver_rofs.c */; };
+		F3A2C6F32F84C2DD0080C346 /* physfs_archiver_wad.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6D82F84C2DD0080C346 /* physfs_archiver_wad.c */; };
+		F3A2C6F42F84C2DD0080C346 /* physfs_platform_apple.m in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6DF2F84C2DD0080C346 /* physfs_platform_apple.m */; };
+		F3A2C6F52F84C2DD0080C346 /* physfs_archiver_slb.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6D52F84C2DD0080C346 /* physfs_archiver_slb.c */; };
+		F3A2C6F62F84C2DD0080C346 /* physfs_byteorder.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6DA2F84C2DD0080C346 /* physfs_byteorder.c */; };
+		F3A2C6F72F84C2DD0080C346 /* physfs_archiver_grp.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6CD2F84C2DD0080C346 /* physfs_archiver_grp.c */; };
+		F3A2C6FB2F84C2FE0080C346 /* physfssdl3.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6FA2F84C2FE0080C346 /* physfssdl3.c */; };
 		F3CC41422F60E6A10033BDFA /* steam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F3CC41412F60E6A10033BDFA /* steam.cpp */; };
 /* End PBXBuildFile section */
 
@@ -198,6 +220,35 @@
 		AA929E842EDBA1900005200A /* Docs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Docs; path = ../Docs; sourceTree = "<group>"; };
 		AA929E862EDBA3B80005200A /* Data */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Data; path = ../Data; sourceTree = "<group>"; };
 		F3281F422F66693200107D76 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F3A2C6C82F84C2DD0080C346 /* physfs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = physfs.h; sourceTree = "<group>"; };
+		F3A2C6C92F84C2DD0080C346 /* physfs.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs.c; sourceTree = "<group>"; };
+		F3A2C6CA2F84C2DD0080C346 /* physfs_archiver_7z.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_archiver_7z.c; sourceTree = "<group>"; };
+		F3A2C6CB2F84C2DD0080C346 /* physfs_archiver_csm.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_archiver_csm.c; sourceTree = "<group>"; };
+		F3A2C6CC2F84C2DD0080C346 /* physfs_archiver_dir.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_archiver_dir.c; sourceTree = "<group>"; };
+		F3A2C6CD2F84C2DD0080C346 /* physfs_archiver_grp.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_archiver_grp.c; sourceTree = "<group>"; };
+		F3A2C6CE2F84C2DD0080C346 /* physfs_archiver_hog.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_archiver_hog.c; sourceTree = "<group>"; };
+		F3A2C6CF2F84C2DD0080C346 /* physfs_archiver_iso9660.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_archiver_iso9660.c; sourceTree = "<group>"; };
+		F3A2C6D02F84C2DD0080C346 /* physfs_archiver_lec3d.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_archiver_lec3d.c; sourceTree = "<group>"; };
+		F3A2C6D12F84C2DD0080C346 /* physfs_archiver_mvl.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_archiver_mvl.c; sourceTree = "<group>"; };
+		F3A2C6D22F84C2DD0080C346 /* physfs_archiver_pod.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_archiver_pod.c; sourceTree = "<group>"; };
+		F3A2C6D32F84C2DD0080C346 /* physfs_archiver_qpak.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_archiver_qpak.c; sourceTree = "<group>"; };
+		F3A2C6D42F84C2DD0080C346 /* physfs_archiver_rofs.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_archiver_rofs.c; sourceTree = "<group>"; };
+		F3A2C6D52F84C2DD0080C346 /* physfs_archiver_slb.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_archiver_slb.c; sourceTree = "<group>"; };
+		F3A2C6D62F84C2DD0080C346 /* physfs_archiver_unpacked.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_archiver_unpacked.c; sourceTree = "<group>"; };
+		F3A2C6D72F84C2DD0080C346 /* physfs_archiver_vdf.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_archiver_vdf.c; sourceTree = "<group>"; };
+		F3A2C6D82F84C2DD0080C346 /* physfs_archiver_wad.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_archiver_wad.c; sourceTree = "<group>"; };
+		F3A2C6D92F84C2DD0080C346 /* physfs_archiver_zip.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_archiver_zip.c; sourceTree = "<group>"; };
+		F3A2C6DA2F84C2DD0080C346 /* physfs_byteorder.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_byteorder.c; sourceTree = "<group>"; };
+		F3A2C6DB2F84C2DD0080C346 /* physfs_casefolding.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = physfs_casefolding.h; sourceTree = "<group>"; };
+		F3A2C6DC2F84C2DD0080C346 /* physfs_internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = physfs_internal.h; sourceTree = "<group>"; };
+		F3A2C6DD2F84C2DD0080C346 /* physfs_lzmasdk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = physfs_lzmasdk.h; sourceTree = "<group>"; };
+		F3A2C6DE2F84C2DD0080C346 /* physfs_miniz.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = physfs_miniz.h; sourceTree = "<group>"; };
+		F3A2C6DF2F84C2DD0080C346 /* physfs_platform_apple.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = physfs_platform_apple.m; sourceTree = "<group>"; };
+		F3A2C6E02F84C2DD0080C346 /* physfs_platform_posix.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_platform_posix.c; sourceTree = "<group>"; };
+		F3A2C6E12F84C2DD0080C346 /* physfs_platforms.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = physfs_platforms.h; sourceTree = "<group>"; };
+		F3A2C6E22F84C2DD0080C346 /* physfs_unicode.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_unicode.c; sourceTree = "<group>"; };
+		F3A2C6F92F84C2FE0080C346 /* physfssdl3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = physfssdl3.h; sourceTree = "<group>"; };
+		F3A2C6FA2F84C2FE0080C346 /* physfssdl3.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfssdl3.c; sourceTree = "<group>"; };
 		F3B28F792F76DADC007DABD6 /* Maelstrom-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Maelstrom-Info.plist"; sourceTree = "<group>"; };
 		F3CC41402F60E6A10033BDFA /* steam.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = steam.h; sourceTree = "<group>"; };
 		F3CC41412F60E6A10033BDFA /* steam.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = steam.cpp; sourceTree = "<group>"; };
@@ -227,6 +278,7 @@
 				AA928DB12EDB9C5F0005200A /* game */,
 				AA928E4A2EDB9D540005200A /* maclib */,
 				AA928E462EDB9D260005200A /* miniz */,
+				F3A2C6C62F84C24D0080C346 /* physfs */,
 				AA928E0C2EDB9CF90005200A /* screenlib */,
 				AA928DFB2EDB9CB40005200A /* utils */,
 				F3281F422F66693200107D76 /* Assets.xcassets */,
@@ -418,6 +470,59 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		F3A2C6C62F84C24D0080C346 /* physfs */ = {
+			isa = PBXGroup;
+			children = (
+				F3A2C6F82F84C2E20080C346 /* extras */,
+				F3A2C6C72F84C2700080C346 /* src */,
+			);
+			name = physfs;
+			path = ../external/physfs;
+			sourceTree = "<group>";
+		};
+		F3A2C6C72F84C2700080C346 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				F3A2C6C82F84C2DD0080C346 /* physfs.h */,
+				F3A2C6C92F84C2DD0080C346 /* physfs.c */,
+				F3A2C6CA2F84C2DD0080C346 /* physfs_archiver_7z.c */,
+				F3A2C6CB2F84C2DD0080C346 /* physfs_archiver_csm.c */,
+				F3A2C6CC2F84C2DD0080C346 /* physfs_archiver_dir.c */,
+				F3A2C6CD2F84C2DD0080C346 /* physfs_archiver_grp.c */,
+				F3A2C6CE2F84C2DD0080C346 /* physfs_archiver_hog.c */,
+				F3A2C6CF2F84C2DD0080C346 /* physfs_archiver_iso9660.c */,
+				F3A2C6D02F84C2DD0080C346 /* physfs_archiver_lec3d.c */,
+				F3A2C6D12F84C2DD0080C346 /* physfs_archiver_mvl.c */,
+				F3A2C6D22F84C2DD0080C346 /* physfs_archiver_pod.c */,
+				F3A2C6D32F84C2DD0080C346 /* physfs_archiver_qpak.c */,
+				F3A2C6D42F84C2DD0080C346 /* physfs_archiver_rofs.c */,
+				F3A2C6D52F84C2DD0080C346 /* physfs_archiver_slb.c */,
+				F3A2C6D62F84C2DD0080C346 /* physfs_archiver_unpacked.c */,
+				F3A2C6D72F84C2DD0080C346 /* physfs_archiver_vdf.c */,
+				F3A2C6D82F84C2DD0080C346 /* physfs_archiver_wad.c */,
+				F3A2C6D92F84C2DD0080C346 /* physfs_archiver_zip.c */,
+				F3A2C6DA2F84C2DD0080C346 /* physfs_byteorder.c */,
+				F3A2C6DB2F84C2DD0080C346 /* physfs_casefolding.h */,
+				F3A2C6DC2F84C2DD0080C346 /* physfs_internal.h */,
+				F3A2C6DD2F84C2DD0080C346 /* physfs_lzmasdk.h */,
+				F3A2C6DE2F84C2DD0080C346 /* physfs_miniz.h */,
+				F3A2C6DF2F84C2DD0080C346 /* physfs_platform_apple.m */,
+				F3A2C6E02F84C2DD0080C346 /* physfs_platform_posix.c */,
+				F3A2C6E12F84C2DD0080C346 /* physfs_platforms.h */,
+				F3A2C6E22F84C2DD0080C346 /* physfs_unicode.c */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		F3A2C6F82F84C2E20080C346 /* extras */ = {
+			isa = PBXGroup;
+			children = (
+				F3A2C6F92F84C2FE0080C346 /* physfssdl3.h */,
+				F3A2C6FA2F84C2FE0080C346 /* physfssdl3.c */,
+			);
+			path = extras;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -532,6 +637,7 @@
 				AA928DE82EDB9CA60005200A /* rect.cpp in Sources */,
 				F3CC41422F60E6A10033BDFA /* steam.cpp in Sources */,
 				AA928DE92EDB9CA60005200A /* netplay.cpp in Sources */,
+				F3A2C6FB2F84C2FE0080C346 /* physfssdl3.c in Sources */,
 				AA928DEA2EDB9CA60005200A /* objects.cpp in Sources */,
 				AA928DEB2EDB9CA60005200A /* game.cpp in Sources */,
 				AA928DEC2EDB9CA60005200A /* lobby.cpp in Sources */,
@@ -543,6 +649,27 @@
 				AA928DF22EDB9CA60005200A /* object.cpp in Sources */,
 				AA928DF32EDB9CA60005200A /* myerror.cpp in Sources */,
 				AA928E082EDB9CEA0005200A /* files.c in Sources */,
+				F3A2C6E32F84C2DD0080C346 /* physfs_archiver_qpak.c in Sources */,
+				F3A2C6E42F84C2DD0080C346 /* physfs_archiver_csm.c in Sources */,
+				F3A2C6E52F84C2DD0080C346 /* physfs_archiver_zip.c in Sources */,
+				F3A2C6E62F84C2DD0080C346 /* physfs_archiver_vdf.c in Sources */,
+				F3A2C6E72F84C2DD0080C346 /* physfs_archiver_7z.c in Sources */,
+				F3A2C6E82F84C2DD0080C346 /* physfs.c in Sources */,
+				F3A2C6E92F84C2DD0080C346 /* physfs_archiver_iso9660.c in Sources */,
+				F3A2C6EA2F84C2DD0080C346 /* physfs_archiver_unpacked.c in Sources */,
+				F3A2C6EB2F84C2DD0080C346 /* physfs_archiver_lec3d.c in Sources */,
+				F3A2C6EC2F84C2DD0080C346 /* physfs_archiver_pod.c in Sources */,
+				F3A2C6ED2F84C2DD0080C346 /* physfs_platform_posix.c in Sources */,
+				F3A2C6EE2F84C2DD0080C346 /* physfs_unicode.c in Sources */,
+				F3A2C6EF2F84C2DD0080C346 /* physfs_archiver_dir.c in Sources */,
+				F3A2C6F02F84C2DD0080C346 /* physfs_archiver_mvl.c in Sources */,
+				F3A2C6F12F84C2DD0080C346 /* physfs_archiver_hog.c in Sources */,
+				F3A2C6F22F84C2DD0080C346 /* physfs_archiver_rofs.c in Sources */,
+				F3A2C6F32F84C2DD0080C346 /* physfs_archiver_wad.c in Sources */,
+				F3A2C6F42F84C2DD0080C346 /* physfs_platform_apple.m in Sources */,
+				F3A2C6F52F84C2DD0080C346 /* physfs_archiver_slb.c in Sources */,
+				F3A2C6F62F84C2DD0080C346 /* physfs_byteorder.c in Sources */,
+				F3A2C6F72F84C2DD0080C346 /* physfs_archiver_grp.c in Sources */,
 				AA928E092EDB9CEA0005200A /* hashtable.c in Sources */,
 				AA928E0A2EDB9CEA0005200A /* loadxml.cpp in Sources */,
 				AA928E0B2EDB9CEA0005200A /* prefs.cpp in Sources */,
@@ -736,6 +863,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../external/physfs/src";
 				INFOPLIST_FILE = "Maelstrom-Info.plist";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.arcade-games";
@@ -792,6 +920,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../external/physfs/src";
 				INFOPLIST_FILE = "Maelstrom-Info.plist";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.arcade-games";
