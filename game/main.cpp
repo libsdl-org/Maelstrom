@@ -186,7 +186,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 	/* Initializing Steam can set up environment variables, so do this first */
 	InitSteam();
 
-	if ( !InitFilesystem(MAELSTROM_ORGANIZATION, MAELSTROM_NAME) ) {
+	if ( !InitFilesystem(argv[0], MAELSTROM_ORGANIZATION, MAELSTROM_NAME) ) {
+		error("Couldn't initialize filesystem: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
 

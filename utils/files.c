@@ -28,6 +28,8 @@
 static const char *storage_org;
 static const char *storage_app;
 static char datapath[PATH_MAX];
+static char modpath[PATH_MAX];
+static char modfile[PATH_MAX];
 
 bool InitDataPath(void)
 {
@@ -45,32 +47,59 @@ bool InitDataPath(void)
 #else
 	const char *basepath = SDL_GetBasePath();
 	if (basepath) {
-		SDL_snprintf(datapath, sizeof(datapath), "%sData/", basepath);
+		SDL_snprintf(datapath, sizeof(datapath), "%sData", basepath);
 		if (SDL_GetPathInfo(datapath, NULL)) {
 			return true;
 		}
 
-		SDL_snprintf(datapath, sizeof(datapath), "%s../Data/", basepath);
+		SDL_snprintf(datapath, sizeof(datapath), "%s../Data", basepath);
 		if (SDL_GetPathInfo(datapath, NULL)) {
 			return true;
 		}
 
-		SDL_snprintf(datapath, sizeof(datapath), "%s../../Data/", basepath);
+		SDL_snprintf(datapath, sizeof(datapath), "%s../../Data", basepath);
 		if (SDL_GetPathInfo(datapath, NULL)) {
 			return true;
 		}
 	}
 
-	SDL_strlcpy(datapath, "./", sizeof(datapath));
+	SDL_strlcpy(datapath, ".", sizeof(datapath));
 	return true;
 
 #endif // MAELSTROM_DATA
 }
 
-bool InitFilesystem(const char *org, const char *app)
+bool InitModPath(void)
 {
-	const char *env;
+	const char *env = SDL_getenv("MAELSTROM_MODS");
 
+	if (env) {
+		SDL_strlcpy(modpath, env, sizeof(modpath));
+		return true;
+	}
+
+#ifdef MAELSTROM_MODS
+	SDL_strlcpy(modpath, MAELSTROM_MODS, sizeof(modpath));
+	return true;
+
+#else
+	SDL_strlcpy(modpath, datapath, sizeof(modpath));
+
+	// Trim "Data/"
+	{
+		size_t len = SDL_strlen(modpath);
+		if (len >= 5 && SDL_strcmp(&modpath[len - 5], "Data/") == 0) {
+			modpath[len - 5] = '\0';
+		}
+	}
+	SDL_strlcat(modpath, "mods", sizeof(modpath));
+	return true;
+
+#endif // MAELSTROM_DATA
+}
+
+bool InitFilesystem(const char *argv0, const char *org, const char *app)
+{
 	storage_org = org;
 	storage_app = app;
 
@@ -78,20 +107,23 @@ bool InitFilesystem(const char *org, const char *app)
 		return false;
 	}
 
-	// Make sure the datapath ends in '/'
+	// Make sure datapath ends in '/'
 	if (datapath[SDL_strlen(datapath) - 1] != '/') {
 		SDL_strlcat(datapath, "/", sizeof(datapath));
 	}
 
-	if (!PHYSFS_init(NULL)) {
-		SDL_SetError("Couldn't initialize PhysicsFS: %d", PHYSFS_getLastErrorCode());
+	if (!InitModPath()) {
 		return false;
 	}
 
-	env = SDL_getenv("MAELSTROM_MOD");
-	if (env) {
-		// Ignore failure to load mods, we'll fall back to the original data
-		PHYSFS_mount(env, "/", true);
+	// Make sure modpath ends in '/'
+	if (modpath[SDL_strlen(modpath) - 1] != '/') {
+		SDL_strlcat(modpath, "/", sizeof(modpath));
+	}
+
+	if (!PHYSFS_init(argv0)) {
+		SDL_SetError("Couldn't initialize PhysicsFS: %d", PHYSFS_getLastErrorCode());
+		return false;
 	}
 
 	return true;
@@ -100,6 +132,36 @@ bool InitFilesystem(const char *org, const char *app)
 void QuitFilesystem(void)
 {
 	PHYSFS_deinit();
+}
+
+const char *GetModPath(void)
+{
+	return modpath;
+}
+
+bool SetModFile(const char *file)
+{
+	if (*modfile) {
+		PHYSFS_unmount(modfile);
+		*modfile = '\0';
+	}
+
+	if (*file) {
+		size_t size = 0;
+		void *data = SDL_LoadFile(file, &size);
+		if (!data) {
+			return false;
+		}
+		if (data) {
+			if (!PHYSFS_mountMemory(data, size, SDL_free, file, "/", true)) {
+				SDL_SetError("Couldn't mount %s", file);
+				SDL_free(data);
+				return false;
+			}
+		}
+		SDL_strlcpy(modfile, file, sizeof(modfile));
+	}
+	return true;
 }
 
 SDL_IOStream *OpenRead(const char *file)
