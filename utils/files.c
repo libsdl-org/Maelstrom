@@ -94,11 +94,6 @@ bool InitFilesystem(const char *org, const char *app)
 		PHYSFS_mount(env, "/", true);
 	}
 
-	if (!PHYSFS_mount(datapath, "/", true)) {
-		SDL_SetError("Couldn't add %s to the mount path: %d", datapath, PHYSFS_getLastErrorCode());
-		return false;
-	}
-
 	return true;
 }
 
@@ -109,7 +104,13 @@ void QuitFilesystem(void)
 
 SDL_IOStream *OpenRead(const char *file)
 {
-	return PHYSFSSDL3_openRead(file);
+	SDL_IOStream *stream = PHYSFSSDL3_openRead(file);
+	if (!stream) {
+		char path[PATH_MAX];
+		SDL_snprintf(path, sizeof(path), "%s%s", datapath, file);
+		stream = SDL_IOFromFile(path, "rb");
+	}
+	return stream;
 }
 
 char *LoadFile(const char *file)
