@@ -360,7 +360,7 @@ GameInfo::RemoveNode(Uint32 nodeID)
 			for (int j = i; j < (GetNumNodes() - 1); ++j) {
 				nodes[j] = nodes[j + 1];
 			}
-			SDL_zero(nodes[GetNumNodes() - 1]);
+			nodes[GetNumNodes() - 1].Reset();
 			--numNodes;
 		} else {
 			++i;

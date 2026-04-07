@@ -30,10 +30,19 @@ struct IPaddress {
 		*this = rhs;
 	}
 	~IPaddress() {
-		NET_UnrefAddress(host);
+		Reset();
+	}
+
+	void Reset() {
+		if (host) {
+			NET_UnrefAddress(host);
+			host = nullptr;
+		}
+		port = 0;
 	}
 
 	IPaddress &operator=(const IPaddress &rhs) {
+		Reset();
 		host = NET_RefAddress(rhs.host);
 		port = rhs.port;
 		return *this;
