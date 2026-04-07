@@ -89,6 +89,12 @@ struct GameInfoNode
 		PING_STATUS status;
 	} ping;
 
+	void Reset() {
+		nodeID = 0;
+		address.Reset();
+		state = 0;
+		SDL_zero(ping);
+	}
 };
 
 // This represents a player in the game, on a particular network node
