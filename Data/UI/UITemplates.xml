@@ -98,4 +98,24 @@
 		<Size w="170" h="20"/>
 		<Color r="0x00" g="0x00" b="0x00"/>
 	</Rectangle>
+
+	<Area templateName="ModBox">
+		<Size w="432" h="32"/>
+		<Elements>
+			<DialogLabel name="label">
+				<Anchor anchorFrom="LEFT" anchorTo="LEFT" x="8"/>
+			</DialogLabel>
+			<DialogLabel name="name">
+				<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="8" y="6"/>
+			</DialogLabel>
+			<!-- 75 character maximum description -->
+			<Label name="desc" template="SmallBlack">
+				<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="8" y="22"/>
+			</Label>
+			<DialogLabel name="invalid" text="(invalid)">
+				<Anchor anchorFrom="RIGHT" anchorTo="RIGHT" x="-4"/>
+				<Color r="0xA0" g="0x10" b="0x10"/>
+			</DialogLabel>
+		</Elements>
+	</Area>
 </UITemplates>

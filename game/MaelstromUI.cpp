@@ -31,6 +31,7 @@
 #include "gameover.h"
 #include "player.h"
 #include "lobby.h"
+#include "mods.h"
 #include "MacDialog.h"
 #include "../screenlib/UIContainer.h"
 #include "../screenlib/UIElementButton.h"
@@ -397,6 +398,8 @@ MaelstromUI::CreatePanelDelegate(UIPanel *panel, const char *delegate)
 		return new GameOverPanelDelegate(panel);
 	} else if (SDL_strcasecmp(delegate, "ControlsDialog") == 0) {
 		return new ControlsDialogDelegate(panel);
+	} else if (SDL_strcasecmp(delegate, "ModsDialog") == 0) {
+		return new ModsDialogDelegate(panel);
 	}
 	return UIManager::CreatePanelDelegate(panel, delegate);
 }

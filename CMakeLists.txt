@@ -75,6 +75,8 @@ set(MAELSTROM_SOURCES
 	game/main.h
 	game/make.cpp
 	game/make.h
+	game/mods.cpp
+	game/mods.h
 	game/myerror.cpp
 	game/myerror.h
 	game/netplay.cpp
@@ -223,7 +225,8 @@ if(EMSCRIPTEN)
     # on the web, we have to put the files inside of the webassembly
     # somewhat unintuitively, this is done via a linker argument.
     target_link_libraries(${TARGET_NAME} PRIVATE 
-        "--preload-file \"${CMAKE_CURRENT_LIST_DIR}/Data@/\""
+        "--preload-file \"${CMAKE_CURRENT_LIST_DIR}/Data@Data/\""
+        "--preload-file \"${CMAKE_CURRENT_LIST_DIR}/mods@mods/\""
     )
 else()
     option(STANDALONE_INSTALL "Build Maelstrom installed into a single directory" TRUE)
@@ -250,6 +253,7 @@ else()
         install(IMPORTED_RUNTIME_ARTIFACTS SteamworksSDK::steam_api)
     endif()
     install(DIRECTORY Data DESTINATION "${GAME_INSTALL_DATADIR}")
+    install(DIRECTORY mods DESTINATION "${GAME_INSTALL_DATADIR}")
 
     file(GLOB docs "Docs/*.txt" "README*")
     install(FILES ${docs} "COPYING" TYPE DOC)

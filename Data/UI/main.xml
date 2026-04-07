@@ -282,6 +282,11 @@
 				<Checkbox name="KidMode" image="kidmode" checkedImage="kidmode-selected" bindValue="Cheat.KidMode" action="toggle_kidmode">
 					<Anchor anchorFrom="TOP" anchorTo="TOP" anchor="vertical_divider" x="196"/>
 				</Checkbox>
+
+				<!-- Mods -->
+				<Button name="Mods" image="mods" action="show_mods">
+					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-68" y="-48"/>
+				</Button>
 			</Elements>
 		</Area>
 
@@ -476,6 +481,11 @@
 				<Checkbox name="KidMode" image="kidmode" checkedImage="kidmode-selected" bindValue="Cheat.KidMode" action="toggle_kidmode">
 					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="TOPRIGHT" anchor="hdivider" x="-8" y="-4"/>
 				</Checkbox>
+
+				<!-- Mods -->
+				<Button name="Mods" image="mods" action="show_mods">
+					<Anchor anchorFrom="RIGHT" anchorTo="LEFT" anchor="KidMode" x="-8"/>
+				</Button>
 			</Elements>
 		</Area>
 	</Elements>

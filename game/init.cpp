@@ -112,6 +112,7 @@ enum LoadingStage
 	LOAD_STAGE_COMPLETE
 };
 static int gLoadingStage = LOAD_STAGE_WAITING;
+static int gLoadBarStage = 1;
 
 // Local functions used in this file.
 static void DrawLoadBar();
@@ -198,7 +199,6 @@ static bool InitResolutions(int &w, int &h)
 
 static void DrawLoadBar()
 {
-	static int stage = 1;
 	UIPanel *panel;
 	UIElement *progress = NULL;
 	int fact;
@@ -209,10 +209,10 @@ static void DrawLoadBar()
 		progress = panel->GetElement<UIElement>("progress");
 	}
 	if (progress) {
-		fact = (FULL_WIDTH * stage) / MAX_BAR;
+		fact = (FULL_WIDTH * gLoadBarStage) / MAX_BAR;
 		progress->SetWidth(fact);
 	}
-	++stage;
+	++gLoadBarStage;
 }	/* -- DrawLoadBar */
 
 
@@ -834,6 +834,26 @@ static bool LoadIcon(SDL_Surface **icon)
 	return true;
 }
 
+static void ShowLoadingPanel(int stage)
+{
+	gInitializing = true;
+	gLoadingStage = stage;
+	gLoadBarStage = 1;
+	gSpriteCRC = 0;
+
+	/* -- Load any mods */
+	if (!SetModFile(prefs->GetString(PREFERENCES_MOD_FILE, ""))) {
+		prefs->SetString(PREFERENCES_MOD_FILE, "");
+	}
+
+	/* -- Throw up our intro screen */
+	if (ui->GetPanelTransition() == PANEL_TRANSITION_FADE) {
+		screen->FadeOut();
+	}
+
+	ui->ShowPanel(PANEL_LOADING);
+}
+
 /* ----------------------------------------------------------------- */
 /* -- Perform some initializations and report failure if we choke */
 bool StartInitialization(int window_width, int window_height, Uint32 window_flags)
@@ -924,12 +944,22 @@ bool StartInitialization(int window_width, int window_height, Uint32 window_flag
 	ui->SetPanelTransition(PANEL_TRANSITION_FADE);
 #endif
 
-	/* -- Throw up our intro screen */
-	if (ui->GetPanelTransition() == PANEL_TRANSITION_FADE) {
-		screen->FadeOut();
+	ShowLoadingPanel(LOAD_STAGE_WAITING);
+
+	return true;
+}
+
+bool RestartInitialization()
+{
+	/* Load the Sound Server and initialize sound */
+	delete sound;
+	sound = new Sound("Maelstrom Sounds", gSoundLevel);
+	if (sound->Error()) {
+		error("Fatal: %s\n", sound->Error());
+		return false;
 	}
 
-	ui->ShowPanel(PANEL_LOADING);
+	ShowLoadingPanel(LOAD_STAGE_STARTING);
 
 	return true;
 }
@@ -1276,26 +1306,66 @@ static void BackwardsSprite(BlitPtr *theBlit, BlitPtr oldBlit)
 
 static int LoadCICNS(void)
 {
-	if ( (gAutoFireIcon = GetCIcon(screen, 128)) == NULL )
+	if ( gAutoFireIcon ) {
+		Free_Texture(screen, gAutoFireIcon);
+	}
+	if ( (gAutoFireIcon = GetCIcon(screen, 128)) == NULL ) {
 		return(-1);
-	if ( (gAirBrakesIcon = GetCIcon(screen, 129)) == NULL )
+	}
+	if ( gAirBrakesIcon ) {
+		Free_Texture(screen, gAirBrakesIcon);
+	}
+	if ( (gAirBrakesIcon = GetCIcon(screen, 129)) == NULL ) {
 		return(-1);
-	if ( (gMult2Icon = GetCIcon(screen, 130)) == NULL )
+	}
+	if ( gMult2Icon ) {
+		Free_Texture(screen, gMult2Icon);
+	}
+	if ( (gMult2Icon = GetCIcon(screen, 130)) == NULL ) {
 		return(-1);
-	if ( (gMult3Icon = GetCIcon(screen, 131)) == NULL )
+	}
+	if ( gMult3Icon ) {
+		Free_Texture(screen, gMult3Icon);
+	}
+	if ( (gMult3Icon = GetCIcon(screen, 131)) == NULL ) {
 		return(-1);
-	if ( (gMult4Icon = GetCIcon(screen, 132)) == NULL )
+	}
+	if ( gMult4Icon ) {
+		Free_Texture(screen, gMult4Icon);
+	}
+	if ( (gMult4Icon = GetCIcon(screen, 132)) == NULL ) {
 		return(-1);
-	if ( (gMult5Icon = GetCIcon(screen, 134)) == NULL )
+	}
+	if ( gMult5Icon ) {
+		Free_Texture(screen, gMult5Icon);
+	}
+	if ( (gMult5Icon = GetCIcon(screen, 134)) == NULL ) {
 		return(-1);
-	if ( (gLuckOfTheIrishIcon = GetCIcon(screen, 133)) == NULL )
+	}
+	if ( gLuckOfTheIrishIcon ) {
+		Free_Texture(screen, gLuckOfTheIrishIcon);
+	}
+	if ( (gLuckOfTheIrishIcon = GetCIcon(screen, 133)) == NULL ) {
 		return(-1);
-	if ( (gTripleFireIcon = GetCIcon(screen, 135)) == NULL )
+	}
+	if ( gTripleFireIcon ) {
+		Free_Texture(screen, gTripleFireIcon);
+	}
+	if ( (gTripleFireIcon = GetCIcon(screen, 135)) == NULL ) {
 		return(-1);
-	if ( (gLongFireIcon = GetCIcon(screen, 136)) == NULL )
+	}
+	if ( gLongFireIcon ) {
+		Free_Texture(screen, gLongFireIcon);
+	}
+	if ( (gLongFireIcon = GetCIcon(screen, 136)) == NULL ) {
 		return(-1);
-	if ( (gShieldIcon = GetCIcon(screen, 137)) == NULL )
+	}
+	if ( gShieldIcon ) {
+		Free_Texture(screen, gShieldIcon);
+	}
+	if ( (gShieldIcon = GetCIcon(screen, 137)) == NULL ) {
 		return(-1);
+	}
 	return(0);
 }	/* -- LoadCICNS */
 
@@ -1400,6 +1470,13 @@ static int LoadSprite(bool large, BlitPtr *theBlit, int baseID, int numFrames)
 
 		SDL_DestroySurface(surface);
 	}
+	if (*theBlit) {
+		for (index = 0; index < numFrames; index++) {
+			if ((*theBlit)->sprite[index]) {
+				Free_Texture(screen, (*theBlit)->sprite[index]);
+			}
+		}
+	}
 	(*theBlit) = aBlit;
 	return(0);
 }	/* -- LoadSprite */
@@ -1425,8 +1502,13 @@ static int LoadSmallSprite(BlitPtr *theBlit, int baseID, int numFrames)
 void LoadingPanelDelegate::OnShow()
 {
 #ifdef SDL_PLATFORM_EMSCRIPTEN
-	StartWaiting();
+	if (gLoadingStage == LOAD_STAGE_WAITING) {
+		StartWaiting();
+	} else {
+		StartLoading();
+	}
 #else
+	// No waiting necessary, the user doesn't need to interact first
 	StartLoading();
 #endif
 }
@@ -1459,7 +1541,6 @@ void LoadingPanelDelegate::StartWaiting()
 			loading_label->Hide();
 		}
 	}
-	gLoadingStage = LOAD_STAGE_WAITING;
 }
 
 void LoadingPanelDelegate::StartLoading()

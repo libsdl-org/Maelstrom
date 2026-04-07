@@ -47,17 +47,20 @@ You can click on the high score entries to watch that game again. This is especi
 
 The classic easter eggs from the original game are all there, and it's up to you to find them...
 
-### Addons
+### Mods
 
-The art and sounds for the game are in the Data directory and can be freely modified for your own use. If you create a directory "mod" next to the Data directory, files in there will override the base game.
+You can create mods for the game by copying the folders in Data to a new folder, modifying the files, and then zipping them up and dropping the archive into the top level "mods" folder. If you place a file README.txt at the  top level in your zip file, you can set the name and description field used by the game. You can look at Maelstrom_1980.zip in the mods folder for an example of this.
 
-If you have access to the original sound and sprite packs for Maelstrom, you can build Maelstrom from source and use the included tool `macres` to unpack them into the mod directory to change the art and sounds for the game:
+Once you've installed a mod, you can enable it by clicking on the box icon on the main menu and selecting it in that dialog.
+
+Note that if you play network multiplayer, all players must have the same sprite mods in order to play together.
+
+If you have access to the original sound and sprite packs for Maelstrom, you can build the macres tool included in the Maelstrom source code and use that to export the files in a form that can be zipped up as a mod for this game.
+
+The usage is:
 ```
-macres --export '%Maelstrom Sprites' mod
-macres --export '%Maelstrom Sounds' mod
+macres --export [file] [output_directory]
 ```
-
-If you play network multiplayer, all players must have the same set of sprites, otherwise the games will get out of sync.
 
 ---
 

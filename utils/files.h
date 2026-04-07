@@ -27,7 +27,10 @@
 extern "C" {
 #endif
 
-bool InitFilesystem(const char *org, const char *app);
+bool InitFilesystem(const char *argv0, const char *org, const char *app);
+
+const char *GetModPath(void);
+bool SetModFile(const char *file);
 
 SDL_IOStream *OpenRead(const char *file);
 

@@ -38,6 +38,7 @@ private:
 };
 
 extern bool StartInitialization(int window_width, int window_height, Uint32 window_flags);
+extern bool RestartInitialization();
 extern bool ContinueInitialization();
 extern void CleanUp(void);
 

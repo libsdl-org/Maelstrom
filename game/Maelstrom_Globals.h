@@ -51,6 +51,7 @@
 #define PREFERENCES_MULTIPLAYER_FRAGS "Network.Frags"
 #define PREFERENCES_KIDMODE "Cheat.KidMode"
 #define PREFERENCES_CONTINUES "Cheat.Continues"
+#define PREFERENCES_MOD_FILE "ModFile"
 
 // The Font Server :)
 extern FontServ *fontserv;

@@ -1,0 +1,48 @@
+<Dialog delegate="ModsDialog">
+	<Size w="474" h="292"/>
+	<Elements>
+		<Title id="103">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="4" y="4"/>
+		</Icon>
+
+		<Area name="mod1" template="ModBox">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="30" y="62"/>
+		</Area>
+		<Area name="mod2" template="ModBox">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="mod1" y="6"/>
+		</Area>
+		<Area name="mod3" template="ModBox">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="mod2" y="6"/>
+		</Area>
+		<Area name="mod4" template="ModBox">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="mod3" y="6"/>
+		</Area>
+		<Area name="mod5" template="ModBox">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="mod4" y="6"/>
+		</Area>
+
+		<DialogRadioGroup name="modsRadioGroup">
+			<Elements>
+				<DialogRadioButton name="pip1" id="1">
+					<Anchor anchorFrom="RIGHT" anchorTo="LEFT" anchor="mod1" x="20"/>
+				</DialogRadioButton>
+				<DialogRadioButton name="pip2" id="2">
+					<Anchor anchorFrom="RIGHT" anchorTo="LEFT" anchor="mod2" x="20"/>
+				</DialogRadioButton>
+				<DialogRadioButton name="pip3" id="3">
+					<Anchor anchorFrom="RIGHT" anchorTo="LEFT" anchor="mod3" x="20"/>
+				</DialogRadioButton>
+				<DialogRadioButton name="pip4" id="4">
+					<Anchor anchorFrom="RIGHT" anchorTo="LEFT" anchor="mod4" x="20"/>
+				</DialogRadioButton>
+				<DialogRadioButton name="pip5" id="5">
+					<Anchor anchorFrom="RIGHT" anchorTo="LEFT" anchor="mod5" x="20"/>
+				</DialogRadioButton>
+			</Elements>
+		</DialogRadioGroup>
+
+		<DialogButton text="OK" default="true">
+			<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-10" y="-11"/>
+		</DialogButton>
+	</Elements>
+</Dialog>

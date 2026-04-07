@@ -87,7 +87,7 @@
 			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="291" y="265"/>
 		</DialogButton>
 		<DialogButton text="OK" id="1">
-			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="cancelButton"x="25"/>
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="cancelButton" x="25"/>
 		</DialogButton>
 	</Elements>
 </Dialog>

@@ -61,6 +61,8 @@
 		AA929E852EDBA1900005200A /* Docs in Resources */ = {isa = PBXBuildFile; fileRef = AA929E842EDBA1900005200A /* Docs */; };
 		AA929E872EDBA3B80005200A /* Data in Resources */ = {isa = PBXBuildFile; fileRef = AA929E862EDBA3B80005200A /* Data */; };
 		F3281F432F66693200107D76 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F3281F422F66693200107D76 /* Assets.xcassets */; };
+		F384D6AC2F8646D400DC6EA7 /* mods in Resources */ = {isa = PBXBuildFile; fileRef = F384D6AB2F8646D400DC6EA7 /* mods */; };
+		F384D6AF2F8646FE00DC6EA7 /* mods.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F384D6AE2F8646FE00DC6EA7 /* mods.cpp */; };
 		F3A2C6E32F84C2DD0080C346 /* physfs_archiver_qpak.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6D32F84C2DD0080C346 /* physfs_archiver_qpak.c */; };
 		F3A2C6E42F84C2DD0080C346 /* physfs_archiver_csm.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6CB2F84C2DD0080C346 /* physfs_archiver_csm.c */; };
 		F3A2C6E52F84C2DD0080C346 /* physfs_archiver_zip.c in Sources */ = {isa = PBXBuildFile; fileRef = F3A2C6D92F84C2DD0080C346 /* physfs_archiver_zip.c */; };
@@ -220,6 +222,9 @@
 		AA929E842EDBA1900005200A /* Docs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Docs; path = ../Docs; sourceTree = "<group>"; };
 		AA929E862EDBA3B80005200A /* Data */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Data; path = ../Data; sourceTree = "<group>"; };
 		F3281F422F66693200107D76 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F384D6AB2F8646D400DC6EA7 /* mods */ = {isa = PBXFileReference; lastKnownFileType = folder; name = mods; path = ../mods; sourceTree = "<group>"; };
+		F384D6AD2F8646FE00DC6EA7 /* mods.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mods.h; sourceTree = "<group>"; };
+		F384D6AE2F8646FE00DC6EA7 /* mods.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mods.cpp; sourceTree = "<group>"; };
 		F3A2C6C82F84C2DD0080C346 /* physfs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = physfs.h; sourceTree = "<group>"; };
 		F3A2C6C92F84C2DD0080C346 /* physfs.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs.c; sourceTree = "<group>"; };
 		F3A2C6CA2F84C2DD0080C346 /* physfs_archiver_7z.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = physfs_archiver_7z.c; sourceTree = "<group>"; };
@@ -275,6 +280,7 @@
 				AA9285942EDB9A3D0005200A /* SDL_net.xcodeproj */,
 				AA929E862EDBA3B80005200A /* Data */,
 				AA929E842EDBA1900005200A /* Docs */,
+				F384D6AB2F8646D400DC6EA7 /* mods */,
 				AA928DB12EDB9C5F0005200A /* game */,
 				AA928E4A2EDB9D540005200A /* maclib */,
 				AA928E462EDB9D260005200A /* miniz */,
@@ -340,6 +346,8 @@
 				AA928DCF2EDB9CA60005200A /* main.cpp */,
 				AA928DD02EDB9CA60005200A /* make.h */,
 				AA928DD12EDB9CA60005200A /* make.cpp */,
+				F384D6AD2F8646FE00DC6EA7 /* mods.h */,
+				F384D6AE2F8646FE00DC6EA7 /* mods.cpp */,
 				AA928DD22EDB9CA60005200A /* myerror.h */,
 				AA928DD32EDB9CA60005200A /* myerror.cpp */,
 				AA928DD42EDB9CA60005200A /* netplay.h */,
@@ -596,6 +604,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F384D6AC2F8646D400DC6EA7 /* mods in Resources */,
 				AA929E872EDBA3B80005200A /* Data in Resources */,
 				F3281F432F66693200107D76 /* Assets.xcassets in Resources */,
 				AA929E852EDBA1900005200A /* Docs in Resources */,
@@ -675,6 +684,7 @@
 				AA928E0B2EDB9CEA0005200A /* prefs.cpp in Sources */,
 				AA928DF42EDB9CA60005200A /* fastrand.cpp in Sources */,
 				AA928DF52EDB9CA60005200A /* replay.cpp in Sources */,
+				F384D6AF2F8646FE00DC6EA7 /* mods.cpp in Sources */,
 				AA928DF62EDB9CA60005200A /* gameinfo.cpp in Sources */,
 				AA928DF72EDB9CA60005200A /* make.cpp in Sources */,
 				AA928DF82EDB9CA60005200A /* scores.cpp in Sources */,
