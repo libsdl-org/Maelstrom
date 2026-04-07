@@ -201,6 +201,8 @@ private:
 	int Dead;
 	int Ghost;
 	int LastWaveDied;
+	int ShotsThisWave;
+	int ShotsMissedThisWave;
 
 	Shot *shots[MAX_SHOTS];
 	int numshots;
