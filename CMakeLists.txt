@@ -9,7 +9,7 @@ project(Maelstrom
     VERSION "${MAJOR_VERSION}.${MINOR_VERSION}.${MICRO_VERSION}"
 )
 if(APPLE)
-	enable_language(OBJC)
+    enable_language(OBJC)
 endif()
 
 # set the output directory for built objects.
@@ -221,6 +221,9 @@ target_link_libraries(${TARGET_NAME} PRIVATE SDL3::SDL3)
 if(EMSCRIPTEN)
     # Increase the default stack size
     target_link_options(${TARGET_NAME} PRIVATE -sALLOW_MEMORY_GROWTH=1 -sSTACK_SIZE=1048576)
+
+    # Create a source map for debugging
+    target_link_options(${TARGET_NAME} PRIVATE -gsource-map)
 
     # on the web, we have to put the files inside of the webassembly
     # somewhat unintuitively, this is done via a linker argument.
