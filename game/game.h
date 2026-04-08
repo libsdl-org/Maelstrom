@@ -31,6 +31,7 @@ class GamePanelDelegate : public UIPanelDelegate
 {
 public:
 	GamePanelDelegate(UIPanel *panel) : UIPanelDelegate(panel) { }
+	virtual ~GamePanelDelegate();
 
 	virtual bool OnLoad();
 	virtual void OnShow();
@@ -96,6 +97,8 @@ protected:
 	UIElement *m_paused;
 	UIElement *m_zoomIn;
 	UIElement *m_zoomOut;
+
+	UITexture *m_background;
 
 	enum {
 		STATE_PLAYING,

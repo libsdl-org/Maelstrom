@@ -154,6 +154,13 @@ void ContinueGame(void)
 	gShownContinue = 0;
 }
 
+GamePanelDelegate::~GamePanelDelegate()
+{
+	if (m_background) {
+		Free_Texture(screen, m_background);
+	}
+}
+
 bool
 GamePanelDelegate::OnLoad()
 {
@@ -187,6 +194,8 @@ GamePanelDelegate::OnLoad()
 	m_paused = m_panel->GetElement<UIElement>("paused");
 	m_zoomIn = m_panel->GetElement<UIElement>("zoom_in");
 	m_zoomOut = m_panel->GetElement<UIElement>("zoom_out");
+
+	m_background = Load_Image(screen, "background");
 
 	return true;
 }
@@ -582,22 +591,27 @@ GamePanelDelegate::OnDraw(DRAWLEVEL drawLevel)
 
 	StartZoomedDrawing();
 
-	/* -- Draw the star field */
-	for ( i=0; i<MAX_STARS; ++i ) {
-		int x = (gTheStars[i]->xCoord << SPRITE_PRECISION);
-		int y = (gTheStars[i]->yCoord << SPRITE_PRECISION);
-		GetRenderCoordinates(x, y);
-		screen->DrawPoint(x, y, gTheStars[i]->color);
-	}
+	if (m_background) {
+		/* -- Draw the background */
+		m_background->Draw(screen, 0, 0, GAME_WIDTH, GAME_HEIGHT, SDL_ALPHA_OPAQUE);
+	} else {
+		/* -- Draw the star field */
+		for ( i=0; i<MAX_STARS; ++i ) {
+			int x = (gTheStars[i]->xCoord << SPRITE_PRECISION);
+			int y = (gTheStars[i]->yCoord << SPRITE_PRECISION);
+			GetRenderCoordinates(x, y);
+			screen->DrawPoint(x, y, gTheStars[i]->color);
+		}
 
-	for ( i=0; i<MAX_BORDER_STARS; ++i ) {
-		int x = (gBorderStars[i]->xCoord << SPRITE_PRECISION);
-		int y = (gBorderStars[i]->yCoord << SPRITE_PRECISION);
-		GetRenderCoordinates(x, y);
-		if (gZoomGame ||
-		    (x >= SPRITES_WIDTH && x < (GAME_WIDTH - SPRITES_WIDTH) &&
-		     y >= SPRITES_WIDTH && y < (GAME_HEIGHT - SPRITES_WIDTH))) {
-			screen->DrawPoint(x, y, gBorderStars[i]->color);
+		for ( i=0; i<MAX_BORDER_STARS; ++i ) {
+			int x = (gBorderStars[i]->xCoord << SPRITE_PRECISION);
+			int y = (gBorderStars[i]->yCoord << SPRITE_PRECISION);
+			GetRenderCoordinates(x, y);
+			if (gZoomGame ||
+				(x >= SPRITES_WIDTH && x < (GAME_WIDTH - SPRITES_WIDTH) &&
+				 y >= SPRITES_WIDTH && y < (GAME_HEIGHT - SPRITES_WIDTH))) {
+				screen->DrawPoint(x, y, gBorderStars[i]->color);
+			}
 		}
 	}
 

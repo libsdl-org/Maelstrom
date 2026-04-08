@@ -232,6 +232,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
+	if (event->type == SDL_EVENT_RESTART_INITIALIZATION) {
+		RestartInitialization();
+	}
+
 	if (event->type == SDL_EVENT_DROP_FILE) {
 		SDL_free(gReplayFile);
 		gReplayFile = SDL_strdup(event->drop.data);
@@ -416,12 +420,6 @@ MainPanelDelegate::OnTick()
 bool
 MainPanelDelegate::HandleEvent(const SDL_Event &event)
 {
-	/* -- Handle file drop requests */
-	if ( event.type == SDL_EVENT_DROP_FILE ) {
-		gReplayFile = SDL_strdup( event.drop.data );
-		return true;
-	}
-
 	return false;
 }
 

@@ -130,7 +130,12 @@ ModsDialogDelegate::OnHide()
 		}
 		if (SDL_strcmp(selected_mod, current_mod) != 0) {
 			prefs->SetString(PREFERENCES_MOD_FILE, selected_mod);
-			RestartInitialization();
+
+			// Signal that we should reload the game
+			SDL_Event event;
+			SDL_zero(event);
+			event.type = SDL_EVENT_RESTART_INITIALIZATION;
+			SDL_PushEvent(&event);
 		}
 	}
 }
