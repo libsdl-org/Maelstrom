@@ -959,6 +959,8 @@ bool RestartInitialization()
 		return false;
 	}
 
+	ui->Shutdown();
+
 	ShowLoadingPanel(LOAD_STAGE_STARTING);
 
 	return true;
