@@ -390,12 +390,37 @@ static void ExportSprite(Mac_Resource *res, const char *type, Uint16 id, const c
 	SDL_SavePNG(surface, path);
 }
 
+static void ExportImage(Mac_Resource *res, const char *type, Uint16 id, const char *basepath)
+{
+	char path[PATH_MAX];
+	SDL_snprintf(path, sizeof(path), "%s/Images", basepath);
+	SDL_CreateDirectory(path);
+	SDL_snprintf(path, sizeof(path), "%s/Images/Maelstrom_Titles#%d.pict", basepath, id);
+
+	Mac_ResData *entry = res->Resource(type, id);
+
+	SDL_IOStream *stream = SDL_IOFromFile(path, "w");
+	if (!stream) {
+		SDL_Log("Couldn't write to %s: %s", path, SDL_GetError());
+		return;
+	}
+
+	// PICT files have 512 bytes of zero preceding the actual data
+	const size_t header_size = 512;
+	void *header = SDL_calloc(1, header_size);
+	SDL_WriteIO(stream, header, header_size);
+	SDL_WriteIO(stream, entry->data, entry->length);
+	SDL_CloseIO(stream);
+}
+
 static void Export(Mac_Resource *res, const char *type, Uint16 id, const char *basepath)
 {
 	if ( SDL_strcmp(type, "FOND") == 0 || SDL_strcmp(type, "NFNT") == 0 ) {
 		ExportFont(res, type, id, basepath);
 	} else if ( SDL_strcmp(type, "snd ") == 0 ) {
 		ExportSound(res, type, id, basepath);
+	} else if (SDL_strcmp(type, "PICT") == 0) {
+		ExportImage(res, type, id, basepath);
 	} else if ( SDL_strcmp(type, "ics8") == 0 || SDL_strcmp(type, "icl8") == 0 ) {
 		ExportSprite(res, type, id, basepath);
 	}
