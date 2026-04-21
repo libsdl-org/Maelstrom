@@ -1528,6 +1528,10 @@ GamePanelDelegate::StartNextWave()
 
 	NewRoids = FastRandom(temp) + (gWave / 5) + 3;
 
+	/* Use fewer asteroids in deathmatch mode */
+	if (gGameInfo.IsDeathmatch())
+		NewRoids /= 2;
+
 	/* -- Kill any existing sprites */
 	while (gNumSprites > 0)
 		delete gSprites[gNumSprites-1];
