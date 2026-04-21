@@ -985,13 +985,13 @@ GamePanelDelegate::DrawStatus(Bool first)
 
 			/* -- See if they got a new life */
 			lastScores[i] = Score;
-			if ((Score - lastLife[i]) >= NEW_LIFE) {
+			while ((Score - lastLife[i]) >= NEW_LIFE) {
 				if (!gPlayers[i]->IsGhost()) {
 					gPlayers[i]->IncrLives(1);
-					if ( gGameInfo.IsLocalPlayer(i) )
+					if ( i == gDisplayed )
 						sound->PlaySound(gNewLife, 5);
 				}
-				lastLife[i] = (Score / NEW_LIFE) * NEW_LIFE;
+				lastLife[i] += NEW_LIFE;
 			}
 		}
 	}
@@ -1397,6 +1397,7 @@ GamePanelDelegate::BonusCountdown()
 			SDL_snprintf(numbuf, sizeof(numbuf), "%-5.1d", TheShip->GetScore());
 			score->SetText(numbuf);
 		}
+		DrawStatus(false);
 		DelaySound();
 		return;
 	}
