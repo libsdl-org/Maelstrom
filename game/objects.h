@@ -44,38 +44,45 @@ public:
 				/* -- They got machine guns! */
 				ship->SetSpecial(MACHINE_GUNS);
 				UnlockSinglePlayerAchievement("ACHIEVEMENT_PRIZE_MACHINE_GUNS");
+				AddSteamTimelineEvent(STEAM_TIMELINE_EVENT_PRIZE_MACHINE_GUNS);
 				break;
 			case 1:
 				/* -- They got Air brakes */
 				ship->SetSpecial(AIR_BRAKES);
 				UnlockSinglePlayerAchievement("ACHIEVEMENT_PRIZE_AIR_BRAKES");
+				AddSteamTimelineEvent(STEAM_TIMELINE_EVENT_PRIZE_AIR_BRAKES);
 				break;
 			case 2:
 				/* -- They might get Lucky */
 				ship->SetSpecial(LUCKY_IRISH);
 				UnlockSinglePlayerAchievement("ACHIEVEMENT_PRIZE_LUCK");
+				AddSteamTimelineEvent(STEAM_TIMELINE_EVENT_PRIZE_LUCK);
 				break;
 			case 3:
 				/* -- They triple fire */
 				ship->SetSpecial(TRIPLE_FIRE);
 				UnlockSinglePlayerAchievement("ACHIEVEMENT_PRIZE_TRIPLE_FIRE");
+				AddSteamTimelineEvent(STEAM_TIMELINE_EVENT_PRIZE_TRIPLE_FIRE);
 				break;
 			case 4:
 				/* -- They got long range */
 				ship->SetSpecial(LONG_RANGE);
 				UnlockSinglePlayerAchievement("ACHIEVEMENT_PRIZE_LONG_RANGE");
+				AddSteamTimelineEvent(STEAM_TIMELINE_EVENT_PRIZE_LONG_RANGE);
 				break;
 			case 5:
 				/* -- They got more shields */
 				ship->IncrShieldLevel((MAX_SHIELD/5)+
 						FastRandom(MAX_SHIELD/2));
 				UnlockSinglePlayerAchievement("ACHIEVEMENT_PRIZE_SHIELDS");
+				AddSteamTimelineEvent(STEAM_TIMELINE_EVENT_PRIZE_SHIELDS);
 				break;
 			case 6:
 				/* -- Put 'em on ICE */
 				sound->PlaySound(gFreezeSound, 4);
 				gFreezeTime = FREEZE_DURATION;
 				UnlockSinglePlayerAchievement("ACHIEVEMENT_PRIZE_FREEZING");
+				AddSteamTimelineEvent(STEAM_TIMELINE_EVENT_PRIZE_FREEZING);
 				break;
 			case 7:
 				/* Blow up everything */
@@ -96,6 +103,7 @@ public:
 				}
 				gShakeTime = SHAKE_DURATION;
 				UnlockSinglePlayerAchievement("ACHIEVEMENT_PRIZE_EXPLOSION");
+				AddSteamTimelineEvent(STEAM_TIMELINE_EVENT_PRIZE_EXPLOSION);
 				break;
 		}
 		sound->PlaySound(gGotPrize, 4);
@@ -255,6 +263,7 @@ public:
 			ship->IncrLives(1);
 			sound->PlaySound(gSavedShipSound, 4);
 			UnlockSinglePlayerAchievement("ACHIEVEMENT_GOOD_SAMARITAN");
+			AddSteamTimelineEvent(STEAM_TIMELINE_EVENT_FREE_LIFE);
 		}
 		return(1);
 	}
