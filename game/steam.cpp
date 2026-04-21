@@ -254,6 +254,42 @@ void SteamInterface::AddSteamTimelineEvent(STEAM_TIMELINE_EVENT event)
 		title = "Nova";
 		icon = "steam_explosion";
 		break;
+	case STEAM_TIMELINE_EVENT_FREE_LIFE:
+		title = "Free Life";
+		icon = "steam_heart";
+		break;
+	case STEAM_TIMELINE_EVENT_PRIZE_MACHINE_GUNS:
+		title = "Machine Guns";
+		icon = "steam_chest";
+		break;
+	case STEAM_TIMELINE_EVENT_PRIZE_AIR_BRAKES:
+		title = "Air Brakes";
+		icon = "steam_chest";
+		break;
+	case STEAM_TIMELINE_EVENT_PRIZE_LUCK:
+		title = "Luck";
+		icon = "steam_chest";
+		break;
+	case STEAM_TIMELINE_EVENT_PRIZE_TRIPLE_FIRE:
+		title = "Triple Fire";
+		icon = "steam_chest";
+		break;
+	case STEAM_TIMELINE_EVENT_PRIZE_LONG_RANGE:
+		title = "Long Range";
+		icon = "steam_chest";
+		break;
+	case STEAM_TIMELINE_EVENT_PRIZE_SHIELDS:
+		title = "Shields";
+		icon = "steam_chest";
+		break;
+	case STEAM_TIMELINE_EVENT_PRIZE_FREEZING:
+		title = "Freezing";
+		icon = "steam_chest";
+		break;
+	case STEAM_TIMELINE_EVENT_PRIZE_EXPLOSION:
+		title = "Explosion";
+		icon = "steam_chest";
+		break;
 	default:
 		break;
 	}
