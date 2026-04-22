@@ -123,7 +123,7 @@ void GameOverPanelDelegate::OnShow()
 	m_handleLabel = nullptr;
 	if (gReplay.IsRecording() && !gReplay.HasContinues() &&
 	    !gGameInfo.IsMultiplayer() && !gGameInfo.IsKidMode() &&
-	    (gGameInfo.wave == 1) && (gGameInfo.lives <= 3) &&
+	    (gGameInfo.wave == 1) && (gGameInfo.lives <= DEFAULT_START_LIVES) &&
 	    TheShip->GetScore() > 0) {
 		for ( i = 0; i<NUM_SCORES; ++i ) {
 			if ( TheShip->GetScore() >= (int)hScores[i].score ) {
