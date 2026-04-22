@@ -20,6 +20,7 @@
 */
 
 // Functions from make.cc
+extern	void	MakeMediumRock(int x, int y);
 extern	void	MakeLargeRock(int x, int y);
 extern	void	MakeSteelRoid(int x, int y);
 extern	void	MakeMultiplier(void);

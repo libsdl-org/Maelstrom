@@ -346,6 +346,37 @@ void MakeHoming(void)
 
 
 /* ----------------------------------------------------------------- */
+/* -- Create a medium rock */
+
+void MakeMediumRock(int x, int y)
+{
+	int	newsprite, xVel, yVel, phaseFreq, rx;
+
+	rx = (VEL_FACTOR + (gWave / 6)) * (SCALE_FACTOR);
+
+	xVel = yVel = 0;
+	while (xVel == 0)
+		xVel = FastRandom(rx) - (rx / 2);
+	if (xVel > 0)
+		xVel += (0 * SCALE_FACTOR);
+	else
+		xVel -= (0 * SCALE_FACTOR);
+
+	while (yVel == 0)
+		yVel = FastRandom(rx) - (rx / 2);
+	if (yVel > 0)
+		yVel += (0 * SCALE_FACTOR);
+	else
+		yVel -= (0 * SCALE_FACTOR);
+
+	phaseFreq = (FastRandom(3) + 2);
+
+	newsprite = gNumSprites;
+	gSprites[newsprite] = new MediumRock(x, y, xVel, yVel, phaseFreq);
+}	/* -- MakeLargeRock */
+
+
+/* ----------------------------------------------------------------- */
 /* -- Create a large rock */
 
 void MakeLargeRock(int x, int y)
