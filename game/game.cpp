@@ -1528,10 +1528,6 @@ GamePanelDelegate::StartNextWave()
 
 	NewRoids = FastRandom(temp) + (gWave / 5) + 3;
 
-	/* Use fewer asteroids in deathmatch mode */
-	if (gGameInfo.IsDeathmatch())
-		NewRoids /= 2;
-
 	/* -- Kill any existing sprites */
 	while (gNumSprites > 0)
 		delete gSprites[gNumSprites-1];
@@ -1559,11 +1555,22 @@ GamePanelDelegate::StartNextWave()
 		x = FastRandom(GAME_WIDTH) * SCALE_FACTOR;
 		y = 0;
 
-		randval = FastRandom(10);
+		if (gGameInfo.IsDeathmatch()) {
+			// Always have at least one rock, but also more steel asteroids
+			if (i == 0) {
+				randval = 1;
+			} else {
+				randval = FastRandom(2);
+			}
+		} else {
+			randval = FastRandom(10);
+		}
 
 		/* -- See what kind of asteroid to make */
 		if (randval == 0)
 			MakeSteelRoid(x, y);
+		else if (gGameInfo.IsDeathmatch())
+			MakeMediumRock(x, y);
 		else
 			MakeLargeRock(x, y);
 	}
