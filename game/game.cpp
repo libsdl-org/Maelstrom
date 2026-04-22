@@ -1144,7 +1144,7 @@ GamePanelDelegate::DoHousekeeping()
 			} else {
 				GameOver();
 			}
-		} else if (!gGameInfo.IsMultiplayer() && !gShownContinue) {
+		} else if (gGameInfo.IsCheat() && !gShownContinue) {
 			gShownContinue = 1;
 			ui->ShowPanel(PANEL_CONTINUE);
 		} else {

@@ -522,7 +522,7 @@ LobbyDialogDelegate::SetState(LOBBY_STATE state)
 		} else {
 			lives = prefs->GetNumber(PREFERENCES_MULTIPLAYER_LIVES, DEFAULT_START_LIVES);
 		}
-		m_game.SetHost(DEFAULT_START_WAVE, lives, DEFAULT_START_TURBO, deathmatch);
+		m_game.SetHost(DEFAULT_START_WAVE, lives, DEFAULT_START_TURBO, deathmatch, false);
 
 		// Set up the controls for this game
 		for (i = 0; i < MAX_PLAYERS; ++i) {

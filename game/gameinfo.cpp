@@ -50,7 +50,7 @@ GameInfo::Reset()
 }
 
 void
-GameInfo::SetHost(Uint8 wave, Uint8 lives, Uint8 turbo, bool deathmatch)
+GameInfo::SetHost(Uint8 wave, Uint8 lives, Uint8 turbo, bool deathmatch, bool cheat)
 {
 	Reset();
 
@@ -60,6 +60,9 @@ GameInfo::SetHost(Uint8 wave, Uint8 lives, Uint8 turbo, bool deathmatch)
 	this->lives = lives;
 	this->turbo = turbo;
 	this->gameMode = 0;
+	if (cheat) {
+		this->gameMode |= GAME_MODE_CHEAT;
+	}
 	if (deathmatch) {
 		this->gameMode |= GAME_MODE_DEATHMATCH;
 	}
