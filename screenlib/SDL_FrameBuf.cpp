@@ -371,9 +371,11 @@ FrameBuf::EnableTextInput(int textfieldX, int textfieldY, int textfieldWidth, in
 	SDL_SetTextInputArea(m_window, &textrect, 0);
 
 	SDL_PropertiesID props = SDL_CreateProperties();
+#if 0 // Currently showing the numeric keypad on iPad triggers keyboardWillHide(), stopping text input
 	if (numeric) {
 		SDL_SetNumberProperty(props, SDL_PROP_TEXTINPUT_TYPE_NUMBER, SDL_TEXTINPUT_TYPE_NUMBER);
 	}
+#endif
 	SDL_SetBooleanProperty(props, SDL_PROP_TEXTINPUT_MULTILINE_BOOLEAN, false);
 	SDL_StartTextInputWithProperties(m_window, props);
 	SDL_DestroyProperties(props);
