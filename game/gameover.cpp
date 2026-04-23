@@ -237,8 +237,10 @@ bool GameOverPanelDelegate::HandleEvent(const SDL_Event &event)
 		}
 		m_handleLabel->SetText(m_handle);
 		return true;
+	case SDL_EVENT_MOUSE_BUTTON_DOWN:
 	case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
 		return true;
+	case SDL_EVENT_MOUSE_BUTTON_UP:
 	case SDL_EVENT_GAMEPAD_BUTTON_UP:
 		FinishEnterName();
 		return true;
