@@ -100,6 +100,15 @@ bool InitModPath(void)
 
 bool InitFilesystem(const char *argv0, const char *org, const char *app)
 {
+#ifdef SDL_PLATFORM_ANDROID
+	// PhysFS expects PHYSFS_AndroidInit instead of the real arg0
+	PHYSFS_AndroidInit init = {
+		SDL_GetAndroidJNIEnv(),
+		SDL_GetAndroidActivity()
+	};
+	argv0 = (const char *)&init;
+#endif
+
 	storage_org = org;
 	storage_app = app;
 
