@@ -92,6 +92,9 @@ FrameBuf::~FrameBuf()
 	for (unsigned int i = 0; i < m_gamepads.length(); ++i) {
 		SDL_CloseGamepad(m_gamepads[i]);
 	}
+	if (m_cursor) {
+		SDL_DestroyCursor(m_cursor);
+	}
 	if (m_renderer) {
 		SDL_DestroyRenderer(m_renderer);
 	}
@@ -310,6 +313,32 @@ FrameBuf::ConvertTouchCoordinates(const SDL_TouchFingerEvent &finger, int *x, in
 }
 
 void
+FrameBuf::SetCursor(SDL_Surface *image, int hotX, int hotY)
+{
+	if (m_cursor) {
+		SDL_DestroyCursor(m_cursor);
+	}
+	if (m_cursorTexture) {
+		SDL_DestroyTexture(m_cursorTexture);
+	}
+
+#if defined(SDL_PLATFORM_APPLE) && !defined(SDL_PLATFORM_MACOS)
+	// We need to draw our own cursor
+#else
+	m_cursor = SDL_CreateColorCursor(image, hotX, hotY);
+#endif
+	if (m_cursor) {
+		SDL_SetCursor(m_cursor);
+	} else {
+		m_cursorTexture = SDL_CreateTextureFromSurface(m_renderer, image);
+		m_cursorWidth = image->w;
+		m_cursorHeight = image->h;
+		m_cursorOffsetX = -hotX;
+		m_cursorOffsetY = -hotY;
+	}
+}
+
+void
 FrameBuf::GetCursorPosition(int *x, int *y)
 {
 	float mouse_x, mouse_y;
@@ -458,6 +487,18 @@ FrameBuf::Update(void)
 
 	if (Fading() || m_faded) {
 		return;
+	}
+
+	if (m_cursorTexture && SDL_CursorVisible()) {
+		int x, y;
+		GetCursorPosition(&x, &y);
+
+		SDL_FRect dstrect;
+		dstrect.x = (float)x + m_cursorOffsetX;
+		dstrect.y = (float)y + m_cursorOffsetY;
+		dstrect.w = (float)m_cursorWidth;
+		dstrect.h = (float)m_cursorHeight;
+		SDL_RenderTexture(m_renderer, m_cursorTexture, NULL, &dstrect);
 	}
 
 	SDL_RenderPresent(m_renderer);

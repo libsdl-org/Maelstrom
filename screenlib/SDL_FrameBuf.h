@@ -189,6 +189,7 @@ public:
 	int ScreenDump(const char *prefix, int x, int y, int w, int h);
 
 	/* Cursor handling routines */
+	void SetCursor(SDL_Surface *image, int hotX, int hotY);
 	void ShowCursor(void) {
 		SDL_ShowCursor();
 	}
@@ -205,6 +206,12 @@ private:
 	SDL_Window *m_window = nullptr;
 	SDL_Renderer *m_renderer = nullptr;
 	SDL_Texture *m_fadeTexture = nullptr;
+	SDL_Cursor *m_cursor = nullptr;
+	SDL_Texture *m_cursorTexture = nullptr;
+	int m_cursorWidth = 0;
+	int m_cursorHeight = 0;
+	int m_cursorOffsetX = 0;
+	int m_cursorOffsetY = 0;
 	int m_fadeStep = 0;
 	bool m_faded = false;
 	SDL_FRect m_clip;
