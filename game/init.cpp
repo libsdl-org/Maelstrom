@@ -834,6 +834,17 @@ static bool LoadIcon(SDL_Surface **icon)
 	return true;
 }
 
+static bool LoadCursor(SDL_Surface **cursor)
+{
+	SDL_Surface *surface = SDL_LoadSurface_IO(OpenRead("Images/cursor.png"), true);
+	if (!surface) {
+		error("Fatal: Couldn't load cursor: %s\n", SDL_GetError());
+		return false;
+	}
+	*cursor = surface;
+	return true;
+}
+
 static void ShowLoadingPanel(int stage)
 {
 	gInitializing = true;
@@ -860,6 +871,7 @@ bool StartInitialization(int window_width, int window_height, Uint32 window_flag
 {
 	int w, h;
 	SDL_Surface *icon = nullptr;
+	SDL_Surface *cursor = nullptr;
 
 	gInitializing = true;
 
@@ -904,6 +916,11 @@ bool StartInitialization(int window_width, int window_height, Uint32 window_flag
 	}
 	SDL_ShowWindow(screen->GetWindow());
 	SDL_DestroySurface(icon);
+
+	if (LoadCursor(&cursor)) {
+		screen->SetCursor(cursor, 0, 0);
+		SDL_DestroySurface(cursor);
+	}
 
 	/* Load the Font Server and fonts */
 	fontserv = new FontServ(screen, "Maelstrom Fonts");
