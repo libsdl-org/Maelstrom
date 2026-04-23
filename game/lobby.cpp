@@ -386,6 +386,15 @@ void
 LobbyDialogDelegate::LivesChanged(void *, const char *text)
 {
 	m_game.lives = SDL_atoi(text);
+
+	if (m_state == STATE_HOSTING) {
+		if (m_game.IsDeathmatch()) {
+			prefs->SetNumber(PREFERENCES_MULTIPLAYER_FRAGS, m_game.lives);
+		} else {
+			prefs->SetNumber(PREFERENCES_MULTIPLAYER_LIVES, m_game.lives);
+		}
+	}
+
 	UpdateUI();
 }
 
