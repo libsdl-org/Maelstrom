@@ -35,15 +35,25 @@ public:
 	virtual bool HandleEvent(const SDL_Event &event);
 
 protected:
+	void HandleShown();
+	void HandleEnableIME();
 	void BeginEnterName();
 	void FinishEnterName();
+	void HandleFinishedName();
 
 protected:
+	enum {
+		STATE_SHOWING,
+		STATE_ENABLE_IME,
+		STATE_ENTERING_NAME,
+		STATE_FINISHED_NAME,
+		STATE_DONE,
+	} m_state;
+
 	UIElement *m_handleLabel;
 	int m_handleSize;
 	char m_handle[MAX_NAMELEN+1];
-	bool m_showIME;
-	Uint64 m_showTime;
+	Uint64 m_readyTime;
 };
 
 #endif // _gameover_h

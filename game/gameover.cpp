@@ -56,6 +56,39 @@ static int cmp_byfrags(const void *pA, const void *pB)
 void GameOverPanelDelegate::OnShow()
 {
 	UIElement *image;
+
+	m_panel->HideAll();
+
+	image = m_panel->GetElement<UIElement>("image");
+	if (image) {
+		image->Show();
+	}
+
+	m_handleLabel = nullptr;
+
+	m_state = STATE_SHOWING;
+
+	DelaySound();
+}
+
+void GameOverPanelDelegate::OnHide()
+{
+	if (gReplay.IsRecording()) {
+		// Save this as the last game
+		gReplay.Save(LAST_REPLAY);
+		gLastGameID = gReplay.GetGameInfo().gameID;
+	}
+	gReplay.SetMode(REPLAY_IDLE);
+
+	/* Make sure we clear the game info so we don't crash trying to
+	   update UI in a future replay
+	*/
+	gGameInfo.Reset();
+}
+
+void GameOverPanelDelegate::HandleShown()
+{
+	UIElement *image;
 	UIElement *label;
 	int i;
 
@@ -72,13 +105,6 @@ void GameOverPanelDelegate::OnShow()
 		SDL_qsort(final,MAX_PLAYERS,sizeof(struct FinalScore),cmp_byfrags);
 	else
 		SDL_qsort(final,MAX_PLAYERS,sizeof(struct FinalScore),cmp_byscore);
-
-	m_panel->HideAll();
-
-	image = m_panel->GetElement<UIElement>("image");
-	if (image) {
-		image->Show();
-	}
 
 	/* Show the player ranking */
 	if ( gGameInfo.IsMultiplayer() ) {
@@ -119,8 +145,6 @@ void GameOverPanelDelegate::OnShow()
 	delete[] final;
 
 	/* -- See if they got a high score */
-	m_showIME = false;
-	m_handleLabel = nullptr;
 	if (gReplay.IsRecording() && !gReplay.HasContinues() &&
 	    !gGameInfo.IsMultiplayer() && !gGameInfo.IsKidMode() &&
 	    (gGameInfo.wave == 1) && (gGameInfo.lives <= DEFAULT_START_LIVES) &&
@@ -133,54 +157,38 @@ void GameOverPanelDelegate::OnShow()
 		}
 	}
 
-	m_showTime = SDL_GetTicks();
+	if (m_state == STATE_SHOWING) {
+		m_state = STATE_FINISHED_NAME;
+		m_readyTime = SDL_GetTicks();
+	}
 }
 
-void GameOverPanelDelegate::OnHide()
+void GameOverPanelDelegate::HandleEnableIME()
 {
-	if (gReplay.IsRecording()) {
-		// Save this as the last game
-		gReplay.Save(LAST_REPLAY);
-		gLastGameID = gReplay.GetGameInfo().gameID;
-	}
-	gReplay.SetMode(REPLAY_IDLE);
-
-	/* Make sure we clear the game info so we don't crash trying to
-	   update UI in a future replay
-	*/
-	gGameInfo.Reset();
+	screen->EnableTextInput(m_handleLabel->X(), m_handleLabel->Y(), m_handleLabel->Width(), m_handleLabel->Height());
+	m_state = STATE_ENTERING_NAME;
 }
 
 void GameOverPanelDelegate::OnTick()
 {
-	if (m_showIME) {
-		// Wait for the sound to complete before bringing up text entry
-		if (sound->Playing()) {
-			return;
-		}
-
-		screen->EnableTextInput(m_handleLabel->X(), m_handleLabel->Y(), m_handleLabel->Width(), m_handleLabel->Height());
-		m_showIME = false;
+	switch (m_state) {
+	case STATE_SHOWING:
+		HandleShown();
+		break;
+	case STATE_ENABLE_IME:
+		HandleEnableIME();
+		break;
+	case STATE_ENTERING_NAME:
+		// Wait until we're done
+		break;
+	case STATE_FINISHED_NAME:
+		HandleFinishedName();
+		break;
+	case STATE_DONE:
+		// We're done showing the scores
+		ui->ShowPanel(PANEL_MAIN);
+		break;
 	}
-
-	if (m_handleLabel) {
-		return;
-	}
-
-	/* -- Wait for the game over sound */
-	if (sound->Playing()) {
-		return;
-	}
-
-	if (gGameInfo.IsMultiplayer()) { /* Let them watch their ranking */
-		const Uint32 MULTIPLAYER_SHOW_TIME = 3000;
-		if ((SDL_GetTicks() - m_showTime) < MULTIPLAYER_SHOW_TIME) {
-			return;
-		}
-	}
-
-	// We're done showing the scores
-	ui->ShowPanel(PANEL_MAIN);
 }
 
 bool GameOverPanelDelegate::HandleEvent(const SDL_Event &event)
@@ -269,7 +277,7 @@ void GameOverPanelDelegate::BeginEnterName()
 	}
 	m_handleSize = (int)SDL_strlen(m_handle);
 
-	m_showIME = true;
+	m_state = STATE_ENABLE_IME;
 }
 
 void GameOverPanelDelegate::FinishEnterName()
@@ -282,9 +290,23 @@ void GameOverPanelDelegate::FinishEnterName()
 		gReplay.Save();
 		LoadScores();
 	}
-	m_showIME = false;
-	m_handleLabel = nullptr;
 
 	sound->HaltSound();
 	sound->PlaySound(gGotPrize, 6);
+	DelaySound();
+
+	m_state = STATE_FINISHED_NAME;
+	m_readyTime = SDL_GetTicks();
+}
+
+void GameOverPanelDelegate::HandleFinishedName()
+{
+	if (gGameInfo.IsMultiplayer()) { /* Let them watch their ranking */
+		const Uint32 MULTIPLAYER_SHOW_TIME = 3000;
+		if ((SDL_GetTicks() - m_readyTime) < MULTIPLAYER_SHOW_TIME) {
+			return;
+		}
+	}
+
+	m_state = STATE_DONE;
 }
