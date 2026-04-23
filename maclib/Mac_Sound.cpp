@@ -48,6 +48,13 @@ Sound:: Sound(const char *soundfile, Uint8 vol) : ErrorBase()
 
 	SDL_AudioSpec spec = { SDL_AUDIO_U8, 1, DSP_FREQUENCY };
 	stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, FillAudio, this);
+	if (!stream) {
+		// Fall back to dummy audio so our callback runs
+		SDL_QuitSubSystem(SDL_INIT_AUDIO);
+		SDL_SetHint(SDL_HINT_AUDIO_DRIVER, "dummy");
+		SDL_InitSubSystem(SDL_INIT_AUDIO);
+		stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, FillAudio, this);
+	}
 
 	/* Empty the channels and start the music :-) */
 	HaltSound();
