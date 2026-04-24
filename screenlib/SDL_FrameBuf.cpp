@@ -317,15 +317,28 @@ FrameBuf::SetCursor(SDL_Surface *image, int hotX, int hotY)
 {
 	if (m_cursor) {
 		SDL_DestroyCursor(m_cursor);
+		m_cursor = nullptr;
 	}
 	if (m_cursorTexture) {
 		SDL_DestroyTexture(m_cursorTexture);
+		m_cursorTexture = nullptr;
 	}
 
 #if defined(SDL_PLATFORM_APPLE) && !defined(SDL_PLATFORM_MACOS)
 	// We need to draw our own cursor
 #else
-	m_cursor = SDL_CreateColorCursor(image, hotX, hotY);
+	int window_width, window_height;
+	if (SDL_GetWindowSize(m_window, &window_width, &window_height)) {
+		float scale = SDL_floorf((float)window_height / m_height);
+		SDL_Surface *scaled = SDL_ScaleSurface(image, (int)(image->w * scale), (int)(image->h * scale), SDL_SCALEMODE_NEAREST);
+		if (scaled) {
+			m_cursor = SDL_CreateColorCursor(scaled, (int)(hotX * scale), (int)(hotY * scale));
+			SDL_DestroySurface(scaled);
+		}
+	}
+	if (!m_cursor) {
+		m_cursor = SDL_CreateColorCursor(image, hotX, hotY);
+	}
 #endif
 	if (m_cursor) {
 		SDL_SetCursor(m_cursor);
@@ -365,7 +378,7 @@ FrameBuf::EnableTextInput(int textfieldX, int textfieldY, int textfieldWidth, in
 
 	int window_width, window_height;
 	if (SDL_GetWindowSize(m_window, &window_width, &window_height)) {
-		float scale = (float)window_width / m_width;
+		float scale = (float)window_height / m_height;
 		textrect.w = (int)(textrect.w * scale);
 		textrect.h = (int)(textrect.h * scale);
 	}
