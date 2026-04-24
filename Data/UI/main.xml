@@ -284,7 +284,7 @@
 				</Checkbox>
 
 				<!-- Mods -->
-				<Button name="Mods" image="mods" action="show_mods">
+				<Button name="Mods" image="mods" action="show_mods" clickSound="119">
 					<Anchor anchorFrom="BOTTOMRIGHT" anchorTo="BOTTOMRIGHT" x="-68" y="-48"/>
 				</Button>
 			</Elements>
@@ -483,7 +483,7 @@
 				</Checkbox>
 
 				<!-- Mods -->
-				<Button name="Mods" image="mods" action="show_mods">
+				<Button name="Mods" image="mods" action="show_mods" clickSound="119">
 					<Anchor anchorFrom="RIGHT" anchorTo="LEFT" anchor="KidMode" x="-8"/>
 				</Button>
 			</Elements>
