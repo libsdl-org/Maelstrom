@@ -49,11 +49,11 @@ The classic easter eggs from the original game are all there, and it's up to you
 
 ### Mods
 
-You can create mods for the game by copying the folders in Data to a new folder, modifying the files, and then zipping them up and dropping the archive into the top level "mods" folder. If you place a file README.txt at the  top level in your zip file, you can set the name and description field used by the game. You can look at Maelstrom_1980.zip in the mods folder for an example of this.
+Click the cardboard box button on the main menu to select the art and sounds you want to use. The Maelstrom 1980 mod comes with the game, and you can easily make your own!
 
-Once you've installed a mod, you can enable it by clicking on the box icon on the main menu and selecting it in that dialog.
+Copy the folders in Data to a new folder, modify the files, and then zip them up and drop the archive into the top level "mods" folder. If you place a file README.txt at the  top level in your zip file, you can set the name and description field used by the game. You can look at `Maelstrom_1980.zip` in the mods folder for an example of this.
 
-Note that if you play network multiplayer, all players must have the same sprite mods in order to play together.
+Note that if you play network multiplayer, all players must have the same sprites in order to play together.
 
 If you have access to the original sound and sprite packs for Maelstrom, you can build the macres tool included in the Maelstrom source code and use that to export the files in a form that can be zipped up as a mod for this game.
 
