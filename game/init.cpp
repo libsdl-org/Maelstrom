@@ -875,8 +875,10 @@ bool StartInitialization(int window_width, int window_height, Uint32 window_flag
 
 	gInitializing = true;
 
-	// Lock the screen into landscape orientation
-	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+	// Lock the screen into landscape orientation on phones
+	if (IsPhone()) {
+		SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+	}
 
 	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD)) {
 		error("Couldn't initialize SDL: %s\n", SDL_GetError());
