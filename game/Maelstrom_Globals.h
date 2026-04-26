@@ -175,7 +175,7 @@ extern int	gNumSprites;
 #define DIALOG_ZAP	"zap"
 #define DIALOG_DAWN	"dawn"
 #define DIALOG_CHEAT	"cheat"
-#define DIALOG_FEATURE	"feature"
+#define DIALOG_KIDMODE	"kidmode"
 #define DIALOG_MESSAGE	"message"
 
 // Sound resource definitions...
