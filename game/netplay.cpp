@@ -76,11 +76,17 @@ int CreateSocket(bool hosting)
 		return(-1);
 	}
 
-#ifdef DEBUG_PACKETLOSS
-	SDLNet_UDP_SetPacketLoss(gSocket, DEBUG_PACKETLOSS);
-#endif
-
 	return(0);
+}
+
+static bool SendDatagram(NET_DatagramSocket *sock, NET_Address *address, Uint16 port, const void *buf, int buflen)
+{
+#ifdef DEBUG_PACKETLOSS
+	if (SDL_rand(100) < DEBUG_PACKETLOSS) {
+		return true;
+	}
+#endif
+	return NET_SendDatagram(sock, address, port, buf, buflen);
 }
 
 void CloseSocket(void)
@@ -217,7 +223,7 @@ static SYNC_RESULT AwaitSync()
 error("Sending packet for current frame (%ld)\r\n", NextFrame);
 #endif
 			const GameInfoNode *node = gGameInfo.GetNode(i);
-			NET_SendDatagram(gSocket, node->address.host, node->address.port, CurrPacket.data, CurrPacket.len);
+			SendDatagram(gSocket, node->address.host, node->address.port, CurrPacket.data, CurrPacket.len);
 			WaitingAcks[i] = NodeTimeout(now);
 		}
 	}
@@ -285,7 +291,7 @@ error("NEW_GAME packet\r\n");
 			reply.Write((Uint8)NEW_GAME_ACK);
 			reply.Write(gGameInfo.gameID);
 			reply.Write(gGameInfo.localID);
-			NET_SendDatagram(gSocket, datagram->addr, datagram->port, reply.data, reply.len);
+			SendDatagram(gSocket, datagram->addr, datagram->port, reply.data, reply.len);
 			continue;
 		}
 		if (cmd == NEW_GAME_ACK) {
@@ -342,7 +348,7 @@ error("Ignoring duplicate packet for frame %lu from node %d\r\n", frame, index);
 #if DEBUG_NETWORK >= 1
 error("Transmitting packet for old frame (%lu)\r\n", frame);
 #endif
-			NET_SendDatagram(gSocket, datagram->addr, datagram->port, LastPacket.data, LastPacket.len);
+			SendDatagram(gSocket, datagram->addr, datagram->port, LastPacket.data, LastPacket.len);
 		} else if (frame == (NextFrame+1)) {
 #if DEBUG_NETWORK >= 1
 error("Received packet for next frame! (%lu, current = %lu)\r\n",
@@ -355,7 +361,7 @@ error("Received packet for next frame! (%lu, current = %lu)\r\n",
 			CachedPacket[index].packet.Seek(0);
 
 			/* Let the node know we're still waiting */
-			NET_SendDatagram(gSocket, datagram->addr, datagram->port, CurrPacket.data, CurrPacket.len);
+			SendDatagram(gSocket, datagram->addr, datagram->port, CurrPacket.data, CurrPacket.len);
 		}
 #if DEBUG_NETWORK >= 1
 else
@@ -456,7 +462,7 @@ int Send_NewGame()
 	for (i = 0; i < gGameInfo.GetNumNodes(); ++i) {
 		if (gGameInfo.IsNetworkNode(i)) {
 			const GameInfoNode *node = gGameInfo.GetNode(i);
-			NET_SendDatagram(gSocket, node->address.host, node->address.port, newgame.data, newgame.len);
+			SendDatagram(gSocket, node->address.host, node->address.port, newgame.data, newgame.len);
 		}
 	}
 
@@ -489,7 +495,7 @@ int Send_NewGame()
 		for (i = 0; i < gGameInfo.GetNumNodes(); ++i) {
 			if (HasTimedOut(i, now)) {
 				const GameInfoNode *node = gGameInfo.GetNode(i);
-				NET_SendDatagram(gSocket, node->address.host, node->address.port, newgame.data, newgame.len);
+				SendDatagram(gSocket, node->address.host, node->address.port, newgame.data, newgame.len);
 				WaitingAcks[i] = NodeTimeout(now);
 			}
 		}
