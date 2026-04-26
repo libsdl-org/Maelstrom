@@ -532,6 +532,13 @@ MainPanelDelegate::OnActionToggleKidMode(UIBaseElement *sender)
 	}
 
 	checkbox->SaveData(prefs);
+
+	if (checkbox->IsChecked()) {
+		UIDialog *dialog = ui->GetPanel<UIDialog>(DIALOG_KIDMODE);
+		if (dialog) {
+			ui->ShowPanel(dialog);
+		}
+	}
 }
 
 void

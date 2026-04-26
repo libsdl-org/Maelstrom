@@ -1,0 +1,29 @@
+<Dialog>
+	<Size w="310" h="176"/>
+	<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="164" y="77"/>
+	<Elements>
+		<Icon name="icon" id="103">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="19" y="19"/>
+		</Icon>
+		<DialogLabel name="line1" text="Kid mode enabled!">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPRIGHT" anchor="icon" x="25"/>
+		</DialogLabel>
+		<DialogLabel name="line2" text="Reverse thrusters and automatic">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="icon" y="12" x="25"/>
+		</DialogLabel>
+		<DialogLabel name="line3" text="shield defense system are active.">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="line2" y="2"/>
+		</DialogLabel>
+		<DialogLabel name="line4" text="This disqualifies you from a high">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="line3" y="8"/>
+		</DialogLabel>
+		<DialogLabel name="line5" text="score...">
+			<Anchor anchorFrom="TOPLEFT" anchorTo="BOTTOMLEFT" anchor="line4" y="2"/>
+		</DialogLabel>
+
+		<DialogButton text="OK" default="true">
+			<Size w="90"/>
+			<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="210" y="150"/>
+		</DialogButton>
+	</Elements>
+</Dialog>
