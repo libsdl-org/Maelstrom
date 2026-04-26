@@ -415,7 +415,7 @@ GamePanelDelegate::OnTick()
 		return;
 	}
 
-	if ( gGameInfo.GetLocalState() & STATE_BONUS ) {
+	if (m_state == STATE_START_BONUS || (gGameInfo.GetLocalState() & STATE_BONUS)) {
 		return;
 	}
 
@@ -578,16 +578,12 @@ GamePanelDelegate::OnDraw(DRAWLEVEL drawLevel)
 		return;
 	}
 
-	if (m_state != STATE_PLAYING) {
+	if (m_state != STATE_PLAYING && m_state != STATE_START_BONUS) {
 		return;
 	}
 
 	/* Draw the status frame */
 	DrawStatus(false);
-
-	if ( gGameInfo.GetLocalState() & STATE_BONUS ) {
-		return;
-	}
 
 	StartZoomedDrawing();
 
@@ -626,6 +622,10 @@ GamePanelDelegate::OnDraw(DRAWLEVEL drawLevel)
 	}
 
 	StopZoomedDrawing();
+
+	if (m_state == STATE_START_BONUS) {
+		DoBonus();
+	}
 }
 
 bool
@@ -1459,7 +1459,7 @@ GamePanelDelegate::NextWave()
 	}
 
 	if (gWave != (gGameInfo.wave - 1)) {
-		DoBonus();
+		m_state = STATE_START_BONUS;
 	} else {
 		m_state = STATE_START_NEXT_WAVE;
 	}
