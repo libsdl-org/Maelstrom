@@ -22,7 +22,7 @@
 #include "files.h"
 
 #ifndef PATH_MAX
-#define PATH_MAX    256
+#define PATH_MAX	256
 #endif
 
 static const char *storage_org;
@@ -31,7 +31,50 @@ static char datapath[PATH_MAX];
 static char modpath[PATH_MAX];
 static char modfile[PATH_MAX];
 
-bool InitDataPath(void)
+#ifdef MAELSTROM_USE_XDG_DIRS
+
+static bool GetXDGDataPath(const char *directory, char *path, size_t pathlen)
+{
+	SDL_PathInfo info;
+	const char *env = SDL_getenv("XDG_DATA_HOME");
+	if (env && *env) {
+		SDL_snprintf(path, pathlen, "%s/maelstrom/%s", env, directory);
+		if (SDL_GetPathInfo(path, &info) && info.type == SDL_PATHTYPE_DIRECTORY) {
+			return true;
+		}
+	} else {
+		const char *home = SDL_getenv("HOME");
+		if (home && *home) {
+			SDL_snprintf(path, pathlen, "%s/.local/share/maelstrom/%s", home, directory);
+			if (SDL_GetPathInfo(path, &info) && info.type == SDL_PATHTYPE_DIRECTORY) {
+				return true;
+			}
+		}
+	}
+
+	bool result = false;
+	env = SDL_getenv("XDG_DATA_DIRS");
+	if (!env || !*env) {
+		env = "/usr/local/share/:/usr/share/";
+	}
+	char *paths = SDL_strdup(env);
+	if (paths) {
+		char *saveptr;
+		for (char *candidate = SDL_strtok_r(paths, ":", &saveptr); candidate; candidate = SDL_strtok_r(NULL, ":", &saveptr)) {
+			SDL_snprintf(path, pathlen, "%s/maelstrom/%s", candidate, directory);
+			if (SDL_GetPathInfo(path, &info) && info.type == SDL_PATHTYPE_DIRECTORY) {
+				result = true;
+				break;
+			}
+		}
+		SDL_free(paths);
+	}
+	return result;
+}
+
+#endif // MAELSTROM_USE_XDG_DIRS
+
+static bool InitDataPath(void)
 {
 	const char *env = SDL_getenv("MAELSTROM_DATA");
 
@@ -39,6 +82,12 @@ bool InitDataPath(void)
 		SDL_strlcpy(datapath, env, sizeof(datapath));
 		return true;
 	}
+
+#ifdef MAELSTROM_USE_XDG_DIRS
+	if (GetXDGDataPath("Data", datapath, sizeof(datapath))) {
+		return true;
+	}
+#endif
 
 #ifdef MAELSTROM_DATA
 	SDL_strlcpy(datapath, MAELSTROM_DATA, sizeof(datapath));
@@ -69,7 +118,7 @@ bool InitDataPath(void)
 #endif // MAELSTROM_DATA
 }
 
-bool InitModPath(void)
+static bool InitModPath(void)
 {
 	const char *env = SDL_getenv("MAELSTROM_MODS");
 
@@ -77,6 +126,12 @@ bool InitModPath(void)
 		SDL_strlcpy(modpath, env, sizeof(modpath));
 		return true;
 	}
+
+#ifdef MAELSTROM_USE_XDG_DIRS
+	if (GetXDGDataPath("mods", modpath, sizeof(modpath))) {
+		return true;
+	}
+#endif
 
 #ifdef MAELSTROM_MODS
 	SDL_strlcpy(modpath, MAELSTROM_MODS, sizeof(modpath));
