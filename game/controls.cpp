@@ -31,13 +31,13 @@
 /* Savable and configurable controls/data */
 
 Controls::Controls() :
-	gPauseControl("Controls.PauseControl", SDLK_PAUSE),
-	gShieldControl("Controls.ShieldControl", SDLK_SPACE),
+	gPauseControl("Controls.PauseControl", SDLK_CAPSLOCK),
+	gShieldControl("Controls.ShieldControl", SDLK_DOWN),
 	gThrustControl("Controls.ThrustControl", SDLK_UP),
-	gBrakeControl("Controls.BrakeControl", SDLK_DOWN),
+	gBrakeControl("Controls.BrakeControl", SDLK_LSHIFT),
 	gTurnRControl("Controls.TurnRControl", SDLK_RIGHT),
 	gTurnLControl("Controls.TurnLControl", SDLK_LEFT),
-	gFireControl("Controls.FireControl", SDLK_TAB),
+	gFireControl("Controls.FireControl", SDLK_SPACE),
 	gQuitControl("Controls.QuitControl", SDLK_ESCAPE)
 {
 }
