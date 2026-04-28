@@ -603,7 +603,7 @@ GamePanelDelegate::OnDraw(DRAWLEVEL drawLevel)
 			int x = (gBorderStars[i]->xCoord << SPRITE_PRECISION);
 			int y = (gBorderStars[i]->yCoord << SPRITE_PRECISION);
 			GetRenderCoordinates(x, y);
-			if (gZoomGame ||
+			if (ZoomGame() ||
 				(x >= SPRITES_WIDTH && x < (GAME_WIDTH - SPRITES_WIDTH) &&
 				 y >= SPRITES_WIDTH && y < (GAME_HEIGHT - SPRITES_WIDTH))) {
 				screen->DrawPoint(x, y, gBorderStars[i]->color);
@@ -701,13 +701,29 @@ GamePanelDelegate::UpdateZoom()
 	SDL_GetRenderSafeArea(renderer, &rect);
 	SDL_SetRenderLogicalPresentation(renderer, saved_w, saved_h, saved_mode);
 
-	if (IsPhone() || IsTablet() || gZoomGame) {
+	int i, local_players = 0;
+	OBJ_LOOP(i, MAX_PLAYERS) {
+		if (!gPlayers[i]->IsValid()) {
+			continue;
+		}
+
+		if (IS_LOCAL_CONTROL(gPlayers[i]->GetControlType())) {
+			++local_players;
+		}
+	}
+	if (local_players > 1) {
+		m_zoomEnabled = false;
+	} else {
+		m_zoomEnabled = true;
+	}
+
+	if (IsPhone() || IsTablet() || ZoomGame()) {
 		StartZoomUI(rect);
 	} else {
 		StopZoomUI();
 	}
 
-	if (gZoomGame) {
+	if (ZoomGame()) {
 		if (!m_texture) {
 			m_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_UNKNOWN, SDL_TEXTUREACCESS_TARGET, GAME_WIDTH, GAME_HEIGHT);
 		}
@@ -723,7 +739,11 @@ GamePanelDelegate::UpdateZoom()
 			m_texture = nullptr;
 		}
 		if (m_zoomIn) {
-			m_zoomIn->Show();
+			if (m_zoomEnabled) {
+				m_zoomIn->Show();
+			} else {
+				m_zoomIn->Hide();
+			}
 		}
 		if (m_zoomOut) {
 			m_zoomOut->Hide();
@@ -762,7 +782,7 @@ GamePanelDelegate::StartZoomedDrawing()
 {
 	SDL_Renderer *renderer = screen->GetRenderer();
 
-	if (!gZoomGame) {
+	if (!ZoomGame()) {
 		screen->SetLogicalSize(GAME_WIDTH, GAME_HEIGHT);
 		return;
 	}
@@ -786,7 +806,7 @@ GamePanelDelegate::StopZoomedDrawing()
 {
 	SDL_Renderer *renderer = screen->GetRenderer();
 
-	if (!gZoomGame) {
+	if (!ZoomGame()) {
 		screen->SetLogicalSize(ui->X() + ui->Width() + ui->X(), ui->Y() + ui->Height() + ui->Y());
 		return;
 	}

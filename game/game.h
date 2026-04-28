@@ -48,6 +48,7 @@ protected:
 	void ShowTouchControls();
 	void HideTouchControls();
 	void HandleTouchFading();
+	bool ZoomGame() { return gZoomGame && m_zoomEnabled; }
 	void UpdateZoom();
 	void StartZoomUI(const SDL_Rect &rect);
 	void StopZoomUI();
@@ -117,6 +118,7 @@ protected:
 		STATE_START_NEXT_WAVE,
 	} m_state;
 
+	bool m_zoomEnabled = true;
 	SDL_Texture *m_texture = nullptr;
 	SDL_Rect m_savedClip;
 
