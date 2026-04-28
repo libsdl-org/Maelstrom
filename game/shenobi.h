@@ -187,7 +187,8 @@ public:
 			if ( (FastRandom(shotodds) == 0) &&
 					(nextshot >= ENEMY_SHOT_DELAY) ) {
 		/* -- If we are within range and facing the ship, FIRE! */
-				(void) MakeShot(0);
+				MakeShot(0);
+				sound->PlaySound(gEnemyFire, 2);
 			}
 		}
 
