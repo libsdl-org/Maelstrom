@@ -192,7 +192,9 @@ Player::NewShip(bool died)
 	Set_Points(PLAYER_PTS);
 	Set_HitPoints(PLAYER_HITS);
 	ShieldOn = 0;
-	ShieldLevel = INITIAL_SHIELD;
+	if (died) {
+		ShieldLevel = INITIAL_SHIELD;
+	}
 	AutoShield = SAFE_TIME;
 	WasShielded = 1;
 	Sphase = 0;
