@@ -356,20 +356,11 @@ FrameBuf::SetCursor(SDL_Surface *image, int hotX, int hotY)
 	if (m_cursor) {
 		SDL_SetCursor(m_cursor);
 	} else {
-		bool draw_cursor = true;
-#ifdef SDL_PLATFORM_IOS
-		if (SDL_IsTablet()) {
-			// iPadOS shows its own circular cursor
-			draw_cursor = false;
-		}
-#endif
-		if (draw_cursor) {
-			m_cursorTexture = SDL_CreateTextureFromSurface(m_renderer, image);
-			m_cursorWidth = image->w;
-			m_cursorHeight = image->h;
-			m_cursorOffsetX = -hotX;
-			m_cursorOffsetY = -hotY;
-		}
+		m_cursorTexture = SDL_CreateTextureFromSurface(m_renderer, image);
+		m_cursorWidth = image->w;
+		m_cursorHeight = image->h;
+		m_cursorOffsetX = -hotX;
+		m_cursorOffsetY = -hotY;
 	}
 	UpdateCursorVisibility();
 }
