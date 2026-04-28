@@ -177,7 +177,7 @@ Player::NewWave(void)
 int 
 Player::NewShip(bool died)
 {
-	if ( Lives == 0 ) {
+	if (died && Lives == 0) {
 		if (gGameInfo.IsMultiplayer() && !gGameInfo.IsDeathmatch()) {
 			// We can live on!
 			Ghost = 1;
