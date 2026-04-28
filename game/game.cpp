@@ -922,6 +922,10 @@ GamePanelDelegate::DrawStatus(Bool first)
 			if (m_multiplayerCaption) {
 				m_multiplayerCaption->SetText(caption);
 			}
+		} else {
+			if (m_multiplayerCaption) {
+				m_multiplayerCaption->SetText("");
+			}
 		}
 
 		/* Fill in the color by the frag count */
