@@ -144,8 +144,7 @@ Player::NewWave(void)
 
 	/* If we were exploding, rejuvenate us */
 	if ( Exploding || (!Alive() && Playing) ) {
-		IncrLives(1);
-		NewShip();
+		NewShip(false);
 	}
 	Bonus = INITIAL_BONUS;
 	BonusMult = 1;
@@ -176,7 +175,7 @@ Player::NewWave(void)
 
 /* Returns the number of lives left */
 int 
-Player::NewShip(void)
+Player::NewShip(bool died)
 {
 	if ( Lives == 0 ) {
 		if (gGameInfo.IsMultiplayer() && !gGameInfo.IsDeathmatch()) {
@@ -210,7 +209,7 @@ Player::NewShip(void)
 	Dead = 0;
 	Exploding = 0;
 	Set_TTL(-1);
-	if ( ! gGameInfo.IsDeathmatch() ) {
+	if (died && !gGameInfo.IsDeathmatch()) {
 		if (Lives > 0) {
 			--Lives;
 		}
@@ -218,10 +217,12 @@ Player::NewShip(void)
 	UpdateCamera();
 
 	// We may lose our special abilities
-	if ((special & LUCKY_IRISH) && (FastRandom(LUCK_ODDS) == 0)) {
-		special &= ~LUCKY_IRISH;
-	} else {
-		special = 0;
+	if (died) {
+		if ((special & LUCKY_IRISH) && (FastRandom(LUCK_ODDS) == 0)) {
+			special &= ~LUCKY_IRISH;
+		} else {
+			special = 0;
+		}
 	}
 
 	// In Kid Mode you automatically get air brakes

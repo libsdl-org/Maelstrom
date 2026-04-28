@@ -62,7 +62,7 @@ public:
 	        void Continue(int lives);
 	virtual void NewWave(void);
 	/* NewShip() MUST be called before Move() */
-	virtual int NewShip(void);
+	virtual int NewShip(bool died = true);
 	virtual int BeenShot(Object *ship, Shot *shot);
 	virtual int BeenRunOver(Object *ship);
 	virtual int BeenDamaged(int damage);
