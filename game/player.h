@@ -174,6 +174,8 @@ public:
 		*Y = CameraY;
 	}
 
+	void HandleDeath();
+
 private:
 	int Valid;
 	int Index;

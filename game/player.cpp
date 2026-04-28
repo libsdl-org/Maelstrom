@@ -239,17 +239,6 @@ void
 Player::IncrFrags(void)
 {
 	++Frags;
-	if ( gGameInfo.IsDeathmatch() && (Frags >= gGameInfo.lives) ) {
-		/* Game over, we got a stud. :) */
-		int i;
-		OBJ_LOOP(i, MAX_PLAYERS) {
-			if (!gPlayers[i]->IsValid()) {
-				continue;
-			}
-			gPlayers[i]->IncrLives(-1);
-			gPlayers[i]->Explode();
-		}
-	}
 }
 
 void
@@ -548,42 +537,73 @@ printf("\n");
 	UpdateCamera();
 
 	/* Check to see if we are dead... */
-	if ( Dead ) {
+	if (Dead) {
 		if (--Dead == 0) {  // New Chance at Life!
-			// If we're the last life in a co-op multiplayer game, we're done
-			if (gGameInfo.IsMultiplayer() && !gGameInfo.IsDeathmatch() && !Lives) {
-				int i;
-				bool allGhosts = true;
-				OBJ_LOOP(i, MAX_PLAYERS) {
-					if (!gPlayers[i]->IsValid() || i == Index) {
-						continue;
-					}
-					if (i != Index && !gPlayers[i]->Ghost) {
-						allGhosts = false;
-						break;
-					}
-				}
-				if (allGhosts) {
-					OBJ_LOOP(i, MAX_PLAYERS) {
-						if (!gPlayers[i]->IsValid()) {
-							continue;
-						}
-						gPlayers[i]->Dead = DEAD_DELAY;
-						gPlayers[i]->Playing = 0;
-					}
-					return (0);
-				}
-			}
-
-			if ( NewShip() < 0 ) {
-				/* Game Over */
-				Dead = DEAD_DELAY;
-				Playing = 0;
-			}
+			HandleDeath();
 		}
 	}
 
 	return result;
+}
+
+void
+Player::HandleDeath()
+{
+	int i;
+
+	// If we're the last life in a co-op multiplayer game, we're done
+	if (gGameInfo.IsMultiplayer() && !gGameInfo.IsDeathmatch() && !Lives) {
+		int i;
+		bool allGhosts = true;
+		OBJ_LOOP(i, MAX_PLAYERS) {
+			if (!gPlayers[i]->IsValid()) {
+				continue;
+			}
+			if (i != Index && !gPlayers[i]->Ghost) {
+				allGhosts = false;
+				break;
+			}
+		}
+		if (allGhosts) {
+			OBJ_LOOP(i, MAX_PLAYERS) {
+				if (!gPlayers[i]->IsValid()) {
+					continue;
+				}
+				gPlayers[i]->Dead = DEAD_DELAY;
+				gPlayers[i]->Playing = 0;
+			}
+			return;
+		}
+	}
+
+	// If we're the last frag in a deathmatch multiplayer game, we're done
+	if (gGameInfo.IsMultiplayer() && gGameInfo.IsDeathmatch()) {
+		bool gameover = false;
+		OBJ_LOOP(i, MAX_PLAYERS) {
+			if (!gPlayers[i]->IsValid()) {
+				continue;
+			}
+			if (gPlayers[i]->Frags >= gGameInfo.lives) {
+				gameover = true;
+			}
+		}
+		if (gameover) {
+			OBJ_LOOP(i, MAX_PLAYERS) {
+				if (!gPlayers[i]->IsValid()) {
+					continue;
+				}
+				gPlayers[i]->Dead = DEAD_DELAY;
+				gPlayers[i]->Playing = 0;
+			}
+			return;
+		}
+	}
+
+	if ( NewShip() < 0 ) {
+		/* Game Over */
+		Dead = DEAD_DELAY;
+		Playing = 0;
+	}
 }
 
 void
