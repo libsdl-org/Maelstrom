@@ -84,6 +84,8 @@ FrameBuf::Init(int width, int height, Uint32 window_flags, const char *title, SD
 	m_clip.w = (float)width;
 	m_clip.h = (float)height;
 
+	UpdateCursorVisibility();
+
 	return(0);
 }
 
@@ -117,6 +119,16 @@ void
 FrameBuf::ProcessEvent(SDL_Event *event)
 {
 	SDL_ConvertEventToRenderCoordinates(m_renderer, event);
+
+	if (!m_cursorActive) {
+		if (event->type == SDL_EVENT_MOUSE_MOTION &&
+		    event->motion.which != SDL_TOUCH_MOUSEID &&
+		    event->motion.which != SDL_PEN_MOUSEID) {
+			m_cursorActive = true;
+			UpdateCursorVisibility();
+		}
+	}
+
 	ProcessGamepadEvent(event);
 }
 
@@ -340,14 +352,74 @@ FrameBuf::SetCursor(SDL_Surface *image, int hotX, int hotY)
 		m_cursor = SDL_CreateColorCursor(image, hotX, hotY);
 	}
 #endif
+
 	if (m_cursor) {
 		SDL_SetCursor(m_cursor);
 	} else {
-		m_cursorTexture = SDL_CreateTextureFromSurface(m_renderer, image);
-		m_cursorWidth = image->w;
-		m_cursorHeight = image->h;
-		m_cursorOffsetX = -hotX;
-		m_cursorOffsetY = -hotY;
+		bool draw_cursor = true;
+#ifdef SDL_PLATFORM_IOS
+		if (SDL_IsTablet()) {
+			// iPadOS shows its own circular cursor
+			draw_cursor = false;
+		}
+#endif
+		if (draw_cursor) {
+			m_cursorTexture = SDL_CreateTextureFromSurface(m_renderer, image);
+			m_cursorWidth = image->w;
+			m_cursorHeight = image->h;
+			m_cursorOffsetX = -hotX;
+			m_cursorOffsetY = -hotY;
+		}
+	}
+	UpdateCursorVisibility();
+}
+
+void
+FrameBuf::ShowCursor()
+{
+	m_cursorDesired = true;
+
+	UpdateCursorVisibility();
+}
+
+void
+FrameBuf::HideCursor()
+{
+	m_cursorDesired = false;
+
+	UpdateCursorVisibility();
+}
+
+void
+FrameBuf::UpdateCursorVisibility()
+{
+	bool visible = false;
+
+	if (m_cursorDesired && m_cursorActive) {
+		visible = true;
+	}
+
+	if (visible && !m_cursorTexture) {
+		SDL_ShowCursor();
+	} else {
+		SDL_HideCursor();
+	}
+	m_cursorVisible = visible;
+}
+
+void
+FrameBuf::DrawCursor()
+{
+	if (m_cursorVisible && m_cursorTexture) {
+		int x, y;
+		GetCursorPosition(&x, &y);
+
+		SDL_FRect dstrect;
+		dstrect.x = (float)x + m_cursorOffsetX;
+		dstrect.y = (float)y + m_cursorOffsetY;
+		dstrect.w = (float)m_cursorWidth;
+		dstrect.h = (float)m_cursorHeight;
+		SDL_RenderTexture(m_renderer, m_cursorTexture, NULL, &dstrect);
 	}
 }
 
@@ -500,18 +572,7 @@ FrameBuf::Update(void)
 		return;
 	}
 
-	if (m_cursorTexture && SDL_CursorVisible()) {
-		int x, y;
-		GetCursorPosition(&x, &y);
-
-		SDL_FRect dstrect;
-		dstrect.x = (float)x + m_cursorOffsetX;
-		dstrect.y = (float)y + m_cursorOffsetY;
-		dstrect.w = (float)m_cursorWidth;
-		dstrect.h = (float)m_cursorHeight;
-		SDL_RenderTexture(m_renderer, m_cursorTexture, NULL, &dstrect);
-	}
-
+	DrawCursor();
 	SDL_RenderPresent(m_renderer);
 }
 
@@ -536,6 +597,7 @@ FrameBuf::FadeStep(void)
 	SDL_RenderClear(m_renderer);
 	SDL_SetTextureColorMod(m_fadeTexture, value, value, value);
 	SDL_RenderTexture(m_renderer, m_fadeTexture, NULL, NULL);
+	DrawCursor();
 	SDL_RenderPresent(m_renderer);
 	SDL_Delay(10);
 	++m_fadeStep;

@@ -190,16 +190,11 @@ public:
 
 	/* Cursor handling routines */
 	void SetCursor(SDL_Surface *image, int hotX, int hotY);
-	void ShowCursor(void) {
-		SDL_ShowCursor();
-	}
-	void HideCursor(void) {
-		SDL_HideCursor();
-	}
+	void ShowCursor();
+	void HideCursor();
+	void UpdateCursorVisibility();
+	void DrawCursor();
 	void GetCursorPosition(int *x, int *y);
-	void SetCaption(const char *caption, const char *icon = NULL) {
-		SDL_SetWindowTitle(m_window, caption);
-	}
 
 private:
 	/* The current display */
@@ -208,6 +203,9 @@ private:
 	SDL_Texture *m_fadeTexture = nullptr;
 	SDL_Cursor *m_cursor = nullptr;
 	SDL_Texture *m_cursorTexture = nullptr;
+	bool m_cursorDesired = true;
+	bool m_cursorActive = false;
+	bool m_cursorVisible = false;
 	int m_cursorWidth = 0;
 	int m_cursorHeight = 0;
 	int m_cursorOffsetX = 0;
