@@ -1,4 +1,4 @@
-<Panel cursor="false" enterSound="113" delegate="GameOverPanel">
+<Panel enterSound="113" delegate="GameOverPanel">
 	<Elements>
 		<Title name="image" id="128">
 			<Anchor anchorFrom="CENTER" anchorTo="CENTER" y="-80"/>
