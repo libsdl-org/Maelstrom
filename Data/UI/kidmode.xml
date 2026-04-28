@@ -1,4 +1,4 @@
-<Dialog>
+<Dialog enterSound="124">
 	<Size w="310" h="176"/>
 	<Anchor anchorFrom="TOPLEFT" anchorTo="TOPLEFT" x="164" y="77"/>
 	<Elements>
