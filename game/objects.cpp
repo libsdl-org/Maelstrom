@@ -122,7 +122,6 @@ SmallRock::SmallRock(int X, int Y, int xVel, int yVel, int phaseFreq) :
 		((xVel > 0) ? gRock3R : gRock3L), phaseFreq)
 {
 	Set_Points(SMALL_ROID_PTS);
-	++gNumRocks;
 #ifdef SERIOUS_DEBUG
 error("+   Small rock! (%d)\n", gNumRocks);
 #endif
@@ -133,7 +132,6 @@ MediumRock::MediumRock(int X, int Y, int xVel, int yVel, int phaseFreq) :
 		((xVel > 0) ? gRock2R : gRock2L), phaseFreq)
 {
 	Set_Points(MEDIUM_ROID_PTS);
-	++gNumRocks;
 #ifdef SERIOUS_DEBUG
 error("++  Medium rock! (%d)\n", gNumRocks);
 #endif
@@ -144,7 +142,6 @@ LargeRock::LargeRock(int X, int Y, int xVel, int yVel, int phaseFreq) :
 		((xVel > 0) ? gRock1R : gRock1L), phaseFreq)
 {
 	Set_Points(BIG_ROID_PTS);
-	++gNumRocks;
 #ifdef SERIOUS_DEBUG
 error("+++ Large rock! (%d)\n", gNumRocks);
 #endif

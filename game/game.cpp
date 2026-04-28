@@ -1120,10 +1120,12 @@ GamePanelDelegate::DoHousekeeping()
 
 	/* -- Time for the next wave? */
 	if (gNumRocks == 0) {
-		if ( gWhenDone == 0 )
-			gWhenDone = DEAD_DELAY;
-		else if ( --gWhenDone == 0 )
+		if (gWhenDone == 0) {
+			gWhenDone = DEAD_DELAY - 1;
+		}
+		if (--gWhenDone == 0) {
 			NextWave();
+		}
 	}
 
 	/* -- Make sure someone is still playing... */

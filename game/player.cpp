@@ -314,10 +314,6 @@ Player::BeenTimedOut(void)
 {
 	Exploding = 0;
 	SetSpawnPosition();
-	if ( gGameInfo.IsDeathmatch() )
-		Dead = (DEAD_DELAY/2);
-	else
-		Dead = DEAD_DELAY;
 
 	// If we're the last life in a co-op multiplayer game, we're done
 	if (gGameInfo.IsMultiplayer() && !gGameInfo.IsDeathmatch() && !Lives) {
@@ -405,6 +401,7 @@ Player::Explode(void)
 	Set_Blit(gShipExplosion);
 	Set_TTL(myblit->numFrames*phasetime);
 	ExplodeSound();
+	Dead = DEAD_DELAY;
 	AddSteamTimelineEvent(STEAM_TIMELINE_EVENT_DEATH);
 	return(0);
 }
@@ -482,20 +479,6 @@ printf("\n");
 	}
 	if ( NoThrust )
 		--NoThrust;
-
-	/* Check to see if we are dead... */
-	if ( Dead ) {
-		UpdateCamera();
-
-		if ( --Dead == 0 ) {  // New Chance at Life!
-			if ( NewShip() < 0 ) {
-				/* Game Over */
-				Dead = DEAD_DELAY;
-				Playing = 0;
-			}
-		}
-		return(0);
-	}
 
 	/* Update our status... :-) */
 	if ( Alive() && ! Exploding ) {
@@ -584,6 +567,17 @@ printf("\n");
 	result = Object::Move(Freeze);
 
 	UpdateCamera();
+
+	/* Check to see if we are dead... */
+	if ( Dead ) {
+		if ( --Dead == 0 ) {  // New Chance at Life!
+			if ( NewShip() < 0 ) {
+				/* Game Over */
+				Dead = DEAD_DELAY;
+				Playing = 0;
+			}
+		}
+	}
 
 	return result;
 }

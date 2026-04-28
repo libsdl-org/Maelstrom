@@ -437,7 +437,9 @@ protected:
 
 class Rock : public Object {
 public:
-	Rock(int X, int Y, int Xvec, int Yvec, Blit *blit, int PhaseTime) : Object(X, Y, Xvec, Yvec, blit, PhaseTime) { }
+	Rock(int X, int Y, int Xvec, int Yvec, Blit *blit, int PhaseTime) : Object(X, Y, Xvec, Yvec, blit, PhaseTime) {
+		++gNumRocks;
+	}
 
 	virtual int IsRock(void) {
 		return(1);
@@ -454,6 +456,8 @@ public:
 
 	virtual int Explode() {
 		int result = Object::Explode();
+
+		--gNumRocks;
 
 		if (gNumSmallRocksDestroyed == 0) {
 			int i;
@@ -484,9 +488,6 @@ class SmallRock : public Rock {
 
 public:
 	SmallRock(int X, int Y, int xVel, int yVel, int phaseFreq);
-	~SmallRock() {
-		--gNumRocks;
-	}
 
 	virtual int IsSmallRock(void) {
 		return(1);
@@ -515,9 +516,6 @@ class MediumRock : public Rock {
 
 public:
 	MediumRock(int X, int Y, int xVel, int yVel, int phaseFreq);
-	~MediumRock() {
-		--gNumRocks;
-	}
 
 	virtual int IsMediumRock(void) {
 		return(1);
@@ -576,9 +574,6 @@ class LargeRock : public Rock {
 
 public:
 	LargeRock(int X, int Y, int xVel, int yVel, int phaseFreq);
-	~LargeRock() {
-		--gNumRocks;
-	}
 
 	virtual int IsLargeRock(void) {
 		return(1);
