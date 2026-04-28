@@ -173,6 +173,7 @@ Player::NewWave(void)
 
 	NoShieldsThisLevel = (ShieldLevel == 0);
 }
+
 /* Returns the number of lives left */
 int 
 Player::NewShip(void)
@@ -216,8 +217,15 @@ Player::NewShip(void)
 	}
 	UpdateCamera();
 
+	// We may lose our special abilities
+	if ((special & LUCKY_IRISH) && (FastRandom(LUCK_ODDS) == 0)) {
+		special &= ~LUCKY_IRISH;
+	} else {
+		special = 0;
+	}
+
 	// In Kid Mode you automatically get air brakes
-	if ( gGameInfo.IsKidMode() ) {
+	if (gGameInfo.IsKidMode()) {
 		special |= AIR_BRAKES;
 	}
 	return(Lives);
@@ -380,12 +388,6 @@ Player::Explode(void)
 
 	newsprite = gNumSprites;
 	gSprites[newsprite]=new Shrapnel(x, y, xVel, yVel, gShrapnel2[Index]);
-
-	/* We may lose our special abilities */
-	if ( (special & LUCKY_IRISH) && (FastRandom(LUCK_ODDS) == 0) )
-		special &= ~LUCKY_IRISH;
-	else
-		special = 0;
 
 	/* Finish our explosion */
 	Exploding = 1;
