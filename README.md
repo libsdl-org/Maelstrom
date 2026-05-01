@@ -11,6 +11,8 @@ Maelstrom is an open source port of the original shareware game for the Macintos
 
 In addition to being a faithful reproduction of the original game, this version adds game controller support, mobile touch controls, and both cooperative and competitive multiplayer action.
 
+[![Maelstrom 4.0 Trailer](https://img.youtube.com/vi/j6thG1qsXyk/0.jpg)](https://www.youtube.com/watch?v=j6thG1qsXyk)
+
 Maelstrom is available for free on:
 - Steam: https://store.steampowered.com/app/4239950/Maelstrom
 - Google Play: Send me e-mail at slouken@libsdl.org to be added to the beta
@@ -18,10 +20,6 @@ Maelstrom is available for free on:
 - Web: https://www.libsdl.org/projects/Maelstrom/play
 
 You can download the latest release and source code from [GitHub](https://github.com/libsdl-org/Maelstrom)
-
-## Gameplay Trailer
-
-[![Maelstrom 4.0 Trailer](https://img.youtube.com/vi/j6thG1qsXyk/0.jpg)](https://www.youtube.com/watch?v=j6thG1qsXyk)
 
 ## New Features
 
