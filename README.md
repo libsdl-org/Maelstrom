@@ -14,10 +14,14 @@ In addition to being a faithful reproduction of the original game, this version 
 Maelstrom is available for free on:
 - Steam: https://store.steampowered.com/app/4239950/Maelstrom
 - Google Play: Send me e-mail at slouken@libsdl.org to be added to the beta
-- Apple Store: https://testflight.apple.com/join/6rXqay1A
+- Apple Store: https://apps.apple.com/us/app/classic-maelstrom/id6760607912
 - Web: https://www.libsdl.org/projects/Maelstrom/play
 
 You can download the latest release and source code from [GitHub](https://github.com/libsdl-org/Maelstrom)
+
+## Gameplay Trailer
+
+[![Maelstrom 4.0 Trailer](https://img.youtube.com/vi/j6thG1qsXyk/0.jpg)](https://www.youtube.com/watch?v=j6thG1qsXyk)
 
 ## New Features
 
@@ -61,6 +65,13 @@ The usage is:
 ```
 macres --export [file] [output_directory]
 ```
+
+## Porting to SDL3
+
+I did a short series of live-stream videos documenting the initial port from SDL2 to SDL3, available on YouTube:
+* [Maelstrom Port Part 1](https://www.youtube.com/watch?v=TfkexYtd62w)
+* [Maelstrom Port Part 2](https://www.youtube.com/watch?v=18KiCpSE2nM)
+* [Maelstrom Port Part 3](https://www.youtube.com/watch?v=ummDsXplSp4)
 
 ---
 
