@@ -14,7 +14,7 @@
 		{
 			"FileMapping"
 			{
-				"LocalPath" "Maelstrom-4.0.0-windows-x64\*"
+				"LocalPath" "Maelstrom-windows-x64\*"
 				"DepotPath" "." // mapped into the root of the depot
 				"recursive" "1" // include all subfolders
 			}
@@ -23,7 +23,7 @@
 		{
 			"FileMapping"
 			{
-				"LocalPath" "Maelstrom-4.0.0-linux-x64\*"
+				"LocalPath" "Maelstrom-linux-x64\*"
 				"DepotPath" "." // mapped into the root of the depot
 				"recursive" "1" // include all subfolders
 			}
@@ -32,7 +32,7 @@
 		{
 			"FileMapping"
 			{
-				"LocalPath" "Maelstrom-4.0.0-macos-arm64-x64\*"
+				"LocalPath" "Maelstrom-macos-arm64-x64\*"
 				"DepotPath" "." // mapped into the root of the depot
 				"recursive" "1" // include all subfolders
 			}
