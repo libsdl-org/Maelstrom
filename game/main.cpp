@@ -157,12 +157,14 @@ static bool SDL_IsPhone(void)
 
 bool IsPhone(void)
 {
-	return (SDL_IsPhone() || SteamStreamingToPhone());
+	//return (SDL_IsPhone() || SteamStreamingToPhone());
+	return SDL_IsPhone();
 }
 
 bool IsTablet(void)
 {
-	return (SDL_IsTablet() || SteamStreamingToTablet());
+	//return (SDL_IsTablet() || SteamStreamingToTablet());
+	return SDL_IsTablet();
 }
 
 /* ----------------------------------------------------------------- */
