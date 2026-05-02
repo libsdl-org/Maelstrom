@@ -171,22 +171,21 @@ set(MAELSTROM_SOURCES
 )
 
 if(ANDROID)
-    set(TARGET_NAME main)
-    add_library(${TARGET_NAME} MODULE ${MAELSTROM_SOURCES})
+    add_library(Maelstrom MODULE ${MAELSTROM_SOURCES})
+    set_property(TARGET Maelstrom PROPERTY OUTPUT_NAME main)
 else()
-    set(TARGET_NAME Maelstrom)
-    add_executable(${TARGET_NAME} WIN32 ${MAELSTROM_SOURCES})
+    add_executable(Maelstrom WIN32 ${MAELSTROM_SOURCES})
 endif()
 
 if(MSVC)
-    target_compile_options(${TARGET_NAME} PRIVATE -W3)
+    target_compile_options(Maelstrom PRIVATE -W3)
 else()
-    target_compile_options(${TARGET_NAME} PRIVATE -Wall)
-    target_compile_options(${TARGET_NAME} PRIVATE -Wextra)
-    target_compile_options(${TARGET_NAME} PRIVATE -Wno-cast-function-type)
-    target_compile_options(${TARGET_NAME} PRIVATE -Wno-sign-compare)
-    target_compile_options(${TARGET_NAME} PRIVATE -Wno-unused-function)
-    target_compile_options(${TARGET_NAME} PRIVATE -Wno-unused-parameter)
+    target_compile_options(Maelstrom PRIVATE -Wall)
+    target_compile_options(Maelstrom PRIVATE -Wextra)
+    target_compile_options(Maelstrom PRIVATE -Wno-cast-function-type)
+    target_compile_options(Maelstrom PRIVATE -Wno-sign-compare)
+    target_compile_options(Maelstrom PRIVATE -Wno-unused-function)
+    target_compile_options(Maelstrom PRIVATE -Wno-unused-parameter)
 endif()
 
 if(NOT WIN32)
@@ -199,14 +198,14 @@ if(NOT WIN32)
       }
     " HAVE_GETIFADDRS)
   if(HAVE_GETIFADDRS)
-    target_compile_definitions(${TARGET_NAME} PRIVATE HAVE_GETIFADDRS)
+    target_compile_definitions(Maelstrom PRIVATE HAVE_GETIFADDRS)
   endif()
 endif()
 
 dep_option(STEAM "Build with Steam support" ON "WIN32 OR LINUX OR MACOS" OFF)
 
 if(STEAM)
-    target_compile_definitions(${TARGET_NAME} PRIVATE ENABLE_STEAM)
+    target_compile_definitions(Maelstrom PRIVATE ENABLE_STEAM)
     add_library(SteamworksSDK::steam_api SHARED IMPORTED)
     set_property(TARGET SteamworksSDK::steam_api PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${PROJECT_SOURCE_DIR}/external/SteamworksSDK/public")
     if(WIN32)
@@ -221,24 +220,24 @@ if(STEAM)
     elseif(MACOS)
         set_property(TARGET SteamworksSDK::steam_api PROPERTY IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/external/SteamworksSDK/redistributable_bin/osx/libsteam_api.dylib")
     endif()
-    target_link_libraries(${TARGET_NAME} PRIVATE SteamworksSDK::steam_api)
+    target_link_libraries(Maelstrom PRIVATE SteamworksSDK::steam_api)
 endif()
 
-target_link_libraries(${TARGET_NAME} PRIVATE SDLmac)
-target_link_libraries(${TARGET_NAME} PRIVATE physfs-static)
-target_link_libraries(${TARGET_NAME} PRIVATE SDL3_net::SDL3_net)
-target_link_libraries(${TARGET_NAME} PRIVATE SDL3::SDL3)
+target_link_libraries(Maelstrom PRIVATE SDLmac)
+target_link_libraries(Maelstrom PRIVATE physfs-static)
+target_link_libraries(Maelstrom PRIVATE SDL3_net::SDL3_net)
+target_link_libraries(Maelstrom PRIVATE SDL3::SDL3)
 
 if(EMSCRIPTEN)
     # Increase the default stack size
-    target_link_options(${TARGET_NAME} PRIVATE -sALLOW_MEMORY_GROWTH=1 -sSTACK_SIZE=1048576)
+    target_link_options(Maelstrom PRIVATE -sALLOW_MEMORY_GROWTH=1 -sSTACK_SIZE=1048576)
 
     # Create a source map for debugging
-    target_link_options(${TARGET_NAME} PRIVATE -gsource-map)
+    target_link_options(Maelstrom PRIVATE -gsource-map)
 
     # on the web, we have to put the files inside of the webassembly
     # somewhat unintuitively, this is done via a linker argument.
-    target_link_libraries(${TARGET_NAME} PRIVATE 
+    target_link_libraries(Maelstrom PRIVATE
         "--preload-file \"${CMAKE_CURRENT_LIST_DIR}/Data@Data/\""
         "--preload-file \"${CMAKE_CURRENT_LIST_DIR}/mods@mods/\""
     )
@@ -251,9 +250,9 @@ else()
         set(CMAKE_INSTALL_DOCDIR "Docs")
         set(GAME_INSTALL_DATADIR ".")
         if(APPLE)
-            set_property(TARGET ${TARGET_NAME} SDL3-shared PROPERTY INSTALL_RPATH "@executable_path")
+            set_property(TARGET Maelstrom SDL3-shared PROPERTY INSTALL_RPATH "@executable_path")
         else()
-            set_property(TARGET ${TARGET_NAME} PROPERTY INSTALL_RPATH "$ORIGIN")
+            set_property(TARGET Maelstrom PROPERTY INSTALL_RPATH "$ORIGIN")
             if(USE_VENDORED_SDL)
                 set_property(TARGET SDL3-shared PROPERTY INSTALL_RPATH "$ORIGIN")
             endif(  )
@@ -262,14 +261,14 @@ else()
         include(GNUInstallDirs)
         set(GAME_INSTALL_DATADIR "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}")
 
-        target_compile_definitions(${TARGET_NAME} PRIVATE
+        target_compile_definitions(Maelstrom PRIVATE
             MAELSTROM_USE_XDG_DIRS
             MAELSTROM_DATA=\"${CMAKE_INSTALL_PREFIX}/${GAME_INSTALL_DATADIR}/Data/\"
             MAELSTROM_MODS=\"${CMAKE_INSTALL_PREFIX}/${GAME_INSTALL_DATADIR}/mods/\"
         )
     endif()
 
-	install(TARGETS ${TARGET_NAME} LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+	install(TARGETS Maelstrom LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
     if (USE_VENDORED_SDL)
         install(TARGETS SDL3-shared LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" NAMELINK_SKIP)
     endif()
