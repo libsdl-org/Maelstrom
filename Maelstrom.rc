@@ -54,8 +54,8 @@ IDI_ICON1 ICON DISCARDABLE "Data\Icons\icon.ico"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,0,0,0
- PRODUCTVERSION 4,0,0,0
+ FILEVERSION 4,0,1,0
+ PRODUCTVERSION 4,0,1,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -72,12 +72,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Sam Lantinga"
             VALUE "FileDescription", "Maelstrom"
-            VALUE "FileVersion", "4, 0, 0, 0"
+            VALUE "FileVersion", "4, 0, 1, 0"
             VALUE "InternalName", "Maelstrom"
             VALUE "LegalCopyright", "Copyright (C) 2026 Sam Lantinga"
             VALUE "OriginalFilename", "Maelstrom.exe"
             VALUE "ProductName", "Maelstrom"
-            VALUE "ProductVersion", "4, 0, 0, 0"
+            VALUE "ProductVersion", "4, 0, 1, 0"
         end
     END
     BLOCK "VarFileInfo"
