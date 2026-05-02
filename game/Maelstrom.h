@@ -22,7 +22,7 @@
 #include "rect.h"
 
 #ifndef VERSION
-#define VERSION "4.0.0"
+#define VERSION "4.0.1"
 #endif
 #define	VERSION_STRING		VERSION
 
