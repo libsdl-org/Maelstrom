@@ -52,9 +52,6 @@
 #define MAELSTROM_ORGANIZATION	"Ambrosia Software"
 #define MAELSTROM_NAME		"Maelstrom"
 
-static const char *Version =
-"Maelstrom v1.4.3 (GPL version 4.0.0) -- 10/08/2011 by Sam Lantinga\n";
-
 // Global variables set in this file...
 Bool	gInitializing = false;
 Bool	gControlBrakes = false;
@@ -211,9 +208,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 		} else if ( strcmp(argv[i], "-NSDocumentRevisionsDebugMode") == 0 && argv[i+1] ) {
 			// Ignore Xcode debug option
 			++i;
-		} else if ( strcmp(argv[i], "--version") == 0 ) {
-			error("%s", Version);
-			return SDL_APP_SUCCESS;
 		} else {
 			PrintUsage(argv[0]);
 			return SDL_APP_FAILURE;
