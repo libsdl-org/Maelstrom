@@ -330,7 +330,7 @@ UIArea::SetAnchorElement(UIArea *anchor)
 void
 UIArea::GetAnchorLocation(AnchorLocation spot, int *x, int *y) const
 {
-	switch (spot & X_MASK) {
+	switch ((int)spot & X_MASK) {
 		case X_LEFT:
 			*x = m_rect.x;
 			break;
@@ -343,7 +343,7 @@ UIArea::GetAnchorLocation(AnchorLocation spot, int *x, int *y) const
 		default:
 			assert(0);
 	}
-	switch (spot & Y_MASK) {
+	switch ((int)spot & Y_MASK) {
 		case Y_TOP:
 			*y = m_rect.y;
 			break;
@@ -368,7 +368,7 @@ UIArea::CalculateAnchor(bool triggerRectChanged)
 	}
 	m_anchor.element->GetAnchorLocation(m_anchor.anchorTo, &x, &y);
 
-	switch (m_anchor.anchorFrom & X_MASK) {
+	switch ((int)m_anchor.anchorFrom & X_MASK) {
 		case X_CENTER:
 			x -= Width() / 2;
 			break;
@@ -378,7 +378,7 @@ UIArea::CalculateAnchor(bool triggerRectChanged)
 		default:
 			break;
 	}
-	switch (m_anchor.anchorFrom & Y_MASK) {
+	switch ((int)m_anchor.anchorFrom & Y_MASK) {
 		case Y_CENTER:
 			y -= Height() / 2;
 			break;
