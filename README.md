@@ -7,7 +7,7 @@ The deadliest stretch of space known to mankind has just gotten deadlier. Everyw
 The lovely Stratocaster R&R facility never sounded so good, but as you fire full thrusters to dodge the latest barrage you begin to think you'll never get home...
 
 ---
-Maelstrom is an open source port of the original shareware game for the Macintosh by Ambrosia Software. It is a fast-action, asteroids-like game, with classic pixel graphics and original sounds.
+This is an open source port of the classic Mac game Maelstrom, sanctioned by the original creator, Ambrosia Software, Inc. It is a fast-action, asteroids-like game, with classic pixel graphics and original sounds.
 
 In addition to being a faithful reproduction of the original game, this version adds game controller support, mobile touch controls, and both cooperative and competitive multiplayer action.
 
