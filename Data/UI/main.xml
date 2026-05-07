@@ -266,7 +266,7 @@
 				<Label template="SmallYellow" text="Port to SDL by Sam Lantinga">
 					<Anchor anchorFrom="CENTER" anchorTo="CENTER" anchor="image" y="52"/>
 				</Label>
-				<Label template="SmallWhite" text="©1992-4 Ambrosia Software, Inc.">
+				<Label template="SmallWhite" text="Â©1992-4 Ambrosia Software, Inc.">
 					<Anchor anchorFrom="BOTTOMLEFT" anchorTo="TOPLEFT" anchor="hdivider_right" x="9" y="-2"/>
 				</Label>
 				<Image image="logo">
@@ -473,7 +473,7 @@
 				<Label template="SmallYellow" text="Port to SDL by Sam Lantinga">
 					<Anchor anchorFrom="CENTER" anchorTo="CENTER" anchor="image" y="52"/>
 				</Label>
-				<Label template="SmallWhite" text="©1992-4 Ambrosia Software, Inc.">
+				<Label template="SmallWhite" text="Â©1992-4 Ambrosia Software, Inc.">
 					<Anchor anchorFrom="BOTTOM" anchorTo="BOTTOM" y="-50"/>
 				</Label>
 

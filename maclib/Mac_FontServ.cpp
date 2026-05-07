@@ -276,7 +276,9 @@ FontServ::FreeFont(MFont *font)
 Uint16
 FontServ::TextWidth(const char *text, MFont *font, Uint8 style)
 {
-	int nchars, i;
+	Uint32 codepoint;
+	const char *textptr;
+	size_t remaining_bytes;
 	int space_width;	/* The width of the whole character */
 	int extra_width;	/* Stylistic width */
 	Uint16 Width;
@@ -299,15 +301,18 @@ FontServ::TextWidth(const char *text, MFont *font, Uint8 style)
 					break;
 		default:		return(0);
 	}
-	nchars = (int)SDL_strlen(text);
+	textptr = text;
+	remaining_bytes = SDL_strlen(text);
 
 	Width = 0;
-	for ( i = 0; i < nchars; ++i ) {
+	while ( ( codepoint = SDL_StepUTF8(&textptr, &remaining_bytes) ) != 0 ) {
 		/* check to see if this character is defined */
-		if (font->owTable[(Uint8)text[i]] <= 0)
+		if ( (Sint16)codepoint < (font->header)->firstChar ||
+			(Sint16)codepoint > (font->header)->lastChar ||
+			font->owTable[codepoint] <= 0 )
 			continue;
 		
-		space_width = LoByte(font->owTable[(Uint8)text[i]]);
+		space_width = LoByte(font->owTable[codepoint]);
 #ifdef WIDE_BOLD
 		Width += (space_width+extra_width);
 #else
@@ -337,7 +342,9 @@ FontServ::TextImage(const char *text, MFont *font, Uint8 style, SDL_Color fg)
 	int width, height;
 	SDL_Texture *image;
 	Uint32 *bitmap;
-	int nchars;
+	Uint32 codepoint;
+	size_t nbytes, remaining_bytes;
+	const char *textptr;
 	int bit_offset;		/* The current bit offset into a scanline */
 	int space_width;	/* The width of the whole character */
 	int space_offset;	/* The offset into the character of glyph */
@@ -446,21 +453,25 @@ FontServ::TextImage(const char *text, MFont *font, Uint8 style, SDL_Color fg)
 
 	/* Print the individual characters */
 	/* Note: this could probably be optimized.. eh, who cares. :) */
-	nchars = (int)SDL_strlen(text);
+	nbytes = SDL_strlen(text);
 	for ( boldness=0; boldness <= bold_offset; ++boldness ) {
 		bit_offset=0;
-		for ( i = 0; i < nchars; ++i ) {
+		remaining_bytes = nbytes;
+		textptr = text;
+		while ( ( codepoint = SDL_StepUTF8(&textptr, &remaining_bytes) ) != 0 ) {
 			/* check to see if this character is defined */
 			/* According to the above comment, we should */
 			/* check if the table contains -1, but this  */
 			/* change seems to fix a SIGSEGV that would  */
 			/* otherwise occur in some cases.            */
-			if (font->owTable[(Uint8)text[i]] <= 0)
+			if ( (Sint16)codepoint < (font->header)->firstChar ||
+				(Sint16)codepoint > (font->header)->lastChar ||
+				font->owTable[codepoint] <= 0 )
 				continue;
 
-			space_width = LoByte(font->owTable[(Uint8)text[i]]);
-			space_offset = HiByte(font->owTable[(Uint8)text[i]]);
-			ascii = (Uint8)text[i] - (font->header)->firstChar;
+			space_width = LoByte(font->owTable[codepoint]);
+			space_offset = HiByte(font->owTable[codepoint]);
+			ascii = (Sint16)codepoint - (font->header)->firstChar;
 			glyph_line_offset = font->locTable[ascii]; 
 			glyph_width = (font->locTable[ascii+1] -
 							font->locTable[ascii]);
