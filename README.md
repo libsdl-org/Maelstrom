@@ -64,6 +64,27 @@ The usage is:
 macres --export [file] [output_directory]
 ```
 
+## Building for macOS
+
+A build script is provided that produces a universal binary (native on both Apple Silicon and Intel Macs):
+
+```sh
+./build-scripts/build-macos-universal.sh
+```
+
+### Requirements
+- Xcode Command Line Tools: `xcode-select --install`
+- CMake 3.0+: `brew install cmake`
+
+### Notes
+- Steam support is excluded from this build (`-DSTEAM=OFF`). The SteamworksSDK submodule requires separate access. Steam features are available via the official [Steam release](https://store.steampowered.com/app/4239950/Maelstrom).
+- On first launch, macOS will prompt for permission to access your Documents folder. This is expected — SDL3's user storage API saves preferences and high scores there. Grant access to enable saving.
+
+The script outputs `Maelstrom.app` in the repository root. To install:
+```sh
+cp -r Maelstrom.app /Applications/
+```
+
 ## Porting to SDL3
 
 I did a short series of live-stream videos documenting the initial port from SDL2 to SDL3, available on YouTube:
