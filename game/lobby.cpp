@@ -34,16 +34,6 @@
 #include <iphlpapi.h>
 #endif
 
-#ifdef SDL_PLATFORM_APPLE
-#ifndef HAVE_GETIFADDRS
-#define HAVE_GETIFADDRS
-#endif
-#endif
-#ifdef HAVE_GETIFADDRS
-#include <ifaddrs.h>
-#include <netinet/in.h>
-#endif
-
 
 class SelectControlCallback : public UIClickCallback
 {

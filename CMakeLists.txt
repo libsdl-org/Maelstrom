@@ -188,20 +188,6 @@ else()
     target_compile_options(Maelstrom PRIVATE -Wno-unused-parameter)
 endif()
 
-if(NOT WIN32)
-  check_c_source_compiles("
-      #include <ifaddrs.h>
-      int main() {
-        struct ifaddrs* ifap;
-        getifaddrs(&ifap);
-        return 0;
-      }
-    " HAVE_GETIFADDRS)
-  if(HAVE_GETIFADDRS)
-    target_compile_definitions(Maelstrom PRIVATE HAVE_GETIFADDRS)
-  endif()
-endif()
-
 dep_option(STEAM "Build with Steam support" ON "WIN32 OR LINUX OR MACOS" OFF)
 
 if(STEAM)
