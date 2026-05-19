@@ -687,6 +687,8 @@ LobbyDialogDelegate::SendKick(int index)
 
 	// Now remove them from the game list
 	m_game.RemoveNode(node->nodeID);
+
+	UpdateUI();
 }
 
 void
@@ -883,6 +885,7 @@ LobbyDialogDelegate::ProcessRequestJoin(DynamicPacket &packet)
 				NET_SendDatagram(gSocket, address.host, address.port, m_reply.data, m_reply.len);
 			}
 		}
+		UpdateUI();
 	} else {
 		m_reply.StartLobbyMessage(LOBBY_KICK);
 		m_reply.Write(m_game.gameID);
@@ -910,6 +913,8 @@ LobbyDialogDelegate::ProcessRequestLeave(DynamicPacket &packet)
 
 	// Okay, clear them from the list!
 	m_game.RemoveNode(nodeID);
+
+	UpdateUI();
 }
 
 void

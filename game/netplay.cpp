@@ -141,6 +141,11 @@ int CheckPlayers(void)
 		return(-1);
 	}
 
+	if (gGameInfo.IsDeathmatch() && gGameInfo.GetNumPlayers() == 1) {
+		error("Single player deathmatch not allowed!\r\n");
+		return(-1);
+	}
+
 	return(0);
 }
 
