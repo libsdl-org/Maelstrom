@@ -70,8 +70,12 @@ int CreateSocket(bool hosting)
 	} else {
 		port = 0;
 	}
-	gSocket = NET_CreateDatagramSocket(NULL, port);
-	if ( gSocket == NULL ) {
+
+	SDL_PropertiesID props = SDL_CreateProperties();
+	SDL_SetBooleanProperty(props, NET_PROP_DATAGRAM_SOCKET_ALLOW_BROADCAST_BOOLEAN, true);
+	gSocket = NET_CreateDatagramSocket(NULL, port, props);
+	SDL_DestroyProperties(props);
+	if (!gSocket) {
 		error("Couldn't create socket bound to port %d: %s\n", port, SDL_GetError());
 		return(-1);
 	}
