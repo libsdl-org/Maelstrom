@@ -38,14 +38,14 @@ static bool GetXDGDataPath(const char *directory, char *path, size_t pathlen)
 	SDL_PathInfo info;
 	const char *env = SDL_getenv("XDG_DATA_HOME");
 	if (env && *env) {
-		SDL_snprintf(path, pathlen, "%s/maelstrom/%s", env, directory);
+		SDL_snprintf(path, pathlen, "%s/%s/%s/%s", env, storage_org, storage_app, directory);
 		if (SDL_GetPathInfo(path, &info) && info.type == SDL_PATHTYPE_DIRECTORY) {
 			return true;
 		}
 	} else {
 		const char *home = SDL_getenv("HOME");
 		if (home && *home) {
-			SDL_snprintf(path, pathlen, "%s/.local/share/maelstrom/%s", home, directory);
+			SDL_snprintf(path, pathlen, "%s/.local/share/%s/%s/%s", home, storage_org, storage_app, directory);
 			if (SDL_GetPathInfo(path, &info) && info.type == SDL_PATHTYPE_DIRECTORY) {
 				return true;
 			}
@@ -61,7 +61,7 @@ static bool GetXDGDataPath(const char *directory, char *path, size_t pathlen)
 	if (paths) {
 		char *saveptr;
 		for (char *candidate = SDL_strtok_r(paths, ":", &saveptr); candidate; candidate = SDL_strtok_r(NULL, ":", &saveptr)) {
-			SDL_snprintf(path, pathlen, "%s/maelstrom/%s", candidate, directory);
+			SDL_snprintf(path, pathlen, "%s/%s/%s", candidate, storage_app, directory);
 			if (SDL_GetPathInfo(path, &info) && info.type == SDL_PATHTYPE_DIRECTORY) {
 				result = true;
 				break;
