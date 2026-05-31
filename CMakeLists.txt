@@ -4,6 +4,7 @@ set(MAJOR_VERSION 4)
 set(MINOR_VERSION 0)
 set(MICRO_VERSION 1)
 set(SDL_REQUIRED_VERSION 3.4.2)
+set(SDL_NET_REQUIRED_VERSION 3.2.0)
 
 project(Maelstrom
     LANGUAGES C CXX
@@ -49,11 +50,15 @@ else()
     include("cmake/sdlplatform.cmake")
 endif()
 
-# SDL_net's ABI has not yet been finalized
-set(original_BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS}")
-set(BUILD_SHARED_LIBS OFF)
-add_subdirectory(external/SDL_net SDL_net EXCLUDE_FROM_ALL)
-set(BUILD_SHARED_LIBS "${original_BUILD_SHARED_LIBS}")
+option(USE_VENDORED_SDL_NET "Use the vendored version of SDL_net" TRUE)
+if (USE_VENDORED_SDL_NET)
+    set(original_BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS}")
+    set(BUILD_SHARED_LIBS OFF)
+    add_subdirectory(external/SDL_net SDL_net EXCLUDE_FROM_ALL)
+    set(BUILD_SHARED_LIBS "${original_BUILD_SHARED_LIBS}")
+else()
+    find_package(SDL3_net ${SDL_NET_REQUIRED_VERSION} REQUIRED COMPONENTS Headers SDL3_net-shared)
+endif()
 
 add_subdirectory(maclib)
 
